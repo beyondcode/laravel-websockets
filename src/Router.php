@@ -17,12 +17,23 @@ class Router
         $this->routes = new RouteCollection;
     }
 
-    public function addRoute($uri, $action)
+    /**
+     * Add a new WebSocket route.
+     *
+     * @param $uri
+     * @param $action
+     */
+    public function websocket($uri, $action)
     {
         if (!is_subclass_of($action, WebSocketController::class)) {
             throw InvalidWebSocketController::withController($action);
         }
 
+        $this->addRoute($uri, $action);
+    }
+
+    public function addRoute($uri, $action)
+    {
         $this->routes->add($uri, $this->getRoute($uri, $action));
     }
 
