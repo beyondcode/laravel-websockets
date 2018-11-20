@@ -25,6 +25,7 @@
         "php": "^7.1",
         "cboden/ratchet": "^0.4.1",
         "illuminate/support": "5.6.*|5.7.*",
+        "illuminate/console": "5.6.*|5.7.*",
         "illuminate/http": "5.6.*|5.7.*",
         "illuminate/routing": "5.6.*|5.7.*"
     },

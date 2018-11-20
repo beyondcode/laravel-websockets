@@ -16,6 +16,10 @@ class LaravelWebSocketsServiceProvider extends ServiceProvider
         LaravelRouter::macro('websocket', function($uri, $action) {
             WebSocketRouter::addRoute($uri, $action);
         });
+
+        $this->commands([
+            Console\StartWebSocketServer::class,
+        ]);
     }
 
     /**
