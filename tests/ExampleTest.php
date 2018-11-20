@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebsockets\Tests;
+namespace BeyondCode\LaravelWebSockets\Tests;
 
 use PHPUnit\Framework\TestCase;
 

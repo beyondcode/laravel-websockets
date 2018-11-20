@@ -23,7 +23,10 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/http": "5.6.*|5.7.*"
+        "cboden/ratchet": "^0.4.1",
+        "illuminate/support": "5.6.*|5.7.*",
+        "illuminate/http": "5.6.*|5.7.*",
+        "illuminate/routing": "5.6.*|5.7.*"
     },
     "require-dev": {
         "larapack/dd": "^1.0",
@@ -31,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "BeyondCode\\LaravelWebsockets\\": "src"
+            "BeyondCode\\LaravelWebSockets\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "BeyondCode\\LaravelWebsockets\\Tests\\": "tests"
+            "BeyondCode\\LaravelWebSockets\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -50,8 +53,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "BeyondCode\\LaravelWebsockets\\LaravelWebsocketsServiceProvider"
-            ]
+                "BeyondCode\\LaravelWebSockets\\LaravelWebSocketsServiceProvider"
+            ],
+            "aliases": {
+                "WebSocketRouter": "BeyondCode\\LaravelWebSockets\\Facades\\WebSocketRouter"
+            }
         }
     }
 }
