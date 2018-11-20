@@ -1,0 +1,59 @@
+{
+    "name": "beyondcode/laravel-websockets",
+    "description": "",
+    "keywords": [
+        "beyondcode",
+        "laravel-websockets"
+    ],
+    "homepage": "https://github.com/beyondcode/laravel-websockets",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcel Pociot",
+            "email": "marcel@beyondco.de",
+            "homepage": "https://beyondcode.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Freek Murze",
+            "email": "freek@spatie.be",
+            "homepage": "https://spatie.be",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "larapack/dd": "^1.0",
+        "phpunit/phpunit": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BeyondCode\\LaravelWebsockets\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BeyondCode\\LaravelWebsockets\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BeyondCode\\LaravelWebsockets\\LaravelWebsocketsServiceProvider"
+            ],
+            "aliases": {
+                "LaravelWebsockets": "BeyondCode\\LaravelWebsockets\\LaravelWebsocketsFacade"
+            }
+        }
+    }
+}
