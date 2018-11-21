@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets;
 
 use Illuminate\Support\ServiceProvider;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
 class LaravelWebSocketsServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,9 @@ class LaravelWebSocketsServiceProvider extends ServiceProvider
     {
         $this->app->singleton('websockets.router', function() {
             return new Router();
+        });
+        $this->app->singleton(ChannelManager::class, function() {
+            return new ChannelManager();
         });
     }
 }

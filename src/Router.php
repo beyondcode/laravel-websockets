@@ -6,6 +6,7 @@ use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Ratchet\Http\HttpServerInterface;
 use Symfony\Component\Routing\RouteCollection;
+use Ratchet\WebSocket\MessageComponentInterface;
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
 
 class Router
@@ -73,11 +74,12 @@ class Router
      */
     public function echo()
     {
-        //$this->get('/', EchoWebsocketServer::class);
+        $this->get('/app/{appId}', LaravelEcho\WebSocket\EchoServer::class);
         $this->get('/apps/{appId}/status', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels/{channelName}', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', LaravelEcho\Http\Controllers\StatusController::class);
+        $this->post('/apps/{appId}/events', LaravelEcho\Http\Controllers\EventController::class);
     }
 
     /**

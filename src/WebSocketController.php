@@ -16,7 +16,7 @@ class WebSocketController implements MessageComponentInterface
      */
     function onOpen(ConnectionInterface $conn)
     {
-        //
+        dump("Client connected");
     }
 
     /**
