@@ -36,26 +36,20 @@ class PusherMessage implements RespondableMessage
         }
     }
 
-    /**
+    /*
      * @link https://pusher.com/docs/pusher_protocol#ping-pong
-     *
-     * @param ConnectionInterface $connection
-     * @param $payload
      */
-    protected function ping(ConnectionInterface $connection, $payload)
+    protected function ping(ConnectionInterface $connection)
     {
         $connection->send(json_encode([
             'event' => 'pusher:pong',
         ]));
     }
 
-    /**
+    /*
      * @link https://pusher.com/docs/pusher_protocol#pusher-subscribe
-     *
-     * @param ConnectionInterface $conn
-     * @param $payload
      */
-    protected function subscribe(ConnectionInterface $connection, $payload)
+    protected function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
         $channel = $this->channelManager->findOrCreate($connection->appId, $payload->channel);
 
