@@ -8,6 +8,12 @@ class PresenceChannel extends Channel
 {
     protected $subscriptions = [];
 
+    /**
+     * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
+     *
+     * @param ConnectionInterface $conn
+     * @param $payload
+     */
     public function subscribe(ConnectionInterface $conn, $payload)
     {
         $channelData = json_decode($payload->channel_data);
@@ -21,6 +27,9 @@ class PresenceChannel extends Channel
         ]));
     }
 
+    /**
+     * @return array
+     */
     protected function getChannelData()
     {
         return [
