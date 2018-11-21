@@ -7,12 +7,13 @@ use Ratchet\ConnectionInterface;
 
 class Channel
 {
+    /** @var string */
     protected $channelId;
 
     /** @var ConnectionInterface[] */
     protected $connections = [];
 
-    public function __construct($channelId)
+    public function __construct(string $channelId)
     {
         $this->channelId = $channelId;
     }

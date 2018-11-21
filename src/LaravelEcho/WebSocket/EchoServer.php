@@ -24,6 +24,7 @@ class EchoServer extends WebSocketController
      */
     function onOpen(ConnectionInterface $conn)
     {
+
         dump("Client connected");
         /**
          * There are a couple things we need to do here:
@@ -34,6 +35,14 @@ class EchoServer extends WebSocketController
 
         // Store the socketId along with the connection so we can retrieve it.
         $conn->socketId = $socketId;
+
+        /** @var \GuzzleHttp\Psr7\Request $request */
+        $request = $conn->httpRequest;
+
+        $queryParameters = [];
+        parse_str($request->getUri()->getQuery(), $queryParameters);
+
+        $conn->appId = $queryParameters['appId'];
 
         $conn->send($this->buildPayload('pusher:connection_established', [
             'socket_id' => $socketId,
@@ -58,7 +67,8 @@ class EchoServer extends WebSocketController
             }
         } else {
             // Try to find a channel and broadcast the message to the clients.
-            $channel = $this->channelManager->find($payload->channel);
+            $channel = $this->channelManager->find($conn->appId, $payload->channel);
+
             if ($channel) {
                 $channel->broadcast($payload);
             }
@@ -82,7 +92,8 @@ class EchoServer extends WebSocketController
      */
     protected function pusherSubscribe(ConnectionInterface $conn, $payload)
     {
-        $channel = $this->channelManager->findOrCreate($payload->channel);
+        $channel = $this->channelManager->findOrCreate($conn->appId, $payload->channel);
+
         $channel->subscribe($conn, $payload);
     }
 
