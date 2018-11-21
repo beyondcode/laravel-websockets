@@ -8,11 +8,8 @@ class PresenceChannel extends Channel
 {
     protected $subscriptions = [];
 
-    /**
+    /*
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
-     *
-     * @param ConnectionInterface $connection
-     * @param $payload
      */
     public function subscribe(ConnectionInterface $connection, $payload)
     {
@@ -42,10 +39,7 @@ class PresenceChannel extends Channel
         //TODO: send member_removed message back to client, and broadcast to everyone on channel
     }
 
-    /**
-     * @return array
-     */
-    protected function getChannelData()
+    protected function getChannelData(): array
     {
         return [
             'presence' => [
