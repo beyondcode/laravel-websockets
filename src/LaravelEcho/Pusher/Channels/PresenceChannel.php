@@ -31,6 +31,13 @@ class PresenceChannel extends Channel
         //TODO: send member_added message back to client, and broadcast to everyone on channel
     }
 
+    public function unsubscribe(ConnectionInterface $connection)
+    {
+        parent::unsubscribe($connection);
+
+        //TODO: send member_removed message back to client, and broadcast to everyone on channel
+    }
+
     /**
      * @return array
      */

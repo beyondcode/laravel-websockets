@@ -6,6 +6,7 @@ use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
+use stdClass;
 
 class EchoServer extends WebSocketController
 {
@@ -75,6 +76,11 @@ class EchoServer extends WebSocketController
         }
     }
 
+    public function onClose(ConnectionInterface $connection)
+    {
+        $this->channelManager->removeFromAllChannels($connection);
+    }
+
     /**
      * @link https://pusher.com/docs/pusher_protocol#ping-pong
      * @param ConnectionInterface $conn
@@ -95,6 +101,14 @@ class EchoServer extends WebSocketController
         $channel = $this->channelManager->findOrCreate($conn->appId, $payload->channel);
 
         $channel->subscribe($conn, $payload);
+    }
+
+    public function pusherUnsubscribe(ConnectionInterface $connection, stdClass $payload)
+    {
+        $channel = $this->channelManager->findOrCreate($connection->appId, $payload->channel);
+
+        $channel->unsubscribe($connection);
+
     }
 
     protected function buildPayload($event, $data = [])

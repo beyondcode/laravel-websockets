@@ -18,6 +18,11 @@ class Channel
         $this->channelId = $channelId;
     }
 
+    public function hasConnections(): bool
+    {
+        return count($this->connections) > 0;
+    }
+
     /**
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      *
@@ -35,6 +40,11 @@ class Channel
         ]));
     }
 
+    public function unsubscribe(ConnectionInterface $connection)
+    {
+        unset($this->connections[$connection->socketId]);
+    }
+
     protected function saveConnection(ConnectionInterface $conn)
     {
         $this->connections[$conn->socketId] = $conn;
@@ -49,10 +59,8 @@ class Channel
 
     public function broadcastToOthers($conn, $payload)
     {
-        Collection::make($this->connections)->reject(function($connection) use ($conn) {
+        Collection::make($this->connections)->reject(function ($connection) use ($conn) {
             return $connection->socketId === $conn->socketId;
         })->each->send(json_encode($payload));
     }
-
-    //TODO: add unsubscribe
 }
