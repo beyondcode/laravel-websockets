@@ -11,24 +11,28 @@ class PresenceChannel extends Channel
     /**
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      *
-     * @param ConnectionInterface $conn
+     * @param ConnectionInterface $connection
      * @param $payload
      */
-    public function subscribe(ConnectionInterface $conn, $payload)
+    public function subscribe(ConnectionInterface $connection, $payload)
     {
-        $this->saveConnection($conn);
+        $this->saveConnection($connection);
 
         $channelData = json_decode($payload->channel_data);
         $this->subscriptions[$channelData->user_id] = $channelData;
 
         // Send the success event
-        $conn->send(json_encode([
+        $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelId,
             'data' => json_encode($this->getChannelData())
         ]));
 
-        //TODO: send member_added message back to client, and broadcast to everyone on channel
+        $this->broadcastToOthers($connection, [
+            'event' => 'pusher_internal:member_added',
+            'channel' => $this->channelId,
+            'data' => json_encode($channelData)
+        ]);
     }
 
     public function unsubscribe(ConnectionInterface $connection)
