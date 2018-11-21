@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class EventController extends EchoController
 {
-    /** @var ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
@@ -31,12 +31,13 @@ class EventController extends EchoController
         foreach ($request->json()->get('channels', []) as $channelId) {
             $channel = $this->channelManager->find($request->appId, $channelId);
 
-            $channel->broadcast([
+            optional($channel)->broadcast([
                 'channel' => $channelId,
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
             ]);
         }
+
         return $request->json()->all();
     }
 }

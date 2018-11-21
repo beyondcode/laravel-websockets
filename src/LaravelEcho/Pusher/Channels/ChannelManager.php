@@ -25,7 +25,7 @@ class ChannelManager
         return $this->channels[$appId][$channelId];
     }
 
-    public function find(string $appId, string $channelId)
+    public function find(string $appId, string $channelId): ?Channel
     {
         return $this->channels[$appId][$channelId] ?? null;
     }
