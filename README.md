@@ -43,7 +43,7 @@ If you discover any security related issues, please email marcel@beyondco.de ins
 ## Credits
 
 - [Marcel Pociot](https://github.com/mpociot)
-- [Freek Murze](https://github.com/freekmurze)
+- [Freek Van der Herten](https://github.com/freekmurze)
 - [All Contributors](../../contributors)
 
 ## License
