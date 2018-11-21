@@ -52,4 +52,6 @@ class Channel
             return $connection->socketId === $conn->socketId;
         })->each->send(json_encode($payload));
     }
+
+    //TODO: add unsubscribe
 }

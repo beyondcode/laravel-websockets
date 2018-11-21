@@ -74,11 +74,16 @@ class Router
      */
     public function echo()
     {
+        //TODO: add orgin checker middleware
+
         $this->get('/app/{appId}', LaravelEcho\WebSocket\EchoServer::class);
+
+        // TODO: fleshen out http API
         $this->get('/apps/{appId}/status', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels/{channelName}', LaravelEcho\Http\Controllers\StatusController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', LaravelEcho\Http\Controllers\StatusController::class);
+
         $this->post('/apps/{appId}/events', LaravelEcho\Http\Controllers\EventController::class);
     }
 

@@ -7,7 +7,7 @@ class ChannelManager
 {
     protected $channels = [];
 
-    public function findOrCreate(string $channelId)
+    public function findOrCreate(string $channelId): Channel
     {
         if (! isset($this->channels[$channelId])) {
             $channelClass = $this->detectChannelClass($channelId);

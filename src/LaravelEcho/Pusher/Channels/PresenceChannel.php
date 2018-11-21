@@ -27,6 +27,8 @@ class PresenceChannel extends Channel
             'channel' => $this->channelId,
             'data' => json_encode($this->getChannelData())
         ]));
+
+        //TODO: send member_added message back to client, and broadcast to everyone on channel
     }
 
     /**

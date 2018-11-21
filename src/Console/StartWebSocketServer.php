@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
+use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
 use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServer;
 
@@ -31,15 +32,15 @@ class StartWebSocketServer extends Command
      */
     public function handle()
     {
-        $url = parse_url(config('app.url'));
-
         $loop = LoopFactory::create();
 
-        $loop->futureTick(function () use ($url) {
+        $loop->futureTick(function () {
             $this->info('Started the WebSocket server on port '.$this->option('port'));
         });
 
-        $server = new WebsocketServer($url['host'], $this->option('port'), '0.0.0.0', $loop);
-        $server->run();
+        // TODO: add an option to not start the echo server
+        WebSocketRouter::echo();
+
+        (new WebsocketServer($this->option('port'), '0.0.0.0', $loop))->run();
     }
 }
