@@ -16,6 +16,8 @@ class PresenceChannel extends Channel
      */
     public function subscribe(ConnectionInterface $conn, $payload)
     {
+        $this->saveConnection($conn);
+
         $channelData = json_decode($payload->channel_data);
         $this->subscriptions[$channelData->user_id] = $channelData;
 

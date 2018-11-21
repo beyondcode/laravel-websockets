@@ -17,6 +17,11 @@ class ChannelManager
         return $this->channels[$channelId];
     }
 
+    public function find(string $channelId)
+    {
+        return $this->channels[$channelId] ?? null;
+    }
+
     protected function detectChannelClass($channelId) : string
     {
         if (starts_with($channelId, 'private-')) {

@@ -25,6 +25,10 @@ class EchoServer extends WebSocketController
     function onOpen(ConnectionInterface $conn)
     {
         dump("Client connected");
+        /**
+         * There are a couple things we need to do here:
+         * 1. Authenticate the incoming request by validating the provided APP-ID is known to us (JSON file lookup?)
+         */
 
         $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
 
@@ -43,11 +47,21 @@ class EchoServer extends WebSocketController
 
         dump("Received payload", $payload);
 
-        // todo: validate payload
-        $event = camel_case(str_replace(':', '_', $payload->event));
+        /**
+         * Pusher events get a special treatment
+         */
+        if (starts_with($payload->event, 'pusher:')) {
+            $event = camel_case(str_replace(':', '_', $payload->event));
 
-        if (method_exists($this, $event)) {
-            call_user_func([$this, $event], $conn, $payload->data);
+            if (method_exists($this, $event)) {
+                call_user_func([$this, $event], $conn, $payload->data);
+            }
+        } else {
+            // Try to find a channel and broadcast the message to the clients.
+            $channel = $this->channelManager->find($payload->channel);
+            if ($channel) {
+                $channel->broadcast($payload);
+            }
         }
     }
 
