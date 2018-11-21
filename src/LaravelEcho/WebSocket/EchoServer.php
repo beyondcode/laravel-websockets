@@ -9,7 +9,7 @@ use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
 class EchoServer extends WebSocketController
 {
-    /** @var ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
@@ -17,16 +17,8 @@ class EchoServer extends WebSocketController
         $this->channelManager = $channelManager;
     }
 
-    /**
-     * When a new connection is opened it will be passed to this method
-     *
-     * @param  ConnectionInterface $conn The socket/connection that just connected to your application
-     *
-     * @throws \Exception
-     */
-    function onOpen(ConnectionInterface $conn)
+    function onOpen(ConnectionInterface $connection)
     {
-        dump("Client connected");
         /**
          * There are a couple things we need to do here:
          * 1. Authenticate the incoming request by validating the provided APP-ID is known to us (JSON file lookup?)
@@ -35,19 +27,22 @@ class EchoServer extends WebSocketController
         $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
 
         // Store the socketId along with the connection so we can retrieve it.
-        $conn->socketId = $socketId;
+        $connection->socketId = $socketId;
 
         /** @var \GuzzleHttp\Psr7\Request $request */
-        $request = $conn->httpRequest;
+        $request = $connection->httpRequest;
 
         $queryParameters = [];
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
-        $conn->appId = $queryParameters['appId'];
+        $connection->appId = $queryParameters['appId'];
 
-        $conn->send($this->buildPayload('pusher:connection_established', [
-            'socket_id' => $socketId,
-            'activity_timeout' => 60,
+        $connection->send(json_encode([
+            'event' => 'pusher:connection_established',
+            'data' => json_encode([
+                'socket_id' => $socketId,
+                'activity_timeout' => 60,
+            ])
         ]));
     }
 
@@ -56,19 +51,10 @@ class EchoServer extends WebSocketController
         $message = RespondableMessageFactory::createForMessage($message, $conn, $this->channelManager);
 
         $message->respond();
-
     }
 
     public function onClose(ConnectionInterface $connection)
     {
         $this->channelManager->removeFromAllChannels($connection);
-    }
-
-    protected function buildPayload($event, $data = [])
-    {
-        return json_encode([
-            'event' => $event,
-            'data' => json_encode($data)
-        ]);
     }
 }

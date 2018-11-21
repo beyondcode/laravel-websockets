@@ -30,10 +30,6 @@ class Message implements RespondableMessage
     {
         $channel = $this->channelManager->find($this->connection->appId, $this->payload->channel);
 
-        if (!$channel) {
-            return;
-        }
-
-        $channel->broadcast($this->payload);
+        optional($channel)->broadcast($this->payload);
     }
 }
