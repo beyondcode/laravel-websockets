@@ -2,10 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\Exceptions;
 
+use BeyondCode\LaravelWebSockets\WebSocketController;
+
 class InvalidWebSocketController extends \Exception
 {
-    public static function withController($controller)
+    public static function withController(string $controllerClass)
     {
-        return new static('Invalid WebSocket Controller provided. Expected instance of WebSocketController, but received '.$controller);
+        $websocketControllerClass = WebSocketController::class;
+
+        return new static("Invalid WebSocket Controller provided. Expected instance of `{$websocketControllerClass}`, but received `{$controllerClass}`.");
     }
 }
