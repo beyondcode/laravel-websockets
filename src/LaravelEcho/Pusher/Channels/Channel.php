@@ -10,7 +10,7 @@ class Channel
     /** @var string */
     protected $channelId;
 
-    /** @var ConnectionInterface[] */
+    /** @var \Ratchet\ConnectionInterface[] */
     protected $connections = [];
 
     public function __construct(string $channelId)
@@ -23,17 +23,13 @@ class Channel
         return count($this->connections) > 0;
     }
 
-    /**
+    /*
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
-     *
-     * @param ConnectionInterface $connection
-     * @param $payload
      */
-    public function subscribe(ConnectionInterface $connection, $payload)
+    public function subscribe(ConnectionInterface $connection)
     {
         $this->saveConnection($connection);
 
-        // Send the success event
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelId
@@ -45,9 +41,9 @@ class Channel
         unset($this->connections[$connection->socketId]);
     }
 
-    protected function saveConnection(ConnectionInterface $conn)
+    protected function saveConnection(ConnectionInterface $connection)
     {
-        $this->connections[$conn->socketId] = $conn;
+        $this->connections[$connection->socketId] = $connection;
     }
 
     public function broadcast($payload)
@@ -57,10 +53,10 @@ class Channel
         }
     }
 
-    public function broadcastToOthers($conn, $payload)
+    public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        Collection::make($this->connections)->reject(function ($connection) use ($conn) {
-            return $connection->socketId === $conn->socketId;
+        Collection::make($this->connections)->reject(function ($connection) use ($connection) {
+            return $connection->socketId === $connection->socketId;
         })->each->send(json_encode($payload));
     }
 }
