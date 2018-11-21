@@ -13,14 +13,11 @@ class ChannelManager
 
     public function findOrCreate(string $appId, string $channelId): Channel
     {
-
         if (! isset($this->channels[$appId][$channelId])) {
-
             /**TODO: make this variable to go away */
             $channelClass = $this->detectChannelClass($channelId);
 
-            array_set($this->channels, "{$appId}.{$channelId}", new $channelClass($channelId));
-
+            $this->channels[$appId][$channelId] = new $channelClass($channelId);
         }
 
         return $this->channels[$appId][$channelId];
