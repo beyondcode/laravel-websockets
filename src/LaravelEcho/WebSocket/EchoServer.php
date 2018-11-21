@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\PusherMessage;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
@@ -20,12 +21,13 @@ class EchoServer extends WebSocketController
 
     /**
      * When a new connection is opened it will be passed to this method
+     *
      * @param  ConnectionInterface $conn The socket/connection that just connected to your application
+     *
      * @throws \Exception
      */
     function onOpen(ConnectionInterface $conn)
     {
-
         dump("Client connected");
         /**
          * There are a couple things we need to do here:
@@ -51,64 +53,17 @@ class EchoServer extends WebSocketController
         ]));
     }
 
-    public function onMessage(ConnectionInterface $conn, MessageInterface $msg)
+    public function onMessage(ConnectionInterface $conn, MessageInterface $message)
     {
-        $payload = json_decode($msg->getPayload());
+        $message = RespondableMessageFactory::createForMessage($message, $conn, $this->channelManager);
 
-        dump("Received payload", $payload);
+        $message->respond();
 
-        /**
-         * Pusher events get a special treatment
-         */
-        if (starts_with($payload->event, 'pusher:')) {
-            $event = camel_case(str_replace(':', '_', $payload->event));
-
-            if (method_exists($this, $event)) {
-                call_user_func([$this, $event], $conn, $payload->data);
-            }
-        } else {
-            // Try to find a channel and broadcast the message to the clients.
-            $channel = $this->channelManager->find($conn->appId, $payload->channel);
-
-            if ($channel) {
-                $channel->broadcast($payload);
-            }
-        }
     }
 
     public function onClose(ConnectionInterface $connection)
     {
         $this->channelManager->removeFromAllChannels($connection);
-    }
-
-    /**
-     * @link https://pusher.com/docs/pusher_protocol#ping-pong
-     * @param ConnectionInterface $conn
-     * @param $payload
-     */
-    protected function pusherPing(ConnectionInterface $conn, $payload)
-    {
-        $conn->send($this->buildPayload('pusher:pong'));
-    }
-
-    /**
-     * @link https://pusher.com/docs/pusher_protocol#pusher-subscribe
-     * @param ConnectionInterface $conn
-     * @param $payload
-     */
-    protected function pusherSubscribe(ConnectionInterface $conn, $payload)
-    {
-        $channel = $this->channelManager->findOrCreate($conn->appId, $payload->channel);
-
-        $channel->subscribe($conn, $payload);
-    }
-
-    public function pusherUnsubscribe(ConnectionInterface $connection, stdClass $payload)
-    {
-        $channel = $this->channelManager->findOrCreate($connection->appId, $payload->channel);
-
-        $channel->unsubscribe($connection);
-
     }
 
     protected function buildPayload($event, $data = [])

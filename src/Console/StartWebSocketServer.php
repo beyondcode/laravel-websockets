@@ -41,6 +41,8 @@ class StartWebSocketServer extends Command
         // TODO: add an option to not start the echo server
         WebSocketRouter::echo();
 
+        // TODO: add flag for verbose mode, to send more things to console
+
         (new WebsocketServer($this->option('port'), '0.0.0.0', $loop))->run();
     }
 }
