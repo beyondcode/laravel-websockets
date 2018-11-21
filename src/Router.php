@@ -19,13 +19,7 @@ class Router
         $this->routes = new RouteCollection;
     }
 
-    /**
-     * Add a new WebSocket route.
-     *
-     * @param $uri
-     * @param $action
-     */
-    public function websocket($uri, $action)
+    public function websocket(string $uri, $action)
     {
         if (!is_subclass_of($action, WebSocketController::class)) {
             throw InvalidWebSocketController::withController($action);
@@ -34,48 +28,44 @@ class Router
         $this->get($uri, $action);
     }
 
-    public function get($uri, $action)
+    public function get(string $uri, $action)
     {
         $this->addRoute('GET', $uri, $action);
     }
 
-    public function post($uri, $action)
+    public function post(string $uri, $action)
     {
         $this->addRoute('POST', $uri, $action);
     }
 
-    public function put($uri, $action)
+    public function put(string $uri, $action)
     {
         $this->addRoute('PUT', $uri, $action);
     }
 
-    public function patch($uri, $action)
+    public function patch(string $uri, $action)
     {
         $this->addRoute('PATCH', $uri, $action);
     }
 
-    public function delete($uri, $action)
+    public function delete(string $uri, $action)
     {
         $this->addRoute('DELETE', $uri, $action);
     }
 
-    public function addRoute($method, $uri, $action)
+    public function addRoute(string $method, string $uri, $action)
     {
         $this->routes->add($uri, $this->getRoute($method, $uri, $action));
     }
 
-    protected function getRoute($method, $uri, $action): Route
+    protected function getRoute(string $method, string $uri, $action): Route
     {
         return new Route($uri, ['_controller' => $this->wrapAction($action)], [], [], null, [], [$method]);
     }
 
-    /**
-     * Register the required Laravel Echo routes
-     */
     public function echo()
     {
-        //TODO: add orgin checker middleware
-
+        //TODO: add origin checker middleware
         $this->get('/app/{appId}', LaravelEcho\WebSocket\EchoServer::class);
 
         // TODO: fleshen out http API
@@ -88,9 +78,6 @@ class Router
     }
 
     /**
-     * Wrap WebSocket controllers with Ratchets WsServer.
-     * If the action is not a WebSocketController, wrap it with our HttpServerInstance
-     *
      * @param $action
      * @return WsServer|HttpServerInterface
      */
