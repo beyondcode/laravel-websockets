@@ -13,9 +13,18 @@ use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
 abstract class EchoController implements HttpServerInterface
 {
+    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
+    protected $channelManager;
+
+    public function __construct(ChannelManager $channelManager)
+    {
+        $this->channelManager = $channelManager;
+    }
+
     public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
     {
         $queryParameters = [];

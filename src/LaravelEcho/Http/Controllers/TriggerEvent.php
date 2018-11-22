@@ -4,18 +4,9 @@ namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
 class TriggerEvent extends EchoController
 {
-    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
-    protected $channelManager;
-
-    public function __construct(ChannelManager $channelManager)
-    {
-        $this->channelManager = $channelManager;
-    }
-
     public function __invoke(Request $request)
     {
         $this->verifySignature($request);

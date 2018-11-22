@@ -11,14 +11,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannels extends EchoController
 {
-    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
-    protected $channelManager;
-
-    public function __construct(ChannelManager $channelManager)
-    {
-        $this->channelManager = $channelManager;
-    }
-
     public function __invoke(Request $request)
     {
         $channels = Collection::make($this->channelManager->getChannels($request->appId))->filter(function ($channel) {
