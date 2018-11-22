@@ -10,39 +10,35 @@ use React\EventLoop\Factory as LoopFactory;
 
 class StartWebSocketServer extends Command
 {
+    protected $signature = 'websocket:start {--host=0.0.0.0} {--port=6001} ';
 
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'websocket:start {--port=6001}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Start the Laravel WebSocket Server';
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
+        // TODO: add an option to not start the echo server
+        WebSocketRouter::echo();
+
+        // TODO: add flag for verbose mode, to send more things to console
+
+        $websocketServer = $this->createWebsocketServer();
+
+        $websocketServer->run();
+    }
+
+    protected function createWebsocketServer(): WebSocketServer
+    {
+        $routes = WebSocketRouter::getRoutes();
+
         $loop = LoopFactory::create();
 
         $loop->futureTick(function () {
             $this->info('Started the WebSocket server on port '.$this->option('port'));
         });
 
-        // TODO: add an option to not start the echo server
-        WebSocketRouter::echo();
-
-        // TODO: add flag for verbose mode, to send more things to console
-
-        (new WebsocketServer($this->option('port'), '0.0.0.0', $loop))->run();
+        return (new WebSocketServer($routes))
+            ->setHost($this->option('host'))
+            ->setPort($this->option('port'))
+            ->setLoop($loop);
     }
 }
