@@ -42,6 +42,11 @@ class ChannelManager
         return Channel::class;
     }
 
+    public function getChannels(string $appId): array
+    {
+        return $this->channels[$appId] ?? [];
+    }
+
     public function removeFromAllChannels(ConnectionInterface $connection)
     {
         collect($this->channels[$connection->appId])->each->unsubscribe($connection);
