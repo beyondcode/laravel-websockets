@@ -26,7 +26,7 @@ class Channel
     /*
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
-    public function subscribe(ConnectionInterface $connection)
+    public function subscribe(ConnectionInterface $connection, $payload)
     {
         $this->saveConnection($connection);
 
