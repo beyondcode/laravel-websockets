@@ -28,8 +28,10 @@ class Message implements RespondableMessage
 
     public function respond()
     {
-        $channel = $this->channelManager->find($this->connection->appId, $this->payload->channel);
+        if (starts_with($this->payload->event, 'client-')) {
+            $channel = $this->channelManager->find($this->connection->appId, $this->payload->channel);
 
-        optional($channel)->broadcast($this->payload);
+            optional($channel)->broadcast($this->payload);
+        }
     }
 }
