@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels;
 
-
+use ReflectionClass;
 use Ratchet\ConnectionInterface;
 
 class ChannelManager
@@ -16,10 +16,7 @@ class ChannelManager
     public function findOrCreate(string $appId, string $channelId): Channel
     {
         if (!isset($this->channels[$appId][$channelId])) {
-            /**TODO: make this variable to go away */
-            $channelClass = $this->detectChannelClass($channelId);
-
-            $this->channels[$appId][$channelId] = new $channelClass($channelId);
+            $this->channels[$appId][$channelId] = (new ReflectionClass($this->detectChannelClass($channelId)))->newInstance($channelId);
         }
 
         return $this->channels[$appId][$channelId];
