@@ -66,7 +66,7 @@ class Router
     public function echo()
     {
         //TODO: add origin checker middleware
-        $this->get('/app/{appId}', LaravelEcho\WebSocket\PusherServer::class);
+        $this->get('/app/{appKey}', LaravelEcho\WebSocket\PusherServer::class);
 
         // TODO: fleshen out http API
         $this->get('/apps/{appId}/status', LaravelEcho\Http\Controllers\StatusController::class);

@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
 use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppId;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -48,6 +48,7 @@ class PusherServer extends WebSocketController
                 $exception->getPayload()
             ));
         }
+        dump($exception);
     }
 
     protected function verifyConnection(ConnectionInterface $connection)
@@ -58,12 +59,12 @@ class PusherServer extends WebSocketController
         $queryParameters = [];
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
-        $connection->appId = $queryParameters['appId'];
-
         // Todo: Lookup app-id for multi-tenancy support
-        if ($connection->appId !== config('broadcasting.connections.pusher.app_id')) {
-            throw new UnknownAppId($connection->appId);
+        if ($queryParameters['appKey'] !== config('broadcasting.connections.pusher.key')) {
+            throw new UnknownAppKey($queryParameters['appKey']);
         }
+
+        $connection->appId = config('broadcasting.connections.pusher.app_id');
     }
 
     protected function establishConnection(ConnectionInterface $connection)
