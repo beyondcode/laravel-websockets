@@ -2,11 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
-class EventController extends EchoController
+class TriggerEvent extends EchoController
 {
     /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
@@ -47,7 +47,7 @@ class EventController extends EchoController
         $authSignature = hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'));
 
         if ($authSignature !== $request->get('auth_signature')) {
-            throw new InvalidSignatureException();
+            throw new HttpException(401, 'Invalid auth signature provided.');
         }
     }
 }

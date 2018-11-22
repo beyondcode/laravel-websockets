@@ -2,17 +2,21 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
+use GuzzleHttp\Psr7 as gPsr;
+use GuzzleHttp\Psr7\Response;
 use Ratchet\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
 use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 
 abstract class EchoController implements HttpServerInterface
 {
-    public function onOpen(ConnectionInterface $conn, RequestInterface $request = null)
+    public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
     {
         $queryParameters = [];
         parse_str($request->getUri()->getQuery(), $queryParameters);
@@ -25,22 +29,42 @@ abstract class EchoController implements HttpServerInterface
             $request->getProtocolVersion()
         ))->withQueryParams($queryParameters);
 
-        $response = $this(Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest)));
 
-        $conn->send(JsonResponse::create($response)->send());
-        $conn->close();
+        $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
+
+        // Always verify the app id
+        $this->verifyAppId($laravelRequest->appId);
+
+        $response = $this($laravelRequest);
+
+        $connection->send(JsonResponse::create($response)->send());
+        $connection->close();
     }
 
     function onMessage(ConnectionInterface $from, $msg)
     {
     }
 
-    function onClose(ConnectionInterface $conn)
+    function onClose(ConnectionInterface $connection)
     {
     }
 
-    function onError(ConnectionInterface $conn, \Exception $e)
+    function onError(ConnectionInterface $connection, Exception $exception)
     {
+        if ($exception instanceof HttpException)
+        {
+            $response = new Response($exception->getStatusCode(), $exception->getHeaders(), $exception->getMessage());
+
+            $connection->send(gPsr\str($response));
+            $connection->close();
+        }
+    }
+
+    public function verifyAppId(string $appId)
+    {
+        if ($appId !== config('broadcasting.connections.pusher.app_id')) {
+            throw new HttpException(401, 'Invalid App ID provided.');
+        }
     }
 
     abstract public function __invoke(Request $request);
