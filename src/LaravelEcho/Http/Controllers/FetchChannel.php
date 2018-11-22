@@ -2,8 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
