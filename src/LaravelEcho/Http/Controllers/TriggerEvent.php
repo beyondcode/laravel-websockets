@@ -23,11 +23,11 @@ class TriggerEvent extends EchoController
         foreach ($request->json()->get('channels', []) as $channelId) {
             $channel = $this->channelManager->find($request->appId, $channelId);
 
-            optional($channel)->broadcast([
+            optional($channel)->broadcastToEveryoneExcept([
                 'channel' => $channelId,
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
-            ]);
+            ], $request->json()->get('socket_id'));
         }
 
         return $request->json()->all();

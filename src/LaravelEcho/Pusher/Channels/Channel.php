@@ -71,11 +71,16 @@ class Channel
         }
     }
 
+    public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
+    {
+        Collection::make($this->subscriptions)->reject(function ($existingConnection) use ($socketId) {
+            return $existingConnection->socketId === $socketId;
+        })->each->send(json_encode($payload));
+    }
+
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        Collection::make($this->subscriptions)->reject(function ($existingConnection) use ($connection) {
-            return $existingConnection->socketId === $connection->socketId;
-        })->each->send(json_encode($payload));
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
     }
 
     public function toArray(): array
