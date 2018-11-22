@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Http\Request;
 
 class EventController extends EchoController
@@ -17,17 +18,8 @@ class EventController extends EchoController
 
     public function __invoke(Request $request)
     {
-       //TODO: verify the incoming request
-        /*
-         * array:6 [
-  "appId" => "test"
-  "auth_key" => ""
-  "auth_signature" => "51e7ab9c1411aacf9a4c28001ffc3e7f5fe71db130ce08ac071ab49d737bcf52"
-  "auth_timestamp" => "1542833998"
-  "auth_version" => "1.0"
-  "body_md5" => "816e28da10f4aedf0821865eddf55e7f"
-]
-         */
+        $this->verifySignature($request);
+
         foreach ($request->json()->get('channels', []) as $channelId) {
             $channel = $this->channelManager->find($request->appId, $channelId);
 
@@ -39,5 +31,23 @@ class EventController extends EchoController
         }
 
         return $request->json()->all();
+    }
+
+    protected function verifySignature(Request $request)
+    {
+        $bodyMd5 = md5($request->getContent());
+
+        $signature =
+            "POST\n/apps/{$request->get('appId')}/events\n".
+            "auth_key={$request->get('auth_key')}".
+            "&auth_timestamp={$request->get('auth_timestamp')}".
+            "&auth_version={$request->get('auth_version')}".
+            "&body_md5={$bodyMd5}";
+
+        $authSignature = hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'));
+
+        if ($authSignature !== $request->get('auth_signature')) {
+            throw new InvalidSignatureException();
+        }
     }
 }
