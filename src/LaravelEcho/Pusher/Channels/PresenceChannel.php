@@ -8,6 +8,11 @@ class PresenceChannel extends Channel
 {
     protected $users = [];
 
+    public function getUsers(): array
+    {
+        return $this->users;
+    }
+
     /*
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
