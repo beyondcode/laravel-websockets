@@ -55,8 +55,8 @@ class Channel
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        Collection::make($this->connections)->reject(function ($connection) use ($connection) {
-            return $connection->socketId === $connection->socketId;
+        Collection::make($this->connections)->reject(function ($existingConnection) use ($connection) {
+            return $existingConnection->socketId === $connection->socketId;
         })->each->send(json_encode($payload));
     }
 }

@@ -16,7 +16,7 @@ class PresenceChannel extends Channel
         $this->saveConnection($connection);
 
         $channelData = json_decode($payload->channel_data);
-        $this->subscriptions[$channelData->user_id] = $channelData;
+        $this->subscriptions[$connection->socketId] = $channelData;
 
         // Send the success event
         $connection->send(json_encode([
@@ -36,14 +36,22 @@ class PresenceChannel extends Channel
     {
         parent::unsubscribe($connection);
 
-        //TODO: send member_removed message back to client, and broadcast to everyone on channel
+        $this->broadcastToOthers($connection, [
+            'event' => 'pusher_internal:member_removed',
+            'channel' => $this->channelId,
+            'data' => json_encode([
+                'user_id' => $this->subscriptions[$connection->socketId]->user_id
+            ])
+        ]);
+
+        unset($this->subscriptions[$connection->socketId]);
     }
 
     protected function getChannelData(): array
     {
         return [
             'presence' => [
-                'ids' => array_keys($this->subscriptions),
+                'ids' => array_map(function($channelData) { return $channelData->user_id; }, $this->subscriptions),
                 'hash' => array_map(function($channelData) { return $channelData->user_info; }, $this->subscriptions),
                 'count' => count($this->subscriptions)
             ]
