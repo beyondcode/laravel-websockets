@@ -33,22 +33,4 @@ class FetchChannel extends EchoController
 
         return $request->json()->all();
     }
-
-    protected function verifySignature(Request $request)
-    {
-        $bodyMd5 = md5($request->getContent());
-
-        $signature =
-            "POST\n/apps/{$request->appId}/events\n".
-            "auth_key={$request->auth_key}".
-            "&auth_timestamp={$request->auth_timestamp}".
-            "&auth_version={$request->auth_version}".
-            "&body_md5={$bodyMd5}";
-
-        $authSignature = hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'));
-
-        if ($authSignature !== $request->get('auth_signature')) {
-            throw new HttpException(401, 'Invalid authentication signature.');
-        }
-    }
 }
