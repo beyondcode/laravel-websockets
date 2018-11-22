@@ -3,10 +3,11 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use Ratchet\Http\Router;
+use React\Socket\SecureServer;
+use React\Socket\Server;
 use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use React\EventLoop\LoopInterface;
-use React\Socket\Server as Reactor;
 use React\EventLoop\Factory as LoopFactory;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -63,7 +64,11 @@ class WebSocketServer
 
     protected function createServer(): IoServer
     {
-        $socket = new Reactor("{$this->host}:{$this->port}", $this->loop);
+        $socket = new Server("{$this->host}:{$this->port}", $this->loop);
+
+        if (config('websockets.ssl.local_cert')) {
+            $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
+        }
 
         $urlMatcher = new UrlMatcher($this->routes, new RequestContext);
 
