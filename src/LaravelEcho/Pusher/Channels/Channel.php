@@ -13,7 +13,7 @@ class Channel
     protected $channelId;
 
     /** @var \Ratchet\ConnectionInterface[] */
-    protected $connections = [];
+    protected $subscriptions = [];
 
     public function __construct(string $channelId)
     {
@@ -22,7 +22,7 @@ class Channel
 
     public function hasConnections(): bool
     {
-        return count($this->connections) > 0;
+        return count($this->subscriptions) > 0;
     }
 
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
@@ -56,25 +56,33 @@ class Channel
 
     public function unsubscribe(ConnectionInterface $connection)
     {
-        unset($this->connections[$connection->socketId]);
+        unset($this->subscriptions[$connection->socketId]);
     }
 
     protected function saveConnection(ConnectionInterface $connection)
     {
-        $this->connections[$connection->socketId] = $connection;
+        $this->subscriptions[$connection->socketId] = $connection;
     }
 
     public function broadcast($payload)
     {
-        foreach ($this->connections as $connection) {
+        foreach ($this->subscriptions as $connection) {
             $connection->send(json_encode($payload));
         }
     }
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        Collection::make($this->connections)->reject(function ($existingConnection) use ($connection) {
+        Collection::make($this->subscriptions)->reject(function ($existingConnection) use ($connection) {
             return $existingConnection->socketId === $connection->socketId;
         })->each->send(json_encode($payload));
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'occupied' => count($this->subscriptions) > 0,
+            'subscription_count' => count($this->subscriptions)
+        ];
     }
 }

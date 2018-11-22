@@ -53,7 +53,11 @@ abstract class EchoController implements HttpServerInterface
     {
         if ($exception instanceof HttpException)
         {
-            $response = new Response($exception->getStatusCode(), $exception->getHeaders(), $exception->getMessage());
+            $response = new Response($exception->getStatusCode(), [
+                'Content-Type' => 'application/json'
+            ], json_encode([
+                'error' => $exception->getMessage()
+            ]));
 
             $connection->send(gPsr\str($response));
             $connection->close();

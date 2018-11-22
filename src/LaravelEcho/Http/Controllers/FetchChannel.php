@@ -19,18 +19,12 @@ class FetchChannel extends EchoController
 
     public function __invoke(Request $request)
     {
-        $this->verifySignature($request);
+        $channel = $this->channelManager->find($request->appId, $request->channelName);
 
-        foreach ($request->json()->get('channels', []) as $channelId) {
-            $channel = $this->channelManager->find($request->appId, $channelId);
-
-            optional($channel)->broadcast([
-                'channel' => $channelId,
-                'event' => $request->json()->get('name'),
-                'data' => $request->json()->get('data'),
-            ]);
+        if (is_null($channel)) {
+            throw new HttpException(404, 'Unknown channel "'.$request->channelName.'"');
         }
 
-        return $request->json()->all();
+        return $channel->toArray();
     }
 }
