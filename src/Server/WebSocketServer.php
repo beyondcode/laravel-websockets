@@ -74,7 +74,9 @@ class WebSocketServer
 
         $router = new Router($urlMatcher);
 
-        $httpServer = new HttpServer($router);
+        $app = new OriginCheck($router, config('websockets.allowedOrigins', []));
+
+        $httpServer = new HttpServer($app);
 
         return new IoServer($httpServer, $socket, $this->loop);
     }

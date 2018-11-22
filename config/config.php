@@ -2,6 +2,11 @@
 
 return [
 
+    'allowedOrigins' => [
+        '127.0.0.1',
+        'localhost',
+    ],
+
     /*
      * Define the optional SSL context for your websocket connections.
      * You can see all available options at: http://php.net/manual/en/context.ssl.php
