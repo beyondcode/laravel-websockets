@@ -9,7 +9,7 @@ use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 
-class EchoServer extends WebSocketController
+class PusherServer extends WebSocketController
 {
     /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
