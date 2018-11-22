@@ -22,33 +22,11 @@ class PusherServer extends WebSocketController
 
     function onOpen(ConnectionInterface $connection)
     {
-        /**
-         * There are a couple things we need to do here:
-         * 1. Authenticate the incoming request by validating the provided APP-ID is known to us (JSON file lookup?)
-         */
-
-        $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
-
-        // Store the socketId along with the connection so we can retrieve it.
-        $connection->socketId = $socketId;
-
-        /** @var \GuzzleHttp\Psr7\Request $request */
-        $request = $connection->httpRequest;
-
-        $queryParameters = [];
-        parse_str($request->getUri()->getQuery(), $queryParameters);
-
-        $connection->appId = $queryParameters['appId'];
+        $this->generateSocketId($connection);
 
         $this->verifyConnection($connection);
 
-        $connection->send(json_encode([
-            'event' => 'pusher:connection_established',
-            'data' => json_encode([
-                'socket_id' => $socketId,
-                'activity_timeout' => 60,
-            ])
-        ]));
+        $this->establishConnection($connection);
     }
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
@@ -74,9 +52,35 @@ class PusherServer extends WebSocketController
 
     protected function verifyConnection(ConnectionInterface $connection)
     {
+        /** @var \GuzzleHttp\Psr7\Request $request */
+        $request = $connection->httpRequest;
+
+        $queryParameters = [];
+        parse_str($request->getUri()->getQuery(), $queryParameters);
+
+        $connection->appId = $queryParameters['appId'];
+
         // Todo: Lookup app-id for multi-tenancy support
         if ($connection->appId !== config('broadcasting.connections.pusher.app_id')) {
             throw new UnknownAppId($connection->appId);
         }
+    }
+
+    protected function establishConnection(ConnectionInterface $connection)
+    {
+        $connection->send(json_encode([
+            'event' => 'pusher:connection_established',
+            'data' => json_encode([
+                'socket_id' => $connection->socketId,
+                'activity_timeout' => 60,
+            ])
+        ]));
+    }
+
+    protected function generateSocketId(ConnectionInterface $connection)
+    {
+        $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
+
+        $connection->socketId = $socketId;
     }
 }
