@@ -16,7 +16,8 @@ class ChannelManager
     public function findOrCreate(string $appId, string $channelId): Channel
     {
         if (!isset($this->channels[$appId][$channelId])) {
-            $this->channels[$appId][$channelId] = (new ReflectionClass($this->detectChannelClass($channelId)))->newInstance($channelId);
+            $this->channels[$appId][$channelId] = (new ReflectionClass($this->detectChannelClass($channelId)))
+                ->newInstance($channelId);
         }
 
         return $this->channels[$appId][$channelId];
