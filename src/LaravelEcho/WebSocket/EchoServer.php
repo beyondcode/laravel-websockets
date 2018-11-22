@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
+use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
@@ -56,5 +58,14 @@ class EchoServer extends WebSocketController
     public function onClose(ConnectionInterface $connection)
     {
         $this->channelManager->removeFromAllChannels($connection);
+    }
+
+    function onError(ConnectionInterface $connection, Exception $exception)
+    {
+        if ($exception instanceof PusherException) {
+            $connection->send(json_encode(
+                $exception->getPayload()
+            ));
+        }
     }
 }

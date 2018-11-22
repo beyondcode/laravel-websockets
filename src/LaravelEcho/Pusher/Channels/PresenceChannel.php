@@ -13,6 +13,8 @@ class PresenceChannel extends Channel
      */
     public function subscribe(ConnectionInterface $connection, $payload)
     {
+        $this->verifySignature($connection, $payload);
+
         $this->saveConnection($connection);
 
         $channelData = json_decode($payload->channel_data);
