@@ -2,10 +2,7 @@
 
 return [
 
-    'allowedOrigins' => [
-        '127.0.0.1',
-        'localhost',
-    ],
+    'allowedOrigins' => [],
 
     /*
      * Define the optional SSL context for your websocket connections.
