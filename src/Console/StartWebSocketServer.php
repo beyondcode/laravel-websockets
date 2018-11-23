@@ -22,7 +22,6 @@ class StartWebSocketServer extends Command
         // TODO: add flag for verbose mode, to send more things to console
 
         $websocketServer = $this->createWebsocketServer();
-
         $websocketServer->run();
     }
 
@@ -39,6 +38,8 @@ class StartWebSocketServer extends Command
         return (new WebSocketServer($routes))
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
+            ->setConsoleOutput($this->output)
+            ->enableLogging(config('app.debug'))
             ->setLoop($loop);
     }
 }

@@ -75,6 +75,7 @@ abstract class EchoController implements HttpServerInterface
 
     public function verifyAppId(string $appId)
     {
+        /** TODO: use client config from config file */
         if ($appId !== config('broadcasting.connections.pusher.app_id')) {
             throw new HttpException(401, 'Invalid App ID provided.');
         }

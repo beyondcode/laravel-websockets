@@ -2,7 +2,12 @@
 
 return [
 
-    'allowedOrigins' => [],
+    /*
+     * TODO: add the laravel style comment here
+     */
+    'allowedOrigins' => [
+
+    ],
 
     /*
      * Define the optional SSL context for your websocket connections.
@@ -28,5 +33,28 @@ return [
          */
         'passphrase' => null
     ],
+
+    /*
+     * TODO:: add client config
+     *
+     * Default: one item in the array with env PUSHER_APP_ID, _KEY, _SECRET
+     *
+     * Add notice app id should be numeric
+     *
+     * "clients": [
+        {
+            "appId": "cbf9b001405e51d4",
+            "key": "d886dd1900a5911d00996b41638d7026"
+            "secret":
+        }
+    ],
+`
+     *
+    'clients' => [
+        ...[]
+    ],
+
+    'client_provider' => ConfigProvider
+    */
 
 ];

@@ -35,6 +35,7 @@ class TriggerEvent extends EchoController
             "&auth_version={$request->get('auth_version')}".
             "&body_md5={$bodyMd5}";
 
+        /** TODO: use client config from config file */
         $authSignature = hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'));
 
         if ($authSignature !== $request->get('auth_signature')) {

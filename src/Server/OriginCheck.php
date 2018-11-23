@@ -21,6 +21,7 @@ class OriginCheck implements HttpServerInterface
     public function __construct(MessageComponentInterface $component, array $allowedOrigins = [])
     {
         $this->_component = $component;
+
         $this->allowedOrigins = $allowedOrigins;
     }
 

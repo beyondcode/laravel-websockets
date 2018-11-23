@@ -9,6 +9,7 @@ use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Factory as LoopFactory;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RouteCollection;
@@ -26,6 +27,11 @@ class WebSocketServer
 
     /** @var \Symfony\Component\Routing\RouteCollection */
     protected $routes;
+
+    /** @var Symfony\Component\Console\Output\OutputInterface */
+    protected $consoleOutput;
+
+    protected $enableLogging = false;
 
     public function __construct(RouteCollection $routes)
     {
@@ -51,6 +57,20 @@ class WebSocketServer
     public function setLoop(LoopInterface $loop)
     {
         $this->loop = $loop;
+
+        return $this;
+    }
+
+    public function setConsoleOutput(OutputInterface $consoleOutput)
+    {
+        $this->consoleOutput = $consoleOutput;
+
+        return $this;
+    }
+
+    public function enableLogging($enableLogging = true)
+    {
+        $this->enableLogging = $enableLogging;
 
         return $this;
     }

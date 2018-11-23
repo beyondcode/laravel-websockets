@@ -6,7 +6,6 @@ use Exception;
 
 class PusherException extends Exception
 {
-
     public function getPayload()
     {
         return [
