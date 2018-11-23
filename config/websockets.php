@@ -5,6 +5,11 @@ use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
 return [
 
     /*
+     * Path for the Websockets debug console
+     */
+    'path' => '/websockets',
+
+    /*
      * TODO: add the laravel style comment here
      */
     'allowedOrigins' => [

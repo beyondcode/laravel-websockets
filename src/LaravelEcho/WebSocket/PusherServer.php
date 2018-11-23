@@ -10,15 +10,22 @@ use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
 
 class PusherServer extends WebSocketController
 {
     /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
-    public function __construct(ChannelManager $channelManager)
+    /** @var ConsoleServer|null */
+    protected $consoleServer;
+
+    public function __construct(ChannelManager $channelManager, ConsoleServer $consoleServer = null)
     {
         $this->channelManager = $channelManager;
+
+        $this->consoleServer = $consoleServer;
     }
 
     function onOpen(ConnectionInterface $connection)
@@ -28,6 +35,8 @@ class PusherServer extends WebSocketController
         $this->verifyConnection($connection);
 
         $this->establishConnection($connection);
+
+        $this->consoleServer->log($connection->appId, 'new_connection', '');
     }
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)

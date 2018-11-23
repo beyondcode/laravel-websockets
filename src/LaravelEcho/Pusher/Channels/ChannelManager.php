@@ -30,6 +30,10 @@ class ChannelManager
 
     protected function detectChannelClass($channelId): string
     {
+        if (starts_with($channelId, 'logging-')) {
+            return LoggingChannel::class;
+        }
+
         if (starts_with($channelId, 'private-')) {
             return PrivateChannel::class;
         }
