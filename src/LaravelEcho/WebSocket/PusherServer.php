@@ -9,6 +9,7 @@ use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
+use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
@@ -70,7 +71,7 @@ class PusherServer extends WebSocketController
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
         if (! $client = Client::findByAppKey($queryParameters['appKey'])) {
-            throw new UnknownAppKey($queryParameters['appKey']);
+            throw new UnknownAppKeyException($queryParameters['appKey']);
         }
 
         $connection->client = $client;
