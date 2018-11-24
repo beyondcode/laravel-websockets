@@ -39,10 +39,8 @@ abstract class EchoController implements HttpServerInterface
             $request->getProtocolVersion()
         ))->withQueryParams($queryParameters);
 
-
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
-        // Always verify the app id
         $this->verifyAppId($laravelRequest->appId);
 
         $response = $this($laravelRequest);
