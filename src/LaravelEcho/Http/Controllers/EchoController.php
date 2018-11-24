@@ -42,6 +42,7 @@ abstract class EchoController implements HttpServerInterface
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
         $this->verifyAppId($laravelRequest->appId);
+        $this->verifySignature($laravelRequest);
 
         $response = $this($laravelRequest);
 
@@ -78,6 +79,24 @@ abstract class EchoController implements HttpServerInterface
         }
 
         throw new HttpException(401, "Unknown app id `{$appId}` provided.");
+    }
+
+    protected function verifySignature(Request $request)
+    {
+        $bodyMd5 = md5($request->getContent());
+
+        $signature =
+            "{$request->getMethod()}\n/{$request->path()}\n".
+            "auth_key={$request->get('auth_key')}".
+            "&auth_timestamp={$request->get('auth_timestamp')}".
+            "&auth_version={$request->get('auth_version')}".
+            "&body_md5={$bodyMd5}";
+
+        $authSignature = hash_hmac('sha256', $signature, Client::findByAppId($request->get('appId'))->appSecret);
+
+        if ($authSignature !== $request->get('auth_signature')) {
+            throw new HttpException(401, 'Invalid auth signature provided.');
+        }
     }
 
     abstract public function __invoke(Request $request);
