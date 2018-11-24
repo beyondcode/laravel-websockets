@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebsockets\Http\Controllers;
 
-use Illuminate\Contracts\Broadcasting\Broadcaster;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Broadcasting\Broadcaster;
 
 class AuthenticateConsole
 {

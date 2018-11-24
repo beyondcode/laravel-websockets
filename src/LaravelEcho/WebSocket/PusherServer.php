@@ -2,9 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -19,14 +16,9 @@ class PusherServer extends WebSocketController
     /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
-    /** @var ConsoleServer|null */
-    protected $consoleServer;
-
-    public function __construct(ChannelManager $channelManager, ConsoleServer $consoleServer = null)
+    public function __construct(ChannelManager $channelManager)
     {
         $this->channelManager = $channelManager;
-
-        $this->consoleServer = $consoleServer;
     }
 
     function onOpen(ConnectionInterface $connection)
@@ -36,8 +28,6 @@ class PusherServer extends WebSocketController
         $this->verifyConnection($connection);
 
         $this->establishConnection($connection);
-
-        $this->consoleServer->log($connection->appId, 'new_connection', '');
     }
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
@@ -59,7 +49,6 @@ class PusherServer extends WebSocketController
                 $exception->getPayload()
             ));
         }
-        dump($exception);
     }
 
     protected function verifyConnection(ConnectionInterface $connection)
@@ -93,5 +82,21 @@ class PusherServer extends WebSocketController
         $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
 
         $connection->socketId = $socketId;
+    }
+
+    public function log(string $appId, string $type, string $details)
+    {
+        $channelId = "private-logger-{$type}";
+
+        $channel = $this->channelManager->find($appId, $channelId);
+
+        optional($channel)->broadcast([
+            'event' => $type,
+            'channel' => $channelId,
+            'data' => [
+                'type' => $type,
+                'details' => $details
+            ]
+        ]);
     }
 }

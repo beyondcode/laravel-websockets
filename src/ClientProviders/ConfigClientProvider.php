@@ -24,6 +24,15 @@ class ConfigClientProvider implements ClientProvider
         return $this->instanciate($clientAttributes);
     }
 
+    public function all(): array
+    {
+        return $this->allClients()
+            ->map(function ($client) {
+                return $this->instanciate($client);
+            })
+            ->toArray();
+    }
+
     protected function allClients(): Collection
     {
         return collect(config('websockets.clients'));
@@ -38,7 +47,8 @@ class ConfigClientProvider implements ClientProvider
         return new Client(
             $clientAttributes['app_id'],
             $clientAttributes['app_key'],
-            $clientAttributes['app_secret']
+            $clientAttributes['app_secret'],
+            $clientAttributes['name'] ?? null
         );
     }
 }

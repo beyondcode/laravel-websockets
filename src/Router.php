@@ -67,8 +67,6 @@ class Router
     {
         $this->get('/app/{appKey}', LaravelEcho\WebSocket\PusherServer::class);
 
-        $this->get('/console/app/{appKey}', LaravelEcho\WebSocket\ConsoleServer::class);
-
         $this->get('/apps/{appId}/channels', LaravelEcho\Http\Controllers\FetchChannels::class);
         $this->get('/apps/{appId}/channels/{channelName}', LaravelEcho\Http\Controllers\FetchChannel::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', LaravelEcho\Http\Controllers\FetchUsers::class);

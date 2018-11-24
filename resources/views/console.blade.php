@@ -18,12 +18,11 @@
             <span class="panel-title">WebSockets Console</span>
             <form id="connect" class="form-inline" role="form">
                 <div class="form-group">
-                    <label class="sr-only" for="appKey">App Key</label>
-                    <input class="form-control" value="{{ env('PUSHER_APP_KEY') }}" id="appKey" placeholder="Enter App Key">
-                </div>
-                <div class="form-group">
-                    <label class="sr-only" for="secret">Secret</label>
-                    <input type="password" class="form-control" id="secret" placeholder="Secret">
+                    <select class="form-control" name="app" id="app">
+                        @foreach ($clients as $client)
+                            <option value="{{ $client->appKey }}">{{ $client->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Connect</button>
             </form>
@@ -51,9 +50,7 @@
 <script>
     $(function(){
         $('#connect').submit(function(event) {
-            var appKey = $('#appKey').val();
-            var secret = $('#secret').val();
-            connect(appKey, secret);
+            connect($('#app').val());
             event.preventDefault();
         });
 
@@ -64,17 +61,16 @@
         });
     });
 
-    function connect(appKey, secret) {
+    function connect(appKey) {
         pusher = new Pusher(appKey, {
             wsHost: window.location.hostname,
             wsPort: 6001,
-            wsPath: '/console',
-            authEndpoint: '{{ config('websockets.path') }}/auth',
+            authEndpoint: '{{ config('websockets.dashboard.path') }}/auth',
             enabledTransports: ['ws', 'flash']
         });
 
-        var channel = pusher.subscribe('private-logger-new_connection');
-        channel.bind('private-logger-connection', function(data) {
+        pusher.subscribe('private-logger-new_connection')
+            .bind('private-logger-connection', function(data) {
             alert(JSON.stringify(data));
         });
     }

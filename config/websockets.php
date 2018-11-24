@@ -1,13 +1,9 @@
 <?php
 
+use BeyondCode\LaravelWebSockets\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
 
 return [
-
-    /*
-     * Path for the Websockets debug console
-     */
-    'path' => '/websockets',
 
     /*
      * TODO: add the laravel style comment here
@@ -49,6 +45,7 @@ return [
      */
     'clients' => [
         [
+            'name' => env('APP_NAME'),
             'app_id' => env('WEBSOCKETS_APP_ID'),
             'app_key' => env('WEBSOCKETS_APP_KEY'),
             'app_secret' => env('WEBSOCKETS_APP_SECRET')
@@ -63,4 +60,20 @@ return [
      * `ClientProvier` interface.
      */
     'client_provider' => ConfigClientProvider::class,
+
+    'dashboard' => [
+
+        /*
+         * Path for the Websockets debug console
+         */
+        'path' => '/websockets',
+
+        /*
+         * Middleware that will be applied to the dashboard routes.
+         */
+        'middleware' => [
+            Authorize::class,
+        ],
+
+    ]
 ];
