@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebsockets\Server;
+namespace BeyondCode\LaravelWebSockets\Server;
 
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\CloseResponseTrait;

@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\PusherException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 use Exception;
 use Ratchet\ConnectionInterface;

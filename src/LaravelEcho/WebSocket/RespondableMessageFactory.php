@@ -16,9 +16,6 @@ class RespondableMessageFactory
     {
         $payload = json_decode($message->getPayload());
 
-        // Log this for now
-        dump($payload);
-
         return starts_with($payload->event, 'pusher:')
             ? new PusherMessage($payload, $connection, $channelManager)
             : new Message($payload, $connection, $channelManager);

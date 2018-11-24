@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\Server\Logger;
+use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Ratchet\Http\HttpServerInterface;
@@ -83,8 +83,8 @@ class Router
         if (is_subclass_of($action, WebSocketController::class)) {
             $app = app($action);
 
-            if (Logger::isEnabled()) {
-                $app = Logger::decorate($app);
+            if (MessageLogger::isEnabled()) {
+                $app = MessageLogger::decorate($app);
             }
 
             return new WsServer($app);

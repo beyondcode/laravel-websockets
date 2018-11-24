@@ -3,7 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
-use BeyondCode\LaravelWebSockets\Server\Logger;
+use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
 use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServer;
 
@@ -18,15 +19,28 @@ class StartWebSocketServer extends Command
     public function handle()
     {
         $this
-            ->configureLogger()
+            ->configureMessageLogger()
+            ->configureConnectionLogger()
             ->registerEchoRoutes()
             ->startWebSocketServer();
     }
 
-    protected function configureLogger()
+    protected function configureMessageLogger()
     {
-        app()->singleton(Logger::class, function() {
-            return (new Logger($this->output))
+        app()->singleton(MessageLogger::class, function() {
+            return (new MessageLogger($this->output))
+                ->enable(config('app.debug'))
+                //TODO: use real option
+                ->verbose($this->hasOption('vvv'));
+        });
+
+        return $this;
+    }
+
+    protected function configureConnectionLogger()
+    {
+        app()->bind(ConnectionLogger::class, function() {
+            return (new ConnectionLogger($this->output))
                 ->enable(config('app.debug'))
                 //TODO: use real option
                 ->verbose($this->hasOption('vvv'));
@@ -49,7 +63,7 @@ class StartWebSocketServer extends Command
         $routes = WebSocketRouter::getRoutes();
 
         /** 🎩 Start the magic 🎩 */
-        return (new WebSocketServer($routes))
+        (new WebSocketServer($routes))
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)
