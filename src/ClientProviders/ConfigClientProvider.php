@@ -4,11 +4,6 @@ namespace BeyondCode\LaravelWebSockets\ClientProviders;
 
 class ConfigClientProvider implements ClientProvider
 {
-    public function getClients(): array
-    {
-        return config('laravel-websockets.clients');
-    }
-
     public function findClient(string $appKey): ?Client
     {
         $allClients = collect(config('websockets.clients'));
