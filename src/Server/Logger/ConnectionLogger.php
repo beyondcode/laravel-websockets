@@ -29,14 +29,14 @@ class ConnectionLogger extends Logger implements ConnectionInterface
 
     public function send($data)
     {
-        $this->info("{$this->connection->appId}: connection id {$this->connection->socketId} sending message {$data}");
+        $this->info("{$this->connection->client->appId}: connection id {$this->connection->socketId} sending message {$data}");
 
         $this->connection->send($data);
     }
 
     public function close()
     {
-        $this->warn("{$this->connection->appId}: connection id {$this->connection->socketId} closing.");
+        $this->warn("{$this->connection->client->appId}: connection id {$this->connection->socketId} closing.");
 
         $this->connection->close();
     }

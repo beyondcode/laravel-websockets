@@ -46,14 +46,14 @@ class MessageLogger extends Logger implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $this->info("{$connection->appId}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
+        $this->info("{$connection->client->appId}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
 
         $this->app->onMessage(ConnectionLogger::decorate($connection), $message);
     }
 
     public function onClose(ConnectionInterface $connection)
     {
-        $this->warn("{$connection->appId}: connection id {$connection->socketId} closed.");
+        $this->warn("{$connection->client->appId}: connection id {$connection->socketId} closed.");
 
         $this->app->onClose(ConnectionLogger::decorate($connection));
     }
@@ -62,7 +62,7 @@ class MessageLogger extends Logger implements MessageComponentInterface
     {
         $exceptionClass = get_class($exception);
 
-        $appId = $connection->appId ?? 'Unknown app id';
+        $appId = $connection->client->appId ?? 'Unknown app id';
 
         $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`";
 

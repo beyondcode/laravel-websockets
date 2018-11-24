@@ -64,7 +64,7 @@ class PusherServer extends WebSocketController
             throw new UnknownAppKey($queryParameters['appKey']);
         }
 
-        $connection->appId = $client->appId;
+        $connection->client = $client;
     }
 
     protected function establishConnection(ConnectionInterface $connection)

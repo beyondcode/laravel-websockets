@@ -35,8 +35,7 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        // TODO Have app id specific secrets
-        if (str_after($auth, ':') !== hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'))) {
+        if (str_after($auth, ':') !== hash_hmac('sha256', $signature, $connection->client->appSecret)) {
             throw new InvalidSignatureException();
         }
     }

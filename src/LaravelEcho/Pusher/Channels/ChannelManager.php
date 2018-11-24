@@ -47,16 +47,16 @@ class ChannelManager
 
     public function removeFromAllChannels(ConnectionInterface $connection)
     {
-        collect($this->channels[$connection->appId])->each->unsubscribe($connection);
+        collect($this->channels[$connection->client->appId])->each->unsubscribe($connection);
 
-        collect($this->channels[$connection->appId])
+        collect($this->channels[$connection->client->appId])
             ->reject->hasConnections()
             ->each(function (Channel $channel, string $channelId) use ($connection) {
-                unset($this->channels[$connection->appId][$channelId]);
+                unset($this->channels[$connection->client->appId][$channelId]);
             });
 
-        if (count($this->channels[$connection->appId]) === 0) {
-            unset($this->channels[$connection->appId]);
+        if (count($this->channels[$connection->client->appId]) === 0) {
+            unset($this->channels[$connection->client->appId]);
         };
     }
 }
