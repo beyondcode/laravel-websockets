@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
+use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -35,8 +36,7 @@ class TriggerEvent extends EchoController
             "&auth_version={$request->get('auth_version')}".
             "&body_md5={$bodyMd5}";
 
-        /** TODO: use client config from config file */
-        $authSignature = hash_hmac('sha256', $signature, config('broadcasting.connections.pusher.secret'));
+        $authSignature = hash_hmac('sha256', $signature, Client::findByAppId($request->get('appId'))->appSecret);
 
         if ($authSignature !== $request->get('auth_signature')) {
             throw new HttpException(401, 'Invalid auth signature provided.');
