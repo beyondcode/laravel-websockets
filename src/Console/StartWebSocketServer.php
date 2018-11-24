@@ -44,20 +44,15 @@ class StartWebSocketServer extends Command
 
     protected function startWebSocketServer()
     {
+        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
+
         $routes = WebSocketRouter::getRoutes();
-
-        $loop = LoopFactory::create();
-
-        $loop->futureTick(function () {
-            $this->info("Started the WebSocket server on port {$this->option('port')}");
-        });
 
         /** 🎩 Start the magic 🎩 */
         return (new WebSocketServer($routes))
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)
-            ->setLoop($loop)
             ->run();
     }
 }
