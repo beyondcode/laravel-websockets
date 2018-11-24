@@ -16,9 +16,14 @@ class Client
     /** @var string */
     public $appSecret;
 
-    public static function find(string $appKey): ?Client
+    public static function findByAppId(int $appId)
     {
-        return app(ClientProvider::class)->findClient($appKey);
+        return app(ClientProvider::class)->findByAppId($appId);
+    }
+
+    public static function findByAppKey(string $appKey): ?Client
+    {
+        return app(ClientProvider::class)->findByAppKey($appKey);
     }
 
     public function __construct($appId, string $appKey, string $appSecret)
@@ -41,6 +46,8 @@ class Client
 
         $this->appSecret = $appSecret;
     }
+
+
 
 
 }

@@ -2,22 +2,43 @@
 
 namespace BeyondCode\LaravelWebSockets\ClientProviders;
 
+use Illuminate\Support\Collection;
+
 class ConfigClientProvider implements ClientProvider
 {
-    public function findClient(string $appKey): ?Client
+    public function findByAppId(int $appId): ?Client
     {
-        $allClients = collect(config('websockets.clients'));
+        $clientAttributes = $this
+            ->allClients()
+            ->firstWhere('app_id', $appId);
 
-        $client = $allClients->firstWhere('app_key', $appKey);
+        return $this->instanciate($clientAttributes);
+    }
 
-        if (! $client) {
+    public function findByAppKey(string $appKey): ?Client
+    {
+        $clientAttributes = $this
+            ->allClients()
+            ->firstWhere('app_key', $appKey);
+
+        return $this->instanciate($clientAttributes);
+    }
+
+    protected function allClients(): Collection
+    {
+        return collect(config('websockets.clients'));
+    }
+
+    protected function instanciate(?array $clientAttributes): ?Client
+    {
+        if (! $clientAttributes) {
             return null;
         }
 
         return new Client(
-            $client['app_id'],
-            $client['app_key'],
-            $client['app_secret']
+            $clientAttributes['app_id'],
+            $clientAttributes['app_key'],
+            $clientAttributes['app_secret']
         );
     }
 }

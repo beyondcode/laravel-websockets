@@ -5,5 +5,7 @@ namespace BeyondCode\LaravelWebSockets\ClientProviders;
 
 interface ClientProvider
 {
-    public function findClient(string $appId): ?Client;
+    public function findByAppId(int $appId): ?Client;
+
+    public function findByAppKey(string $appKey): ?Client;
 }

@@ -60,7 +60,7 @@ class PusherServer extends WebSocketController
         $queryParameters = [];
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
-        if (! $client = Client::find($queryParameters['appKey'])) {
+        if (! $client = Client::findByAppKey($queryParameters['appKey'])) {
             throw new UnknownAppKey($queryParameters['appKey']);
         }
 

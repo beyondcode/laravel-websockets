@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
+use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use Exception;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7 as gPsr;
@@ -60,8 +61,7 @@ abstract class EchoController implements HttpServerInterface
 
     function onError(ConnectionInterface $connection, Exception $exception)
     {
-        if ($exception instanceof HttpException)
-        {
+        if ($exception instanceof HttpException) {
             $response = new Response($exception->getStatusCode(), [
                 'Content-Type' => 'application/json'
             ], json_encode([
@@ -75,10 +75,11 @@ abstract class EchoController implements HttpServerInterface
 
     public function verifyAppId(string $appId)
     {
-        /** TODO: use client config from config file */
-        if ($appId !== config('broadcasting.connections.pusher.app_id')) {
-            throw new HttpException(401, 'Invalid App ID provided.');
+        if ($client = Client::findByAppId($appId)) {
+             return;
         }
+
+        throw new HttpException(401, "Unknown app id `{$appId}` provided.");
     }
 
     abstract public function __invoke(Request $request);
