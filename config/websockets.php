@@ -1,5 +1,7 @@
 <?php
 
+use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
+
 return [
 
     /*
@@ -34,27 +36,26 @@ return [
         'passphrase' => null
     ],
 
-    /*
-     * TODO:: add client config
+    /**
+     * This package comes with multi tenancy out of the box. Here you can
+     * configure the diffente clients that can use the webSockets server.
      *
-     * Default: one item in the array with env PUSHER_APP_ID, _KEY, _SECRET
-     *
-     * Add notice app id should be numeric
-     *
-     * "clients": [
-        {
-            "appId": "cbf9b001405e51d4",
-            "key": "d886dd1900a5911d00996b41638d7026"
-            "secret":
-        }
-    ],
-`
-     *
+     * You should make sure that the app id is numeric.
+     */
     'clients' => [
-        ...[]
+        [
+            'app_id' => env('WEBSOCKETS_APP_ID'),
+            'app_key' => env('WEBSOCKETS_APP_KEY'),
+            'app_secret' => env('WEBSOCKETS_APP_SECRET')
+        ],
     ],
 
-    'client_provider' => ConfigProvider
-    */
-
+    /**
+     * This class is responsible for finding the clients. The default provider
+     * will use the clients defined in this config file.
+     *
+     * You can create a custom provider by implementing the
+     * `ClientProvier` interface.
+     */
+    'client_provider' => ConfigClientProvider::class,
 ];

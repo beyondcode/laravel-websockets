@@ -31,8 +31,6 @@ class WebSocketServer
     /** @var Symfony\Component\Console\Output\OutputInterface */
     protected $consoleOutput;
 
-    protected $enableLogging = false;
-
     public function __construct(RouteCollection $routes)
     {
         $this->loop = LoopFactory::create();
@@ -64,13 +62,6 @@ class WebSocketServer
     public function setConsoleOutput(OutputInterface $consoleOutput)
     {
         $this->consoleOutput = $consoleOutput;
-
-        return $this;
-    }
-
-    public function enableLogging($enableLogging = true)
-    {
-        $this->enableLogging = $enableLogging;
 
         return $this;
     }

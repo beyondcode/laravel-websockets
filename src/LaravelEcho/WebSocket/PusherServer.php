@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 use Exception;
@@ -59,12 +60,11 @@ class PusherServer extends WebSocketController
         $queryParameters = [];
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
-        // Todo: Lookup app-id for multi-tenancy support
-        if ($queryParameters['appKey'] !== config('broadcasting.connections.pusher.key')) {
+        if (! $client = Client::find($queryParameters['appKey'])) {
             throw new UnknownAppKey($queryParameters['appKey']);
         }
 
-        $connection->appId = config('broadcasting.connections.pusher.app_id');
+        $connection->appId = $client->appId;
     }
 
     protected function establishConnection(ConnectionInterface $connection)

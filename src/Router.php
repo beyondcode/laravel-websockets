@@ -7,7 +7,6 @@ use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Ratchet\Http\HttpServerInterface;
 use Symfony\Component\Routing\RouteCollection;
-use Ratchet\WebSocket\MessageComponentInterface;
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
 
 class Router
@@ -82,12 +81,13 @@ class Router
     protected function wrapAction($action)
     {
         if (is_subclass_of($action, WebSocketController::class)) {
-
             $app = app($action);
 
-            $appThatLogs = new Logger($app);
+            if (Logger::isEnabled()) {
+                $app = Logger::decorate($app);
+            }
 
-            return new WsServer($appThatLogs);
+            return new WsServer($app);
         }
 
         return app($action);

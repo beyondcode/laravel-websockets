@@ -27,22 +27,47 @@ class Logger implements MessageComponentInterface
     protected $consoleOutput;
 
     /** @var bool */
-    protected $enabled;
+    protected $enabled = false;
 
-    public function __construct(MessageComponentInterface $app)
+    /** @var bool */
+    protected $verbose = false;
+
+    public static function decorate(MessageComponentInterface $app): Logger
+    {
+        $logger = app(Logger::class);
+
+        return $logger->setApp($app);
+    }
+
+    public static function isEnabled(): bool
+    {
+        return app(Logger::class)->enabled;
+    }
+
+    public function __construct(OutputInterface $consoleOutput)
+    {
+        $this->consoleOutput = $consoleOutput;
+    }
+
+    public function enable($enabled = true)
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    public function verbose($verbose = false)
+    {
+        $this->verbose = $verbose;
+
+        return $this;
+    }
+
+    public function setApp(MessageComponentInterface $app)
     {
         $this->app = $app;
 
-        /*
-        $this->consoleOutput = $consoleOutput;
-
-        $this->enabled = $enabled;
-        */
-    }
-
-    public function enable()
-    {
-        $this->enabled = true;
+        return $this;
     }
 
     public function onOpen(ConnectionInterface $connection)
@@ -75,14 +100,13 @@ class Logger implements MessageComponentInterface
     {
         $exceptionClass = get_class($exception);
 
-        $message = "{$connection->appId}: execption `{$exceptionClass}` thrown: `{$exception->getMessage()}`";
+        $appId = $connection->appId ?? 'Unknown app id';
 
-        /*
-         * TODO: add verbose option
-        if ($this->isVerbose) {
+        $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`";
+
+        if ($this->verbose) {
             $message .= $exception->getTraceAsString();
         }
-        */
 
         $this->error($message);
 
@@ -106,10 +130,6 @@ class Logger implements MessageComponentInterface
 
     protected function line(string $message, string $style)
     {
-        echo $message;
-
-        return;
-
         $styled = $style ? "<$style>$message</$style>" : $message;
 
         $this->consoleOutput->writeln($styled);

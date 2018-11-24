@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
+use BeyondCode\LaravelWebSockets\Server\Logger;
 use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServer;
 
@@ -16,30 +17,47 @@ class StartWebSocketServer extends Command
 
     public function handle()
     {
-        // TODO: add an option to not start the echo server
-        WebSocketRouter::echo();
-
-        // TODO: add flag for verbose mode, to send more things to console
-
-        $websocketServer = $this->createWebsocketServer();
-        $websocketServer->run();
+        $this
+            ->configureLogger()
+            ->registerEchoRoutes()
+            ->startWebSocketServer();
     }
 
-    protected function createWebsocketServer(): WebSocketServer
+    protected function configureLogger()
+    {
+        app()->singleton(Logger::class, function() {
+            return (new Logger($this->output))
+                ->enable(config('app.debug'))
+                //TODO: use real option
+                ->verbose($this->hasOption('vvv'));
+        });
+
+        return $this;
+    }
+
+    protected function registerEchoRoutes()
+    {
+        WebSocketRouter::echo();
+
+        return $this;
+    }
+
+    protected function startWebSocketServer()
     {
         $routes = WebSocketRouter::getRoutes();
 
         $loop = LoopFactory::create();
 
         $loop->futureTick(function () {
-            $this->info('Started the WebSocket server on port '.$this->option('port'));
+            $this->info("Started the WebSocket server on port {$this->option('port')}");
         });
 
+        /** 🎩 Start the magic 🎩 */
         return (new WebSocketServer($routes))
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)
-            ->enableLogging(config('app.debug'))
-            ->setLoop($loop);
+            ->setLoop($loop)
+            ->run();
     }
 }
