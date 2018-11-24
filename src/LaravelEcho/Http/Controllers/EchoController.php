@@ -68,7 +68,7 @@ abstract class EchoController implements HttpServerInterface
                 'error' => $exception->getMessage()
             ]));
 
-            $connection->send(gPsr\str($response));
+            $connection->send(Psr\str($response));
             $connection->close();
         }
     }
