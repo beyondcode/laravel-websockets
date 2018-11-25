@@ -136,7 +136,6 @@ class ConnectionTest extends TestCase
             ],
         ]));
 
-
         $server->onMessage($connection, $message);
 
         $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
