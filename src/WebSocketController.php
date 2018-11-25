@@ -17,7 +17,6 @@ class WebSocketController implements MessageComponentInterface
     {
     }
 
-
     function onClose(ConnectionInterface $connection)
     {
     }
