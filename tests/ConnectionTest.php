@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket\PusherServer;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
@@ -89,6 +90,57 @@ class ConnectionTest extends TestCase
 
         $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
             'channel' => 'basic-channel'
+        ]);
+    }
+
+    /** @test */
+    public function clients_need_valid_auth_signatures_for_private_channels()
+    {
+        $this->expectException(InvalidSignatureException::class);
+
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => 'invalid',
+                'channel' => 'private-channel'
+            ],
+        ]));
+
+        $server->onOpen($connection);
+
+        $server->onMessage($connection, $message);
+    }
+
+    /** @test */
+    public function clients_can_subscribe_to_private_channels()
+    {
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $server->onOpen($connection);
+
+        $signature = "{$connection->socketId}:private-channel";
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->client->appKey.':'.hash_hmac('sha256', $signature, $connection->client->appSecret),
+                'channel' => 'private-channel'
+            ],
+        ]));
+
+
+        $server->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'private-channel'
         ]);
     }
 }
