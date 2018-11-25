@@ -39,9 +39,8 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function routeConfiguration()
     {
         return [
-            'namespace' => 'BeyondCode\LaravelWebSockets\Http\Controllers',
             'prefix' => config('websockets.dashboard.path'),
-            'middleware' => 'websockets'
+            'middleware' => 'websockets',
         ];
     }
 
