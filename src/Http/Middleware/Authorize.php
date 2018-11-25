@@ -8,6 +8,6 @@ class Authorize
 {
     public function handle($request, $next)
     {
-        return Gate::check('viewWebSocketDashboard') ? $next($request) : abort(403);
+        return Gate::check('viewWebSocketsDashboard') ? $next($request) : abort(403);
     }
 }

@@ -63,7 +63,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerDashboardGate()
     {
-        Gate::define('viewWebSocketDashboard', function ($user = null) {
+        Gate::define('viewWebSocketsDashboard', function ($user = null) {
             return app()->environment('local');
         });
     }
