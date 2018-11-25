@@ -11,8 +11,10 @@ class SendMessage
     public function __invoke(Request $request)
     {
         $pusher = new Pusher(
-            $request->key, $request->secret,
-            $request->appId, config('broadcasting.connections.pusher.options', [])
+            $request->key,
+            $request->secret,
+            $request->appId,
+            config('broadcasting.connections.pusher.options', [])
         );
 
         return (new PusherBroadcaster($pusher))
