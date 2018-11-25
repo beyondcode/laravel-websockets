@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
+use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -54,14 +55,10 @@ class PusherServer extends WebSocketController
 
     protected function verifyConnection(ConnectionInterface $connection)
     {
-        /** @var \GuzzleHttp\Psr7\Request $request */
-        $request = $connection->httpRequest;
+        $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        $queryParameters = [];
-        parse_str($request->getUri()->getQuery(), $queryParameters);
-
-        if (! $client = Client::findByAppKey($queryParameters['appKey'])) {
-            throw new UnknownAppKeyException($queryParameters['appKey']);
+        if (! $client = Client::findByAppKey($appKey)) {
+            throw new UnknownAppKeyException($appKey);
         }
 
         $connection->client = $client;

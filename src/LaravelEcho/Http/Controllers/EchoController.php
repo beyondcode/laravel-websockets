@@ -3,10 +3,12 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7 as gPsr;
 use GuzzleHttp\Psr7\Response;
+use MongoDB\Driver\Query;
 use Ratchet\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -28,16 +30,13 @@ abstract class EchoController implements HttpServerInterface
 
     public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
     {
-        $queryParameters = [];
-        parse_str($request->getUri()->getQuery(), $queryParameters);
-
         $serverRequest = (new ServerRequest(
             $request->getMethod(),
             $request->getUri(),
             $request->getHeaders(),
             $request->getBody(),
             $request->getProtocolVersion()
-        ))->withQueryParams($queryParameters);
+        ))->withQueryParams(QueryParameters::create($request)->all());
 
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 

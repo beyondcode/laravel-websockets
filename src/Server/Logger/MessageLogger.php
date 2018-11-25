@@ -8,6 +8,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Server\Logger;
 
+use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -34,12 +35,9 @@ class MessageLogger extends Logger implements MessageComponentInterface
 
     public function onOpen(ConnectionInterface $connection)
     {
-        $request = $connection->httpRequest;
+        $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        $queryParameters = [];
-        parse_str($request->getUri()->getQuery(), $queryParameters);
-
-        $this->warn("New connection opened for app key {$queryParameters['appKey']}.");
+        $this->warn("New connection opened for app key {$appKey}.");
 
         $this->app->onOpen(ConnectionLogger::decorate($connection));
     }
