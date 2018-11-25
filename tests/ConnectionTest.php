@@ -3,10 +3,10 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket\PusherServer;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use Ratchet\RFC6455\Messaging\MessageInterface;
 
 class ConnectionTest extends TestCase
 {
@@ -89,6 +89,114 @@ class ConnectionTest extends TestCase
 
         $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
             'channel' => 'basic-channel'
+        ]);
+    }
+
+    /** @test */
+    public function clients_need_valid_auth_signatures_for_private_channels()
+    {
+        $this->expectException(InvalidSignatureException::class);
+
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => 'invalid',
+                'channel' => 'private-channel'
+            ],
+        ]));
+
+        $server->onOpen($connection);
+
+        $server->onMessage($connection, $message);
+    }
+
+    /** @test */
+    public function clients_can_subscribe_to_private_channels()
+    {
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $server->onOpen($connection);
+
+        $signature = "{$connection->socketId}:private-channel";
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->client->appKey.':'.hash_hmac('sha256', $signature, $connection->client->appSecret),
+                'channel' => 'private-channel'
+            ],
+        ]));
+
+        $server->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'private-channel'
+        ]);
+    }
+
+    /** @test */
+    public function clients_need_valid_auth_signatures_for_presence_channels()
+    {
+        $this->expectException(InvalidSignatureException::class);
+
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => 'invalid',
+                'channel' => 'presence-channel'
+            ],
+        ]));
+
+        $server->onOpen($connection);
+
+        $server->onMessage($connection, $message);
+    }
+
+    /** @test */
+    public function clients_can_subscribe_to_presence_channels()
+    {
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $server->onOpen($connection);
+
+        $channelData = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Marcel'
+            ]
+        ];
+
+        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->client->appKey.':'.hash_hmac('sha256', $signature, $connection->client->appSecret),
+                'channel' => 'presence-channel',
+                'channel_data' => json_encode($channelData)
+            ],
+        ]));
+
+        $server->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
         ]);
     }
 }
