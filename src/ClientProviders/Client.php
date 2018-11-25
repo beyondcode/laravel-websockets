@@ -16,6 +16,9 @@ class Client
     /** @var string */
     public $appSecret;
 
+    /** @var string|null */
+    public $name;
+
     public static function findByAppId(int $appId)
     {
         return app(ClientProvider::class)->findByAppId($appId);
@@ -26,7 +29,7 @@ class Client
         return app(ClientProvider::class)->findByAppKey($appKey);
     }
 
-    public function __construct($appId, string $appKey, string $appSecret)
+    public function __construct($appId, string $appKey, string $appSecret, ?string $name)
     {
         if (!is_numeric($appId)) {
             throw InvalidClient::appIdIsNotNumeric($appId);
@@ -45,6 +48,8 @@ class Client
         $this->appKey = $appKey;
 
         $this->appSecret = $appSecret;
+
+        $this->name = $name;
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use Illuminate\Http\Request;
 
 class TriggerEvent extends EchoController
@@ -11,6 +12,8 @@ class TriggerEvent extends EchoController
         $this->verifySignature($request);
 
         foreach ($request->json()->get('channels', []) as $channelId) {
+            Dashboard::apiMessage($request->appId, $channelId, $request->json()->get('name'), $request->json()->get('data'));
+
             $channel = $this->channelManager->find($request->appId, $channelId);
 
             optional($channel)->broadcastToEveryoneExcept([

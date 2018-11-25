@@ -2,14 +2,15 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\WebSocketController;
+use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebsockets\LaravelEcho\Pusher\Exceptions\PusherException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
 
 class PusherServer extends WebSocketController
 {
@@ -49,7 +50,6 @@ class PusherServer extends WebSocketController
                 $exception->getPayload()
             ));
         }
-        dump($exception);
     }
 
     protected function verifyConnection(ConnectionInterface $connection)
@@ -61,7 +61,7 @@ class PusherServer extends WebSocketController
         parse_str($request->getUri()->getQuery(), $queryParameters);
 
         if (! $client = Client::findByAppKey($queryParameters['appKey'])) {
-            throw new UnknownAppKey($queryParameters['appKey']);
+            throw new UnknownAppKeyException($queryParameters['appKey']);
         }
 
         $connection->client = $client;
@@ -69,6 +69,8 @@ class PusherServer extends WebSocketController
 
     protected function establishConnection(ConnectionInterface $connection)
     {
+        Dashboard::connection($connection);
+
         $connection->send(json_encode([
             'event' => 'pusher:connection_established',
             'data' => json_encode([
