@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -68,6 +69,8 @@ class PusherServer extends WebSocketController
 
     protected function establishConnection(ConnectionInterface $connection)
     {
+        Dashboard::connection($connection);
+
         $connection->send(json_encode([
             'event' => 'pusher:connection_established',
             'data' => json_encode([
@@ -82,21 +85,5 @@ class PusherServer extends WebSocketController
         $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
 
         $connection->socketId = $socketId;
-    }
-
-    public function log(string $appId, string $type, string $details)
-    {
-        $channelId = "private-logger-{$type}";
-
-        $channel = $this->channelManager->find($appId, $channelId);
-
-        optional($channel)->broadcast([
-            'event' => $type,
-            'channel' => $channelId,
-            'data' => [
-                'type' => $type,
-                'details' => $details
-            ]
-        ]);
     }
 }

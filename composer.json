@@ -28,8 +28,10 @@
         "illuminate/console": "5.7.*",
         "illuminate/http": "5.7.*",
         "illuminate/routing": "5.7.*",
+        "illuminate/broadcasting": "5.7.*",
         "illuminate/support": "5.7.*",
         "symfony/http-kernel": "~4.0",
+        "pusher/pusher-php-server": "~3.0",
         "symfony/psr-http-message-bridge": "^1.1"
     },
     "require-dev": {

@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels;
 
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Collection;
 use Ratchet\ConnectionInterface;
@@ -56,11 +57,21 @@ class Channel
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscriptions[$connection->socketId]);
+
+        if (! $this->hasConnections()) {
+            Dashboard::vacated($connection, $this->channelId);
+        }
     }
 
     protected function saveConnection(ConnectionInterface $connection)
     {
+        if (! $this->hasConnections()) {
+            Dashboard::occupied($connection, $this->channelId);
+        }
+
         $this->subscriptions[$connection->socketId] = $connection;
+
+        Dashboard::subscribed($connection, $this->channelId);
     }
 
     public function broadcast($payload)
