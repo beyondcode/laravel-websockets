@@ -7,7 +7,6 @@ use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureE
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
 use BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket\PusherServer;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use Ratchet\RFC6455\Messaging\MessageInterface;
 
 class ConnectionTest extends TestCase
 {
