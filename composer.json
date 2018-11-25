@@ -35,7 +35,8 @@
         "symfony/psr-http-message-bridge": "^1.1"
     },
     "require-dev": {
-        "larapack/dd": "^1.0",
+        "mockery/mockery": "^1.2",
+        "orchestra/testbench": "~3.5",
         "phpunit/phpunit": "^7.0"
     },
     "autoload": {
