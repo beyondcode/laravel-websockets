@@ -4,13 +4,13 @@ namespace BeyondCode\LaravelWebSockets\Tests;
 
 use GuzzleHttp\Psr7\Request;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use BeyondCode\LaravelWebSockets\LaravelWebSocketsServiceProvider;
+use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
     protected function getPackageProviders($app)
     {
-        return [LaravelWebSocketsServiceProvider::class];
+        return [WebSocketsServiceProvider::class];
     }
 
     protected function getEnvironmentSetUp($app)
