@@ -67,4 +67,28 @@ class ConnectionTest extends TestCase
 
         $connection->assertSentEvent('pusher:pong');
     }
+
+    /** @test */
+    public function clients_can_subscribe_to_channels()
+    {
+        /** @var PusherServer $server */
+        $server = app(PusherServer::class);
+
+        $connection = $this->getWebSocketConnection();
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'channel' => 'basic-channel'
+            ],
+        ]));
+
+        $server->onOpen($connection);
+
+        $server->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'basic-channel'
+        ]);
+    }
 }

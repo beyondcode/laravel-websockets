@@ -11,7 +11,7 @@ class Connection implements ConnectionInterface
     /** @var Request */
     public $httpRequest;
 
-    protected $sentData = [];
+    public $sentData = [];
 
     function send($data)
     {
@@ -23,10 +23,16 @@ class Connection implements ConnectionInterface
         // TODO: Implement close() method.
     }
 
-    public function assertSentEvent(string $name)
+    public function assertSentEvent(string $name, array $additionalParameters = [])
     {
+        $event = collect($this->sentData)->firstWhere('event', '=', $name);
+
         PHPUnit::assertTrue(
-            ! is_null(collect($this->sentData)->firstWhere('event', '=', $name))
+            ! is_null($event)
         );
+
+        foreach ($additionalParameters as $parameter => $value) {
+            PHPUnit::assertSame($event[$parameter], $value);
+        }
     }
 }
