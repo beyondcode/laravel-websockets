@@ -25,7 +25,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ]);
     }
 
-    protected function getWebSocketConnection(string $url): Connection
+    protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
     {
         $connection = new Connection();
 

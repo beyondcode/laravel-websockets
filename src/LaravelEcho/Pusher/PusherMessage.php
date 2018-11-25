@@ -32,7 +32,7 @@ class PusherMessage implements RespondableMessage
         $eventName = camel_case(str_after($this->payload->event, ':'));
 
         if (method_exists($this, $eventName)) {
-            call_user_func([$this, $eventName], $this->connection, $this->payload->data);
+            call_user_func([$this, $eventName], $this->connection, $this->payload->data ?? new stdClass());
         }
     }
 
