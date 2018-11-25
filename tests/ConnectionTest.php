@@ -69,7 +69,7 @@ class ConnectionTest extends TestCase
     }
 
     /** @test */
-    public function clients_can_subscribe_to_channels()
+    public function clients_can_subscribe_to_basic_channels()
     {
         /** @var PusherServer $server */
         $server = app(PusherServer::class);
