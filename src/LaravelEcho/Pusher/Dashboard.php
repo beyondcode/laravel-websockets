@@ -14,8 +14,8 @@ class Dashboard
     const TYPE_VACATED = 'vacated';
     const TYPE_OCCUPIED = 'occupied';
     const TYPE_SUBSCRIBED = 'subscribed';
-    const TYPE_CLIENT_MESSAGE = 'client_message';
-    const TYPE_API_MESSAGE = 'api_message';
+    const TYPE_CLIENT_MESSAGE = 'client-message';
+    const TYPE_API_MESSAGE = 'api-message';
 
     public static function connection(ConnectionInterface $connection)
     {
@@ -81,7 +81,7 @@ class Dashboard
         $channel = app(ChannelManager::class)->find($appId, $channelId);
 
         optional($channel)->broadcast([
-            'event' => 'log_message',
+            'event' => 'log-message',
             'channel' => $channelId,
             'data' => [
                 'type' => $type,

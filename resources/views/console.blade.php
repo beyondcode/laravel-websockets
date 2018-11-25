@@ -125,9 +125,9 @@
 
                 this.subscribeToChannel('subscribed');
 
-                this.subscribeToChannel('client_message');
+                this.subscribeToChannel('client-message');
 
-                this.subscribeToChannel('api_message');
+                this.subscribeToChannel('api-message');
             },
 
             disconnect() {
@@ -136,7 +136,7 @@
 
             subscribeToChannel(channel) {
                 this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard::LOG_CHANNEL_PREFIX }}'+channel)
-                    .bind('log_message', (data) => {
+                    .bind('log-message', (data) => {
                     this.logs.push(data);
                 });
             },
