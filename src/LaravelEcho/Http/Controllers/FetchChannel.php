@@ -12,7 +12,7 @@ class FetchChannel extends EchoController
         $channel = $this->channelManager->find($request->appId, $request->channelName);
 
         if (is_null($channel)) {
-            throw new HttpException(404, 'Unknown channel "'.$request->channelName.'"');
+            throw new HttpException(404, "Unknown channel `{$request->channelName}`.");
         }
 
         return $channel->toArray();
