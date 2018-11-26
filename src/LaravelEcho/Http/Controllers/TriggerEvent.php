@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
+use BeyondCode\LaravelWebSockets\Events\ApiMessageSent;
 use Illuminate\Http\Request;
 
 class TriggerEvent extends EchoController
@@ -12,13 +12,6 @@ class TriggerEvent extends EchoController
         $this->ensureValidSignature($request);
 
         foreach ($request->json()->get('channels', []) as $channelId) {
-            Dashboard::apiMessage(
-                $request->appId,
-                $channelId,
-                $request->json()->get('name'),
-                $request->json()->get('data')
-            );
-
             $channel = $this->channelManager->find($request->appId, $channelId);
 
             optional($channel)->broadcastToEveryoneExcept([
@@ -26,6 +19,13 @@ class TriggerEvent extends EchoController
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
             ], $request->json()->get('socket_id'));
+
+            event(new ApiMessageSent(
+                $request->appId,
+                $channelId,
+                $request->json()->get('name'),
+                $request->json()->get('data')
+            ));
         }
 
         return $request->json()->all();
