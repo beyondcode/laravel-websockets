@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Dashboard;
 use BeyondCode\LaravelWebSockets\Events\ApiMessageSent;
 use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
+use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use Illuminate\Events\Dispatcher;
 
@@ -28,6 +29,11 @@ class EventSubscriber
     public function onClientMessageSent(ClientMessageSent $event)
     {
         Dashboard::clientMessage($event->connection, $event->payload);
+    }
+
+    public function onConnectionEstablished(ConnectionEstablished $event)
+    {
+        Dashboard::connection($event->connection);
     }
 
     public function subscribe(Dispatcher $events)
