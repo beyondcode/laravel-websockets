@@ -18,6 +18,10 @@ class SendMessage
         );
 
         return (new PusherBroadcaster($pusher))
-            ->broadcast([$request->channel], $request->event, json_decode($request->data, true));
+            ->broadcast(
+                [$request->channel],
+                $request->event,
+                json_decode($request->data, true)
+            );
     }
 }
