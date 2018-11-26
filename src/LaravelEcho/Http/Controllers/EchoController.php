@@ -3,17 +3,17 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Illuminate\Http\Request;
-use GuzzleHttp\Psr7 as gPsr;
 use GuzzleHttp\Psr7\Response;
-use MongoDB\Driver\Query;
 use Ratchet\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
 use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
+use SebastianBergmann\ObjectEnumerator\Fixtures\ExceptionThrower;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
@@ -60,6 +60,8 @@ abstract class EchoController implements HttpServerInterface
 
     function onError(ConnectionInterface $connection, Exception $exception)
     {
+        event(new ExceptionThrown($connection, $exception));
+
         if (! $exception instanceof HttpException) {
             return;
         }
@@ -71,6 +73,7 @@ abstract class EchoController implements HttpServerInterface
         ]));
 
         $connection->send(Psr\str($response));
+
         $connection->close();
     }
 
