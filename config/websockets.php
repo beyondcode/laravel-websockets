@@ -29,22 +29,6 @@ return [
      */
     'client_provider' => ConfigClientProvider::class,
 
-    'dashboard' => [
-
-        /*
-         * Path for the Websockets debug dashboard
-         */
-        'path' => '/websockets',
-
-        /*
-         * Middleware that will be applied to the dashboard routes.
-         */
-        'middleware' => [
-            'web',
-            Authorize::class,
-        ],
-    ],
-
     /*
      * This array contains the hosts of which you want to allow incoming requests.
      * Leave this empty if you want to accepts requests from all hosts.
