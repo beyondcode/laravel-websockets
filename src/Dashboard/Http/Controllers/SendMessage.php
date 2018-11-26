@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebsockets\Dashboard\Http\Controllers;
+namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use Pusher\Pusher;
 use Illuminate\Http\Request;

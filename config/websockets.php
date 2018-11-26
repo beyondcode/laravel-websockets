@@ -1,6 +1,6 @@
 <?php
 
-use BeyondCode\LaravelWebsockets\Dashboard\Http\Middleware\Authorize;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
 
 return [
