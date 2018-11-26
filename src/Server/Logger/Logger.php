@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Server\Logger;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class Logger
 {
@@ -46,6 +47,12 @@ class Logger
 
     protected function warn(string $message)
     {
+        if (! $this->consoleOutput->getFormatter()->hasStyle('warning')) {
+            $style = new OutputFormatterStyle('yellow');
+
+            $this->consoleOutput->getFormatter()->setStyle('warning', $style);
+        }
+
         $this->line($message, 'warning');
     }
 
