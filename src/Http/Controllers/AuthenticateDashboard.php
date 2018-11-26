@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebsockets\Http\Controllers;
+namespace BeyondCode\LaravelWebSockets\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Broadcasting\Broadcaster;

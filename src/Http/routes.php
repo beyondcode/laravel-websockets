@@ -1,8 +1,8 @@
 <?php
 
-use BeyondCode\LaravelWebsockets\Http\Controllers\AuthenticateDashboard;
-use BeyondCode\LaravelWebsockets\Http\Controllers\SendMessage;
-use BeyondCode\LaravelWebsockets\Http\Controllers\ShowDashboard;
+use BeyondCode\LaravelWebSockets\Http\Controllers\AuthenticateDashboard;
+use BeyondCode\LaravelWebSockets\Http\Controllers\SendMessage;
+use BeyondCode\LaravelWebSockets\Http\Controllers\ShowDashboard;
 
 Route::get('/', ShowDashboard::class);
 Route::post('/auth', AuthenticateDashboard::class);
