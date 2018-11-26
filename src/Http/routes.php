@@ -1,9 +1,9 @@
 <?php
 
-use BeyondCode\LaravelWebsockets\Http\Controllers\AuthenticateConsole;
+use BeyondCode\LaravelWebsockets\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebsockets\Http\Controllers\SendMessage;
-use BeyondCode\LaravelWebsockets\Http\Controllers\ShowConsole;
+use BeyondCode\LaravelWebsockets\Http\Controllers\ShowDashboard;
 
-Route::get('/', ShowConsole::class);
-Route::post('/auth', AuthenticateConsole::class);
+Route::get('/', ShowDashboard::class);
+Route::post('/auth', AuthenticateDashboard::class);
 Route::post('/event', SendMessage::class);
