@@ -49,7 +49,7 @@ return [
      * Leave this empty if you want to accepts requests from all hosts.
      */
     'allowedOrigins' => [
-
+        //
     ],
 
     /*
