@@ -78,7 +78,7 @@ abstract class EchoController implements HttpServerInterface
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
         }
 
-        return true;
+        return $this;
     }
 
     protected function ensureValidSignature(Request $request)
