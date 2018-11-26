@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels;
 use BeyondCode\LaravelWebSockets\Events\ChannelOccupied;
 use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Collection;
 use Ratchet\ConnectionInterface;
