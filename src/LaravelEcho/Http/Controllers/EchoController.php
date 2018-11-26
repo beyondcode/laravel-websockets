@@ -13,7 +13,6 @@ use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
 use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
-use SebastianBergmann\ObjectEnumerator\Fixtures\ExceptionThrower;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
