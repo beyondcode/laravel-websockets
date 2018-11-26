@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels;
 
+use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Collection;
@@ -59,6 +60,7 @@ class Channel
         unset($this->subscriptions[$connection->socketId]);
 
         if (! $this->hasConnections()) {
+            event(new ChannelVacated($connection, $this->channelId));
             Dashboard::vacated($connection, $this->channelId);
         }
     }

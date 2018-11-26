@@ -5,10 +5,10 @@ namespace BeyondCode\LaravelWebSockets\Events;
 class ChannelVacated
 {
     /** @var \BeyondCode\LaravelWebSockets\Events\ConnectionInterface */
-    protected $connection;
+    public $connection;
 
     /** @var string */
-    protected $channelId;
+    public $channelId;
 
     public function __construct(ConnectionInterface $connection, string $channelId)
     {
