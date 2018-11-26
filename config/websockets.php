@@ -5,8 +5,48 @@ use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
 
 return [
 
+    /**
+     * This package comes with multi tenancy out of the box. Here you can
+     * configure the diffente clients that can use the webSockets server.
+     *
+     * You should make sure that the app id is numeric.
+     */
+    'clients' => [
+        [
+            'name' => env('APP_NAME'),
+            'app_id' => env('WEBSOCKETS_APP_ID'),
+            'app_key' => env('WEBSOCKETS_APP_KEY'),
+            'app_secret' => env('WEBSOCKETS_APP_SECRET')
+        ],
+    ],
+
+    /**
+     * This class is responsible for finding the clients. The default provider
+     * will use the clients defined in this config file.
+     *
+     * You can create a custom provider by implementing the
+     * `ClientProvier` interface.
+     */
+    'client_provider' => ConfigClientProvider::class,
+
+    'dashboard' => [
+
+        /*
+         * Path for the Websockets debug dashboard
+         */
+        'path' => '/websockets',
+
+        /*
+         * Middleware that will be applied to the dashboard routes.
+         */
+        'middleware' => [
+            Authorize::class,
+        ],
+    ],
+
     /*
-     * TODO: add the laravel style comment here
+     * This array contains the hosts of which you want to allow incoming requests.
+     * Leave this empty if you want to accepts requests from all hosts.
      */
     'allowedOrigins' => [
 
@@ -36,44 +76,4 @@ return [
          */
         'passphrase' => null
     ],
-
-    /**
-     * This package comes with multi tenancy out of the box. Here you can
-     * configure the diffente clients that can use the webSockets server.
-     *
-     * You should make sure that the app id is numeric.
-     */
-    'clients' => [
-        [
-            'name' => env('APP_NAME'),
-            'app_id' => env('WEBSOCKETS_APP_ID'),
-            'app_key' => env('WEBSOCKETS_APP_KEY'),
-            'app_secret' => env('WEBSOCKETS_APP_SECRET')
-        ],
-    ],
-
-    /**
-     * This class is responsible for finding the clients. The default provider
-     * will use the clients defined in this config file.
-     *
-     * You can create a custom provider by implementing the
-     * `ClientProvier` interface.
-     */
-    'client_provider' => ConfigClientProvider::class,
-
-    'dashboard' => [
-
-        /*
-         * Path for the Websockets debug console
-         */
-        'path' => '/websockets',
-
-        /*
-         * Middleware that will be applied to the dashboard routes.
-         */
-        'middleware' => [
-            Authorize::class,
-        ],
-
-    ]
 ];

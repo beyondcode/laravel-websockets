@@ -2,7 +2,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>WebSockets Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <script
             src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -22,8 +23,12 @@
                 </select>
                 <label class="my-1 mr-2" for="client">Port:</label>
                 <input class="form-control form-control-sm mr-2" v-model="port" placeholder="Port">
-                <button v-if="! connected" type="submit" @click.prevent="connect" class="mr-2 btn btn-sm btn-primary">Connect</button>
-                <button v-if="connected" type="submit" @click.prevent="disconnect" class="btn btn-sm btn-danger">Disconnect</button>
+                <button v-if="! connected" type="submit" @click.prevent="connect" class="mr-2 btn btn-sm btn-primary">
+                    Connect
+                </button>
+                <button v-if="connected" type="submit" @click.prevent="disconnect" class="btn btn-sm btn-danger">
+                    Disconnect
+                </button>
             </form>
             <div id="status"></div>
         </div>
@@ -42,13 +47,15 @@
                     <div class="row mt-3">
                         <div class="col">
                             <div class="form-group">
-                                <textarea placeholder="Data" v-model="form.data" class="form-control" id="data" rows="3"></textarea>
+                                <textarea placeholder="Data" v-model="form.data" class="form-control" id="data"
+                                          rows="3"></textarea>
                             </div>
                         </div>
                     </div>
                     <div class="row text-right">
                         <div class="col">
-                            <button type="submit" @click.prevent="sendEvent" class="btn btn-sm btn-primary">Send event</button>
+                            <button type="submit" @click.prevent="sendEvent" class="btn btn-sm btn-primary">Send event
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -64,12 +71,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="log in logs.slice().reverse()">
-                        <td><span class="badge" :class="getBadgeClass(log)">@{{ log.type }}</span></td>
-                        <td>@{{ log.socketId }}</td>
-                        <td>@{{ log.details }}</td>
-                        <td>@{{ log.time }}</td>
-                    </tr>
+                <tr v-for="log in logs.slice().reverse()">
+                    <td><span class="badge" :class="getBadgeClass(log)">@{{ log.type }}</span></td>
+                    <td>@{{ log.socketId }}</td>
+                    <td>@{{ log.details }}</td>
+                    <td>@{{ log.time }}</td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -111,34 +118,34 @@
                 });
 
                 this.pusher.connection.bind('disconnected', () => {
-                        this.connected = false;
-                        this.logs = [];
+                    this.connected = false;
+                    this.logs = [];
                 });
 
-                this.subscribeToChannel('disconnection');
-
-                this.subscribeToChannel('connection');
-
-                this.subscribeToChannel('vacated');
-
-                this.subscribeToChannel('occupied');
-
-                this.subscribeToChannel('subscribed');
-
-                this.subscribeToChannel('client-message');
-
-                this.subscribeToChannel('api-message');
+                this.subscribeToAllChannels();
             },
 
             disconnect() {
                 this.pusher.disconnect();
             },
 
+            subscribeToAllChannels() {
+                [
+                    'disconnection',
+                    'connection',
+                    'vacated',
+                    'occupied',
+                    'subscribed',
+                    'client-message',
+                    'api-message',
+                ].forEach(channelName => this.subscribeToChannel(channelName))
+            },
+
             subscribeToChannel(channel) {
-                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard::LOG_CHANNEL_PREFIX }}'+channel)
+                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard::LOG_CHANNEL_PREFIX }}' + channel)
                     .bind('log-message', (data) => {
-                    this.logs.push(data);
-                });
+                        this.logs.push(data);
+                    });
             },
 
             getBadgeClass(log) {
@@ -165,7 +172,7 @@
                     channel: this.form.channel,
                     event: this.form.event,
                     data: this.form.data,
-                }).fail(e => {
+                }).fail(() => {
                     alert('Error sending event.');
                 });
             }
