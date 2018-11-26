@@ -2,9 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\Events;
 
+use Ratchet\ConnectionInterface;
+
 class ChannelVacated
 {
-    /** @var \BeyondCode\LaravelWebSockets\Events\ConnectionInterface */
+    /** @var \Ratchet\ConnectionInterface */
     public $connection;
 
     /** @var string */
