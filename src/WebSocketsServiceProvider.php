@@ -35,17 +35,6 @@ class WebSocketsServiceProvider extends ServiceProvider
         Event::subscribe(EventSubscriber::class);
     }
 
-    protected function registerRouteMacro()
-    {
-        Route::macro('websocketsDashboard', function($prefix = 'websockets') {
-            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
-                Route::get('/',  ShowDashboard::class);
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
-            });
-        });
-    }
-
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
@@ -60,6 +49,17 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->app->singleton(ClientProvider::class, function() {
             return app(config('websockets.client_provider'));
+        });
+    }
+
+    protected function registerRouteMacro()
+    {
+        Route::macro('websocketsDashboard', function($prefix = 'websockets') {
+            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
+                Route::get('/',  ShowDashboard::class);
+                Route::post('auth', AuthenticateDashboard::class);
+                Route::post('event', SendMessage::class);
+            });
         });
     }
 
