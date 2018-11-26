@@ -14,7 +14,7 @@
 
 <body>
 <div class="container" id="app">
-    <div class="card col-xs-12">
+    <div class="card col-xs-12 mt-4">
         <div class="card-header">
             <form id="connect" class="form-inline" role="form">
                 <label class="my-1 mr-2" for="client">Client:</label>
