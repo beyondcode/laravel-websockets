@@ -2,7 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels;
 
+use BeyondCode\LaravelWebSockets\Events\ChannelOccupied;
 use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
+use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Collection;
@@ -66,13 +68,15 @@ class Channel
 
     protected function saveConnection(ConnectionInterface $connection)
     {
-        if (! $this->hasConnections()) {
-            Dashboard::occupied($connection, $this->channelId);
-        }
+        $hadConnectionsPreviously = $this->hasConnections();
 
         $this->subscriptions[$connection->socketId] = $connection;
 
-        Dashboard::subscribed($connection, $this->channelId);
+        if (! $hadConnectionsPreviously) {
+            event(new ChannelOccupied($connection, $this->channelId));
+        }
+
+        event(new SubscribedToChannel($connection, $this->channelId));
     }
 
     public function broadcast($payload)
