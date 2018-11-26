@@ -3,6 +3,9 @@
 namespace BeyondCode\LaravelWebSockets;
 
 use BeyondCode\LaravelWebSockets\Dashboard\EventSubscriber;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -14,13 +17,11 @@ class WebSocketsServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        Route::middlewareGroup('websockets', config('websockets.dashboard.middleware', []));
-
         $this->publishes([
             __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        $this->registerRoutes();
+        $this->registerRouteMacro();
 
         $this->registerDashboardGate();
 
@@ -33,19 +34,15 @@ class WebSocketsServiceProvider extends ServiceProvider
         Event::subscribe(EventSubscriber::class);
     }
 
-    protected function registerRoutes()
+    protected function registerRouteMacro()
     {
-        Route::group($this->routeConfiguration(), function () {
-            $this->loadRoutesFrom(__DIR__.'/Dashboard/Http/routes.php');
+        Route::macro('websocketsDashboard', function($prefix = 'websockets') {
+            Route::prefix($prefix)->middleware(Authorize::class)->group(function() {
+                Route::get('/', ShowDashboard::class);
+                Route::post('auth', AuthenticateDashboard::class);
+                Route::post('event', SendMessage::class);
+            });
         });
-    }
-
-    protected function routeConfiguration()
-    {
-        return [
-            'prefix' => config('websockets.dashboard.path'),
-            'middleware' => 'websockets',
-        ];
     }
 
     public function register()
