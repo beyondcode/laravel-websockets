@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Http\Middleware;
+namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware;
 
 use Illuminate\Support\Facades\Gate;
 
