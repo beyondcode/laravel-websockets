@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Exceptions;
 
-
 use Exception;
 
 class InvalidClient extends Exception
