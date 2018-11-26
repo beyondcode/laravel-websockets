@@ -7,7 +7,7 @@ return [
 
     /**
      * This package comes with multi tenancy out of the box. Here you can
-     * configure the diffente clients that can use the webSockets server.
+     * configure the different clients that can use the webSockets server.
      *
      * You should make sure that the app id is numeric.
      */
