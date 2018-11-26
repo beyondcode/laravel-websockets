@@ -3,7 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
@@ -12,7 +11,7 @@ use BeyondCode\LaravelWebSockets\WebSocketController;
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 
 class PusherServer extends WebSocketController
 {
@@ -26,11 +25,10 @@ class PusherServer extends WebSocketController
 
     function onOpen(ConnectionInterface $connection)
     {
-        $this->generateSocketId($connection);
-
-        $this->verifyConnection($connection);
-
-        $this->establishConnection($connection);
+        $this
+            ->generateSocketId($connection)
+            ->verifyConnection($connection)
+            ->establishConnection($connection);
     }
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
@@ -45,7 +43,7 @@ class PusherServer extends WebSocketController
         $this->channelManager->removeFromAllChannels($connection);
     }
 
-    function onError(ConnectionInterface $connection, Exception $exception)
+    public function onError(ConnectionInterface $connection, Exception $exception)
     {
         if ($exception instanceof PusherException) {
             $connection->send(json_encode(
@@ -54,15 +52,26 @@ class PusherServer extends WebSocketController
         }
     }
 
+    protected function generateSocketId(ConnectionInterface $connection)
+    {
+        $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
+
+        $connection->socketId = $socketId;
+
+        return $this;
+    }
+
     protected function verifyConnection(ConnectionInterface $connection)
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        if (! $client = Client::findByAppKey($appKey)) {
-            throw new UnknownAppKeyException($appKey);
+        if (!$client = Client::findByAppKey($appKey)) {
+            throw new UnknownAppKey($appKey);
         }
 
         $connection->client = $client;
+
+        return $this;
     }
 
     protected function establishConnection(ConnectionInterface $connection)
@@ -76,12 +85,7 @@ class PusherServer extends WebSocketController
         ]));
 
         event(new ConnectionEstablished($connection));
-    }
 
-    protected function generateSocketId(ConnectionInterface $connection)
-    {
-        $socketId = sprintf("%d.%d", getmypid(), random_int(1, 100000000));
-
-        $connection->socketId = $socketId;
+        return $this;
     }
 }

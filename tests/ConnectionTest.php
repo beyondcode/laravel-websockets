@@ -3,8 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignatureException;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKeyException;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\InvalidSignature;
+use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket\PusherServer;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 
@@ -23,7 +23,7 @@ class ConnectionTest extends TestCase
     /** @test */
     public function unknown_app_keys_can_not_connect()
     {
-        $this->expectException(UnknownAppKeyException::class);
+        $this->expectException(UnknownAppKey::class);
 
         $this->pusherServer->onOpen($this->getWebSocketConnection('/?appKey=test'));
     }
@@ -90,7 +90,7 @@ class ConnectionTest extends TestCase
     /** @test */
     public function clients_need_valid_auth_signatures_for_private_channels()
     {
-        $this->expectException(InvalidSignatureException::class);
+        $this->expectException(InvalidSignature::class);
 
         $connection = $this->getWebSocketConnection();
 
@@ -134,7 +134,7 @@ class ConnectionTest extends TestCase
     /** @test */
     public function clients_need_valid_auth_signatures_for_presence_channels()
     {
-        $this->expectException(InvalidSignatureException::class);
+        $this->expectException(InvalidSignature::class);
 
         $connection = $this->getWebSocketConnection();
 

@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions;
 
-class UnknownAppKeyException extends PusherException
+class UnknownAppKey extends PusherException
 {
     public function __construct(string $appKey)
     {
