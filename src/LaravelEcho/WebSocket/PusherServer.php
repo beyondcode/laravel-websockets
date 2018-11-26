@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
@@ -66,8 +67,6 @@ class PusherServer extends WebSocketController
 
     protected function establishConnection(ConnectionInterface $connection)
     {
-        Dashboard::connection($connection);
-
         $connection->send(json_encode([
             'event' => 'pusher:connection_established',
             'data' => json_encode([
@@ -75,6 +74,8 @@ class PusherServer extends WebSocketController
                 'activity_timeout' => 60,
             ])
         ]));
+
+        event(new ConnectionEstablished($connection));
     }
 
     protected function generateSocketId(ConnectionInterface $connection)

@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
 
+use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
 use Ratchet\ConnectionInterface;
@@ -30,7 +31,7 @@ class Message implements RespondableMessage
     public function respond()
     {
         if (starts_with($this->payload->event, 'client-')) {
-            Dashboard::clientMessage($this->connection, $this->payload);
+            event(new ClientMessageSent($this->connection, $this->payload));
 
             $channel = $this->channelManager->find($this->connection->client->appId, $this->payload->channel);
 

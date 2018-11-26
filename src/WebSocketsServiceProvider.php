@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use BeyondCode\LaravelWebSockets\Dashboard\EventSubscriber;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\ClientProviders\ClientProvider;
@@ -27,6 +29,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->commands([
             Console\StartWebSocketServer::class,
         ]);
+
+        Event::subscribe(EventSubscriber::class);
     }
 
     protected function registerRoutes()
