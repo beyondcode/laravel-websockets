@@ -30,8 +30,7 @@ class StartWebSocketServer extends Command
         app()->singleton(MessageLogger::class, function() {
             return (new MessageLogger($this->output))
                 ->enable(config('app.debug'))
-                //TODO: use real option
-                ->verbose($this->hasOption('vvv'));
+                ->verbose($this->output->isVerbose());
         });
 
         return $this;
@@ -42,8 +41,7 @@ class StartWebSocketServer extends Command
         app()->bind(ConnectionLogger::class, function() {
             return (new ConnectionLogger($this->output))
                 ->enable(config('app.debug'))
-                //TODO: use real option
-                ->verbose($this->hasOption('vvv'));
+                ->verbose($this->output->isVerbose());
         });
 
         return $this;
