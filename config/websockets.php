@@ -40,6 +40,7 @@ return [
          * Middleware that will be applied to the dashboard routes.
          */
         'middleware' => [
+            'web',
             Authorize::class,
         ],
     ],

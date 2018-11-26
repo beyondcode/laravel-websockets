@@ -105,7 +105,13 @@
                 this.pusher = new Pusher(this.client.appKey, {
                     wsHost: window.location.hostname,
                     wsPort: this.port,
+                    disableStats: true,
                     authEndpoint: '{{ config('websockets.dashboard.path') }}/auth',
+                    auth: {
+                        headers: {
+                            'X-CSRF-Token': "{{ csrf_token() }}"
+                        }
+                    },
                     enabledTransports: ['ws', 'flash']
                 });
 
@@ -166,6 +172,7 @@
 
             sendEvent() {
                 $.post('{{ config('websockets.dashboard.path') }}/event', {
+                    _token: '{{ csrf_token() }}',
                     key: this.client.appKey,
                     secret: this.client.appSecret,
                     appId: this.client.appId,
