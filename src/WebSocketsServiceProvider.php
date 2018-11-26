@@ -32,7 +32,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerRoutes()
     {
         Route::group($this->routeConfiguration(), function () {
-            $this->loadRoutesFrom(__DIR__.'/Http/routes.php');
+            $this->loadRoutesFrom(__DIR__.'/Dashboard/Http/routes.php');
         });
     }
 
