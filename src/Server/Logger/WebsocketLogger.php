@@ -45,7 +45,7 @@ class WebsocketLogger extends Logger implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $connection)
     {
-        $this->warn("{optional($connection->client)->appId}: connection id {$connection->socketId} closed.");
+        $this->warn("Connection id {$connection->socketId} closed.");
 
         $this->app->onClose(ConnectionLogger::decorate($connection));
     }
