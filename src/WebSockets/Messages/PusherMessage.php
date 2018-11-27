@@ -8,13 +8,13 @@ use stdClass;
 
 class PusherMessage implements RespondableMessage
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\stdClass */
+    /** @var \stdClass */
     protected $payload;
 
     /** @var \React\Socket\ConnectionInterface */
     protected $connection;
 
-    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(stdClass $payload, ConnectionInterface $connection, ChannelManager $channelManager)
