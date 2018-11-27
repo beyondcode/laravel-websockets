@@ -83,23 +83,17 @@ class Router
 
     protected function getRoute(string $method, string $uri, $action): Route
     {
-        return new Route($uri, ['_controller' => $this->wrapAction($action)], [], [], null, [], [$method]);
-    }
+        /**
+         * If the given action is a class that handles WebSockets, then it's not a regular
+         * controller but a WebSocketHandler that needs to converted to a WsServer.
+         *
+         * If the given action is a regular controller we'll just instanciate it.
+         */
+        $action = is_subclass_of($action, MessageComponentInterface::class)
+            ? $this->createWebSocketsServer($action)
+            : app($action);
 
-
-
-    /**
-     * @param string $action
-     *
-     * @return \Ratchet\WebSocket\WsServer|\Ratchet\Http\HttpServerInterface
-     */
-    protected function wrapAction(string $action)
-    {
-        if (is_subclass_of($action, MessageComponentInterface::class)) {
-            return $this->createWebSocketsServer($action);
-        }
-
-        return app($action);
+        return new Route($uri, ['_controller' => $action], [], [], null, [], [$method]);
     }
 
     protected function createWebSocketsServer(MessageComponentInterface $action): WsServer
