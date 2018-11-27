@@ -44,16 +44,19 @@ class ChannelTest extends TestCase
     }
 
     /** @test */
-    public function closed_connections_get_removed_from_channel()
+    public function closed_connections_get_removed_from_all_connected_channels()
     {
-        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection = $this->getConnectedWebSocketConnection(['test-channel-1', 'test-channel-2']);
 
-        $channel = $this->getChannel($connection, 'test-channel');
+        $channel1 = $this->getChannel($connection, 'test-channel-1');
+        $channel2 = $this->getChannel($connection, 'test-channel-2');
 
-        $this->assertTrue($channel->hasConnections());
+        $this->assertTrue($channel1->hasConnections());
+        $this->assertTrue($channel2->hasConnections());
 
         $this->pusherServer->onClose($connection);
 
-        $this->assertFalse($channel->hasConnections());
+        $this->assertFalse($channel1->hasConnections());
+        $this->assertFalse($channel2->hasConnections());
     }
 }
