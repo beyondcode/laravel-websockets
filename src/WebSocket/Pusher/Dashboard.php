@@ -1,9 +1,9 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocketServer\Pusher;
+namespace BeyondCode\LaravelWebSockets\WebSocket\Pusher;
 
 use Ratchet\ConnectionInterface;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
 use stdClass;
 
 class Dashboard

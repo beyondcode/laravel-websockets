@@ -1,9 +1,9 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocketServer\Messages;
+namespace BeyondCode\LaravelWebSockets\WebSocket\Messages;
 
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\PusherMessage;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\PusherMessage;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 

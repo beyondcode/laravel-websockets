@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions;
 
 class UnknownAppKey extends PusherException
 {

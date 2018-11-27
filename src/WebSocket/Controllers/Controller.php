@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocketServer\Controllers;
+namespace BeyondCode\LaravelWebSockets\WebSocket\Controllers;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
@@ -15,11 +15,11 @@ use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
 
 abstract class Controller implements HttpServerInterface
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
