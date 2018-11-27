@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\PresenceChannel;
 
-class FetchUsers extends EchoController
+class FetchUsers extends Controller
 {
     public function __invoke(Request $request)
     {
