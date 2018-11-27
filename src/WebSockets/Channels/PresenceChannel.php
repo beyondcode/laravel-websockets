@@ -24,7 +24,7 @@ class PresenceChannel extends Channel
         $this->saveConnection($connection);
 
         $channelData = json_decode($payload->channel_data);
-        $this->users[$channelData->user_id] = $channelData;
+        $this->users[$connection->socketId] = $channelData;
 
         // Send the success event
         $connection->send(json_encode([
