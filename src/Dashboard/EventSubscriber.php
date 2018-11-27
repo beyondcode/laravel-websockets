@@ -8,14 +8,14 @@ use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Dashboard;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\DashboardLogger;
 use Illuminate\Events\Dispatcher;
 
 class EventSubscriber
 {
     public function onApiMessageSent(ApiMessageSent $event)
     {
-        Dashboard::apiMessage(
+        DashboardLogger::apiMessage(
             $event->appId,
             $event->channeldId,
             $event->name,
@@ -25,27 +25,27 @@ class EventSubscriber
 
     public function onChannelOccupied(ChannelOccupied $event)
     {
-        Dashboard::occupied($event->connection, $event->channelId);
+        DashboardLogger::occupied($event->connection, $event->channelId);
     }
 
     public function onChannelVacated(ChannelVacated $event)
     {
-        Dashboard::vacated($event->connection, $event->channelId);
+        DashboardLogger::vacated($event->connection, $event->channelId);
     }
 
     public function onClientMessageSent(ClientMessageSent $event)
     {
-        Dashboard::clientMessage($event->connection, $event->payload);
+        DashboardLogger::clientMessage($event->connection, $event->payload);
     }
 
     public function onConnectionEstablished(ConnectionEstablished $event)
     {
-        Dashboard::connection($event->connection);
+        DashboardLogger::connection($event->connection);
     }
 
     public function onSubscribedToChannel(SubscribedToChannel $event)
     {
-        Dashboard::subscribed($event->connection, $event->channelId);
+        DashboardLogger::subscribed($event->connection, $event->channelId);
     }
 
     public function subscribe(Dispatcher $events)
