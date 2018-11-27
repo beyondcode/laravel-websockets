@@ -1,8 +1,8 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Exceptions;
 
-class InvalidConnection extends PusherException
+class InvalidConnection extends WebSocketException
 {
     public function __construct()
     {

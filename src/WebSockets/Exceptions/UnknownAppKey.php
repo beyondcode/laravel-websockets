@@ -1,8 +1,8 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Exceptions;
 
-class UnknownAppKey extends PusherException
+class UnknownAppKey extends WebSocketException
 {
     public function __construct(string $appKey)
     {

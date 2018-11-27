@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher\Channels;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use ReflectionClass;
 use Ratchet\ConnectionInterface;

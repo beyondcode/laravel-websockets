@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Exceptions;
 
 use Exception;
 
-class PusherException extends Exception
+class WebSocketException extends Exception
 {
     public function getPayload()
     {
