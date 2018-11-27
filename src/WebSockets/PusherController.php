@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher;
+namespace BeyondCode\LaravelWebSockets\WebSockets;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\WebSocket\Messages\RespondableMessageFactory;
