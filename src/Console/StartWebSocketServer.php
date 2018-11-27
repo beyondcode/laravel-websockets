@@ -7,7 +7,7 @@ use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketLogger;
 use Illuminate\Console\Command;
-use BeyondCode\LaravelWebSockets\Server\WebSocketServer;
+use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 
 use React\EventLoop\Factory as LoopFactory;
 
@@ -74,7 +74,7 @@ class StartWebSocketServer extends Command
         $routes = WebSocketRouter::getRoutes();
 
         /** 🎩 Start the magic 🎩 */
-        (new WebSocketServer($routes))
+        (new WebSocketServerFactory($routes))
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)

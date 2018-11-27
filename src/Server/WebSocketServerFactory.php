@@ -14,7 +14,7 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RouteCollection;
 
-class WebSocketServer
+class WebSocketServerFactory
 {
     /** @var string */
     protected $host = '127.0.0.1';
