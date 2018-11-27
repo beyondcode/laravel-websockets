@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: freek
- * Date: 2018-11-23
- * Time: 22:01
- */
 
 namespace BeyondCode\LaravelWebSockets\Server\Logger;
 
