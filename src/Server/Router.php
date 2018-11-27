@@ -16,7 +16,7 @@ use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
 
 class Router
 {
-    /** @var RouteCollection */
+    /** @var \Symfony\Component\Routing\RouteCollection */
     protected $routes;
 
     public function __construct()
@@ -81,6 +81,7 @@ class Router
 
     /**
      * @param $action
+     *
      * @return WsServer|HttpServerInterface
      */
     protected function wrapAction($action)
