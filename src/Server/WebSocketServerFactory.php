@@ -31,11 +31,16 @@ class WebSocketServerFactory
     /** @var Symfony\Component\Console\Output\OutputInterface */
     protected $consoleOutput;
 
-    public function __construct(RouteCollection $routes)
+    public function __construct()
     {
         $this->loop = LoopFactory::create();
+    }
 
+    public function useRoutes(RouteCollection $routes)
+    {
         $this->routes = $routes;
+
+        return $this;
     }
 
     public function setHost(string $host)
@@ -66,14 +71,7 @@ class WebSocketServerFactory
         return $this;
     }
 
-    public function run()
-    {
-        $server = $this->createServer();
-
-        $server->run();
-    }
-
-    protected function createServer(): IoServer
+    public function createServer(): IoServer
     {
         $socket = new Server("{$this->host}:{$this->port}", $this->loop);
 
