@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
-class FetchChannels extends Controller
+class FetchChannelsController extends Controller
 {
     public function __invoke(Request $request)
     {

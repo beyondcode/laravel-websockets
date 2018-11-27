@@ -3,10 +3,10 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannel;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannels;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsers;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEvent;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
 use BeyondCode\LaravelWebSockets\WebSockets\Controllers\WebSocketHandler;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
@@ -78,11 +78,11 @@ class Router
     {
         $this->get('/app/{appKey}', WebSocketHandler::class);
 
-        $this->get('/apps/{appId}/channels', FetchChannels::class);
-        $this->get('/apps/{appId}/channels/{channelName}', FetchChannel::class);
-        $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsers::class);
+        $this->get('/apps/{appId}/channels', FetchChannelsController::class);
+        $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
+        $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
 
-        $this->post('/apps/{appId}/events', TriggerEvent::class);
+        $this->post('/apps/{appId}/events', TriggerEventController::class);
     }
 
     /**
