@@ -8,7 +8,7 @@ use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Dashboard;
 use Illuminate\Events\Dispatcher;
 
 class EventSubscriber

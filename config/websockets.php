@@ -37,6 +37,11 @@ return [
     ],
 
     /*
+     * The maximum request size that is allowed for an incoming websocket request.
+     */
+    'maxRequestSize' => 256000,
+
+    /*
      * Define the optional SSL context for your websocket connections.
      * You can see all available options at: http://php.net/manual/en/context.ssl.php
      */

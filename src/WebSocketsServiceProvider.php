@@ -7,12 +7,13 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboar
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
+use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\ClientProviders\ClientProvider;
 use Illuminate\Support\ServiceProvider;
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {

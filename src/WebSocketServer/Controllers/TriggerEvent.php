@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\LaravelEcho\Http\Controllers;
+namespace BeyondCode\LaravelWebSockets\WebSocketServer\Controllers;
 
 use BeyondCode\LaravelWebSockets\Events\ApiMessageSent;
 use Illuminate\Http\Request;

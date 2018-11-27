@@ -1,5 +1,5 @@
 <?php
-namespace BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket;
+namespace BeyondCode\LaravelWebSockets\WebSocketServer\Messages;
 
 interface RespondableMessage
 {

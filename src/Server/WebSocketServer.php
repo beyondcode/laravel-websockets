@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\Server;
 use Ratchet\Http\Router;
 use React\Socket\SecureServer;
 use React\Socket\Server;
-use Ratchet\Http\HttpServer;
 use Ratchet\Server\IoServer;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\Factory as LoopFactory;
@@ -87,7 +86,7 @@ class WebSocketServer
 
         $app = new OriginCheck($router, config('websockets.allowedOrigins', []));
 
-        $httpServer = new HttpServer($app);
+        $httpServer = new HttpServer($app, config('websockets.maxRequestSize'));
 
         return new IoServer($httpServer, $socket, $this->loop);
     }

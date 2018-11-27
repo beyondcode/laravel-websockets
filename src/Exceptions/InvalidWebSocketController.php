@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Exceptions;
 
-use BeyondCode\LaravelWebSockets\WebSocketController;
+use BeyondCode\LaravelWebSockets\Server\WebSocketController;
 
 class InvalidWebSocketController extends \Exception
 {

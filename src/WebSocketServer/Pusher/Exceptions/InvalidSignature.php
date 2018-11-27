@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Exceptions;
 
 class InvalidSignature extends PusherException
 {

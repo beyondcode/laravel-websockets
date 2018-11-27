@@ -1,21 +1,21 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\LaravelEcho\Pusher;
+namespace BeyondCode\LaravelWebSockets\WebSocketServer\Pusher;
 
-use BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\LaravelEcho\WebSocket\RespondableMessage;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Messages\RespondableMessage;
 use Ratchet\ConnectionInterface;
 use stdClass;
 
 class PusherMessage implements RespondableMessage
 {
-    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\stdClass */
+    /** @var \BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\stdClass */
     protected $payload;
 
     /** @var \React\Socket\ConnectionInterface */
     protected $connection;
 
-    /** @var \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(stdClass $payload, ConnectionInterface $connection, ChannelManager $channelManager)

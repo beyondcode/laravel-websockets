@@ -1,8 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets;
+namespace BeyondCode\LaravelWebSockets\Server;
 
+use BeyondCode\LaravelWebSockets\LaravelEcho;
 use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
+use BeyondCode\LaravelWebSockets\Server\WebSocketController;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Ratchet\Http\HttpServerInterface;
@@ -65,7 +67,7 @@ class Router
 
     public function echo()
     {
-        $this->get('/app/{appKey}', LaravelEcho\WebSocket\PusherServer::class);
+        $this->get('/app/{appKey}', LaravelEcho\Pusher\PusherServer::class);
 
         $this->get('/apps/{appId}/channels', LaravelEcho\Http\Controllers\FetchChannels::class);
         $this->get('/apps/{appId}/channels/{channelName}', LaravelEcho\Http\Controllers\FetchChannel::class);
