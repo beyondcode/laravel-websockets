@@ -59,7 +59,7 @@ class PresenceChannel extends Channel
     {
         return [
             'presence' => [
-                'ids' => array_keys(array_map(function($channelData) { return $channelData->user_id; }, $this->users)),
+                'ids' => array_values(array_map(function($channelData) { return $channelData->user_id; }, $this->users)),
                 'hash' => array_map(function($channelData) { return $channelData->user_info; }, $this->users),
                 'count' => count($this->users)
             ]
