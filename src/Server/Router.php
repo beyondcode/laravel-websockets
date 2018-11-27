@@ -30,14 +30,17 @@ class Router
         return $this->routes;
     }
 
-    public function websocket(string $uri, $action)
+    public function echo()
     {
-        if (!is_subclass_of($action, MessageComponentInterface::class)) {
-            throw InvalidWebSocketController::withController($action);
-        }
+        $this->get('/app/{appKey}', WebSocketHandler::class);
 
-        $this->get($uri, $action);
+        $this->get('/apps/{appId}/channels', FetchChannelsController::class);
+        $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
+        $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
+        $this->post('/apps/{appId}/events', TriggerEventController::class);
     }
+
+
 
     public function get(string $uri, $action)
     {
@@ -64,6 +67,15 @@ class Router
         $this->addRoute('DELETE', $uri, $action);
     }
 
+    public function websocket(string $uri, $action)
+    {
+        if (!is_subclass_of($action, MessageComponentInterface::class)) {
+            throw InvalidWebSocketController::withController($action);
+        }
+
+        $this->get($uri, $action);
+    }
+
     public function addRoute(string $method, string $uri, $action)
     {
         $this->routes->add($uri, $this->getRoute($method, $uri, $action));
@@ -74,16 +86,7 @@ class Router
         return new Route($uri, ['_controller' => $this->wrapAction($action)], [], [], null, [], [$method]);
     }
 
-    public function echo()
-    {
-        $this->get('/app/{appKey}', WebSocketHandler::class);
 
-        $this->get('/apps/{appId}/channels', FetchChannelsController::class);
-        $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
-        $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
-
-        $this->post('/apps/{appId}/events', TriggerEventController::class);
-    }
 
     /**
      * @param string $action
