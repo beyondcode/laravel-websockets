@@ -54,7 +54,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerRouteMacro()
     {
-        Route::macro('websocketsDashboard', function($prefix = 'websockets') {
+        Route::macro('webSocketsDashboard', function($prefix = 'websockets') {
             Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
                 Route::get('/',  ShowDashboard::class);
                 Route::post('auth', AuthenticateDashboard::class);
