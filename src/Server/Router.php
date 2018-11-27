@@ -93,7 +93,7 @@ class Router
         return new Route($uri, ['_controller' => $action], [], [], null, [], [$method]);
     }
 
-    protected function createWebSocketsServer(MessageComponentInterface $action): WsServer
+    protected function createWebSocketsServer(string $action): WsServer
     {
         $app = app($action);
 
