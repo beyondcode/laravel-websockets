@@ -74,10 +74,12 @@ class StartWebSocketServer extends Command
         $routes = WebSocketRouter::getRoutes();
 
         /** 🎩 Start the magic 🎩 */
-        (new WebSocketServerFactory($routes))
+        (new WebSocketServerFactory())
+            ->useRoutes($routes)
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)
+            ->createServer()
             ->run();
     }
 }
