@@ -1,7 +1,8 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
+namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
