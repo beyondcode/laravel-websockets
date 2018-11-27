@@ -1,22 +1,22 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocketServer\Pusher;
+namespace BeyondCode\LaravelWebSockets\WebSocket\Pusher;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Messages\RespondableMessageFactory;
+use BeyondCode\LaravelWebSockets\WebSocket\Messages\RespondableMessageFactory;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\Server\WebSocketController;
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Exceptions\UnknownAppKey;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions\PusherException;
+use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions\UnknownAppKey;
 
 class PusherController extends WebSocketController
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
