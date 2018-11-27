@@ -27,4 +27,33 @@ class ChannelTest extends TestCase
             'channel' => 'basic-channel'
         ]);
     }
+
+    /** @test */
+    public function client_messages_get_broadcasted_to_other_clients_in_the_same_channel()
+    {
+        // One connection inside channel "test-channel".
+        $existingConnection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $message = new Message('{"event": "client-test", "data": {}, "channel": "test-channel"}');
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $existingConnection->assertSentEvent('client-test');
+    }
+
+    /** @test */
+    public function closed_connections_get_removed_from_channel()
+    {
+        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $channel = $this->getChannel($connection, 'test-channel');
+
+        $this->assertTrue($channel->hasConnections());
+
+        $this->pusherServer->onClose($connection);
+
+        $this->assertFalse($channel->hasConnections());
+    }
 }
