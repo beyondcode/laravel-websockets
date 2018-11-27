@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
+namespace BeyondCode\LaravelWebSockets\WebSockets;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
