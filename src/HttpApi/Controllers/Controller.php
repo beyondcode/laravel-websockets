@@ -19,7 +19,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 abstract class Controller implements HttpServerInterface
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
