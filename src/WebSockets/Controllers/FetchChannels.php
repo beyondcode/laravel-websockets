@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocket\Controllers;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;

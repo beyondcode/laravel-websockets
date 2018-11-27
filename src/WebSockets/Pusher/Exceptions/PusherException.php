@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Pusher\Exceptions;
 
 use Exception;
 

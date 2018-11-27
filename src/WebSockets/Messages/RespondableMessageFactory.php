@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocket\Messages;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
 use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSocket\Pusher\PusherMessage;

@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSocket\Controllers;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
