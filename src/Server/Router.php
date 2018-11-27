@@ -27,7 +27,7 @@ class Router
 
     public function websocket(string $uri, $action)
     {
-        if (!is_subclass_of($action, WebSocketController::class)) {
+        if (!is_subclass_of($action, MessageComponentInterface::class)) {
             throw InvalidWebSocketController::withController($action);
         }
 
