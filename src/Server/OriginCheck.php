@@ -10,7 +10,6 @@ use Psr\Http\Message\RequestInterface;
 
 class OriginCheck implements HttpServerInterface
 {
-
     use CloseResponseTrait;
 
     /** @var \Ratchet\MessageComponentInterface */
