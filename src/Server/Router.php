@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Controllers\FetchChannel;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Controllers\FetchChannels;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Controllers\FetchUsers;
+use BeyondCode\LaravelWebSockets\WebSocketServer\Controllers\TriggerEvent;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\PusherController;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
@@ -76,7 +77,7 @@ class Router
         $this->get('/apps/{appId}/channels/{channelName}', FetchChannel::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsers::class);
 
-        $this->post('/apps/{appId}/events', LaravelEcho\Http\Controllers\TriggerEvent::class);
+        $this->post('/apps/{appId}/events', TriggerEvent::class);
     }
 
     /**
