@@ -23,7 +23,8 @@ class ConnectionLogger extends Logger implements ConnectionInterface
         return $this;
     }
 
-    protected function getConnection() {
+    protected function getConnection()
+    {
         return $this->connection;
     }
 
