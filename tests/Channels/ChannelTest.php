@@ -85,10 +85,10 @@ class ChannelTest extends TestCase
 
         $channel = $this->getChannel($connection1, 'test-channel');
 
-        $channel->broadcastToEveryoneExcept([
+        $channel->broadcastToOthers($connection1, [
             'event' => 'broadcasted-event',
             'channel' => 'test-channel'
-        ], $connection1->socketId);
+        ]);
 
         $connection1->assertNotSentEvent('broadcasted-event');
         $connection2->assertSentEvent('broadcasted-event');
