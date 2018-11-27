@@ -24,7 +24,7 @@ class PresenceChannel extends Channel
         $this->saveConnection($connection);
 
         $channelData = json_decode($payload->channel_data);
-        $this->users[$connection->socketId] = $channelData;
+        $this->users[$channelData->user_id] = $channelData;
 
         // Send the success event
         $connection->send(json_encode([
@@ -57,10 +57,15 @@ class PresenceChannel extends Channel
 
     protected function getChannelData(): array
     {
+        $hash = [];
+        foreach ($this->users as $socketId => $channelData) {
+            $hash[$channelData->user_id] = $channelData->user_info;
+        }
+
         return [
             'presence' => [
-                'ids' => array_values(array_map(function($channelData) { return $channelData->user_id; }, $this->users)),
-                'hash' => array_map(function($channelData) { return $channelData->user_info; }, $this->users),
+                'ids' => array_values(array_map(function($channelData) { return (string)$channelData->user_id; }, $this->users)),
+                'hash' => $hash,
                 'count' => count($this->users)
             ]
         ];
