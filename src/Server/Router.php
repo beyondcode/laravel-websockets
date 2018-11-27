@@ -2,13 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use BeyondCode\LaravelWebSockets\LaravelEcho;
 use BeyondCode\LaravelWebSockets\Server\Logger\MessageLogger;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannel;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannels;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsers;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEvent;
-use BeyondCode\LaravelWebSockets\WebSockets\Pusher\PusherController;
+use BeyondCode\LaravelWebSockets\WebSockets\Controllers\PusherController;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Ratchet\Http\HttpServerInterface;
