@@ -15,7 +15,7 @@ class Message implements RespondableMessage
     /** @var \Ratchet\ConnectionInterface */
     protected $connection;
 
-    /** @var \BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(stdClass $payload, ConnectionInterface $connection, ChannelManager $channelManager)
