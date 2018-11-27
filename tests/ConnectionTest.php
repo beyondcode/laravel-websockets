@@ -5,12 +5,12 @@ namespace BeyondCode\LaravelWebSockets\Tests;
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
-use BeyondCode\LaravelWebSockets\WebSockets\Controllers\WebSocketHandler;
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 
 class ConnectionTest extends TestCase
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Controllers\WebSocketHandler */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler */
     protected $pusherServer;
 
     public function setUp()

@@ -7,7 +7,7 @@ use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
-use BeyondCode\LaravelWebSockets\WebSockets\Controllers\WebSocketHandler;
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
