@@ -1,9 +1,8 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\WebSockets;
+namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
 use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSocket\Messages\RespondableMessage;
 use Ratchet\ConnectionInterface;
 use stdClass;
 
