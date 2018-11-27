@@ -56,7 +56,7 @@ class WebsocketLogger extends Logger implements MessageComponentInterface
 
         $appId = $connection->client->appId ?? 'Unknown app id';
 
-        $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`";
+        $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`.";
 
         if ($this->verbose) {
             $message .= $exception->getTraceAsString();
