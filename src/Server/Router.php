@@ -82,7 +82,7 @@ class Router
     /**
      * @param $action
      *
-     * @return WsServer|HttpServerInterface
+     * @return \Ratchet\WebSocket\WsServer|\Ratchet\Http\HttpServerInterface
      */
     protected function wrapAction($action)
     {
