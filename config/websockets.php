@@ -37,9 +37,9 @@ return [
     ],
 
     /*
-     * The maximum request size in bytes that is allowed for an incoming websocket request.
+     * The maximum request size in kilobytes that is allowed for an incoming websocket request.
      */
-    'maxRequestSize' => 1024 * 250,
+    'maxRequestSizeInKb' => 250,
 
     /*
      * Define the optional SSL context for your websocket connections.
