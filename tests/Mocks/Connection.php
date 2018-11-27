@@ -13,6 +13,8 @@ class Connection implements ConnectionInterface
 
     public $sentData = [];
 
+    public $closed = false;
+
     function send($data)
     {
         $this->sentData[] = json_decode($data, true);
@@ -20,7 +22,7 @@ class Connection implements ConnectionInterface
 
     function close()
     {
-        // TODO: Implement close() method.
+        $this->closed = true;
     }
 
     public function assertSentEvent(string $name, array $additionalParameters = [])
@@ -34,5 +36,10 @@ class Connection implements ConnectionInterface
         foreach ($additionalParameters as $parameter => $value) {
             PHPUnit::assertSame($event[$parameter], $value);
         }
+    }
+
+    public function assertClosed()
+    {
+        PHPUnit::assertTrue($this->closed);
     }
 }
