@@ -3,18 +3,18 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
 use BeyondCode\LaravelWebSockets\WebSockets\Messages\RespondableMessageFactory;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
-use BeyondCode\LaravelWebSockets\Server\WebSocketController;
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\PusherException;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
+use Ratchet\WebSocket\MessageComponentInterface;
 
-class PusherController extends WebSocketController
+class WebSocketHandler implements MessageComponentInterface
 {
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
@@ -46,7 +46,7 @@ class PusherController extends WebSocketController
 
     public function onError(ConnectionInterface $connection, Exception $exception)
     {
-        if ($exception instanceof PusherException) {
+        if ($exception instanceof WebSocketException) {
             $connection->send(json_encode(
                 $exception->getPayload()
             ));
