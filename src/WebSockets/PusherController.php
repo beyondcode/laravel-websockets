@@ -3,16 +3,16 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets;
 
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
-use BeyondCode\LaravelWebSockets\WebSocket\Messages\RespondableMessageFactory;
+use BeyondCode\LaravelWebSockets\WebSockets\Messages\RespondableMessageFactory;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\Server\WebSocketController;
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions\PusherException;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Exceptions\UnknownAppKey;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\PusherException;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 
 class PusherController extends WebSocketController
 {

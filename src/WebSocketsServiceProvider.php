@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\ClientProviders\ClientProvider;
 use Illuminate\Support\ServiceProvider;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {

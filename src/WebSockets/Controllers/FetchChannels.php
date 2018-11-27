@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\PresenceChannel;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
 class FetchChannels extends Controller
 {

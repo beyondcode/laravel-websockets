@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
 use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Ratchet\ConnectionInterface;
 use stdClass;
 

@@ -15,7 +15,7 @@ use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 abstract class Controller implements HttpServerInterface
 {

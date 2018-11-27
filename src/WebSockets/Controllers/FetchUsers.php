@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\WebSocket\Pusher\Channels\PresenceChannel;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
 class FetchUsers extends Controller
 {
