@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager;
 
-abstract class EchoController implements HttpServerInterface
+abstract class Controller implements HttpServerInterface
 {
     /** @var \BeyondCode\LaravelWebSockets\WebSocketServer\Pusher\Channels\ChannelManager */
     protected $channelManager;
