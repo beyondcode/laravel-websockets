@@ -2,12 +2,24 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use GuzzleHttp\Psr7\Request;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler */
+    protected $pusherServer;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->pusherServer = app(WebSocketHandler::class);
+    }
+
     protected function getPackageProviders($app)
     {
         return [WebSocketsServiceProvider::class];
