@@ -38,6 +38,15 @@ class Connection implements ConnectionInterface
         }
     }
 
+    public function assertNotSentEvent(string $name)
+    {
+        $event = collect($this->sentData)->firstWhere('event', '=', $name);
+
+        PHPUnit::assertTrue(
+            is_null($event)
+        );
+    }
+
     public function assertClosed()
     {
         PHPUnit::assertTrue($this->closed);

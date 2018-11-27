@@ -59,4 +59,38 @@ class ChannelTest extends TestCase
         $this->assertFalse($channel1->hasConnections());
         $this->assertFalse($channel2->hasConnections());
     }
+
+    /** @test */
+    public function channels_can_broadcast_messages_to_all_connections()
+    {
+        $connection1 = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection2 = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $channel = $this->getChannel($connection1, 'test-channel');
+
+        $channel->broadcast([
+            'event' => 'broadcasted-event',
+            'channel' => 'test-channel'
+        ]);
+
+        $connection1->assertSentEvent('broadcasted-event');
+        $connection2->assertSentEvent('broadcasted-event');
+    }
+
+    /** @test */
+    public function channels_can_broadcast_messages_to_all_connections_except_the_given_connection()
+    {
+        $connection1 = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection2 = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $channel = $this->getChannel($connection1, 'test-channel');
+
+        $channel->broadcastToEveryoneExcept([
+            'event' => 'broadcasted-event',
+            'channel' => 'test-channel'
+        ], $connection1->socketId);
+
+        $connection1->assertNotSentEvent('broadcasted-event');
+        $connection2->assertSentEvent('broadcasted-event');
+    }
 }
