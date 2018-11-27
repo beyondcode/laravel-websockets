@@ -11,7 +11,6 @@ use BeyondCode\LaravelWebSockets\WebSockets\Controllers\WebSocketHandler;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
-use Ratchet\Http\HttpServerInterface;
 use Symfony\Component\Routing\RouteCollection;
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
 
@@ -39,8 +38,6 @@ class Router
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
         $this->post('/apps/{appId}/events', TriggerEventController::class);
     }
-
-
 
     public function get(string $uri, $action)
     {
