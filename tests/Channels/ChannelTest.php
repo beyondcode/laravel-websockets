@@ -103,8 +103,6 @@ class ChannelTest extends TestCase
             'event' => 'pusher:ping',
         ]));
 
-        $this->pusherServer->onOpen($connection);
-
         $this->pusherServer->onMessage($connection, $message);
 
         $connection->assertSentEvent('pusher:pong');
