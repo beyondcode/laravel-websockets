@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ApiMessageSent;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class TriggerEventController extends Controller
@@ -21,7 +21,7 @@ class TriggerEventController extends Controller
                 'data' => $request->json()->get('data'),
             ], $request->json()->get('socket_id'));
 
-            event(new ApiMessageSent(
+            DashboardLogger::apiMessage(
                 $request->appId,
                 $channelId,
                 $request->json()->get('name'),
