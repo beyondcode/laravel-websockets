@@ -57,24 +57,39 @@ class PresenceChannel extends Channel
 
     protected function getChannelData(): array
     {
-        $hash = [];
-        foreach ($this->users as $socketId => $channelData) {
-            $hash[$channelData->user_id] = $channelData->user_info;
-        }
-
         return [
             'presence' => [
-                'ids' => array_values(array_map(function($channelData) { return (string)$channelData->user_id; }, $this->users)),
-                'hash' => $hash,
-                'count' => count($this->users)
-            ]
+                'ids' => $this->getUserIds(),
+                'hash' => $this->getHash(),
+                'count' => count($this->users),
+            ],
         ];
     }
 
     public function toArray(): array
     {
-        return array_merge(parent::toArray(),[
+        return array_merge(parent::toArray(), [
             'user_count' => count($this->users),
         ]);
+    }
+
+    protected function getUserIds(): array
+    {
+        $userIds = array_map(function ($channelData) {
+            return (string)$channelData->user_id;
+        }, $this->users);
+
+        return array_values($userIds);
+    }
+
+    protected function getHash(): array
+    {
+        $hash = [];
+
+        foreach ($this->users as $socketId => $channelData) {
+            $hash[$channelData->user_id] = $channelData->user_info;
+        }
+
+        return $hash;
     }
 }
