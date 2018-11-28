@@ -16,7 +16,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler */
     protected $pusherServer;
 
-    /** @var ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
     public function setUp()
@@ -24,6 +24,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         parent::setUp();
 
         $this->pusherServer = app(WebSocketHandler::class);
+
         $this->channelManager = app(ChannelManager::class);
     }
 
@@ -78,5 +79,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function getChannel(ConnectionInterface $connection, string $channelId)
     {
         return $this->channelManager->findOrCreate($connection->client->appId, $channelId);
+    }
+
+    protected function markTestAsPassed()
+    {
+        $this->assertTrue(true);
     }
 }

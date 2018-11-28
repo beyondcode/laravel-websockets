@@ -93,4 +93,20 @@ class ChannelTest extends TestCase
         $connection1->assertNotSentEvent('broadcasted-event');
         $connection2->assertSentEvent('broadcasted-event');
     }
+
+    /** @test */
+    public function it_responds_correctly_to_the_ping_message()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:ping',
+        ]));
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher:pong');
+    }
 }
