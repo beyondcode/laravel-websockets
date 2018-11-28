@@ -28,6 +28,11 @@ class Channel
         return count($this->subscriptions) > 0;
     }
 
+    public function getSubscriptions(): array
+    {
+        return $this->subscriptions;
+    }
+
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
     {
         $signature = "{$connection->socketId}:{$this->channelId}";
