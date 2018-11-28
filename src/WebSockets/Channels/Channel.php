@@ -30,15 +30,13 @@ class Channel
 
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
     {
-        $auth = $payload->auth;
-
         $signature = "{$connection->socketId}:{$this->channelId}";
 
         if (isset($payload->channel_data)) {
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (str_after($auth, ':') !== hash_hmac('sha256', $signature, $connection->client->appSecret)) {
+        if (str_after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->client->appSecret)) {
             throw new InvalidSignature();
         }
     }
