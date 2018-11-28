@@ -54,18 +54,18 @@ class ChannelManager
         /**
          * Remove the connection from all channels.
          */
-        collect($this->channels[$connection->client->appId])->each->unsubscribe($connection);
+        collect(array_get($this->channels, $connection->client->appId, []))->each->unsubscribe($connection);
 
         /**
          * Unset all channels that have no connections so we don't leak memory.
          */
-        collect($this->channels[$connection->client->appId])
+        collect(array_get($this->channels, $connection->client->appId, []))
             ->reject->hasConnections()
             ->each(function (Channel $channel, string $channelId) use ($connection) {
                 unset($this->channels[$connection->client->appId][$channelId]);
             });
 
-        if (count($this->channels[$connection->client->appId]) === 0) {
+        if (count(array_get($this->channels, $connection->client->appId, [])) === 0) {
             unset($this->channels[$connection->client->appId]);
         };
     }
