@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\ClientProviders;
 
-
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidClient;
 
 class Client
