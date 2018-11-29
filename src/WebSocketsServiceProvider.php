@@ -2,13 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\Dashboard\EventSubscriber;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Server\Router;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\ClientProviders\ClientProvider;
@@ -32,8 +30,6 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->commands([
             Console\StartWebSocketServer::class,
         ]);
-
-        Event::subscribe(EventSubscriber::class);
     }
 
     public function register()

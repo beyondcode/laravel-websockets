@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ChannelOccupied;
 use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
@@ -64,7 +65,7 @@ class Channel
         unset($this->subscriptions[$connection->socketId]);
 
         if (! $this->hasConnections()) {
-            event(new ChannelVacated($connection, $this->channelId));
+            DashboardLogger::vacated($connection, $this->channelId);
         }
     }
 
@@ -75,10 +76,10 @@ class Channel
         $this->subscriptions[$connection->socketId] = $connection;
 
         if (! $hadConnectionsPreviously) {
-            event(new ChannelOccupied($connection, $this->channelId));
+            DashboardLogger::occupied($connection, $this->channelId);
         }
 
-        event(new SubscribedToChannel($connection, $this->channelId));
+        DashboardLogger::subscribed($connection, $this->channelId);
     }
 
     public function broadcast($payload)

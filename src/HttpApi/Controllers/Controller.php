@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
@@ -59,8 +60,6 @@ abstract class Controller implements HttpServerInterface
 
     function onError(ConnectionInterface $connection, Exception $exception)
     {
-        event(new ExceptionThrown($connection, $exception));
-
         if (! $exception instanceof HttpException) {
             return;
         }

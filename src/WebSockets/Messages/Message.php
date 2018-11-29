@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Ratchet\ConnectionInterface;
@@ -33,7 +34,7 @@ class Message implements RespondableMessage
             return;
         }
 
-        event(new ClientMessageSent($this->connection, $this->payload));
+        DashboardLogger::clientMessage($this->connection, $this->payload);
 
         $channel = $this->channelManager->find($this->connection->client->appId, $this->payload->channel);
 
