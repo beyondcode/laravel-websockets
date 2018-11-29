@@ -15,12 +15,12 @@ class Connection implements ConnectionInterface
 
     public $closed = false;
 
-    function send($data)
+    public function send($data)
     {
         $this->sentData[] = json_decode($data, true);
     }
 
-    function close()
+    public function close()
     {
         $this->closed = true;
     }

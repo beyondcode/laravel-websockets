@@ -14,7 +14,7 @@ class ConfigClientProvider implements ClientProvider
         $this->clients = collect(config('websockets.clients'));
     }
 
-    /**  @return array[BeyondCode\LaravelWebSockets\ClientProviders\Client] */
+    /**  @return array[\BeyondCode\LaravelWebSockets\ClientProviders\Client] */
     public function all(): array
     {
         return $this->clients

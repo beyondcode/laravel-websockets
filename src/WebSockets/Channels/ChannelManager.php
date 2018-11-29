@@ -37,6 +37,7 @@ class ChannelManager
         if (starts_with($channelId, 'presence-')) {
             return PresenceChannel::class;
         }
+
         return Channel::class;
     }
 
