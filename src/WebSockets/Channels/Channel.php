@@ -91,9 +91,15 @@ class Channel
 
     public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
     {
-        Collection::make($this->subscriptions)->reject(function ($existingConnection) use ($socketId) {
-            return $existingConnection->socketId === $socketId;
-        })->each->send(json_encode($payload));
+        if (is_null($socketId)) {
+            return $this->broadcast($payload);
+        }
+
+        foreach ($this->subscriptions as $connection) {
+            if ($connection->socketId !== $socketId) {
+                $connection->send(json_encode($payload));
+            }
+        }
     }
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
