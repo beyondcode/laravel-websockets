@@ -26,7 +26,7 @@ class TriggerEventController extends Controller
                 $channelId,
                 $request->json()->get('name'),
                 $request->json()->get('data')
-            ));
+            );
         }
 
         return $request->json()->all();
