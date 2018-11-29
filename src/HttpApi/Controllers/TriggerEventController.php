@@ -3,7 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ApiMessageSent;
 use Illuminate\Http\Request;
 
 class TriggerEventController extends Controller

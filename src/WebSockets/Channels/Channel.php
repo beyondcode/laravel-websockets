@@ -3,9 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ChannelOccupied;
-use BeyondCode\LaravelWebSockets\Events\ChannelVacated;
-use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Illuminate\Support\Collection;
 use Ratchet\ConnectionInterface;
