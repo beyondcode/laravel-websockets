@@ -5,7 +5,7 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/beyondcode/laravel-websockets.svg?style=flat-square)](https://scrutinizer-ci.com/g/beyondcode/laravel-websockets)
 [![Total Downloads](https://img.shields.io/packagist/dt/beyondcode/laravel-websockets.svg?style=flat-square)](https://packagist.org/packages/beyondcode/laravel-websockets)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+Bring the power of WebSockets to your Laravel application. Drop-in Pusher replacement, SSL support, Laravel Echo support and a debug dashboard are just some of it's features.
 
 ## Installation
 
@@ -15,18 +15,23 @@ You can install the package via composer:
 composer require beyondcode/laravel-websockets
 ```
 
+The package will automatically register a service provider.
+
 ## Usage
 
-``` php
-$skeleton = new BeyondCode\LaravelWebSockets();
-echo $skeleton->echoPhrase('Hello, BeyondCode!');
+Once the package is installed, you can publish the configuration file using:
+
+```
+php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsServiceProvider" --tag="config"
 ```
 
-### Testing
+To start the websocket server, use:
 
-``` bash
-composer test
 ```
+php artisan websockets:serve
+```
+
+For in-depth usage and deployment details, please take a look at the [official documentation](https://docs.beyondco.de/laravel-websockets/)
 
 ### Changelog
 

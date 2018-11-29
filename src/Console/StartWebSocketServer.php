@@ -13,7 +13,7 @@ use React\EventLoop\Factory as LoopFactory;
 
 class StartWebSocketServer extends Command
 {
-    protected $signature = 'websocket:start {--host=0.0.0.0} {--port=6001} ';
+    protected $signature = 'websockets:serve {--host=0.0.0.0} {--port=6001} ';
 
     protected $description = 'Start the Laravel WebSocket Server';
 
