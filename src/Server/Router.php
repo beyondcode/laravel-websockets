@@ -33,10 +33,10 @@ class Router
     {
         $this->get('/app/{appKey}', WebSocketHandler::class);
 
+        $this->post('/apps/{appId}/events', TriggerEventController::class);
         $this->get('/apps/{appId}/channels', FetchChannelsController::class);
         $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
-        $this->post('/apps/{appId}/events', TriggerEventController::class);
     }
 
     public function get(string $uri, $action)
