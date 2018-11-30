@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
@@ -97,8 +97,8 @@ class Router
     {
         $app = app($action);
 
-        if (WebsocketLogger::isEnabled()) {
-            $app = WebsocketLogger::decorate($app);
+        if (WebsocketsLogger::isEnabled()) {
+            $app = WebsocketsLogger::decorate($app);
         }
 
         return new WsServer($app);

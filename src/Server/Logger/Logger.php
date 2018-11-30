@@ -18,7 +18,7 @@ class Logger
 
     public static function isEnabled(): bool
     {
-        return app(WebsocketLogger::class)->enabled;
+        return app(WebsocketsLogger::class)->enabled;
     }
 
     public function __construct(OutputInterface $consoleOutput)

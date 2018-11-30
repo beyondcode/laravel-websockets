@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Console;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
-use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 
@@ -40,8 +40,8 @@ class StartWebSocketServer extends Command
 
     protected function configureMessageLogger()
     {
-        app()->singleton(WebsocketLogger::class, function() {
-            return (new WebsocketLogger($this->output))
+        app()->singleton(WebsocketsLogger::class, function() {
+            return (new WebsocketsLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
         });

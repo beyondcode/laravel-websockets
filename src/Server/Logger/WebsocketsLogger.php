@@ -8,14 +8,14 @@ use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
 
-class WebsocketLogger extends Logger implements MessageComponentInterface
+class WebsocketsLogger extends Logger implements MessageComponentInterface
 {
     /** @var \Ratchet\Http\HttpServerInterface */
     protected $app;
 
-    public static function decorate(MessageComponentInterface $app): WebsocketLogger
+    public static function decorate(MessageComponentInterface $app): WebsocketsLogger
     {
-        $logger = app(WebsocketLogger::class);
+        $logger = app(WebsocketsLogger::class);
 
         return $logger->setApp($app);
     }
