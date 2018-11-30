@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /** @see \BeyondCode\LaravelWebSockets\Server\Router */
-class WebSocketRouter extends Facade
+class WebSocketsRouter extends Facade
 {
     protected static function getFacadeAccessor()
     {

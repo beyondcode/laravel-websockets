@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
-use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketLogger;
@@ -62,7 +62,7 @@ class StartWebSocketServer extends Command
 
     protected function registerEchoRoutes()
     {
-        WebSocketRouter::echo();
+        WebSocketsRouter::echo();
 
         return $this;
     }
@@ -71,7 +71,7 @@ class StartWebSocketServer extends Command
     {
         $this->info("Starting the WebSocket server on port {$this->option('port')}...");
 
-        $routes = WebSocketRouter::getRoutes();
+        $routes = WebSocketsRouter::getRoutes();
 
         /** 🛰 Start the server 🛰  */
         (new WebSocketServerFactory())
