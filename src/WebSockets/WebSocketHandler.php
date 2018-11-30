@@ -25,7 +25,7 @@ class WebSocketHandler implements MessageComponentInterface
         $this->channelManager = $channelManager;
     }
 
-    function onOpen(ConnectionInterface $connection)
+    public function onOpen(ConnectionInterface $connection)
     {
         $this
             ->generateSocketId($connection)
