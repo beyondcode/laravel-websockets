@@ -14,7 +14,7 @@ class Channel
     protected $channelName;
 
     /** @var \Ratchet\ConnectionInterface[] */
-    protected $subscriptions = [];
+    protected $subscribedConnections = [];
 
     public function __construct(string $channelName)
     {
@@ -23,12 +23,12 @@ class Channel
 
     public function hasConnections(): bool
     {
-        return count($this->subscriptions) > 0;
+        return count($this->subscribedConnections) > 0;
     }
 
-    public function getSubscriptions(): array
+    public function getSubscribedConnections(): array
     {
-        return $this->subscriptions;
+        return $this->subscribedConnections;
     }
 
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
@@ -59,7 +59,7 @@ class Channel
 
     public function unsubscribe(ConnectionInterface $connection)
     {
-        unset($this->subscriptions[$connection->socketId]);
+        unset($this->subscribedConnections[$connection->socketId]);
 
         if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
@@ -70,7 +70,7 @@ class Channel
     {
         $hadConnectionsPreviously = $this->hasConnections();
 
-        $this->subscriptions[$connection->socketId] = $connection;
+        $this->subscribedConnections[$connection->socketId] = $connection;
 
         if (! $hadConnectionsPreviously) {
             DashboardLogger::occupied($connection, $this->channelName);
@@ -81,7 +81,7 @@ class Channel
 
     public function broadcast($payload)
     {
-        foreach ($this->subscriptions as $connection) {
+        foreach ($this->subscribedConnections as $connection) {
             $connection->send(json_encode($payload));
         }
     }
@@ -92,7 +92,7 @@ class Channel
             return $this->broadcast($payload);
         }
 
-        foreach ($this->subscriptions as $connection) {
+        foreach ($this->subscribedConnections as $connection) {
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
             }
@@ -107,8 +107,8 @@ class Channel
     public function toArray(): array
     {
         return [
-            'occupied' => count($this->subscriptions) > 0,
-            'subscription_count' => count($this->subscriptions)
+            'occupied' => count($this->subscribedConnections) > 0,
+            'subscription_count' => count($this->subscribedConnections)
         ];
     }
 }
