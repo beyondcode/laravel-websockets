@@ -11,10 +11,10 @@ class ConfigAppProvider implements AppProvider
 
     public function __construct()
     {
-        $this->apps = collect(config('websockets.clients'));
+        $this->apps = collect(config('websockets.apps'));
     }
 
-    /**  @return array[\BeyondCode\LaravelWebSockets\ClientProviders\Client] */
+    /**  @return array[\BeyondCode\LaravelWebSockets\AppProviders\App] */
     public function all(): array
     {
         return $this->apps

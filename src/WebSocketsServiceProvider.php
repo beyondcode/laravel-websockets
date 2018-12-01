@@ -45,7 +45,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(AppProvider::class, function() {
-            return app(config('websockets.client_provider'));
+            return app(config('websockets.app_provider'));
         });
     }
 

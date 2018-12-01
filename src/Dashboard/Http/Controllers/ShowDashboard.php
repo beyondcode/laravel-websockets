@@ -7,10 +7,10 @@ use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 
 class ShowDashboard
 {
-    public function __invoke(Request $request, AppProvider $clients)
+    public function __invoke(Request $request, AppProvider $apps)
     {
         return view('websockets::dashboard', [
-            'clients' => $clients->all(),
+            'apps' => $apps->all(),
         ]);
     }
 }

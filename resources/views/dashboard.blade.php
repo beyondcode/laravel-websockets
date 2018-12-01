@@ -17,11 +17,11 @@
     <div class="card col-xs-12 mt-4">
         <div class="card-header">
             <form id="connect" class="form-inline" role="form">
-                <label class="my-1 mr-2" for="client">Client:</label>
-                <select class="form-control form-control-sm mr-2" name="client" id="client" v-model="client">
-                    <option v-for="client in clients" :value="client">@{{ client.name }}</option>
+                <label class="my-1 mr-2" for="app">app:</label>
+                <select class="form-control form-control-sm mr-2" name="app" id="app" v-model="app">
+                    <option v-for="app in apps" :value="app">@{{ app.name }}</option>
                 </select>
-                <label class="my-1 mr-2" for="client">Port:</label>
+                <label class="my-1 mr-2" for="app">Port:</label>
                 <input class="form-control form-control-sm mr-2" v-model="port" placeholder="Port">
                 <button v-if="! connected" type="submit" @click.prevent="connect" class="mr-2 btn btn-sm btn-primary">
                     Connect
@@ -90,8 +90,8 @@
             connected: false,
             pusher: null,
             port: 6001,
-            client: null,
-            clients: {!! json_encode($clients) !!},
+            app: null,
+            apps: {!! json_encode($apps) !!},
             form: {
                 channel: null,
                 event: null,
@@ -102,7 +102,7 @@
 
         methods: {
             connect() {
-                this.pusher = new Pusher(this.client.appKey, {
+                this.pusher = new Pusher(this.app.appKey, {
                     wsHost: window.location.hostname,
                     wsPort: this.port,
                     disableStats: true,
@@ -173,9 +173,9 @@
             sendEvent() {
                 $.post('/{{ request()->path() }}/event', {
                     _token: '{{ csrf_token() }}',
-                    key: this.client.appKey,
-                    secret: this.client.appSecret,
-                    appId: this.client.appId,
+                    key: this.app.key,
+                    secret: this.app.secret,
+                    appId: this.app.id,
                     channel: this.form.channel,
                     event: this.form.event,
                     data: this.form.data,

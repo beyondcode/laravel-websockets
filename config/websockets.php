@@ -6,7 +6,7 @@ return [
 
     /**
      * This package comes with multi tenancy out of the box. Here you can
-     * configure the different clients that can use the webSockets server.
+     * configure the different apps that can use the webSockets server.
      *
      * You should make sure that the app id is numeric.
      */
@@ -20,13 +20,13 @@ return [
     ],
 
     /**
-     * This class is responsible for finding the clients. The default provider
-     * will use the clients defined in this config file.
+     * This class is responsible for finding the apps. The default provider
+     * will use the apps defined in this config file.
      *
      * You can create a custom provider by implementing the
-     * `ClientProvier` interface.
+     * `appProvier` interface.
      */
-    'client_provider' => ConfigAppProvider::class,
+    'app_provider' => ConfigAppProvider::class,
 
     /*
      * This array contains the hosts of which you want to allow incoming requests.

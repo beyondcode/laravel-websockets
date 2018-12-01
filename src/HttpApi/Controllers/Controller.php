@@ -77,7 +77,7 @@ abstract class Controller implements HttpServerInterface
 
     public function ensureValidAppId(string $appId)
     {
-        if (!$client = App::findById($appId)) {
+        if (! App::findById($appId)) {
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
         }
 

@@ -18,20 +18,18 @@ class ConfigAppProviderTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_client_from_the_config_file()
+    public function it_can_get_apps_from_the_config_file()
     {
         $apps = $this->configAppProvider->all();
 
         $this->assertCount(1, $apps);
 
-        /** @var  $client */
-        $client = $apps[0];
+        /** @var  $app */
+        $app = $apps[0];
 
-        $this->assertEquals('Test App', $client->name);
-        $this->assertEquals(1234, $client->id);
-        $this->assertEquals('TestKey', $client->key);
-        $this->assertEquals('TestSecret', $client->secret);
-
-
+        $this->assertEquals('Test App', $app->name);
+        $this->assertEquals(1234, $app->id);
+        $this->assertEquals('TestKey', $app->key);
+        $this->assertEquals('TestSecret', $app->secret);
     }
 }
