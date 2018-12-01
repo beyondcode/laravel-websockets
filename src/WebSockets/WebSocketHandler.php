@@ -28,8 +28,8 @@ class WebSocketHandler implements MessageComponentInterface
     public function onOpen(ConnectionInterface $connection)
     {
         $this
+            ->verifyAppKey($connection)
             ->generateSocketId($connection)
-            ->verifyConnection($connection)
             ->establishConnection($connection);
     }
 
@@ -54,16 +54,7 @@ class WebSocketHandler implements MessageComponentInterface
         }
     }
 
-    protected function generateSocketId(ConnectionInterface $connection)
-    {
-        $socketId = sprintf("%d.%d", random_int(1, 1000000000), random_int(1, 1000000000));
-
-        $connection->socketId = $socketId;
-
-        return $this;
-    }
-
-    protected function verifyConnection(ConnectionInterface $connection)
+    protected function verifyAppKey(ConnectionInterface $connection)
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
@@ -75,6 +66,17 @@ class WebSocketHandler implements MessageComponentInterface
 
         return $this;
     }
+
+    protected function generateSocketId(ConnectionInterface $connection)
+    {
+        $socketId = sprintf("%d.%d", random_int(1, 1000000000), random_int(1, 1000000000));
+
+        $connection->socketId = $socketId;
+
+        return $this;
+    }
+
+
 
     protected function establishConnection(ConnectionInterface $connection)
     {
