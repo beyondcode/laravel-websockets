@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use ReflectionClass;
 use Ratchet\ConnectionInterface;
 
 class ChannelManager
