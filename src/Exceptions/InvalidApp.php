@@ -8,7 +8,7 @@ class InvalidApp extends Exception
 {
     public static function notFound(int $appId)
     {
-        return new static("Could not find client for app id `{$appId}`.");
+        return new static("Could not find app for app id `{$appId}`.");
     }
 
     public static function appIdIsNotNumeric($appId)
