@@ -12,16 +12,16 @@ class ChannelManager
     /** @var array */
     protected $channels = [];
 
-public function findOrCreate(string $appId, string $channelName): Channel
-{
-    if (!isset($this->channels[$appId][$channelName])) {
-        $channelClass = $this->determineChannelClass($channelName);
+    public function findOrCreate(string $appId, string $channelName): Channel
+    {
+        if (!isset($this->channels[$appId][$channelName])) {
+            $channelClass = $this->determineChannelClass($channelName);
 
-        $this->channels[$appId][$channelName] = new $channelClass($channelName);
+            $this->channels[$appId][$channelName] = new $channelClass($channelName);
+        }
+
+        return $this->channels[$appId][$channelName];
     }
-
-    return $this->channels[$appId][$channelName];
-}
 
     public function find(string $appId, string $channelName): ?Channel
     {
@@ -48,7 +48,7 @@ public function findOrCreate(string $appId, string $channelName): Channel
 
     public function removeFromAllChannels(ConnectionInterface $connection)
     {
-        if (! isset($connection->client)) {
+        if (!isset($connection->client)) {
             return;
         }
 
