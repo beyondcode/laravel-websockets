@@ -44,6 +44,23 @@ class ChannelTest extends TestCase
     }
 
     /** @test */
+    public function client_messages_will_not_get_broadcasted_to_other_clients_if_client_messages_are_not_enabled()
+    {
+        config()->set('websockets.apps.0.enable_client_messages', false);
+
+        // One connection inside channel "test-channel".
+        $existingConnection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $message = new Message('{"event": "client-test", "data": {}, "channel": "test-channel"}');
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $existingConnection->assertNotSentEvent('client-test');
+    }
+
+    /** @test */
     public function closed_connections_get_removed_from_all_connected_channels()
     {
         $connection = $this->getConnectedWebSocketConnection(['test-channel-1', 'test-channel-2']);
