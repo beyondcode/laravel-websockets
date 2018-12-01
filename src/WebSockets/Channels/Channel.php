@@ -39,7 +39,7 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (str_after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->client->appSecret)) {
+        if (str_after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->app->secret)) {
             throw new InvalidSignature();
         }
     }

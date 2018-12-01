@@ -7,13 +7,13 @@ use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 class App
 {
     /** @var int */
-    public $appId;
+    public $id;
 
     /** @var string */
-    public $appKey;
+    public $key;
 
     /** @var string */
-    public $appSecret;
+    public $secret;
 
     /** @var string|null */
     public $name;
@@ -42,11 +42,11 @@ class App
             throw InvalidApp::valueIsRequired('appSecret', $appId);
         }
 
-        $this->appId = $appId;
+        $this->id = $appId;
 
-        $this->appKey = $appKey;
+        $this->key = $appKey;
 
-        $this->appSecret = $appSecret;
+        $this->secret = $appSecret;
 
         $this->name = $name;
     }

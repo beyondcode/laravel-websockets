@@ -38,7 +38,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $this->info("{$connection->client->appId}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
+        $this->info("{$connection->app->id}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
 
         $this->app->onMessage(ConnectionLogger::decorate($connection), $message);
     }
@@ -54,7 +54,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
     {
         $exceptionClass = get_class($exception);
 
-        $appId = $connection->client->appId ?? 'Unknown app id';
+        $appId = $connection->app->id ?? 'Unknown app id';
 
         $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`.";
 

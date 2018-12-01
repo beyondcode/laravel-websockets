@@ -36,7 +36,7 @@ class Message implements RespondableMessage
 
         DashboardLogger::clientMessage($this->connection, $this->payload);
 
-        $channel = $this->channelManager->find($this->connection->client->appId, $this->payload->channel);
+        $channel = $this->channelManager->find($this->connection->app->id, $this->payload->channel);
 
         optional($channel)->broadcast($this->payload);
     }

@@ -18,28 +18,28 @@ class ConfigAppProvider implements AppProvider
     public function all(): array
     {
         return $this->apps
-            ->map(function ($client) {
-                return $this->instanciate($client);
+            ->map(function (array $appAttributes) {
+                return $this->instanciate($appAttributes);
             })
             ->toArray();
     }
 
     public function findById(int $appId): ?App
     {
-        $clientAttributes = $this
+        $appAttributes = $this
             ->apps
             ->firstWhere('id', $appId);
 
-        return $this->instanciate($clientAttributes);
+        return $this->instanciate($appAttributes);
     }
 
     public function findByKey(string $appKey): ?App
     {
-        $clientAttributes = $this
+        $appAttributes = $this
             ->apps
             ->firstWhere('key', $appKey);
 
-        return $this->instanciate($clientAttributes);
+        return $this->instanciate($appAttributes);
     }
 
     protected function instanciate(?array $appAttributes): ?App

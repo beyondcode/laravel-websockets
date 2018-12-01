@@ -6,7 +6,7 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
-class ClientTest extends TestCase
+class AppTest extends TestCase
 {
     /** @test */
     public function it_can_create_a_client()

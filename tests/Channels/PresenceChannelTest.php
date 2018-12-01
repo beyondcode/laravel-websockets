@@ -47,7 +47,7 @@ class PresenceChannelTest extends TestCase
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => $connection->client->appKey.':'.hash_hmac('sha256', $signature, $connection->client->appSecret),
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
                 'channel_data' => json_encode($channelData)
             ],

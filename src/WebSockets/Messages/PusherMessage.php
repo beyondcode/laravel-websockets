@@ -50,14 +50,14 @@ class PusherMessage implements RespondableMessage
      */
     protected function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
-        $channel = $this->channelManager->findOrCreate($connection->client->appId, $payload->channel);
+        $channel = $this->channelManager->findOrCreate($connection->app->id, $payload->channel);
 
         $channel->subscribe($connection, $payload);
     }
 
     public function unsubscribe(ConnectionInterface $connection, stdClass $payload)
     {
-        $channel = $this->channelManager->findOrCreate($connection->client->appId, $payload->channel);
+        $channel = $this->channelManager->findOrCreate($connection->app->id, $payload->channel);
 
         $channel->unsubscribe($connection);
     }

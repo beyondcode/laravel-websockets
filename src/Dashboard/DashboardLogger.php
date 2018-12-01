@@ -22,7 +22,7 @@ class DashboardLogger
         /** @var \GuzzleHttp\Psr7\Request $request */
         $request = $connection->httpRequest;
 
-        static::log($connection->client->appId, static::TYPE_CONNECTION, [
+        static::log($connection->app->id, static::TYPE_CONNECTION, [
             'details' => "Origin: {$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
             'socketId' => $connection->socketId,
         ]);
@@ -30,14 +30,14 @@ class DashboardLogger
 
     public static function occupied(ConnectionInterface $connection, string $channelName)
     {
-        static::log($connection->client->appId, static::TYPE_OCCUPIED, [
+        static::log($connection->app->id, static::TYPE_OCCUPIED, [
             'details' => "Channel: {$channelName}",
         ]);
     }
 
     public static function subscribed(ConnectionInterface $connection, string $channelName)
     {
-        static::log($connection->client->appId, static::TYPE_SUBSCRIBED, [
+        static::log($connection->app->id, static::TYPE_SUBSCRIBED, [
             'socketId' => $connection->socketId,
             'details' => "Channel: {$channelName}",
         ]);
@@ -45,7 +45,7 @@ class DashboardLogger
 
     public static function clientMessage(ConnectionInterface $connection, stdClass $payload)
     {
-        static::log($connection->client->appId, static::TYPE_CLIENT_MESSAGE, [
+        static::log($connection->app->id, static::TYPE_CLIENT_MESSAGE, [
             'details' => "Channel: {$payload->channel}, Event: {$payload->event}",
             'socketId' => $connection->socketId,
             'data' => json_encode($payload),
@@ -54,14 +54,14 @@ class DashboardLogger
 
     public static function disconnection(ConnectionInterface $connection)
     {
-        static::log($connection->client->appId, static::TYPE_DISCONNECTION, [
+        static::log($connection->app->id, static::TYPE_DISCONNECTION, [
             'socketId' => $connection->socketId,
         ]);
     }
 
     public static function vacated(ConnectionInterface $connection, string $channelName)
     {
-        static::log($connection->client->appId, static::TYPE_VACATED, [
+        static::log($connection->app->id, static::TYPE_VACATED, [
             'details' => "Channel: {$channelName}",
         ]);
     }

@@ -48,26 +48,26 @@ public function findOrCreate(string $appId, string $channelName): Channel
 
     public function removeFromAllChannels(ConnectionInterface $connection)
     {
-        if (!isset($connection->client)) {
+        if (!isset($connection->app)) {
             return;
         }
 
         /**
          * Remove the connection from all channels.
          */
-        collect(array_get($this->channels, $connection->client->appId, []))->each->unsubscribe($connection);
+        collect(array_get($this->channels, $connection->app->id, []))->each->unsubscribe($connection);
 
         /**
          * Unset all channels that have no connections so we don't leak memory.
          */
-        collect(array_get($this->channels, $connection->client->appId, []))
+        collect(array_get($this->channels, $connection->app->id, []))
             ->reject->hasConnections()
             ->each(function (Channel $channel, string $channelName) use ($connection) {
-                unset($this->channels[$connection->client->appId][$channelName]);
+                unset($this->channels[$connection->app->id][$channelName]);
             });
 
-        if (count(array_get($this->channels, $connection->client->appId, [])) === 0) {
-            unset($this->channels[$connection->client->appId]);
+        if (count(array_get($this->channels, $connection->app->id, [])) === 0) {
+            unset($this->channels[$connection->app->id]);
         };
     }
 }

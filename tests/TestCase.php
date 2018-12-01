@@ -36,7 +36,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         $app['config']->set('websockets.clients', [
             [
-                'name' => 'Test Client',
+                'name' => 'Test App',
                 'id' => 1234,
                 'key' => 'TestKey',
                 'secret' => 'TestSecret'
@@ -77,7 +77,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function getChannel(ConnectionInterface $connection, string $channelName)
     {
-        return $this->channelManager->findOrCreate($connection->client->appId, $channelName);
+        return $this->channelManager->findOrCreate($connection->app->id, $channelName);
     }
 
     protected function markTestAsPassed()

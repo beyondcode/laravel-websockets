@@ -58,11 +58,11 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        if (!$client = App::findByKey($appKey)) {
+        if (!$app = App::findByKey($appKey)) {
             throw new UnknownAppKey($appKey);
         }
 
-        $connection->client = $client;
+        $connection->app = $app;
 
         return $this;
     }
@@ -75,8 +75,6 @@ class WebSocketHandler implements MessageComponentInterface
 
         return $this;
     }
-
-
 
     protected function establishConnection(ConnectionInterface $connection)
     {

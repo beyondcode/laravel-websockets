@@ -37,12 +37,12 @@ class PrivateChannelTest extends TestCase
 
         $signature = "{$connection->socketId}:private-channel";
 
-        $hashedAppSecret = hash_hmac('sha256', $signature, $connection->client->appSecret);
+        $hashedAppSecret = hash_hmac('sha256', $signature, $connection->app->secret);
 
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->client->appKey}:{$hashedAppSecret}",
+                'auth' => "{$connection->app->key}:{$hashedAppSecret}",
                 'channel' => 'private-channel'
             ],
         ]));

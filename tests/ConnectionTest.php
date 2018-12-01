@@ -28,17 +28,17 @@ class ConnectionTest extends TestCase
     }
 
     /** @test */
-    public function successful_connections_have_the_client_attached()
+    public function successful_connections_have_the_app_attached()
     {
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
 
-        $this->assertInstanceOf(App::class, $connection->client);
-        $this->assertSame(1234, $connection->client->appId);
-        $this->assertSame('TestKey', $connection->client->appKey);
-        $this->assertSame('TestSecret', $connection->client->appSecret);
-        $this->assertSame('Test Client', $connection->client->name);
+        $this->assertInstanceOf(App::class, $connection->app);
+        $this->assertSame(1234, $connection->app->id);
+        $this->assertSame('TestKey', $connection->app->key);
+        $this->assertSame('TestSecret', $connection->app->secret);
+        $this->assertSame('Test App', $connection->app->name);
     }
 
     /** @test */
