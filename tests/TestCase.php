@@ -40,7 +40,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 'id' => 1234,
                 'key' => 'TestKey',
                 'secret' => 'TestSecret',
-                'enable_client_messages' => true,
+                'enable_client_messages' => false,
             ],
         ]);
     }
