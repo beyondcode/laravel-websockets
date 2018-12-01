@@ -10,7 +10,7 @@ use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use Ratchet\WebSocket\MessageComponentInterface;
@@ -58,7 +58,7 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        if (!$client = Client::findByAppKey($appKey)) {
+        if (!$client = App::findByKey($appKey)) {
             throw new UnknownAppKey($appKey);
         }
 

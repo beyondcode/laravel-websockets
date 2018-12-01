@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\ClientProviders;
+namespace BeyondCode\LaravelWebSockets\Apps;
 
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidClient;
 
-class Client
+class App
 {
     /** @var int */
     public $appId;
@@ -18,14 +18,14 @@ class Client
     /** @var string|null */
     public $name;
 
-    public static function findByAppId(int $appId)
+    public static function findById(int $appId)
     {
-        return app(ClientProvider::class)->findByAppId($appId);
+        return app(AppProvider::class)->findById($appId);
     }
 
-    public static function findByAppKey(string $appKey): ?Client
+    public static function findByKey(string $appKey): ?App
     {
-        return app(ClientProvider::class)->findByAppKey($appKey);
+        return app(AppProvider::class)->findByKey($appKey);
     }
 
     public function __construct($appId, string $appKey, string $appSecret, ?string $name)

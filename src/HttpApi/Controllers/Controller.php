@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
 use BeyondCode\LaravelWebSockets\QueryParameters;
@@ -77,7 +77,7 @@ abstract class Controller implements HttpServerInterface
 
     public function ensureValidAppId(string $appId)
     {
-        if (!$client = Client::findByAppId($appId)) {
+        if (!$client = App::findById($appId)) {
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
         }
 
@@ -95,7 +95,7 @@ abstract class Controller implements HttpServerInterface
             "&auth_version={$request->get('auth_version')}" .
             "&body_md5={$bodyMd5}";
 
-        $authSignature = hash_hmac('sha256', $signature, Client::findByAppId($request->get('appId'))->appSecret);
+        $authSignature = hash_hmac('sha256', $signature, App::findById($request->get('appId'))->appSecret);
 
         if ($authSignature !== $request->get('auth_signature')) {
             throw new HttpException(401, 'Invalid auth signature provided.');

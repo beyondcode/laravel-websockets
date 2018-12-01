@@ -38,9 +38,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $app['config']->set('websockets.clients', [
             [
                 'name' => 'Test Client',
-                'app_id' => 1234,
-                'app_key' => 'TestKey',
-                'app_secret' => 'TestSecret'
+                'id' => 1234,
+                'key' => 'TestKey',
+                'secret' => 'TestSecret'
             ]
         ]);
     }

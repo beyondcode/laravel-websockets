@@ -9,7 +9,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use BeyondCode\LaravelWebSockets\ClientProviders\ClientProvider;
+use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 use Illuminate\Support\ServiceProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
@@ -44,7 +44,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             return new ChannelManager();
         });
 
-        $this->app->singleton(ClientProvider::class, function() {
+        $this->app->singleton(AppProvider::class, function() {
             return app(config('websockets.client_provider'));
         });
     }

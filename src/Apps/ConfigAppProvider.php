@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\ClientProviders;
+namespace BeyondCode\LaravelWebSockets\Apps;
 
 use Illuminate\Support\Collection;
 
-class ConfigClientProvider implements ClientProvider
+class ConfigAppProvider implements AppProvider
 {
     /** @var Collection */
     protected $clients;
@@ -23,34 +23,35 @@ class ConfigClientProvider implements ClientProvider
             })
             ->toArray();
     }
-    public function findByAppId(int $appId): ?Client
+
+    public function findById(int $appId): ?App
     {
         $clientAttributes = $this
             ->clients
-            ->firstWhere('app_id', $appId);
+            ->firstWhere('id', $appId);
 
         return $this->instanciate($clientAttributes);
     }
 
-    public function findByAppKey(string $appKey): ?Client
+    public function findByKey(string $appKey): ?App
     {
         $clientAttributes = $this
             ->clients
-            ->firstWhere('app_key', $appKey);
+            ->firstWhere('key', $appKey);
 
         return $this->instanciate($clientAttributes);
     }
 
-    protected function instanciate(?array $clientAttributes): ?Client
+    protected function instanciate(?array $clientAttributes): ?App
     {
         if (! $clientAttributes) {
             return null;
         }
 
-        return new Client(
-            $clientAttributes['app_id'],
-            $clientAttributes['app_key'],
-            $clientAttributes['app_secret'],
+        return new App(
+            $clientAttributes['id'],
+            $clientAttributes['key'],
+            $clientAttributes['secret'],
             $clientAttributes['name'] ?? null
         );
     }

@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\ClientProviders;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Exceptions\InvalidClient;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
@@ -11,7 +11,7 @@ class ClientTest extends TestCase
     /** @test */
     public function it_can_create_a_client()
     {
-        new Client(1, 'appKey', 'appSecret', 'new');
+        new App(1, 'appKey', 'appSecret', 'new');
 
         $this->markTestAsPassed();
     }
@@ -21,7 +21,7 @@ class ClientTest extends TestCase
     {
         $this->expectException(InvalidClient::class);
 
-        new Client(1, '', 'appSecret', 'new');
+        new App(1, '', 'appSecret', 'new');
     }
 
     /** @test */
@@ -29,7 +29,7 @@ class ClientTest extends TestCase
     {
         $this->expectException(InvalidClient::class);
 
-        new Client(1, 'appKey', '', 'new');
+        new App(1, 'appKey', '', 'new');
     }
 
     /** @test */
@@ -37,6 +37,6 @@ class ClientTest extends TestCase
     {
         $this->expectException(InvalidClient::class);
 
-        new Client('appId', 'appKey', '', 'new');
+        new App('appId', 'appKey', '', 'new');
     }
 }

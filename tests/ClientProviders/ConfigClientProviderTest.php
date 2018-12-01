@@ -2,19 +2,19 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\ClientProviders;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider;
+use BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class ConfigClientProviderTest extends TestCase
 {
-    /** @var \BeyondCode\LaravelWebSockets\ClientProviders\ConfigClientProvider */
+    /** @var \BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider */
     protected $configClientProvider;
 
     public function setUp()
     {
         parent::setUp();
 
-        $this->configClientProvider = new ConfigClientProvider();
+        $this->configClientProvider = new ConfigAppProvider();
     }
 
     /** @test */

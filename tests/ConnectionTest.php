@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use BeyondCode\LaravelWebSockets\ClientProviders\Client;
+use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 
@@ -34,7 +34,7 @@ class ConnectionTest extends TestCase
 
         $this->pusherServer->onOpen($connection);
 
-        $this->assertInstanceOf(Client::class, $connection->client);
+        $this->assertInstanceOf(App::class, $connection->client);
         $this->assertSame(1234, $connection->client->appId);
         $this->assertSame('TestKey', $connection->client->appKey);
         $this->assertSame('TestSecret', $connection->client->appSecret);
