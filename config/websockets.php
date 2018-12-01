@@ -34,14 +34,14 @@ return [
      * This array contains the hosts of which you want to allow incoming requests.
      * Leave this empty if you want to accepts requests from all hosts.
      */
-    'allowedOrigins' => [
+    'allowed_origins' => [
         //
     ],
 
     /*
      * The maximum request size in kilobytes that is allowed for an incoming websocket request.
      */
-    'maxRequestSizeInKb' => 250,
+    'max_request_size_in_kb' => 250,
 
     /*
      * Define the optional SSL context for your websocket connections.

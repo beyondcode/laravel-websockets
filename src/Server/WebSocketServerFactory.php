@@ -83,9 +83,9 @@ class WebSocketServerFactory
 
         $router = new Router($urlMatcher);
 
-        $app = new OriginCheck($router, config('websockets.allowedOrigins', []));
+        $app = new OriginCheck($router, config('websockets.allowed_origins', []));
 
-        $httpServer = new HttpServer($app, config('websockets.maxRequestSizeInKb') * 1024);
+        $httpServer = new HttpServer($app, config('websockets.max_request_size_in_kb') * 1024);
 
         if (HttpLogger::isEnabled()) {
             $httpServer = HttpLogger::decorate($httpServer);
