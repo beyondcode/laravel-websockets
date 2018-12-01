@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Exceptions;
 
 use Exception;
 
-class InvalidClient extends Exception
+class InvalidApp extends Exception
 {
     public static function notFound(int $appId)
     {

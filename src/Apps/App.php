@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Apps;
 
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidClient;
+use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 
 class App
 {
@@ -31,15 +31,15 @@ class App
     public function __construct($appId, string $appKey, string $appSecret, ?string $name)
     {
         if (!is_numeric($appId)) {
-            throw InvalidClient::appIdIsNotNumeric($appId);
+            throw InvalidApp::appIdIsNotNumeric($appId);
         }
 
         if ($appKey === '') {
-            throw InvalidClient::valueIsRequired('appKey', $appId);
+            throw InvalidApp::valueIsRequired('appKey', $appId);
         }
 
         if ($appSecret === '') {
-            throw InvalidClient::valueIsRequired('appSecret', $appId);
+            throw InvalidApp::valueIsRequired('appSecret', $appId);
         }
 
         $this->appId = $appId;
