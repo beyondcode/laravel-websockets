@@ -18,7 +18,7 @@ class Channel
 
     public function __construct(string $channelName)
     {
-        $this->channelId = $channelName;
+        $this->channelName = $channelName;
     }
 
     public function hasConnections(): bool
@@ -33,7 +33,7 @@ class Channel
 
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
     {
-        $signature = "{$connection->socketId}:{$this->channelId}";
+        $signature = "{$connection->socketId}:{$this->channelName}";
 
         if (isset($payload->channel_data)) {
             $signature .= ":{$payload->channel_data}";
@@ -53,7 +53,7 @@ class Channel
 
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
-            'channel' => $this->channelId
+            'channel' => $this->channelName
         ]));
     }
 
@@ -62,7 +62,7 @@ class Channel
         unset($this->subscriptions[$connection->socketId]);
 
         if (! $this->hasConnections()) {
-            DashboardLogger::vacated($connection, $this->channelId);
+            DashboardLogger::vacated($connection, $this->channelName);
         }
     }
 
@@ -73,10 +73,10 @@ class Channel
         $this->subscriptions[$connection->socketId] = $connection;
 
         if (! $hadConnectionsPreviously) {
-            DashboardLogger::occupied($connection, $this->channelId);
+            DashboardLogger::occupied($connection, $this->channelName);
         }
 
-        DashboardLogger::subscribed($connection, $this->channelId);
+        DashboardLogger::subscribed($connection, $this->channelName);
     }
 
     public function broadcast($payload)
