@@ -6,11 +6,11 @@ use Ratchet\ConnectionInterface;
 
 class ChannelManager
 {
-    /** @var array */
-    protected $channels = [];
-
     /** @var string */
     protected $appId;
+
+    /** @var array */
+    protected $channels = [];
 
     public function findOrCreate(string $appId, string $channelId): Channel
     {
