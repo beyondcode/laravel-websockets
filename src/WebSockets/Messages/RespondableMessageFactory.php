@@ -11,7 +11,7 @@ class RespondableMessageFactory
     public static function createForMessage(
         MessageInterface $message,
         ConnectionInterface $connection,
-        ChannelManager $channelManager): RespondableMessage
+        ChannelManager $channelManager): PusherMessage
     {
         $payload = json_decode($message->getPayload());
 

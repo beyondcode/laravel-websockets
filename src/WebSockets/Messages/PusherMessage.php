@@ -1,7 +1,7 @@
 <?php
 namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
-interface RespondableMessage
+interface PusherMessage
 {
     public function respond();
 }

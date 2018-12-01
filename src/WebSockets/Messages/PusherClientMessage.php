@@ -8,7 +8,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Ratchet\ConnectionInterface;
 use stdClass;
 
-class PusherClientMessage implements RespondableMessage
+class PusherClientMessage implements PusherMessage
 {
     /** \stdClass */
     protected $payload;
