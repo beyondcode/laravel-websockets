@@ -48,11 +48,20 @@ class ConfigAppProvider implements AppProvider
             return null;
         }
 
-        return new App(
+        $app = new App(
             $appAttributes['id'],
             $appAttributes['key'],
-            $appAttributes['secret'],
-            $appAttributes['name'] ?? null
+            $appAttributes['secret']
         );
+
+        if (isset($appAttributes['name'])) {
+            $app->setName($appAttributes['name']);
+        }
+
+        if ($appAttributes['enable_client_messages'] ?? false) {
+            $app->enableClientMessages();
+        }
+
+        return $app;
     }
 }

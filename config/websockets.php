@@ -7,13 +7,17 @@ return [
      * configure the different apps that can use the webSockets server.
      *
      * You should make sure that the app id is numeric.
+     *
+     * Optionally you can disable client events so clients cannot send
+     * messages through each other via the webSockets.
      */
     'apps' => [
         [
             'id' => env('PUSHER_APP_ID'),
             'name' => env('APP_NAME'),
             'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET')
+            'secret' => env('PUSHER_APP_SECRET'),
+            'enable_client_messages' => true,
         ],
     ],
 

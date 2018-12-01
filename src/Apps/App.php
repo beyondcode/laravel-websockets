@@ -18,6 +18,9 @@ class App
     /** @var string|null */
     public $name;
 
+    /** @var bool */
+    public $clientMessagesEnabled = false;
+
     public static function findById(int $appId)
     {
         return app(AppProvider::class)->findById($appId);
@@ -28,7 +31,7 @@ class App
         return app(AppProvider::class)->findByKey($appKey);
     }
 
-    public function __construct($appId, string $appKey, string $appSecret, ?string $name)
+    public function __construct($appId, string $appKey, string $appSecret)
     {
         if (!is_numeric($appId)) {
             throw InvalidApp::appIdIsNotNumeric($appId);
@@ -47,7 +50,19 @@ class App
         $this->key = $appKey;
 
         $this->secret = $appSecret;
+    }
 
-        $this->name = $name;
+    public function setName(string $appName)
+    {
+        $this->name = $appName;
+
+        return $this;
+    }
+
+    public function enableClientMessages(bool $enabled = true)
+    {
+        $this->clientMessagesEnabled = $enabled;
+
+        return $this;
     }
 }
