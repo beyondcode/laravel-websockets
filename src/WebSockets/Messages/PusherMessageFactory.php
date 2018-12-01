@@ -6,7 +6,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 
-class RespondableMessageFactory
+class PusherMessageFactory
 {
     public static function createForMessage(
         MessageInterface $message,

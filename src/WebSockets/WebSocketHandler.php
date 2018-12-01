@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
-use BeyondCode\LaravelWebSockets\WebSockets\Messages\RespondableMessageFactory;
+use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
@@ -35,7 +35,7 @@ class WebSocketHandler implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $message = RespondableMessageFactory::createForMessage($message, $connection, $this->channelManager);
+        $message = PusherMessageFactory::createForMessage($message, $connection, $this->channelManager);
 
         $message->respond();
     }
