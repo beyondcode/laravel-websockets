@@ -12,29 +12,29 @@ class ChannelManager
     /** @var array */
     protected $channels = [];
 
-    public function findOrCreate(string $appId, string $channelId): Channel
-    {
-        if (!isset($this->channels[$appId][$channelId])) {
-            $channelClass = $this->determineChannelClass($channelId);
-            
-            $this->channels[$appId][$channelId] = new $channelClass($channelId);
-        }
+public function findOrCreate(string $appId, string $channelName): Channel
+{
+    if (!isset($this->channels[$appId][$channelName])) {
+        $channelClass = $this->determineChannelClass($channelName);
 
-        return $this->channels[$appId][$channelId];
+        $this->channels[$appId][$channelName] = new $channelClass($channelName);
     }
 
-    public function find(string $appId, string $channelId): ?Channel
+    return $this->channels[$appId][$channelName];
+}
+
+    public function find(string $appId, string $channelName): ?Channel
     {
-        return $this->channels[$appId][$channelId] ?? null;
+        return $this->channels[$appId][$channelName] ?? null;
     }
 
-    protected function determineChannelClass(string $channelId): string
+    protected function determineChannelClass(string $channelName): string
     {
-        if (starts_with($channelId, 'private-')) {
+        if (starts_with($channelName, 'private-')) {
             return PrivateChannel::class;
         }
 
-        if (starts_with($channelId, 'presence-')) {
+        if (starts_with($channelName, 'presence-')) {
             return PresenceChannel::class;
         }
 
@@ -62,8 +62,8 @@ class ChannelManager
          */
         collect(array_get($this->channels, $connection->client->appId, []))
             ->reject->hasConnections()
-            ->each(function (Channel $channel, string $channelId) use ($connection) {
-                unset($this->channels[$connection->client->appId][$channelId]);
+            ->each(function (Channel $channel, string $channelName) use ($connection) {
+                unset($this->channels[$connection->client->appId][$channelName]);
             });
 
         if (count(array_get($this->channels, $connection->client->appId, [])) === 0) {

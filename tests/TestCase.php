@@ -76,9 +76,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $connection;
     }
 
-    protected function getChannel(ConnectionInterface $connection, string $channelId)
+    protected function getChannel(ConnectionInterface $connection, string $channelName)
     {
-        return $this->channelManager->findOrCreate($connection->client->appId, $channelId);
+        return $this->channelManager->findOrCreate($connection->client->appId, $channelName);
     }
 
     protected function markTestAsPassed()

@@ -11,14 +11,14 @@ use stdClass;
 class Channel
 {
     /** @var string */
-    protected $channelId;
+    protected $channelName;
 
     /** @var \Ratchet\ConnectionInterface[] */
     protected $subscriptions = [];
 
-    public function __construct(string $channelId)
+    public function __construct(string $channelName)
     {
-        $this->channelId = $channelId;
+        $this->channelId = $channelName;
     }
 
     public function hasConnections(): bool

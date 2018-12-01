@@ -11,18 +11,18 @@ class TriggerEventController extends Controller
     {
         $this->ensureValidSignature($request);
 
-        foreach ($request->json()->get('channels', []) as $channelId) {
-            $channel = $this->channelManager->find($request->appId, $channelId);
+        foreach ($request->json()->get('channels', []) as $channelName) {
+            $channel = $this->channelManager->find($request->appId, $channelName);
 
             optional($channel)->broadcastToEveryoneExcept([
-                'channel' => $channelId,
+                'channel' => $channelName,
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
             ], $request->json()->get('socket_id'));
 
             DashboardLogger::apiMessage(
                 $request->appId,
-                $channelId,
+                $channelName,
                 $request->json()->get('name'),
                 $request->json()->get('data')
             );

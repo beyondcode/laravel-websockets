@@ -28,18 +28,18 @@ class DashboardLogger
         ]);
     }
 
-    public static function occupied(ConnectionInterface $connection, string $channelId)
+    public static function occupied(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->client->appId, static::TYPE_OCCUPIED, [
-            'details' => "Channel: {$channelId}",
+            'details' => "Channel: {$channelName}",
         ]);
     }
 
-    public static function subscribed(ConnectionInterface $connection, string $channelId)
+    public static function subscribed(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->client->appId, static::TYPE_SUBSCRIBED, [
             'socketId' => $connection->socketId,
-            'details' => "Channel: {$channelId}",
+            'details' => "Channel: {$channelName}",
         ]);
     }
 
@@ -59,10 +59,10 @@ class DashboardLogger
         ]);
     }
 
-    public static function vacated(ConnectionInterface $connection, string $channelId)
+    public static function vacated(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->client->appId, static::TYPE_VACATED, [
-            'details' => "Channel: {$channelId}",
+            'details' => "Channel: {$channelName}",
         ]);
     }
 
@@ -76,13 +76,13 @@ class DashboardLogger
 
     public static function log($appId, string $type, array $attributes = [])
     {
-        $channelId = static::LOG_CHANNEL_PREFIX . $type;
+        $channelName = static::LOG_CHANNEL_PREFIX . $type;
 
-        $channel = app(ChannelManager::class)->find($appId, $channelId);
+        $channel = app(ChannelManager::class)->find($appId, $channelName);
 
         optional($channel)->broadcast([
             'event' => 'log-message',
-            'channel' => $channelId,
+            'channel' => $channelName,
             'data' => [
                 'type' => $type,
                 'time' => strftime("%H:%M:%S")
