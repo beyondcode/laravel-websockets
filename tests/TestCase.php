@@ -12,7 +12,6 @@ use Ratchet\ConnectionInterface;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler */
     protected $pusherServer;
 

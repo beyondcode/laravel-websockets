@@ -7,17 +7,17 @@ use Illuminate\Support\Collection;
 class ConfigAppProvider implements AppProvider
 {
     /** @var Collection */
-    protected $clients;
+    protected $apps;
 
     public function __construct()
     {
-        $this->clients = collect(config('websockets.clients'));
+        $this->apps = collect(config('websockets.clients'));
     }
 
     /**  @return array[\BeyondCode\LaravelWebSockets\ClientProviders\Client] */
     public function all(): array
     {
-        return $this->clients
+        return $this->apps
             ->map(function ($client) {
                 return $this->instanciate($client);
             })
@@ -27,7 +27,7 @@ class ConfigAppProvider implements AppProvider
     public function findById(int $appId): ?App
     {
         $clientAttributes = $this
-            ->clients
+            ->apps
             ->firstWhere('id', $appId);
 
         return $this->instanciate($clientAttributes);
@@ -36,23 +36,23 @@ class ConfigAppProvider implements AppProvider
     public function findByKey(string $appKey): ?App
     {
         $clientAttributes = $this
-            ->clients
+            ->apps
             ->firstWhere('key', $appKey);
 
         return $this->instanciate($clientAttributes);
     }
 
-    protected function instanciate(?array $clientAttributes): ?App
+    protected function instanciate(?array $appAttributes): ?App
     {
-        if (! $clientAttributes) {
+        if (! $appAttributes) {
             return null;
         }
 
         return new App(
-            $clientAttributes['id'],
-            $clientAttributes['key'],
-            $clientAttributes['secret'],
-            $clientAttributes['name'] ?? null
+            $appAttributes['id'],
+            $appAttributes['key'],
+            $appAttributes['secret'],
+            $appAttributes['name'] ?? null
         );
     }
 }
