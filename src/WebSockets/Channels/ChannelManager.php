@@ -16,8 +16,9 @@ class ChannelManager
     public function findOrCreate(string $appId, string $channelId): Channel
     {
         if (!isset($this->channels[$appId][$channelId])) {
-            $this->channels[$appId][$channelId] = (new ReflectionClass($this->detectChannelClass($channelId)))
-                ->newInstance($channelId);
+            $channelClass = $this->determineChannelClass($channelId);
+            
+            $this->channels[$appId][$channelId] = new $channelClass($channelId);
         }
 
         return $this->channels[$appId][$channelId];
@@ -28,7 +29,7 @@ class ChannelManager
         return $this->channels[$appId][$channelId] ?? null;
     }
 
-    protected function detectChannelClass(string $channelId): string
+    protected function determineChannelClass(string $channelId): string
     {
         if (starts_with($channelId, 'private-')) {
             return PrivateChannel::class;
