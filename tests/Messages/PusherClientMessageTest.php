@@ -24,4 +24,36 @@ class PusherClientMessageTest extends TestCase
 
         $connection->assertNotSentEvent('client-test');
     }
+
+    /** @test */
+    public function client_messages_get_broadcasted_when_enabled()
+    {
+        $this->app['config']->set('websockets.apps', [
+            [
+                'name' => 'Test App',
+                'id' => 1234,
+                'key' => 'TestKey',
+                'secret' => 'TestSecret',
+                'enable_client_messages' => true,
+            ],
+        ]);
+
+        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $message = new Message(json_encode([
+            'event' => 'client-test',
+            'channel' => 'test-channel',
+            'data' => [
+                'client-event' => 'test'
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $connection->assertSentEvent('client-test', [
+            'data' => [
+                'client-event' => 'test'
+            ]
+        ]);
+    }
 }
