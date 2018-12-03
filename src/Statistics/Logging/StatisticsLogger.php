@@ -2,7 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logging;
 
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Ratchet\ConnectionInterface;
 
@@ -14,9 +16,11 @@ class StatisticsLogger
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
-    public function __construct(ChannelManager $channelManager)
+    public function __construct(ChannelManager $channelManager, Client $client)
     {
         $this->channelManager = $channelManager;
+
+        $this->client = $client;
     }
 
     public function webSocketMessage(ConnectionInterface $connection)
@@ -57,14 +61,20 @@ class StatisticsLogger
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
-            if ($statistic->isEnabled()) {
-                // TODO: perform http request
+            if (! $statistic->isEnabled()) {
+                continue;
             }
 
+            $this->client->postAsync(
+                action([WebsocketStatisticsEntriesController::class, 'store']),
+                $statistic->toArray()
+            );
+
             // Reset connection and message count
-            $connections = Collection::make($this->channelManager->getChannels($appId))->sum(function ($channel) {
-                return count($channel->getSubscribedConnections());
-            });
+            $connections = collect($this->channelManager->getChannels($appId))
+                ->sum(function ($channel) {
+                    return count($channel->getSubscribedConnections());
+                });
 
             $statistic->reset($connections);
         }

@@ -74,8 +74,18 @@ class StartWebSocketServer extends Command
 
     protected function configureStatisticsLogger()
     {
+        $handler = new \WyriHaximus\React\GuzzlePsr7\HttpClientAdapter($this->loop);
+
+        $client = new \GuzzleHttp\Client([
+            'handler' => \GuzzleHttp\HandlerStack::create($handler),
+        ]);
+
+        app()->singleton('websockets.statisticslogger', function() use ($client) {
+            return new StatisticsLogger(app(ChannelManager::class, $client));
+        });
+
         $this->loop->addPeriodicTimer(60, function() {
-            StatisticsLogger::save();
+            StatisticsLogger::save($this->loop);
         });
 
         return $this;

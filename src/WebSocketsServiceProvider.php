@@ -52,10 +52,6 @@ class WebSocketsServiceProvider extends ServiceProvider
             return new ChannelManager();
         });
 
-        $this->app->singleton('websockets.statisticslogger', function() {
-            return new StatisticsLogger(app(ChannelManager::class));
-        });
-
         $this->app->singleton(AppProvider::class, function() {
             return app(config('websockets.app_provider'));
         });
