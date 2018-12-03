@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logging;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Client;
-use Illuminate\Support\Collection;
 use Ratchet\ConnectionInterface;
 
 class StatisticsLogger
@@ -23,32 +22,32 @@ class StatisticsLogger
         $this->client = $client;
     }
 
-    public function webSocketMessage(ConnectionInterface $connection)
+    public function logWebSocketMessage(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->webSocketMessage();
+        $this->statistics[$connection->app->id]->logWebSocketMessage();
     }
 
-    public function apiMessage($appId)
+    public function logApiMessage($appId)
     {
         $this->initializeStatistics($appId);
 
-        $this->statistics[$appId]->apiMessage();
+        $this->statistics[$appId]->logApiMessage();
     }
 
-    public function connection(ConnectionInterface $connection)
+    public function logConnection(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->connection();
+        $this->statistics[$connection->app->id]->logConnection();
     }
 
-    public function disconnection(ConnectionInterface $connection)
+    public function logDisconnection(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->disconnection();
+        $this->statistics[$connection->app->id]->logDisconnection();
     }
 
     protected function initializeStatistics($id)

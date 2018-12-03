@@ -10,10 +10,10 @@ class Statistic
     protected $appId;
 
     /** @var int */
-    protected $connections = 0;
+    protected $currentConnectionCount = 0;
 
     /** @var int */
-    protected $peakConnections = 0;
+    protected $peakConnectionCount = 0;
 
     /** @var int */
     protected $webSocketMessageCount = 0;
@@ -31,34 +31,34 @@ class Statistic
         return App::findById($this->appId)->statisticsEnabled;
     }
 
-    public function connection()
+    public function logConnection()
     {
-        $this->connections++;
+        $this->currentConnectionCount++;
 
-        $this->peakConnections = max($this->connections, $this->peakConnections);
+        $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
     }
 
-    public function disconnection()
+    public function logDisconnection()
     {
-        $this->connections--;
+        $this->currentConnectionCount--;
 
-        $this->peakConnections = max($this->connections, $this->peakConnections);
+        $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
     }
 
-    public function webSocketMessage()
+    public function logWebSocketMessage()
     {
         $this->webSocketMessageCount++;
     }
 
-    public function apiMessage()
+    public function logApiMessage()
     {
         $this->apiMessageCount++;
     }
 
     public function reset(int $currentConnectionCount)
     {
-        $this->connections = $currentConnectionCount;
-        $this->peakConnections = $currentConnectionCount;
+        $this->currentConnectionCount = $currentConnectionCount;
+        $this->peakConnectionCount = $currentConnectionCount;
         $this->webSocketMessageCount = 0;
         $this->apiMessageCount = 0;
     }
@@ -67,7 +67,7 @@ class Statistic
     {
         return [
             'app_id' => $this->appId,
-            'peak_connections' => $this->peakConnections,
+            'peak_connection_count' => $this->peakConnectionCount,
             'websocket_message_count' => $this->webSocketMessageCount,
             'api_message_count' => $this->apiMessageCount,
         ];

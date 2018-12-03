@@ -7,10 +7,13 @@ use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 
 use React\EventLoop\Factory as LoopFactory;
+use WyriHaximus\React\GuzzlePsr7\HttpClientAdapter;
 
 class StartWebSocketServer extends Command
 {
@@ -74,10 +77,10 @@ class StartWebSocketServer extends Command
 
     protected function configureStatisticsLogger()
     {
-        $handler = new \WyriHaximus\React\GuzzlePsr7\HttpClientAdapter($this->loop);
+        $handler = new HttpClientAdapter($this->loop);
 
-        $client = new \GuzzleHttp\Client([
-            'handler' => \GuzzleHttp\HandlerStack::create($handler),
+        $client = new Client([
+            'handler' => HandlerStack::create($handler),
         ]);
 
         app()->singleton('websockets.statisticslogger', function() use ($client) {

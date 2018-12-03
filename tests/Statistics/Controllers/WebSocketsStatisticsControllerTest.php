@@ -27,7 +27,7 @@ class WebSocketsStatisticsControllerTest extends TestCase
     {
         return [
             'app_id' => config('websockets.apps.0.id'),
-            'peak_connections' => 1,
+            'peak_connection_count' => 1,
             'websocket_message_count' => 2,
             'api_message_count' => 3,
         ];
