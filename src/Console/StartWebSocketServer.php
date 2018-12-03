@@ -61,7 +61,7 @@ class StartWebSocketServer extends Command
 
         $this->loop->addPeriodicTimer(5, function() {
             echo 'saving stats...';
-            StatisticsLogger::save($this->loop);
+            StatisticsLogger::save();
         });
 
         return $this;

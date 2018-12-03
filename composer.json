@@ -25,6 +25,7 @@
         "php": "^7.1",
         "ext-json": "*",
         "cboden/ratchet": "^0.4.1",
+        "clue/buzz-react": "^2.5",
         "illuminate/broadcasting": "5.7.*",
         "illuminate/console": "5.7.*",
         "illuminate/http": "5.7.*",
@@ -32,8 +33,7 @@
         "illuminate/support": "5.7.*",
         "pusher/pusher-php-server": "~3.0",
         "symfony/http-kernel": "~4.0",
-        "symfony/psr-http-message-bridge": "^1.1",
-        "wyrihaximus/react-guzzle-psr7": "^2.1"
+        "symfony/psr-http-message-bridge": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.2",
