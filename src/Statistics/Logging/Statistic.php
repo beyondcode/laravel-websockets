@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logging;
 
+use BeyondCode\LaravelWebSockets\Apps\App;
+
 class Statistic
 {
     protected $appId;
@@ -21,6 +23,11 @@ class Statistic
     public function __construct($appId)
     {
         $this->appId = $appId;
+    }
+
+    public function isEnabled(): bool
+    {
+        return App::findById($this->appId)->statisticsEnabled;
     }
 
     public function connection()
