@@ -42,6 +42,25 @@ class StartWebSocketServer extends Command
             ->startWebSocketServer();
     }
 
+    protected function configureStatisticsLogger()
+    {
+        $handler = new HttpClientAdapter($this->loop);
+
+        $client = new Client([
+            'handler' => HandlerStack::create($handler),
+        ]);
+
+        app()->singleton('websockets.statisticslogger', function() use ($client) {
+            return new StatisticsLogger(app(ChannelManager::class, $client));
+        });
+
+        $this->loop->addPeriodicTimer(60, function() {
+            StatisticsLogger::save($this->loop);
+        });
+
+        return $this;
+    }
+
     protected function configureHttpLogger()
     {
         app()->singleton(HttpLogger::class, function() {
@@ -70,25 +89,6 @@ class StartWebSocketServer extends Command
             return (new ConnectionLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
-        });
-
-        return $this;
-    }
-
-    protected function configureStatisticsLogger()
-    {
-        $handler = new HttpClientAdapter($this->loop);
-
-        $client = new Client([
-            'handler' => HandlerStack::create($handler),
-        ]);
-
-        app()->singleton('websockets.statisticslogger', function() use ($client) {
-            return new StatisticsLogger(app(ChannelManager::class, $client));
-        });
-
-        $this->loop->addPeriodicTimer(60, function() {
-            StatisticsLogger::save($this->loop);
         });
 
         return $this;
