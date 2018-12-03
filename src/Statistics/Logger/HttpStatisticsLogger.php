@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Client;
+use function GuzzleHttp\Psr7\stream_for;
 use Ratchet\ConnectionInterface;
 
 class HttpStatisticsLogger implements StatisticsLogger
@@ -67,24 +68,17 @@ class HttpStatisticsLogger implements StatisticsLogger
         echo 'in actual save method';
 
         foreach ($this->statistics as $appId => $statistic) {
-            echo "stats of ${appId} " . $statistic->isEnabled() ? 'enabled' : 'DISABLED!';
+
             if (!$statistic->isEnabled()) {
                 continue;
             }
 
-            echo 'posted';
             $this->browser
                 ->post(
                     action([WebsocketStatisticsEntriesController::class, 'store']),
-                    [],
-                    $statistic->toArray()
-                )
-                ->then(function() {
-                    echo 'fulfilled';
-                }, function($e) {
-                    echo 'fulfilled';
-                    dd($);
-                });
+                    ['Content-Type' => 'application/json'],
+                    stream_for(json_encode($statistic->toArray()))
+                );
 
             // Reset connection and message count
             $currentConnectionCount = collect($this->channelManager->getChannels($appId))

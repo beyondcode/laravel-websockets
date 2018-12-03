@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 use Illuminate\Support\ServiceProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Illuminate\Support\Str;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         }
 
         $this->registerRouteMacro();
+
+        $this->registerStatisticRoute();
 
         $this->registerDashboardGate();
 
@@ -65,11 +68,13 @@ class WebSocketsServiceProvider extends ServiceProvider
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
             });
+        });
+    }
 
-            //TODO: add middleware
-            Route::prefix($prefix)->namespace('\\')->group(function() {
-                Route::post('statistics', [WebsocketStatisticsEntriesController::class, 'store']);
-            });
+    protected function registerStatisticRoute()
+    {
+        Route::prefix('/laravel-websockets')->namespace('\\')->group(function() {
+            Route::post('statistics', [WebsocketStatisticsEntriesController::class, 'store']);
         });
     }
 
