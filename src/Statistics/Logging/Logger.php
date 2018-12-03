@@ -11,7 +11,7 @@ class Logger
     /** @var Statistic[] */
     protected $statistics = [];
 
-    /** @var ChannelManager */
+    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
