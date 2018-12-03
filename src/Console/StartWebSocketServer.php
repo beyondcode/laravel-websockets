@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
@@ -17,9 +18,20 @@ class StartWebSocketServer extends Command
 
     protected $description = 'Start the Laravel WebSocket Server';
 
+    /** @var \React\EventLoop\LoopInterface */
+    protected $loop;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->loop = LoopFactory::create();
+    }
+
     public function handle()
     {
         $this
+            ->configureStatisticsLogger()
             ->configureHttpLogger()
             ->configureMessageLogger()
             ->configureConnectionLogger()
@@ -60,6 +72,15 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    protected function configureStatisticsLogger()
+    {
+        $this->loop->addPeriodicTimer(60, function() {
+            StatisticsLogger::save();
+        });
+
+        return $this;
+    }
+
     protected function registerEchoRoutes()
     {
         WebSocketsRouter::echo();
@@ -75,6 +96,7 @@ class StartWebSocketServer extends Command
 
         /** 🛰 Start the server 🛰  */
         (new WebSocketServerFactory())
+            ->setLoop($this->loop)
             ->useRoutes($routes)
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))

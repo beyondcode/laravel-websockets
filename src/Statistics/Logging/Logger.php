@@ -26,11 +26,11 @@ class Logger
         $this->statistics[$connection->app->id]->webSocketMessage();
     }
 
-    public function apiMessage(ConnectionInterface $connection)
+    public function apiMessage($appId)
     {
-        $this->initializeStatistics($connection->app->id);
+        $this->initializeStatistics($appId);
 
-        $this->statistics[$connection->app->id]->apiMessage();
+        $this->statistics[$appId]->apiMessage();
     }
 
     public function connection(ConnectionInterface $connection)

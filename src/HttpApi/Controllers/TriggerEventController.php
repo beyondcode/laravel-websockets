@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use Illuminate\Http\Request;
 
 class TriggerEventController extends Controller
@@ -26,6 +27,8 @@ class TriggerEventController extends Controller
                 $request->json()->get('name'),
                 $request->json()->get('data')
             );
+
+            StatisticsLogger::apiMessage($request->appId);
         }
 
         return $request->json()->all();
