@@ -76,6 +76,35 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $connection;
     }
 
+    protected function joinPresenceChannel($channel): Connection
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $channelData = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Marcel'
+            ]
+        ];
+
+        $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel' => $channel,
+                'channel_data' => json_encode($channelData)
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        return $connection;
+    }
+
     protected function getChannel(ConnectionInterface $connection, string $channelName)
     {
         return $this->channelManager->findOrCreate($connection->app->id, $channelName);

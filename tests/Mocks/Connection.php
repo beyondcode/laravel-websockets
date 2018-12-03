@@ -13,11 +13,14 @@ class Connection implements ConnectionInterface
 
     public $sentData = [];
 
+    public $sentRawData = [];
+
     public $closed = false;
 
     public function send($data)
     {
         $this->sentData[] = json_decode($data, true);
+        $this->sentRawData[] = $data;
     }
 
     public function close()
