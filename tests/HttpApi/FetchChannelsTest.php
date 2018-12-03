@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebsockets\Tests\HttpApi;
+namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class FetchChannelTest extends TestCase
+class FetchChannelsTest extends TestCase
 {
 
     /** @test */
