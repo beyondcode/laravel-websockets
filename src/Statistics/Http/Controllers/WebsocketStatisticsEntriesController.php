@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
-use BeyondCode\LaravelWebSockets\Statistics\WebSocketsStatisticsEntry;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use Illuminate\Http\Request;
 
 class WebsocketStatisticsEntriesController
