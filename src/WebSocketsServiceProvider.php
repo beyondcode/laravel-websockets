@@ -8,7 +8,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
-use BeyondCode\LaravelWebSockets\Statistics\Logging\Logger;
+use BeyondCode\LaravelWebSockets\Statistics\Logging\StatisticsLogger;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
@@ -53,7 +53,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('websockets.statisticslogger', function() {
-            return new Logger(app(ChannelManager::class));
+            return new StatisticsLogger(app(ChannelManager::class));
         });
 
         $this->app->singleton(AppProvider::class, function() {
