@@ -59,15 +59,15 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerRouteMacro()
     {
-        Route::macro('webSockets', function($prefix = 'websockets') {
-            Route::prefix($prefix)->middleware(Authorize::class)->group(function() {
+        Route::macro('webSockets', function($prefix = 'laravel-websockets') {
+            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
                 Route::get('/',  ShowDashboard::class);
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
             });
 
             //TODO: add middleware
-            Route::prefix($prefix)->group(function() {
+            Route::prefix($prefix)->namespace('\\')->group(function() {
                 Route::post('statistics', [WebsocketStatisticsEntriesController::class, 'store']);
             });
         });
