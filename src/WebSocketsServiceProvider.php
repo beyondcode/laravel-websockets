@@ -22,22 +22,21 @@ class WebSocketsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
+            __DIR__ . '/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
+        if (!class_exists('CreateWebSocketsStatisticsEntries')) {
             $this->publishes([
-                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
+                __DIR__ . '/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_websockets_statistics_entries_table.php'),
             ], 'migrations');
         }
 
-        $this->registerRouteMacro();
+        $this
+            ->registerRouteMacro()
+            ->registerStatisticRoute()
+            ->registerDashboardGate();
 
-        $this->registerStatisticRoute();
-
-        $this->registerDashboardGate();
-
-        $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'websockets');
 
         $this->commands([
             Console\StartWebSocketServer::class,
@@ -46,38 +45,42 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
+        $this->mergeConfigFrom(__DIR__ . '/../config/websockets.php', 'websockets');
 
-        $this->app->singleton('websockets.router', function() {
+        $this->app->singleton('websockets.router', function () {
             return new Router();
         });
 
-        $this->app->singleton(ChannelManager::class, function() {
+        $this->app->singleton(ChannelManager::class, function () {
             return new ChannelManager();
         });
 
-        $this->app->singleton(AppProvider::class, function() {
+        $this->app->singleton(AppProvider::class, function () {
             return app(config('websockets.app_provider'));
         });
     }
 
     protected function registerRouteMacro()
     {
-        Route::macro('webSockets', function($prefix = 'laravel-websockets') {
-            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
-                Route::get('/',  ShowDashboard::class);
-                Route::get('/api/{appId}/statistics',  DashboardApiController::class.'@getStatistics');
+        Route::macro('webSockets', function ($prefix = 'laravel-websockets') {
+            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function () {
+                Route::get('/', ShowDashboard::class);
+                Route::get('/api/{appId}/statistics', DashboardApiController::class . '@getStatistics');
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
             });
         });
+
+        return $this;
     }
 
     protected function registerStatisticRoute()
     {
-        Route::prefix('/laravel-websockets')->namespace('\\')->group(function() {
+        Route::prefix('/laravel-websockets')->namespace('\\')->group(function () {
             Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
         });
+
+        return $this;
     }
 
     protected function registerDashboardGate()
@@ -85,5 +88,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         Gate::define('viewWebSocketsDashboard', function ($user = null) {
             return app()->environment('local');
         });
+
+        return $this;
     }
 }
