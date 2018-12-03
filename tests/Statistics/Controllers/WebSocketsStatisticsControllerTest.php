@@ -11,8 +11,6 @@ class WebSocketsStatisticsControllerTest extends TestCase
     /** @test */
     public function it_can_store_statistics()
     {
-        $this->withoutExceptionHandling();
-
         $this->post(
             action([WebsocketStatisticsEntriesController::class, 'store']),
             $this->payload()
