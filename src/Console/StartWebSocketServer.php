@@ -16,6 +16,7 @@ use Illuminate\Console\Command;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 
 use React\EventLoop\Factory as LoopFactory;
+use React\Socket\Connector;
 
 class StartWebSocketServer extends Command
 {
@@ -46,9 +47,9 @@ class StartWebSocketServer extends Command
 
     protected function configureStatisticsLogger()
     {
-        $connector = new \React\Socket\Connector($this->loop, array(
+        $connector = new Connector($this->loop, [
             'dns' => '127.0.0.1'
-        ));
+        ]);
 
         $browser = new Browser($this->loop, $connector);
 
@@ -57,8 +58,7 @@ class StartWebSocketServer extends Command
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(5, function() {
-            echo 'saving stats...';
+        $this->loop->addPeriodicTimer(60, function() {
             StatisticsLogger::save();
         });
 

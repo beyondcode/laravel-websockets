@@ -65,8 +65,6 @@ class HttpStatisticsLogger implements StatisticsLogger
 
     public function save()
     {
-        echo 'in actual save method';
-
         foreach ($this->statistics as $appId => $statistic) {
 
             if (!$statistic->isEnabled()) {
