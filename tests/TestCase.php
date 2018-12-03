@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
@@ -29,6 +30,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->channelManager = app(ChannelManager::class);
 
         Route::webSockets();
+
+        StatisticsLogger::fake();
     }
 
     protected function getPackageProviders($app)
