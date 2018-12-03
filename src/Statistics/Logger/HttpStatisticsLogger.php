@@ -60,15 +60,27 @@ class HttpStatisticsLogger implements StatisticsLogger
 
     public function save()
     {
+        echo 'in actual save method';
+
         foreach ($this->statistics as $appId => $statistic) {
-            if (! $statistic->isEnabled()) {
+            echo "stats of ${appId} " . $statistic->isEnabled() ? 'enabled' : 'DISABLED!';
+            if (!$statistic->isEnabled()) {
                 continue;
             }
 
-            $this->client->postAsync(
-                action([WebsocketStatisticsEntriesController::class, 'store']),
-                $statistic->toArray()
-            );
+            echo 'posted';
+            $this->client
+                ->postAsync(
+                    action([WebsocketStatisticsEntriesController::class, 'store']),
+                    $statistic->toArray()
+                )
+                ->then(function() {
+                    echo 'fulfilled';
+                })
+                ->otherwise(function() {
+                    echo 'rejected!';
+                    var_dump(func_get_args());
+                });
 
             // Reset connection and message count
             $currentConnectionCount = collect($this->channelManager->getChannels($appId))
