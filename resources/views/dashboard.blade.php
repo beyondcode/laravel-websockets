@@ -102,7 +102,7 @@
 
         methods: {
             connect() {
-                this.pusher = new Pusher(this.app.appKey, {
+                this.pusher = new Pusher(this.app.key, {
                     wsHost: window.location.hostname,
                     wsPort: this.port,
                     disableStats: true,
@@ -148,7 +148,7 @@
             },
 
             subscribeToChannel(channel) {
-                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\LaravelEcho\Pusher\Dashboard::LOG_CHANNEL_PREFIX }}' + channel)
+                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}' + channel)
                     .bind('log-message', (data) => {
                         this.logs.push(data);
                     });

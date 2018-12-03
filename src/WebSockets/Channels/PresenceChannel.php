@@ -44,6 +44,10 @@ class PresenceChannel extends Channel
     {
         parent::unsubscribe($connection);
 
+        if (! isset($this->users[$connection->socketId])) {
+            return;
+        }
+
         $this->broadcastToOthers($connection, [
             'event' => 'pusher_internal:member_removed',
             'channel' => $this->channelName,
