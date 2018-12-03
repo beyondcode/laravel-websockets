@@ -23,32 +23,32 @@ class HttpStatisticsLogger implements StatisticsLogger
         $this->client = $client;
     }
 
-    public function logWebSocketMessage(ConnectionInterface $connection)
+    public function webSocketMessage(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->logWebSocketMessage();
+        $this->statistics[$connection->app->id]->webSocketMessage();
     }
 
-    public function logApiMessage($appId)
+    public function apiMessage($appId)
     {
         $this->initializeStatistics($appId);
 
-        $this->statistics[$appId]->logApiMessage();
+        $this->statistics[$appId]->apiMessage();
     }
 
-    public function logConnection(ConnectionInterface $connection)
+    public function connection(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->logConnection();
+        $this->statistics[$connection->app->id]->connection();
     }
 
-    public function logDisconnection(ConnectionInterface $connection)
+    public function disconnection(ConnectionInterface $connection)
     {
         $this->initializeStatistics($connection->app->id);
 
-        $this->statistics[$connection->app->id]->logDisconnection();
+        $this->statistics[$connection->app->id]->disconnection();
     }
 
     protected function initializeStatistics($id)

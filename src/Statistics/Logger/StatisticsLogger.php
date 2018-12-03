@@ -2,17 +2,17 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use Ratchet\ConnectionInterface;
+use Ratchet\connectionInterface;
 
 interface StatisticsLogger
 {
-    public function logWebSocketMessage(ConnectionInterface $connection);
+    public function webSocketMessage(connectionInterface $connection);
 
-    public function logApiMessage($appId);
+    public function apiMessage($appId);
 
-    public function logConnection(ConnectionInterface $connection);
+    public function connection(connectionInterface $connection);
 
-    public function logDisconnection(ConnectionInterface $connection);
+    public function disconnection(connectionInterface $connection);
 
     public function save();
 }

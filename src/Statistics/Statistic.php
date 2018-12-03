@@ -31,26 +31,26 @@ class Statistic
         return App::findById($this->appId)->statisticsEnabled;
     }
 
-    public function logConnection()
+    public function connection()
     {
         $this->currentConnectionCount++;
 
         $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
     }
 
-    public function logDisconnection()
+    public function disconnection()
     {
         $this->currentConnectionCount--;
 
         $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
     }
 
-    public function logWebSocketMessage()
+    public function webSocketMessage()
     {
         $this->webSocketMessageCount++;
     }
 
-    public function logApiMessage()
+    public function apiMessage()
     {
         $this->apiMessageCount++;
     }

@@ -10,22 +10,22 @@ use Ratchet\ConnectionInterface;
 class FakeStatisticsLogger implements StatisticsLogger
 {
 
-    public function logWebSocketMessage(ConnectionInterface $connection)
+    public function webSocketMessage(ConnectionInterface $connection)
     {
 
     }
 
-    public function logApiMessage($appId)
+    public function apiMessage($appId)
     {
 
     }
 
-    public function logConnection(ConnectionInterface $connection)
+    public function connection(ConnectionInterface $connection)
     {
 
     }
 
-    public function logDisconnection(ConnectionInterface $connection)
+    public function disconnection(ConnectionInterface $connection)
     {
 
     }
