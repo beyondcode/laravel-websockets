@@ -51,7 +51,7 @@ class StartWebSocketServer extends Command
             'handler' => HandlerStack::create($handler),
         ]);
 
-        app()->singleton('websockets.statisticslogger', function() use ($client) {
+        app()->singleton('websockets.statisticsLogger', function() use ($client) {
             return new StatisticsLogger(app(ChannelManager::class), $client);
         });
 

@@ -10,7 +10,7 @@ class StatisticsLogger extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'websockets.statisticslogger';
+        return 'websockets.statisticsLogger';
     }
 
     public static function fake()
