@@ -29,6 +29,27 @@ class ChannelTest extends TestCase
     }
 
     /** @test */
+    public function clients_can_unsubscribe_from_channels()
+    {
+        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $channel = $this->getChannel($connection, 'test-channel');
+
+        $this->assertTrue($channel->hasConnections());
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:unsubscribe',
+            'data' => [
+                'channel' => 'test-channel'
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $this->assertFalse($channel->hasConnections());
+    }
+
+    /** @test */
     public function a_client_cannot_broadcast_to_other_clients_by_default()
     {
         // One connection inside channel "test-channel".
