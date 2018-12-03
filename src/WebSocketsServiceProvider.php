@@ -25,7 +25,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         if (! class_exists('CreateWebSocketsStatisticsEntries')) {
             $this->publishes([
-                __DIR__.'/../database/migrations/cretae_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_cretae_websockets_statistics_entries_table.php'),
+                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
             ], 'migrations');
         }
 
