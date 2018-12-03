@@ -39,12 +39,12 @@ return [
     ],
 
     /*
-     * The maximum request size in kilobytes that is allowed for an incoming websocket request.
+     * The maximum request size in kilobytes that is allowed for an incoming WebSocket request.
      */
     'max_request_size_in_kb' => 250,
 
     /*
-     * Define the optional SSL context for your websocket connections.
+     * Define the optional SSL context for your WebSocket connections.
      * You can see all available options at: http://php.net/manual/en/context.ssl.php
      */
     'ssl' => [

@@ -25,7 +25,7 @@ Once the package is installed, you can publish the configuration file using:
 php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsServiceProvider" --tag="config"
 ```
 
-To start the websocket server, use:
+To start the WebSocket server, use:
 
 ```
 php artisan websockets:serve
