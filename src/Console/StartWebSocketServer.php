@@ -58,7 +58,7 @@ class StartWebSocketServer extends Command
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(60, function() {
+        $this->loop->addPeriodicTimer(5, function() {
             StatisticsLogger::save();
         });
 

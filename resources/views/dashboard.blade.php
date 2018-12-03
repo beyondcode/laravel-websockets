@@ -138,6 +138,8 @@
                 });
 
                 this.subscribeToAllChannels();
+
+                this.subscribeToStatistics();
             },
 
             disconnect() {
@@ -175,6 +177,16 @@
                 this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}' + channel)
                     .bind('log-message', (data) => {
                         this.logs.push(data);
+                    });
+            },
+
+            subscribeToStatistics() {
+                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}statistics')
+                    .bind('statistics-updated', (data) => {
+                        this.chart.push([{
+                            time: data.time,
+                            y: data.peak_connection_count
+                        }]);
                     });
             },
 

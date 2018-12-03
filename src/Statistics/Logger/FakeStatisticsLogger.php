@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Client;
 use Ratchet\ConnectionInterface;

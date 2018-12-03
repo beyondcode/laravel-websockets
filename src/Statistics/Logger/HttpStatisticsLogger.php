@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Buzz\Browser;
@@ -72,7 +72,7 @@ class HttpStatisticsLogger implements StatisticsLogger
 
             $this->browser
                 ->post(
-                    action([WebsocketStatisticsEntriesController::class, 'store']),
+                    action([WebSocketStatisticsEntriesController::class, 'store']),
                     ['Content-Type' => 'application/json'],
                     stream_for(json_encode($statistic->toArray()))
                 );

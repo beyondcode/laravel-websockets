@@ -2,10 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Http\Controllers;
 
+use BeyondCode\LaravelWebSockets\Statistics\Events\StatisticsUpdated;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use Illuminate\Http\Request;
 
-class WebsocketStatisticsEntriesController
+class WebSocketStatisticsEntriesController
 {
     public function store(Request $request)
     {
@@ -18,7 +19,9 @@ class WebsocketStatisticsEntriesController
 
         $webSocketsStatisticsEntryModelClass = config('websockets.statistics_model');
 
-        $webSocketsStatisticsEntryModelClass::create($validatedAttributes);
+        $statisticModel = $webSocketsStatisticsEntryModelClass::create($validatedAttributes);
+
+        broadcast(new StatisticsUpdated($statisticModel));
 
         return 'ok';
     }

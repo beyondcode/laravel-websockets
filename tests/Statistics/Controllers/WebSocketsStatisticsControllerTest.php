@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
@@ -12,7 +12,7 @@ class WebSocketsStatisticsControllerTest extends TestCase
     public function it_can_store_statistics()
     {
         $this->post(
-            action([WebsocketStatisticsEntriesController::class, 'store']),
+            action([WebSocketStatisticsEntriesController::class, 'store']),
             $this->payload()
         );
 

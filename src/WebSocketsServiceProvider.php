@@ -8,7 +8,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Server\Router;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -76,7 +76,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerStatisticRoute()
     {
         Route::prefix('/laravel-websockets')->namespace('\\')->group(function() {
-            Route::post('statistics', [WebsocketStatisticsEntriesController::class, 'store']);
+            Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
         });
     }
 
