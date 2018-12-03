@@ -31,12 +31,4 @@ class AppTest extends TestCase
 
         new App(1, 'appKey', '', 'new');
     }
-
-    /** @test */
-    public function it_will_not_accept_an_non_numeric_appId()
-    {
-        $this->expectException(InvalidApp::class);
-
-        new App('appId', 'appKey', '', 'new');
-    }
 }

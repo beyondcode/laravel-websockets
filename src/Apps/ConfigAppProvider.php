@@ -24,7 +24,7 @@ class ConfigAppProvider implements AppProvider
             ->toArray();
     }
 
-    public function findById(int $appId): ?App
+    public function findById($appId): ?App
     {
         $appAttributes = $this
             ->apps

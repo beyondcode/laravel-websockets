@@ -21,7 +21,7 @@ class App
     /** @var bool */
     public $clientMessagesEnabled = false;
 
-    public static function findById(int $appId)
+    public static function findById($appId)
     {
         return app(AppProvider::class)->findById($appId);
     }
@@ -33,10 +33,6 @@ class App
 
     public function __construct($appId, string $appKey, string $appSecret)
     {
-        if (!is_numeric($appId)) {
-            throw InvalidApp::appIdIsNotNumeric($appId);
-        }
-
         if ($appKey === '') {
             throw InvalidApp::valueIsRequired('appKey', $appId);
         }
