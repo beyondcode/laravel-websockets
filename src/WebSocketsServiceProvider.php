@@ -8,7 +8,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
-use BeyondCode\LaravelWebSockets\Statistics\Logging\HttpStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
