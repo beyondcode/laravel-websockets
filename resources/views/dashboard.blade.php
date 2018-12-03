@@ -4,12 +4,15 @@
     <title>WebSockets Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
     <script
             src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
     <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
 </head>
 
 <body>
@@ -33,6 +36,9 @@
             <div id="status"></div>
         </div>
         <div class="card-body">
+            <div v-if="connected" id="statisticsChart" style="width: 100%; height: 250px;">
+
+            </div>
             <div v-if="connected">
                 <h4>Event Creator</h4>
                 <form>
@@ -88,6 +94,7 @@
 
         data: {
             connected: false,
+            chart: null,
             pusher: null,
             port: 6001,
             app: null,
@@ -121,6 +128,8 @@
 
                 this.pusher.connection.bind('connected', () => {
                     this.connected = true;
+
+                    this.loadChart();
                 });
 
                 this.pusher.connection.bind('disconnected', () => {
@@ -133,6 +142,21 @@
 
             disconnect() {
                 this.pusher.disconnect();
+            },
+
+            loadChart() {
+                $.getJSON('/{{ request()->path() }}/api/'+this.app.id+'/statistics', (data) => {
+                    this.chart = $('#statisticsChart').epoch({
+                        type: 'time.line',
+                        axes: ['left', 'right', 'bottom'],
+                        data: [
+                            {
+                                label: "Peak Connections",
+                                values: data.peak_connections,
+                            }
+                        ]
+                    });
+                });
             },
 
             subscribeToAllChannels() {

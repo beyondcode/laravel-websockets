@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets;
 
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
@@ -65,6 +66,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         Route::macro('webSockets', function($prefix = 'laravel-websockets') {
             Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function() {
                 Route::get('/',  ShowDashboard::class);
+                Route::get('/api/{appId}/statistics',  DashboardApiController::class.'@getStatistics');
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
             });
