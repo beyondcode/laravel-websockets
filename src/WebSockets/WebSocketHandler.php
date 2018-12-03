@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ConnectionEstablished;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
 use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
 use BeyondCode\LaravelWebSockets\QueryParameters;
@@ -89,6 +89,8 @@ class WebSocketHandler implements MessageComponentInterface
         ]));
 
         DashboardLogger::connection($connection);
+
+        StatisticsLogger::connection($connection);
 
         return $this;
     }
