@@ -43,6 +43,8 @@ class WebSocketHandler implements MessageComponentInterface
     public function onClose(ConnectionInterface $connection)
     {
         $this->channelManager->removeFromAllChannels($connection);
+
+        DashboardLogger::disconnection($connection);
     }
 
     public function onError(ConnectionInterface $connection, Exception $exception)
