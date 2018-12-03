@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Clue\React\Buzz\Browser;
 use GuzzleHttp\Client;
 use Ratchet\ConnectionInterface;
 
@@ -16,11 +17,14 @@ class HttpStatisticsLogger implements StatisticsLogger
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
-    public function __construct(ChannelManager $channelManager, Client $client)
+    /** @var Browser */
+    protected $browser;
+
+    public function __construct(ChannelManager $channelManager, Browser $browser)
     {
         $this->channelManager = $channelManager;
 
-        $this->client = $client;
+        $this->browser = $browser;
     }
 
     public function webSocketMessage(ConnectionInterface $connection)
@@ -69,17 +73,17 @@ class HttpStatisticsLogger implements StatisticsLogger
             }
 
             echo 'posted';
-            $this->client
-                ->postAsync(
+            $this->browser
+                ->post(
                     action([WebsocketStatisticsEntriesController::class, 'store']),
+                    [],
                     $statistic->toArray()
                 )
                 ->then(function() {
                     echo 'fulfilled';
-                })
-                ->otherwise(function() {
-                    echo 'rejected!';
-                    var_dump(func_get_args());
+                }, function($e) {
+                    echo 'fulfilled';
+                    dd($);
                 });
 
             // Reset connection and message count
