@@ -21,6 +21,9 @@ class App
     /** @var bool */
     public $clientMessagesEnabled = false;
 
+    /** @var bool */
+    public $statisticsEnabled = true;
+
     public static function findById($appId)
     {
         return app(AppProvider::class)->findById($appId);
@@ -58,6 +61,13 @@ class App
     public function enableClientMessages(bool $enabled = true)
     {
         $this->clientMessagesEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function enableStatistics(bool $enabled = true)
+    {
+        $this->statisticsEnabled = $enabled;
 
         return $this;
     }

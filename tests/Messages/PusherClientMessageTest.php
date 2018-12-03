@@ -35,6 +35,7 @@ class PusherClientMessageTest extends TestCase
                 'key' => 'TestKey',
                 'secret' => 'TestSecret',
                 'enable_client_messages' => true,
+                'enable_statistics' => true,
             ],
         ]);
 

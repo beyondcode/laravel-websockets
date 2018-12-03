@@ -32,5 +32,6 @@ class ConfigAppProviderTest extends TestCase
         $this->assertEquals('TestKey', $app->key);
         $this->assertEquals('TestSecret', $app->secret);
         $this->assertFalse($app->clientMessagesEnabled);
+        $this->assertTrue($app->statisticsEnabled);
     }
 }

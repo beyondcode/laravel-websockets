@@ -41,6 +41,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 'key' => 'TestKey',
                 'secret' => 'TestSecret',
                 'enable_client_messages' => false,
+                'enable_statistics' => true,
             ],
         ]);
     }

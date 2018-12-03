@@ -21,6 +21,12 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
+        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
+            $this->publishes([
+                __DIR__.'/../database/migrations/cretae_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_cretae_websockets_statistics_entries_table.php'),
+            ], 'migrations');
+        }
+
         $this->registerRouteMacro();
 
         $this->registerDashboardGate();

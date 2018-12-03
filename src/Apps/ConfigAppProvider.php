@@ -44,7 +44,7 @@ class ConfigAppProvider implements AppProvider
 
     protected function instanciate(?array $appAttributes): ?App
     {
-        if (! $appAttributes) {
+        if (!$appAttributes) {
             return null;
         }
 
@@ -58,9 +58,10 @@ class ConfigAppProvider implements AppProvider
             $app->setName($appAttributes['name']);
         }
 
-        if ($appAttributes['enable_client_messages'] ?? false) {
-            $app->enableClientMessages();
-        }
+        $app
+            ->enableClientMessages($appAttributes['enable_client_messages'])
+            ->enableStatistics($appAttributes['enable_statistics']);
+
 
         return $app;
     }
