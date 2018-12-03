@@ -57,7 +57,7 @@ class HttpStatisticsLogger implements StatisticsLogger
 
     protected function findOrMakeStatisticForAppId($appId): Statistic
     {
-        if (! isset($this->statistics[$appId])) {
+        if (!isset($this->statistics[$appId])) {
             $this->statistics[$appId] = new Statistic($appId);
         }
 
@@ -68,23 +68,19 @@ class HttpStatisticsLogger implements StatisticsLogger
     {
         foreach ($this->statistics as $appId => $statistic) {
 
-            if (! $statistic->isEnabled()) {
+            if (!$statistic->isEnabled()) {
                 continue;
             }
 
-            $this->browser
+            $this
+                ->browser
                 ->post(
                     action([WebSocketStatisticsEntriesController::class, 'store']),
                     ['Content-Type' => 'application/json'],
                     stream_for(json_encode($statistic->toArray()))
                 );
 
-            // Reset connection and message count
-            $currentConnectionCount = collect($this->channelManager->getChannels($appId))
-                ->sum(function ($channel) {
-                    return count($channel->getSubscribedConnections());
-                });
-
+            $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
             $statistic->reset($currentConnectionCount);
         }
     }
