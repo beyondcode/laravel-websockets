@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Statistics;
+namespace BeyondCode\LaravelWebSockets\Statistics\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

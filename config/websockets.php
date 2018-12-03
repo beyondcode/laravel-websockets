@@ -45,7 +45,7 @@ return [
     /*
      * This model will be used to store the statistics of the WebSocketsServer
      */
-    'statistics_model' => \BeyondCode\LaravelWebSockets\Statistics\WebSocketsStatisticsEntry::class,
+    'statistics_model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
 
     /*
      * Define the optional SSL context for your WebSocket connections.
