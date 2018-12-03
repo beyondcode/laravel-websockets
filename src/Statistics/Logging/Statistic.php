@@ -55,10 +55,10 @@ class Statistic
         $this->apiMessageCount++;
     }
 
-    public function reset(int $connections)
+    public function reset(int $currentConnectionCount)
     {
-        $this->connections = $connections;
-        $this->peakConnections = $connections;
+        $this->connections = $currentConnectionCount;
+        $this->peakConnections = $currentConnectionCount;
         $this->webSocketMessageCount = 0;
         $this->apiMessageCount = 0;
     }

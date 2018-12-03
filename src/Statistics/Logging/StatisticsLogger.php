@@ -71,12 +71,12 @@ class StatisticsLogger
             );
 
             // Reset connection and message count
-            $connections = collect($this->channelManager->getChannels($appId))
+            $currentConnectionCount = collect($this->channelManager->getChannels($appId))
                 ->sum(function ($channel) {
                     return count($channel->getSubscribedConnections());
                 });
 
-            $statistic->reset($connections);
+            $statistic->reset($currentConnectionCount);
         }
     }
 }
