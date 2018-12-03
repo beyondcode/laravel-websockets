@@ -7,6 +7,9 @@ use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
+
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -51,8 +54,8 @@ class StartWebSocketServer extends Command
             'handler' => HandlerStack::create($handler),
         ]);
 
-        app()->singleton('websockets.statisticsLogger', function() use ($client) {
-            return new StatisticsLogger(app(ChannelManager::class), $client);
+        app()->singleton(StatisticsLoggerInterface::class, function() use ($client) {
+            return new HttpStatisticsLogger(app(ChannelManager::class), $client);
         });
 
         $this->loop->addPeriodicTimer(60, function() {
