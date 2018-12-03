@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logging;
 
 class Statistic
 {
+    /** @var int|string */
     protected $appId;
 
     /** @var int */
