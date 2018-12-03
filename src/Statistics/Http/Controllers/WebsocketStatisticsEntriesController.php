@@ -17,7 +17,9 @@ class WebsocketStatisticsEntriesController
             'api_message_count' => 'required|integer',
         ]);
 
-        WebSocketsStatisticsEntry::create($validatedAttributes);
+        $webSocketsStatisticsEntryModelClass = config('websockets.statistics_model');
+
+        $webSocketsStatisticsEntryModelClass::create($validatedAttributes);
 
         return 'ok';
     }
