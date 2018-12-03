@@ -64,7 +64,7 @@ class Router
         $this->addRoute('DELETE', $uri, $action);
     }
 
-    public function websocket(string $uri, $action)
+    public function webSocket(string $uri, $action)
     {
         if (!is_subclass_of($action, MessageComponentInterface::class)) {
             throw InvalidWebSocketController::withController($action);
