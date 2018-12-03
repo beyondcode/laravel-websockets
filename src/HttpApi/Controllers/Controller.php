@@ -86,16 +86,20 @@ abstract class Controller implements HttpServerInterface
 
     protected function ensureValidSignature(Request $request)
     {
-        $bodyMd5 = md5($request->getContent());
 
         $signature =
             "{$request->getMethod()}\n/{$request->path()}\n" .
             "auth_key={$request->get('auth_key')}" .
             "&auth_timestamp={$request->get('auth_timestamp')}" .
-            "&auth_version={$request->get('auth_version')}" .
-            "&body_md5={$bodyMd5}";
+            "&auth_version={$request->get('auth_version')}";
 
-        $authSignature = hash_hmac('sha256', $signature, App::findById($request->get('appId'))->appSecret);
+        if ($request->getContent() !== '') {
+            $bodyMd5 = md5($request->getContent());
+
+            $signature .= "&body_md5={$bodyMd5}";
+        }
+
+        $authSignature = hash_hmac('sha256', $signature, App::findById($request->get('appId'))->secret);
 
         if ($authSignature !== $request->get('auth_signature')) {
             throw new HttpException(401, 'Invalid auth signature provided.');
