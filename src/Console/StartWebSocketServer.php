@@ -57,7 +57,7 @@ class StartWebSocketServer extends Command
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(5, function() {
+        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function() {
             StatisticsLogger::save();
         });
 
