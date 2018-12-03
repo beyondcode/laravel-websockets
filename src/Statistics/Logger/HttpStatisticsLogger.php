@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatistics
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Buzz\Browser;
-use GuzzleHttp\Client;
 use function GuzzleHttp\Psr7\stream_for;
 use Ratchet\ConnectionInterface;
 
