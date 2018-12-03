@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebsocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 
