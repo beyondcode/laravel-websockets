@@ -6,6 +6,7 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 
 class Statistic
 {
+    /** @var int|string */
     protected $appId;
 
     /** @var int */
