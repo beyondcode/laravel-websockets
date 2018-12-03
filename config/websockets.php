@@ -43,6 +43,11 @@ return [
     'max_request_size_in_kb' => 250,
 
     /*
+     * This model will be used to store the statistics of the WebSocketsServer
+     */
+    'statistics_model' => \BeyondCode\LaravelWebSockets\Statistics\WebSocketsStatisticsEntry::class,
+
+    /*
      * Define the optional SSL context for your WebSocket connections.
      * You can see all available options at: http://php.net/manual/en/context.ssl.php
      */
