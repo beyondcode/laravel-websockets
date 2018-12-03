@@ -51,7 +51,7 @@ class StartWebSocketServer extends Command
         ]);
 
         app()->singleton('websockets.statisticslogger', function() use ($client) {
-            return new StatisticsLogger(app(ChannelManager::class, $client));
+            return new StatisticsLogger(app(ChannelManager::class), $client);
         });
 
         $this->loop->addPeriodicTimer(60, function() {
