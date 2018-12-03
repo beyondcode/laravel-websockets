@@ -38,6 +38,8 @@ class WebSocketHandler implements MessageComponentInterface
         $message = PusherMessageFactory::createForMessage($message, $connection, $this->channelManager);
 
         $message->respond();
+
+        StatisticsLogger::webSocketMessage($connection);
     }
 
     public function onClose(ConnectionInterface $connection)
@@ -45,6 +47,8 @@ class WebSocketHandler implements MessageComponentInterface
         $this->channelManager->removeFromAllChannels($connection);
 
         DashboardLogger::disconnection($connection);
+
+        StatisticsLogger::disconnection($connection);
     }
 
     public function onError(ConnectionInterface $connection, Exception $exception)
