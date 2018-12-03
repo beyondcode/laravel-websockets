@@ -17,5 +17,7 @@ class WebsocketStatisticsEntriesController
         ]);
 
         WebSocketsStatisticsEntry::create($validatedAttributes);
+
+        return 'ok';
     }
 }
