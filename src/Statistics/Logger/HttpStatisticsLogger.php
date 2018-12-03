@@ -11,13 +11,13 @@ use Ratchet\ConnectionInterface;
 
 class HttpStatisticsLogger implements StatisticsLogger
 {
-    /** @var Statistic[] */
+    /** @var \BeyondCode\LaravelWebSockets\Statistics\Statistic[] */
     protected $statistics = [];
 
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
-    /** @var Browser */
+    /** @var \Clue\React\Buzz\Browser */
     protected $browser;
 
     public function __construct(ChannelManager $channelManager, Browser $browser)
@@ -29,44 +29,46 @@ class HttpStatisticsLogger implements StatisticsLogger
 
     public function webSocketMessage(ConnectionInterface $connection)
     {
-        $this->initializeStatistics($connection->app->id);
-
-        $this->statistics[$connection->app->id]->webSocketMessage();
+        $this
+            ->findOrMakeStatisticForAppId($connection->app->id)
+            ->webSocketMessage();
     }
 
     public function apiMessage($appId)
     {
-        $this->initializeStatistics($appId);
-
-        $this->statistics[$appId]->apiMessage();
+        $this
+            ->findOrMakeStatisticForAppId($appId)
+            ->apiMessage();
     }
 
     public function connection(ConnectionInterface $connection)
     {
-        $this->initializeStatistics($connection->app->id);
-
-        $this->statistics[$connection->app->id]->connection();
+        $this
+            ->findOrMakeStatisticForAppId($connection->app->id)
+            ->connection();
     }
 
     public function disconnection(ConnectionInterface $connection)
     {
-        $this->initializeStatistics($connection->app->id);
-
-        $this->statistics[$connection->app->id]->disconnection();
+        $this
+            ->findOrMakeStatisticForAppId($connection->app->id)
+            ->disconnection();
     }
 
-    protected function initializeStatistics($id)
+    protected function findOrMakeStatisticForAppId($appId): Statistic
     {
-        if (!isset($this->statistics[$id])) {
-            $this->statistics[$id] = new Statistic($id);
+        if (! isset($this->statistics[$appId])) {
+            $this->statistics[$appId] = new Statistic($appId);
         }
+
+        return $this->statistics[$appId];
     }
 
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
 
-            if (!$statistic->isEnabled()) {
+            if (! $statistic->isEnabled()) {
                 continue;
             }
 
