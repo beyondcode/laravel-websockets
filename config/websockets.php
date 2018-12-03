@@ -6,8 +6,6 @@ return [
      * This package comes with multi tenancy out of the box. Here you can
      * configure the different apps that can use the webSockets server.
      *
-     * You should make sure that the app id is numeric.
-     *
      * Optionally you can disable client events so clients cannot send
      * messages through each other via the webSockets.
      */
