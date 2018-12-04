@@ -6,7 +6,7 @@ class DashboardApiController
 {
     public function getStatistics($appId)
     {
-        $webSocketsStatisticsEntryModelClass = config('websockets.statistics_model');
+        $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
         $statistics = $webSocketsStatisticsEntryModelClass::where('app_id', $appId)->latest()->limit(120)->get();
 
         $statisticData = $statistics->map(function ($statistic) {
