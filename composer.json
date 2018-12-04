@@ -1,6 +1,6 @@
 {
     "name": "beyondcode/laravel-websockets",
-    "description": "",
+    "description": "An easy to use WebSocket server",
     "keywords": [
         "beyondcode",
         "laravel-websockets"
