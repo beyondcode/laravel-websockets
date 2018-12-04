@@ -43,7 +43,5 @@ class CleanStatisticsTest extends TestCase
         $cutOffDate = Carbon::now()->subDays(31)->format('Y-m-d H:i:s');
 
         $this->assertCount(0, WebSocketsStatisticsEntry::where('created_at', '<', $cutOffDate)->get());
-
-
     }
 }
