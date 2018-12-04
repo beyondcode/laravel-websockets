@@ -7,6 +7,8 @@
 
 Bring the power of WebSockets to your Laravel application. Drop-in Pusher replacement, SSL support, Laravel Echo support and a debug dashboard are just some of its features.
 
+Full documentation: https://docs.beyondco.de/laravel-websockets/1.0/getting-started/introduction.html
+
 ## Installation
 
 You can install the package via composer:
