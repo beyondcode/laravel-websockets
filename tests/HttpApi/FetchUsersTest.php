@@ -131,7 +131,7 @@ class FetchUsersTest extends TestCase
 
         $controller->onOpen($connection, $request);
 
-        /** @var JsonResponse $response */
+        /** @var \Illuminate\Http\JsonResponse $response */
         $response = array_pop($connection->sentRawData);
 
         $this->assertSame([
@@ -142,5 +142,7 @@ class FetchUsersTest extends TestCase
             ]
         ], json_decode($response->getContent(), true));
     }
+
+    pu
 
 }
