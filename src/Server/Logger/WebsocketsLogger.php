@@ -2,20 +2,20 @@
 
 namespace BeyondCode\LaravelWebSockets\Server\Logger;
 
-use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use BeyondCode\LaravelWebSockets\QueryParameters;
 
 class WebsocketsLogger extends Logger implements MessageComponentInterface
 {
     /** @var \Ratchet\Http\HttpServerInterface */
     protected $app;
 
-    public static function decorate(MessageComponentInterface $app): WebsocketsLogger
+    public static function decorate(MessageComponentInterface $app): self
     {
-        $logger = app(WebsocketsLogger::class);
+        $logger = app(self::class);
 
         return $logger->setApp($app);
     }
@@ -68,5 +68,4 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
 
         $this->app->onError(ConnectionLogger::decorate($connection), $exception);
     }
-
 }

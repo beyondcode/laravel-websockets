@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -25,7 +24,7 @@ class FetchUsersController extends Controller
         return [
             'users' => Collection::make($channel->getUsers())->map(function ($user) {
                 return ['id' => $user->user_id];
-            })->values()
+            })->values(),
         ];
     }
 }

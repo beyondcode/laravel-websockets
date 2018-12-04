@@ -2,10 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ExceptionThrown;
-use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7\Response;
@@ -14,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
 use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
+use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\QueryParameters;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -50,24 +48,24 @@ abstract class Controller implements HttpServerInterface
         $connection->close();
     }
 
-    function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(ConnectionInterface $from, $msg)
     {
     }
 
-    function onClose(ConnectionInterface $connection)
+    public function onClose(ConnectionInterface $connection)
     {
     }
 
-    function onError(ConnectionInterface $connection, Exception $exception)
+    public function onError(ConnectionInterface $connection, Exception $exception)
     {
         if (! $exception instanceof HttpException) {
             return;
         }
 
         $response = new Response($exception->getStatusCode(), [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
         ], json_encode([
-            'error' => $exception->getMessage()
+            'error' => $exception->getMessage(),
         ]));
 
         $connection->send(\GuzzleHttp\Psr7\str($response));
@@ -86,11 +84,10 @@ abstract class Controller implements HttpServerInterface
 
     protected function ensureValidSignature(Request $request)
     {
-
         $signature =
-            "{$request->getMethod()}\n/{$request->path()}\n" .
-            "auth_key={$request->get('auth_key')}" .
-            "&auth_timestamp={$request->get('auth_timestamp')}" .
+            "{$request->getMethod()}\n/{$request->path()}\n".
+            "auth_key={$request->get('auth_key')}".
+            "&auth_timestamp={$request->get('auth_timestamp')}".
             "&auth_version={$request->get('auth_version')}";
 
         if ($request->getContent() !== '') {

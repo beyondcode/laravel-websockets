@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Facades;
 
+use Illuminate\Support\Facades\Facade;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
-use Illuminate\Support\Facades\Facade;
 
 /** @see \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger */
 class StatisticsLogger extends Facade

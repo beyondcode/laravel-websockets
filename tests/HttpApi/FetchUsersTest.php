@@ -2,17 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use GuzzleHttp\Psr7\Request;
-use Illuminate\Http\JsonResponse;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
 
 class FetchUsersTest extends TestCase
 {
-
     /** @test */
     public function invalid_signatures_can_not_access_the_api()
     {
@@ -25,12 +22,12 @@ class FetchUsersTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channels\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channels\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'InvalidSecret');
@@ -56,12 +53,12 @@ class FetchUsersTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channel/my-channel/users\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
@@ -87,12 +84,12 @@ class FetchUsersTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channel/my-channel/users\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
@@ -115,12 +112,12 @@ class FetchUsersTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channel/my-channel/users\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
@@ -137,9 +134,9 @@ class FetchUsersTest extends TestCase
         $this->assertSame([
             'users' => [
                 [
-                    'id' => 1
-                ]
-            ]
+                    'id' => 1,
+                ],
+            ],
         ], json_decode($response->getContent(), true));
     }
 }

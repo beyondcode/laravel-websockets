@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebsockets\Tests\Channels;
 
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class PresenceChannelTest extends TestCase
@@ -19,7 +19,7 @@ class PresenceChannelTest extends TestCase
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => 'invalid',
-                'channel' => 'presence-channel'
+                'channel' => 'presence-channel',
             ],
         ]));
 
@@ -38,8 +38,8 @@ class PresenceChannelTest extends TestCase
         $channelData = [
             'user_id' => 1,
             'user_info' => [
-                'name' => 'Marcel'
-            ]
+                'name' => 'Marcel',
+            ],
         ];
 
         $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
@@ -49,7 +49,7 @@ class PresenceChannelTest extends TestCase
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
-                'channel_data' => json_encode($channelData)
+                'channel_data' => json_encode($channelData),
             ],
         ]));
 

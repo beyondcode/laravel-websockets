@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Rules;
 
-use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 
 class AppIdTest extends TestCase
 {

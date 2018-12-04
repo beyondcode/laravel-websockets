@@ -3,12 +3,11 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 
 class ConnectionTest extends TestCase
 {
-
     /** @test */
     public function unknown_app_keys_can_not_connect()
     {

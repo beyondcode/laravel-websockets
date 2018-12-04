@@ -2,13 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
+use Clue\React\Buzz\Browser;
+use Ratchet\ConnectionInterface;
+use function GuzzleHttp\Psr7\stream_for;
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
-use function GuzzleHttp\Psr7\stream_for;
-use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 
 class HttpStatisticsLogger implements StatisticsLogger
 {
@@ -58,7 +58,7 @@ class HttpStatisticsLogger implements StatisticsLogger
 
     protected function findOrMakeStatisticForAppId($appId): Statistic
     {
-        if (!isset($this->statistics[$appId])) {
+        if (! isset($this->statistics[$appId])) {
             $this->statistics[$appId] = new Statistic($appId);
         }
 
@@ -68,13 +68,12 @@ class HttpStatisticsLogger implements StatisticsLogger
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
-
-            if (!$statistic->isEnabled()) {
+            if (! $statistic->isEnabled()) {
                 continue;
             }
 
             $postData = array_merge($statistic->toArray(), [
-                'secret' => App::findById($appId)->secret
+                'secret' => App::findById($appId)->secret,
             ]);
 
             $this

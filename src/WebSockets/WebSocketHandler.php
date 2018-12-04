@@ -2,18 +2,18 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets;
 
-use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
-use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
-use BeyondCode\LaravelWebSockets\QueryParameters;
 use Exception;
 use Ratchet\ConnectionInterface;
-use Ratchet\RFC6455\Messaging\MessageInterface;
 use BeyondCode\LaravelWebSockets\Apps\App;
+use Ratchet\RFC6455\Messaging\MessageInterface;
+use Ratchet\WebSocket\MessageComponentInterface;
+use BeyondCode\LaravelWebSockets\QueryParameters;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
-use Ratchet\WebSocket\MessageComponentInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
+use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
 
 class WebSocketHandler implements MessageComponentInterface
 {
@@ -64,7 +64,7 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        if (!$app = App::findByKey($appKey)) {
+        if (! $app = App::findByKey($appKey)) {
             throw new UnknownAppKey($appKey);
         }
 
@@ -75,7 +75,7 @@ class WebSocketHandler implements MessageComponentInterface
 
     protected function generateSocketId(ConnectionInterface $connection)
     {
-        $socketId = sprintf("%d.%d", random_int(1, 1000000000), random_int(1, 1000000000));
+        $socketId = sprintf('%d.%d', random_int(1, 1000000000), random_int(1, 1000000000));
 
         $connection->socketId = $socketId;
 
@@ -89,7 +89,7 @@ class WebSocketHandler implements MessageComponentInterface
             'data' => json_encode([
                 'socket_id' => $connection->socketId,
                 'activity_timeout' => 30,
-            ])
+            ]),
         ]));
 
         DashboardLogger::connection($connection);

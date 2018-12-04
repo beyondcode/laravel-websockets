@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Ratchet\ConnectionInterface;
 use stdClass;
+use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 class PusherChannelProtocolMessage implements PusherMessage
 {

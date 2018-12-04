@@ -2,16 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
-use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -53,8 +51,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         include_once __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub';
 
         (new \CreateWebSocketsStatisticsEntriesTable())->up();
-
-
     }
 
     protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
@@ -78,7 +74,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $message = new Message(json_encode([
                 'event' => 'pusher:subscribe',
                 'data' => [
-                    'channel' => $channel
+                    'channel' => $channel,
                 ],
             ]));
 
@@ -97,8 +93,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $channelData = [
             'user_id' => 1,
             'user_info' => [
-                'name' => 'Marcel'
-            ]
+                'name' => 'Marcel',
+            ],
         ];
 
         $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
@@ -108,7 +104,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => $channel,
-                'channel_data' => json_encode($channelData)
+                'channel_data' => json_encode($channelData),
             ],
         ]));
 

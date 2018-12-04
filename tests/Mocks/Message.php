@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
-
 class Message extends \Ratchet\RFC6455\Messaging\Message
 {
     protected $payload;

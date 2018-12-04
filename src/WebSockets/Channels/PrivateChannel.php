@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use Ratchet\ConnectionInterface;
 use stdClass;
+use Ratchet\ConnectionInterface;
 
 class PrivateChannel extends Channel
 {

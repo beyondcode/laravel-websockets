@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebsockets\Tests\Channels;
 
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class PrivateChannelTest extends TestCase
@@ -19,7 +19,7 @@ class PrivateChannelTest extends TestCase
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => 'invalid',
-                'channel' => 'private-channel'
+                'channel' => 'private-channel',
             ],
         ]));
 
@@ -43,14 +43,14 @@ class PrivateChannelTest extends TestCase
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => "{$connection->app->key}:{$hashedAppSecret}",
-                'channel' => 'private-channel'
+                'channel' => 'private-channel',
             ],
         ]));
 
         $this->pusherServer->onMessage($connection, $message);
 
         $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
-            'channel' => 'private-channel'
+            'channel' => 'private-channel',
         ]);
     }
 }
