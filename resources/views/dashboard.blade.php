@@ -152,7 +152,14 @@
                         y: data.peak_connections.y,
                         mode: 'lines',
                         line: {color: '#80CAF6'}
-                    }]);
+                    }], {
+                    margin: {
+                        l: 0,
+                        r: 0,
+                        b: 0,
+                        t: 50,
+                        pad: 4
+                    } });
                 });
             },
 
