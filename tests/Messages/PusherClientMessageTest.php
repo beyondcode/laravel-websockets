@@ -39,7 +39,8 @@ class PusherClientMessageTest extends TestCase
             ],
         ]);
 
-        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection1 = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection2 = $this->getConnectedWebSocketConnection(['test-channel']);
 
         $message = new Message(json_encode([
             'event' => 'client-test',
@@ -49,9 +50,11 @@ class PusherClientMessageTest extends TestCase
             ],
         ]));
 
-        $this->pusherServer->onMessage($connection, $message);
+        $this->pusherServer->onMessage($connection1, $message);
 
-        $connection->assertSentEvent('client-test', [
+        $connection1->assertNotSentEvent('client-test');
+
+        $connection2->assertSentEvent('client-test', [
             'data' => [
                 'client-event' => 'test'
             ]
