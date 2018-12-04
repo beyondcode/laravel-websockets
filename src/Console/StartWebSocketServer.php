@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 
@@ -48,7 +49,7 @@ class StartWebSocketServer extends Command
     protected function configureStatisticsLogger()
     {
         $connector = new Connector($this->loop, [
-            'dns' => '127.0.0.1'
+            'dns' => new DnsResolver()
         ]);
 
         $browser = new Browser($this->loop, $connector);
