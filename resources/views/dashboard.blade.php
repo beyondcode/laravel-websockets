@@ -35,7 +35,7 @@
         </div>
         <div class="card-body">
             <div v-if="connected && app.statisticsEnabled">
-                <h4>Peak Connections</h4>
+                <h4>Realtime Statistics</h4>
                 <div id="statisticsChart" style="width: 100%; height: 250px;"></div>
             </div>
             <div v-if="connected">
@@ -147,19 +147,38 @@
 
             loadChart() {
                 $.getJSON('/{{ request()->path() }}/api/'+this.app.id+'/statistics', (data) => {
-                        this.chart = Plotly.plot('statisticsChart', [{
-                        x: data.peak_connections.x,
-                        y: data.peak_connections.y,
-                        mode: 'lines',
-                        line: {color: '#80CAF6'}
-                    }], {
-                    margin: {
-                        l: 0,
-                        r: 0,
-                        b: 0,
-                        t: 50,
-                        pad: 4
-                    } });
+
+                    let chartData = [
+                        {
+                            x: data.peak_connections.x,
+                            y: data.peak_connections.y,
+                            type: 'lines',
+                            name: '# Peak Connections'
+                        },
+                        {
+                            x: data.websocket_message_count.x,
+                            y: data.websocket_message_count.y,
+                            type: 'bar',
+                            name: '# Websocket Messages'
+                        },
+                        {
+                            x: data.api_message_count.x,
+                            y: data.api_message_count.y,
+                            type: 'bar',
+                            name: '# API Messages'
+                        }
+                    ];
+                    let layout = {
+                        margin: {
+                            l: 50,
+                            r: 0,
+                            b: 50,
+                            t: 50,
+                            pad: 4
+                        }
+                    };
+
+                    this.chart = Plotly.newPlot('statisticsChart', chartData, layout);
                 });
             },
 
@@ -186,11 +205,11 @@
                 this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}statistics')
                     .bind('statistics-updated', (data) => {
                             var update = {
-                                x:  [[data.time]],
-                                y: [[data.peak_connection_count]]
+                                x:  [[data.time], [data.time], [data.time]],
+                                y: [[data.peak_connection_count], [data.websocket_message_count], [data.api_message_count]]
                             };
 
-                            Plotly.extendTraces('statisticsChart', update, [0]);
+                            Plotly.extendTraces('statisticsChart', update, [0, 1, 2]);
                     });
             },
 

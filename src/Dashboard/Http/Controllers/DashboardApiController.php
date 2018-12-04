@@ -9,17 +9,27 @@ class DashboardApiController
         $webSocketsStatisticsEntryModelClass = config('websockets.statistics_model');
         $statistics = $webSocketsStatisticsEntryModelClass::where('app_id', $appId)->latest()->limit(120)->get();
 
-        $peakConnections = $statistics->map(function ($statistic) {
+        $statisticData = $statistics->map(function ($statistic) {
             return [
                 'timestamp' => (string)$statistic->created_at,
-                'count' => $statistic->peak_connection_count
+                'peak_connection_count' => $statistic->peak_connection_count,
+                'websocket_message_count' => $statistic->websocket_message_count,
+                'api_message_count' => $statistic->api_message_count,
             ];
         })->reverse();
 
         return [
             'peak_connections' => [
-                'x' => $peakConnections->pluck('timestamp'),
-                'y' => $peakConnections->pluck('count'),
+                'x' => $statisticData->pluck('timestamp'),
+                'y' => $statisticData->pluck('peak_connection_count'),
+            ],
+            'websocket_message_count' => [
+                'x' => $statisticData->pluck('timestamp'),
+                'y' => $statisticData->pluck('websocket_message_count'),
+            ],
+            'api_message_count' => [
+                'x' => $statisticData->pluck('timestamp'),
+                'y' => $statisticData->pluck('api_message_count'),
             ]
         ];
     }
