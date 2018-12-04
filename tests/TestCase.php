@@ -29,7 +29,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $this->channelManager = app(ChannelManager::class);
 
-        Route::webSockets();
+        Route::middleware('App\Http\Controllers')->group(function() {
+            Route::webSockets();
+        });
 
         StatisticsLogger::fake();
     }
