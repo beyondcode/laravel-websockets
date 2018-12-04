@@ -30,7 +30,9 @@ class ConnectionLogger extends Logger implements ConnectionInterface
 
     public function send($data)
     {
-        $this->info("Connection id {$this->connection->socketId} sending message {$data}");
+        $socketId = $this->connection->socketId ?? null;
+
+        $this->info("Connection id {$socketId} sending message {$data}");
 
         $this->connection->send($data);
     }
