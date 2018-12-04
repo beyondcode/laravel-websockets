@@ -7,6 +7,9 @@ use React\Promise\FulfilledPromise;
 
 class DnsResolver extends Resolver
 {
+    /*
+     * This empty constructor is needed so we don't have to setup the parent's dependencies.
+     */
     public function __construct()
     {
         //
