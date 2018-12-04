@@ -2,17 +2,15 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 
 class FetchChannelsTest extends TestCase
 {
-
     /** @test */
     public function invalid_signatures_can_not_access_the_api()
     {
@@ -25,12 +23,12 @@ class FetchChannelsTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channels\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channels\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'InvalidSecret');
@@ -55,12 +53,12 @@ class FetchChannelsTest extends TestCase
         $auth_timestamp = time();
         $auth_version = '1.0';
 
-        $queryParameters = http_build_query(compact('auth_key','auth_timestamp','auth_version'));
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
 
         $signature =
-            "GET\n/apps/1234/channels\n" .
-            "auth_key={$auth_key}" .
-            "&auth_timestamp={$auth_timestamp}" .
+            "GET\n/apps/1234/channels\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
             "&auth_version={$auth_version}";
 
         $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
@@ -77,10 +75,9 @@ class FetchChannelsTest extends TestCase
         $this->assertSame([
             'channels' => [
                 'presence-channel' => [
-                    'user_count' => 3
-                ]
-            ]
+                    'user_count' => 3,
+                ],
+            ],
         ], json_decode($response->getContent(), true));
     }
-
 }

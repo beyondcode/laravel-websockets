@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
@@ -26,7 +25,7 @@ class FetchChannelsController extends Controller
                 return [
                     'user_count' => count($channel->getUsers()),
                 ];
-            })->toArray()
+            })->toArray(),
         ];
     }
 }

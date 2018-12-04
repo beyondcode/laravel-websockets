@@ -14,7 +14,7 @@ class ChannelManager
 
     public function findOrCreate(string $appId, string $channelName): Channel
     {
-        if (!isset($this->channels[$appId][$channelName])) {
+        if (! isset($this->channels[$appId][$channelName])) {
             $channelClass = $this->determineChannelClass($channelName);
 
             $this->channels[$appId][$channelName] = new $channelClass($channelName);
@@ -56,16 +56,16 @@ class ChannelManager
 
     public function removeFromAllChannels(ConnectionInterface $connection)
     {
-        if (!isset($connection->app)) {
+        if (! isset($connection->app)) {
             return;
         }
 
-        /**
+        /*
          * Remove the connection from all channels.
          */
         collect(array_get($this->channels, $connection->app->id, []))->each->unsubscribe($connection);
 
-        /**
+        /*
          * Unset all channels that have no connections so we don't leak memory.
          */
         collect(array_get($this->channels, $connection->app->id, []))
@@ -76,6 +76,6 @@ class ChannelManager
 
         if (count(array_get($this->channels, $connection->app->id, [])) === 0) {
             unset($this->channels[$connection->app->id]);
-        };
+        }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\ClientProviders;
 
-use BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider;
 
 class ConfigAppProviderTest extends TestCase
 {
@@ -24,7 +24,7 @@ class ConfigAppProviderTest extends TestCase
 
         $this->assertCount(1, $apps);
 
-        /** @var  $app */
+        /** @var $app */
         $app = $apps[0];
 
         $this->assertEquals('Test App', $app->name);

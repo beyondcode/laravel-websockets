@@ -9,9 +9,9 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     /** @var \Ratchet\ConnectionInterface */
     protected $connection;
 
-    public static function decorate(ConnectionInterface $app): ConnectionLogger
+    public static function decorate(ConnectionInterface $app): self
     {
-        $logger = app(ConnectionLogger::class);
+        $logger = app(self::class);
 
         return $logger->setConnection($app);
     }
@@ -54,11 +54,13 @@ class ConnectionLogger extends Logger implements ConnectionInterface
         return $this->connection->$name;
     }
 
-    public function __isset($name) {
+    public function __isset($name)
+    {
         return isset($this->connection->$name);
     }
 
-    public function __unset($name) {
+    public function __unset($name)
+    {
         unset($this->connection->$name);
     }
 }

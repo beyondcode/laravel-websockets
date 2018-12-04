@@ -2,11 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Messages;
 
-use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ClientMessageSent;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Ratchet\ConnectionInterface;
 use stdClass;
+use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
 class PusherClientMessage implements PusherMessage
 {
@@ -30,7 +29,7 @@ class PusherClientMessage implements PusherMessage
 
     public function respond()
     {
-        if (!starts_with($this->payload->event, 'client-')) {
+        if (! starts_with($this->payload->event, 'client-')) {
             return;
         }
 

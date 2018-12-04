@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard;
 
+use stdClass;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use stdClass;
 
 class DashboardLogger
 {
@@ -76,7 +76,7 @@ class DashboardLogger
 
     public static function log($appId, string $type, array $attributes = [])
     {
-        $channelName = static::LOG_CHANNEL_PREFIX . $type;
+        $channelName = static::LOG_CHANNEL_PREFIX.$type;
 
         $channel = app(ChannelManager::class)->find($appId, $channelName);
 
@@ -85,9 +85,8 @@ class DashboardLogger
             'channel' => $channelName,
             'data' => [
                 'type' => $type,
-                'time' => strftime("%H:%M:%S")
+                'time' => strftime('%H:%M:%S'),
             ] + $attributes,
         ]);
     }
-
 }

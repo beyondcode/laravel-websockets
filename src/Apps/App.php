@@ -29,12 +29,12 @@ class App
         return app(AppProvider::class)->findById($appId);
     }
 
-    public static function findByKey(string $appKey): ?App
+    public static function findByKey(string $appKey): ?self
     {
         return app(AppProvider::class)->findByKey($appKey);
     }
 
-    public static function findBySecret(string $appSecret): ?App
+    public static function findBySecret(string $appSecret): ?self
     {
         return app(AppProvider::class)->findBySecret($appSecret);
     }

@@ -3,8 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Tests\ClientProviders;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 
 class AppTest extends TestCase
 {

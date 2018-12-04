@@ -12,8 +12,8 @@ class WebSocketException extends Exception
             'event' => 'pusher:error',
             'data' => [
                 'message' => $this->getMessage(),
-                'code' => $this->getCode()
-            ]
+                'code' => $this->getCode(),
+            ],
         ];
     }
 }

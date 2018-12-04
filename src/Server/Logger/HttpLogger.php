@@ -11,9 +11,9 @@ class HttpLogger extends Logger implements MessageComponentInterface
     /** @var \Ratchet\Http\HttpServerInterface */
     protected $app;
 
-    public static function decorate(MessageComponentInterface $app): HttpLogger
+    public static function decorate(MessageComponentInterface $app): self
     {
-        $logger = app(HttpLogger::class);
+        $logger = app(self::class);
 
         return $logger->setApp($app);
     }
@@ -54,5 +54,4 @@ class HttpLogger extends Logger implements MessageComponentInterface
 
         $this->app->onError($connection, $exception);
     }
-
 }

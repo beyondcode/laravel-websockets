@@ -16,7 +16,7 @@ class PusherClientMessageTest extends TestCase
             'event' => 'client-test',
             'channel' => 'test-channel',
             'data' => [
-                'client-event' => 'test'
+                'client-event' => 'test',
             ],
         ]));
 
@@ -46,7 +46,7 @@ class PusherClientMessageTest extends TestCase
             'event' => 'client-test',
             'channel' => 'test-channel',
             'data' => [
-                'client-event' => 'test'
+                'client-event' => 'test',
             ],
         ]));
 
@@ -56,8 +56,8 @@ class PusherClientMessageTest extends TestCase
 
         $connection2->assertSentEvent('client-test', [
             'data' => [
-                'client-event' => 'test'
-            ]
+                'client-event' => 'test',
+            ],
         ]);
     }
 }

@@ -2,22 +2,20 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
-use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
-use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
-use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
-use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
-use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
-use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
-use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
-use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
-
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
-use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
-
 use React\EventLoop\Factory as LoopFactory;
-use React\Socket\Connector;
+use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
+use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
+use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
+use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 
 class StartWebSocketServer extends Command
 {
@@ -49,16 +47,16 @@ class StartWebSocketServer extends Command
     protected function configureStatisticsLogger()
     {
         $connector = new Connector($this->loop, [
-            'dns' => new DnsResolver()
+            'dns' => new DnsResolver(),
         ]);
 
         $browser = new Browser($this->loop, $connector);
 
-        app()->singleton(StatisticsLoggerInterface::class, function() use ($browser) {
+        app()->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function() {
+        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
             StatisticsLogger::save();
         });
 
@@ -67,7 +65,7 @@ class StartWebSocketServer extends Command
 
     protected function configureHttpLogger()
     {
-        app()->singleton(HttpLogger::class, function() {
+        app()->singleton(HttpLogger::class, function () {
             return (new HttpLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -78,7 +76,7 @@ class StartWebSocketServer extends Command
 
     protected function configureMessageLogger()
     {
-        app()->singleton(WebsocketsLogger::class, function() {
+        app()->singleton(WebsocketsLogger::class, function () {
             return (new WebsocketsLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -89,7 +87,7 @@ class StartWebSocketServer extends Command
 
     protected function configureConnectionLogger()
     {
-        app()->bind(ConnectionLogger::class, function() {
+        app()->bind(ConnectionLogger::class, function () {
             return (new ConnectionLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -111,7 +109,7 @@ class StartWebSocketServer extends Command
 
         $routes = WebSocketsRouter::getRoutes();
 
-        /** 🛰 Start the server 🛰  */
+        /* 🛰 Start the server 🛰  */
         (new WebSocketServerFactory())
             ->setLoop($this->loop)
             ->useRoutes($routes)

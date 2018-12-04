@@ -3,14 +3,13 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Commands;
 
 use Artisan;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use Carbon\Carbon;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use Illuminate\Support\Collection;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 
 class CleanStatisticsTest extends TestCase
 {
-
     public function setUp()
     {
         parent::setUp();
@@ -19,7 +18,6 @@ class CleanStatisticsTest extends TestCase
 
         $this->app['config']->set('websockets.statistics.delete_statistics_older_than_days', 31);
     }
-
 
     /** @test */
     public function it_can_clean_the_statistics()

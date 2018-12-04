@@ -2,11 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
+use stdClass;
+use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
-use Illuminate\Support\Collection;
-use Ratchet\ConnectionInterface;
-use stdClass;
 
 class Channel
 {
@@ -53,7 +52,7 @@ class Channel
 
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
-            'channel' => $this->channelName
+            'channel' => $this->channelName,
         ]));
     }
 
@@ -108,7 +107,7 @@ class Channel
     {
         return [
             'occupied' => count($this->subscribedConnections) > 0,
-            'subscription_count' => count($this->subscribedConnections)
+            'subscription_count' => count($this->subscribedConnections),
         ];
     }
 }

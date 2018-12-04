@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use Ratchet\ConnectionInterface;
 use stdClass;
+use Ratchet\ConnectionInterface;
 
 class PresenceChannel extends Channel
 {
@@ -30,13 +30,13 @@ class PresenceChannel extends Channel
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelName,
-            'data' => json_encode($this->getChannelData())
+            'data' => json_encode($this->getChannelData()),
         ]));
 
         $this->broadcastToOthers($connection, [
             'event' => 'pusher_internal:member_added',
             'channel' => $this->channelName,
-            'data' => json_encode($channelData)
+            'data' => json_encode($channelData),
         ]);
     }
 
@@ -52,8 +52,8 @@ class PresenceChannel extends Channel
             'event' => 'pusher_internal:member_removed',
             'channel' => $this->channelName,
             'data' => json_encode([
-                'user_id' => $this->users[$connection->socketId]->user_id
-            ])
+                'user_id' => $this->users[$connection->socketId]->user_id,
+            ]),
         ]);
 
         unset($this->users[$connection->socketId]);
@@ -80,7 +80,7 @@ class PresenceChannel extends Channel
     protected function getUserIds(): array
     {
         $userIds = array_map(function ($channelData) {
-            return (string)$channelData->user_id;
+            return (string) $channelData->user_id;
         }, $this->users);
 
         return array_values($userIds);

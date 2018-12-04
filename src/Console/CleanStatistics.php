@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CleanStatistics extends Command
 {
-
     protected $signature = 'websockets:clean
                             {appId? : (optional) The app id that will be cleaned.}';
 

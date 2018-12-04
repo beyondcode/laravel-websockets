@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebsockets\Tests\Channels;
 
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 
 class ChannelTest extends TestCase
 {
@@ -15,7 +15,7 @@ class ChannelTest extends TestCase
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data' => [
-                'channel' => 'basic-channel'
+                'channel' => 'basic-channel',
             ],
         ]));
 
@@ -24,7 +24,7 @@ class ChannelTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
-            'channel' => 'basic-channel'
+            'channel' => 'basic-channel',
         ]);
     }
 
@@ -40,7 +40,7 @@ class ChannelTest extends TestCase
         $message = new Message(json_encode([
             'event' => 'pusher:unsubscribe',
             'data' => [
-                'channel' => 'test-channel'
+                'channel' => 'test-channel',
             ],
         ]));
 
@@ -108,7 +108,7 @@ class ChannelTest extends TestCase
 
         $channel->broadcast([
             'event' => 'broadcasted-event',
-            'channel' => 'test-channel'
+            'channel' => 'test-channel',
         ]);
 
         $connection1->assertSentEvent('broadcasted-event');
@@ -125,7 +125,7 @@ class ChannelTest extends TestCase
 
         $channel->broadcastToOthers($connection1, [
             'event' => 'broadcasted-event',
-            'channel' => 'test-channel'
+            'channel' => 'test-channel',
         ]);
 
         $connection1->assertNotSentEvent('broadcasted-event');
