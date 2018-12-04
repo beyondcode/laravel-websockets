@@ -11,7 +11,7 @@ class StatisticsUpdated implements ShouldBroadcast
 {
     use SerializesModels;
 
-    protected $statisticModel;
+    public $statisticModel;
 
     public function __construct($statisticModel)
     {
@@ -21,11 +21,11 @@ class StatisticsUpdated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'time' => $this->statisticModel->created_at->timestamp,
-            'app_id' => $this->statisticModel->appId,
-            'peak_connection_count' => $this->statisticModel->peakConnectionCount,
-            'websocket_message_count' => $this->statisticModel->webSocketMessageCount,
-            'api_message_count' => $this->statisticModel->apiMessageCount,
+            'time' => (string)$this->statisticModel->created_at,
+            'app_id' => $this->statisticModel->app_id,
+            'peak_connection_count' => $this->statisticModel->peak_connection_count,
+            'websocket_message_count' => $this->statisticModel->websocket_message_count,
+            'api_message_count' => $this->statisticModel->api_message_count,
         ];
     }
 

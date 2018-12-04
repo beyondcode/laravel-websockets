@@ -11,13 +11,16 @@ class DashboardApiController
 
         $peakConnections = $statistics->map(function ($statistic) {
             return [
-                'time' => $statistic->created_at->timestamp,
-                'y' => $statistic->peak_connection_count
+                'timestamp' => (string)$statistic->created_at,
+                'count' => $statistic->peak_connection_count
             ];
-        })->reverse()->values();
+        })->reverse();
 
         return [
-            'peak_connections' => $peakConnections
+            'peak_connections' => [
+                'x' => $peakConnections->pluck('timestamp'),
+                'y' => $peakConnections->pluck('count'),
+            ]
         ];
     }
 }
