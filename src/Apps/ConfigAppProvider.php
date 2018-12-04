@@ -42,6 +42,15 @@ class ConfigAppProvider implements AppProvider
         return $this->instanciate($appAttributes);
     }
 
+    public function findBySecret(string $appSecret): ?App
+    {
+        $appAttributes = $this
+            ->apps
+            ->firstWhere('secret', $appSecret);
+
+        return $this->instanciate($appAttributes);
+    }
+
     protected function instanciate(?array $appAttributes): ?App
     {
         if (!$appAttributes) {
