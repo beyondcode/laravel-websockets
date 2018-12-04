@@ -86,6 +86,11 @@ class Channel
         }
     }
 
+    public function broadcastToOthers(ConnectionInterface $connection, $payload)
+    {
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
+    }
+
     public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
     {
         if (is_null($socketId)) {
@@ -97,11 +102,6 @@ class Channel
                 $connection->send(json_encode($payload));
             }
         }
-    }
-
-    public function broadcastToOthers(ConnectionInterface $connection, $payload)
-    {
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
     }
 
     public function toArray(): array
