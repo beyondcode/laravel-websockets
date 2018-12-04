@@ -32,8 +32,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         }
 
         $this
-            ->registerRouteMacro()
-            ->registerStatisticRoute()
+            ->registerRoutes()
             ->registerDashboardGate();
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'websockets');
@@ -60,23 +59,14 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
     }
 
-    protected function registerRouteMacro()
+    protected function registerRoutes()
     {
-        Route::macro('webSockets', function ($prefix = 'laravel-websockets') {
-            Route::prefix($prefix)->namespace('\\')->middleware(Authorize::class)->group(function () {
-                Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', DashboardApiController::class . '@getStatistics');
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
-            });
-        });
+        Route::prefix(config('websockets.path'))->middleware(Authorize::class)->group(function () {
+            Route::get('/', ShowDashboard::class);
+            Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
+            Route::post('auth', AuthenticateDashboard::class);
+            Route::post('event', SendMessage::class);
 
-        return $this;
-    }
-
-    protected function registerStatisticRoute()
-    {
-        Route::prefix('/laravel-websockets')->namespace('\\')->group(function () {
             Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
         });
 
