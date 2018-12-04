@@ -54,6 +54,12 @@ return [
          * Here you can specify the interval in seconds at which statistics should be logged.
          */
         'interval_in_seconds' => 60,
+
+        /*
+         * When the clean-command is executed, all recorded statistics older than
+         * the number of days specified here will be deleted.
+         */
+        'delete_statistics_older_than_days' => 60
     ],
 
     /*
