@@ -142,7 +142,4 @@ class FetchUsersTest extends TestCase
             ]
         ], json_decode($response->getContent(), true));
     }
-
-    pu
-
 }
