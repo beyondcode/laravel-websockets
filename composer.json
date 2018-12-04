@@ -26,6 +26,7 @@
         "ext-json": "*",
         "cboden/ratchet": "^0.4.1",
         "clue/buzz-react": "^2.5",
+        "guzzlehttp/psr7": "^1.5",
         "illuminate/broadcasting": "5.7.*",
         "illuminate/console": "5.7.*",
         "illuminate/http": "5.7.*",
