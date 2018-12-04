@@ -53,12 +53,11 @@ class StartWebSocketServer extends Command
 
         $browser = new Browser($this->loop, $connector);
 
-
         app()->singleton(StatisticsLoggerInterface::class, function() use ($browser) {
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(5, function() {
+        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function() {
             StatisticsLogger::save();
         });
 
