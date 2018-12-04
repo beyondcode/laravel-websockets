@@ -23,11 +23,11 @@ class StatisticsUpdated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'time' => $this->webSocketsStatisticsEntry->created_at->timestamp,
-            'app_id' => $this->webSocketsStatisticsEntry->appId,
-            'peak_connection_count' => $this->webSocketsStatisticsEntry->peakConnectionCount,
-            'websocket_message_count' => $this->webSocketsStatisticsEntry->webSocketMessageCount,
-            'api_message_count' => $this->webSocketsStatisticsEntry->apiMessageCount,
+            'time' => (string)$this->webSocketsStatisticsEntry->created_at,
+            'app_id' => $this->webSocketsStatisticsEntry->app_id,
+            'peak_connection_count' => $this->webSocketsStatisticsEntry->peak_connection_count,
+            'websocket_message_count' => $this->webSocketsStatisticsEntry->websocket_message_count,
+            'api_message_count' => $this->webSocketsStatisticsEntry->api_message_count,
         ];
     }
 
