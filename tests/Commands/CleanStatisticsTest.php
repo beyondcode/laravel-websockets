@@ -6,6 +6,7 @@ use Artisan;
 use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use Carbon\Carbon;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use Illuminate\Support\Collection;
 
 class CleanStatisticsTest extends TestCase
 {
@@ -23,7 +24,7 @@ class CleanStatisticsTest extends TestCase
     /** @test */
     public function it_can_clean_the_statistics()
     {
-        collect(range(1, 60))->each(function (int $index) {
+        Collection::times(60)->each(function (int $index) {
             WebSocketsStatisticsEntry::create([
                 'app_id' => 'app_id',
                 'peak_connection_count' => 1,
