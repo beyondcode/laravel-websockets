@@ -31,7 +31,7 @@ To start the WebSocket server, use:
 php artisan websockets:serve
 ```
 
-For in-depth usage and deployment details, please take a look at the [official documentation](https://docs.beyondco.de/laravel-websockets/)
+For in-depth usage and deployment details, please take a look at the [official documentation](https://docs.beyondco.de/laravel-websockets/).
 
 ### Changelog
 
