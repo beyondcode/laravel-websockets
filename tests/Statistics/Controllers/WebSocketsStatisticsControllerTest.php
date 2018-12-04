@@ -13,7 +13,9 @@ class WebSocketsStatisticsControllerTest extends TestCase
     {
         $this->post(
             action([WebSocketStatisticsEntriesController::class, 'store']),
-            $this->payload()
+            array_merge($this->payload(), [
+                'secret' => config('websockets.apps.0.secret'),
+            ])
         );
 
         $entries = WebSocketsStatisticsEntry::get();

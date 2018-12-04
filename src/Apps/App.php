@@ -36,7 +36,7 @@ class App
 
     public static function findBySecret(string $appSecret): ?App
     {
-        return app(AppProvider::class)->findByKey($appSecret);
+        return app(AppProvider::class)->findBySecret($appSecret);
     }
 
     public function __construct($appId, string $appKey, string $appSecret)
