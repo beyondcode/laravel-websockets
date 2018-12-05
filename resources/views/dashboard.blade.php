@@ -106,11 +106,16 @@
             logs: [],
         },
 
+        mounted() {
+            this.app = this.apps[0] || null;
+        },
+
         methods: {
             connect() {
                 this.pusher = new Pusher(this.app.key, {
                     wsHost: window.location.hostname,
                     wsPort: this.port,
+                    wssPort: this.port,
                     disableStats: true,
                     authEndpoint: '/{{ request()->path() }}/auth',
                     auth: {
