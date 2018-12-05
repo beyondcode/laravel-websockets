@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Console;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Config\Repository;
 
 class CleanStatistics extends Command
 {
@@ -13,17 +14,17 @@ class CleanStatistics extends Command
 
     protected $description = 'Clean up old statistics from the websocket log.';
 
-    public function handle()
+    public function handle(Repository $config)
     {
         $this->comment('Cleaning WebSocket Statistics...');
 
         $appId = $this->argument('appId');
 
-        $maxAgeInDays = config('websockets.statistics.delete_statistics_older_than_days');
+        $maxAgeInDays = $config->get('websockets.statistics.delete_statistics_older_than_days');
 
         $cutOffDate = Carbon::now()->subDay($maxAgeInDays)->format('Y-m-d H:i:s');
 
-        $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
+        $webSocketsStatisticsEntryModelClass = $config->get('websockets.statistics.model');
 
         $amountDeleted = $webSocketsStatisticsEntryModelClass::where('created_at', '<', $cutOffDate)
             ->when(! is_null($appId), function (Builder $query) use ($appId) {

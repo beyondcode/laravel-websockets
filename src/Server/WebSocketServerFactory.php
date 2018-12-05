@@ -7,6 +7,7 @@ use React\Socket\Server;
 use Ratchet\Server\IoServer;
 use React\Socket\SecureServer;
 use React\EventLoop\LoopInterface;
+use Illuminate\Contracts\Config\Repository;
 use React\EventLoop\Factory as LoopFactory;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
@@ -28,12 +29,16 @@ class WebSocketServerFactory
     /** @var \Symfony\Component\Routing\RouteCollection */
     protected $routes;
 
-    /** @var Symfony\Component\Console\Output\OutputInterface */
+    /** @var \Symfony\Component\Console\Output\OutputInterface */
     protected $consoleOutput;
 
-    public function __construct()
+    /** @var \Illuminate\Contracts\Config\Repository */
+    protected $config;
+
+    public function __construct(Repository $config)
     {
         $this->loop = LoopFactory::create();
+        $this->config = $config;
     }
 
     public function useRoutes(RouteCollection $routes)
@@ -75,17 +80,17 @@ class WebSocketServerFactory
     {
         $socket = new Server("{$this->host}:{$this->port}", $this->loop);
 
-        if (config('websockets.ssl.local_cert')) {
-            $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
+        if ($this->config->get('websockets.ssl.local_cert')) {
+            $socket = new SecureServer($socket, $this->loop, $this->config->get('websockets.ssl'));
         }
 
         $urlMatcher = new UrlMatcher($this->routes, new RequestContext);
 
         $router = new Router($urlMatcher);
 
-        $app = new OriginCheck($router, config('websockets.allowed_origins', []));
+        $app = new OriginCheck($router, $this->config->get('websockets.allowed_origins', []));
 
-        $httpServer = new HttpServer($app, config('websockets.max_request_size_in_kb') * 1024);
+        $httpServer = new HttpServer($app, $this->config->get('websockets.max_request_size_in_kb') * 1024);
 
         if (HttpLogger::isEnabled()) {
             $httpServer = HttpLogger::decorate($httpServer);

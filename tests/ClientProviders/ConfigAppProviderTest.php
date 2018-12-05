@@ -14,7 +14,7 @@ class ConfigAppProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->configAppProvider = new ConfigAppProvider();
+        $this->configAppProvider = $this->app->make(ConfigAppProvider::class);
     }
 
     /** @test */

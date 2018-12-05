@@ -4,11 +4,20 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use Pusher\Pusher;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Config\Repository;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 
 class SendMessage
 {
+    /** @var \Illuminate\Contracts\Config\Repository */
+    protected $config;
+
+    public function __construct(Repository $config)
+    {
+        $this->config = $config;
+    }
+
     public function __invoke(Request $request)
     {
         $validated = $request->validate([
@@ -35,7 +44,7 @@ class SendMessage
             $validated['key'],
             $validated['secret'],
             $validated['appId'],
-            config('broadcasting.connections.pusher.options', [])
+            $this->config->get('broadcasting.connections.pusher.options', [])
         );
 
         return new PusherBroadcaster($pusher);

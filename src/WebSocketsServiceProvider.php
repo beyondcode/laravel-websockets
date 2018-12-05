@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Config\Repository;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -55,13 +56,15 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(AppProvider::class, function () {
-            return app(config('websockets.app_provider'));
+            return $this->app->make(
+                $this->app->make(Repository::class)->get('websockets.app_provider')
+            );
         });
     }
 
     protected function registerRoutes()
     {
-        Route::prefix(config('websockets.path'))->group(function () {
+        Route::prefix($this->app->make(Repository::class)->get('websockets.path'))->group(function () {
             Route::middleware(AuthorizeDashboard::class)->group(function () {
                 Route::get('/', ShowDashboard::class);
                 Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);

@@ -3,15 +3,16 @@
 namespace BeyondCode\LaravelWebSockets\Apps;
 
 use Illuminate\Support\Collection;
+use Illuminate\Contracts\Config\Repository;
 
 class ConfigAppProvider implements AppProvider
 {
     /** @var Collection */
     protected $apps;
 
-    public function __construct()
+    public function __construct(Repository $config)
     {
-        $this->apps = collect(config('websockets.apps'));
+        $this->apps = collect($config->get('websockets.apps'));
     }
 
     /**  @return array[\BeyondCode\LaravelWebSockets\AppProviders\App] */

@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Console;
 use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
 use React\EventLoop\Factory as LoopFactory;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
@@ -26,11 +27,15 @@ class StartWebSocketServer extends Command
     /** @var \React\EventLoop\LoopInterface */
     protected $loop;
 
-    public function __construct()
+    /** @var \Illuminate\Contracts\Config\Repository */
+    protected $config;
+
+    public function __construct(Repository $config)
     {
         parent::__construct();
 
         $this->loop = LoopFactory::create();
+        $this->config = $config;
     }
 
     public function handle()
@@ -56,7 +61,7 @@ class StartWebSocketServer extends Command
             return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
         });
 
-        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
+        $this->loop->addPeriodicTimer($this->config->get('websockets.statistics.interval_in_seconds'), function () {
             StatisticsLogger::save();
         });
 
@@ -67,7 +72,7 @@ class StartWebSocketServer extends Command
     {
         app()->singleton(HttpLogger::class, function () {
             return (new HttpLogger($this->output))
-                ->enable(config('app.debug'))
+                ->enable($this->config->get('app.debug'))
                 ->verbose($this->output->isVerbose());
         });
 
@@ -78,7 +83,7 @@ class StartWebSocketServer extends Command
     {
         app()->singleton(WebsocketsLogger::class, function () {
             return (new WebsocketsLogger($this->output))
-                ->enable(config('app.debug'))
+                ->enable($this->config->get('app.debug'))
                 ->verbose($this->output->isVerbose());
         });
 
@@ -89,7 +94,7 @@ class StartWebSocketServer extends Command
     {
         app()->bind(ConnectionLogger::class, function () {
             return (new ConnectionLogger($this->output))
-                ->enable(config('app.debug'))
+                ->enable($this->config->get('app.debug'))
                 ->verbose($this->output->isVerbose());
         });
 
@@ -110,7 +115,7 @@ class StartWebSocketServer extends Command
         $routes = WebSocketsRouter::getRoutes();
 
         /* 🛰 Start the server 🛰  */
-        (new WebSocketServerFactory())
+        (new WebSocketServerFactory($this->config))
             ->setLoop($this->loop)
             ->useRoutes($routes)
             ->setHost($this->option('host'))

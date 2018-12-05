@@ -29,6 +29,7 @@
         "guzzlehttp/psr7": "^1.5",
         "illuminate/broadcasting": "5.7.*",
         "illuminate/console": "5.7.*",
+        "illuminate/contracts": "5.7.*",
         "illuminate/http": "5.7.*",
         "illuminate/routing": "5.7.*",
         "illuminate/support": "5.7.*",

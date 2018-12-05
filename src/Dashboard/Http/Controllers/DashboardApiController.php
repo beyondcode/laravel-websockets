@@ -2,11 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
+use Illuminate\Contracts\Config\Repository;
+
 class DashboardApiController
 {
-    public function getStatistics($appId)
+    public function getStatistics($appId, Repository $config)
     {
-        $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
+        $webSocketsStatisticsEntryModelClass = $config->get('websockets.statistics.model');
         $statistics = $webSocketsStatisticsEntryModelClass::where('app_id', $appId)->latest()->limit(120)->get();
 
         $statisticData = $statistics->map(function ($statistic) {
