@@ -50,8 +50,8 @@ class StartWebSocketServer extends Command
             'dns' => new DnsResolver(),
             'tls' => [
                 'verify_peer' => config('app.env') === 'production',
-                'verify_peer_name' => config('app.env') === 'production'
-            ]
+                'verify_peer_name' => config('app.env') === 'production',
+            ],
         ]);
 
         $browser = new Browser($this->loop, $connector);
