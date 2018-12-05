@@ -109,7 +109,7 @@
         methods: {
             connect() {
                 this.pusher = new Pusher(this.app.key, {
-                    wsHost: this.app.host.length === 0 ? window.location.hostname : this.app.host,
+                    wsHost: this.app.host === null ? window.location.hostname : this.app.host,
                     wsPort: this.port,
                     disableStats: true,
                     authEndpoint: '/{{ request()->path() }}/auth',
