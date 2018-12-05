@@ -19,7 +19,7 @@ class App
     public $name;
 
     /** @var string|null */
-    public $server;
+    public $host;
 
     /** @var bool */
     public $clientMessagesEnabled = false;
@@ -66,9 +66,9 @@ class App
         return $this;
     }
 
-    public function setServer(string $server)
+    public function setHost(string $host)
     {
-        $this->server = $server;
+        $this->host = $host;
 
         return $this;
     }

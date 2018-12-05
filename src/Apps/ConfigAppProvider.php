@@ -67,8 +67,8 @@ class ConfigAppProvider implements AppProvider
             $app->setName($appAttributes['name']);
         }
 
-        if (isset($appAttributes['server'])) {
-            $app->setServer($appAttributes['server']);
+        if (isset($appAttributes['host'])) {
+            $app->setHost($appAttributes['host']);
         }
 
         $app
