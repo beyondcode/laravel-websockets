@@ -13,6 +13,7 @@ return [
         [
             'id' => env('PUSHER_APP_ID'),
             'name' => env('APP_NAME'),
+            'server' => null,
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
             'enable_client_messages' => false,

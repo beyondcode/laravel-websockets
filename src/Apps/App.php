@@ -18,6 +18,9 @@ class App
     /** @var string|null */
     public $name;
 
+    /** @var string|null */
+    public $server;
+
     /** @var bool */
     public $clientMessagesEnabled = false;
 
@@ -59,6 +62,13 @@ class App
     public function setName(string $appName)
     {
         $this->name = $appName;
+
+        return $this;
+    }
+
+    public function setServer(string $server)
+    {
+        $this->server = $server;
 
         return $this;
     }
