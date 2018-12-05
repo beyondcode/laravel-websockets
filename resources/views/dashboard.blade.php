@@ -113,7 +113,7 @@
         methods: {
             connect() {
                 this.pusher = new Pusher(this.app.key, {
-                    wsHost: window.location.hostname,
+                    wsHost: this.app.host === null ? window.location.hostname : this.app.host,
                     wsPort: this.port,
                     wssPort: this.port,
                     disableStats: true,
