@@ -19,7 +19,7 @@ use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as Statistic
 
 class StartWebSocketServer extends Command
 {
-    protected $signature = 'websockets:serve {--host=0.0.0.0} {--port=6001} {--debug : Forces the HttpLogger to be enabled and thereby overrides the app.debug config setting } ';
+    protected $signature = 'websockets:serve {--host=0.0.0.0} {--port=6001} {--debug : Forces the loggers to be enabled and thereby overriding the app.debug config setting } ';
 
     protected $description = 'Start the Laravel WebSocket Server';
 
