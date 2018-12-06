@@ -49,7 +49,7 @@ return [
      */
     'path' => 'laravel-websockets',
 
-    /**
+    /*
      * Dashboard Routes Middleware
      *
      * These middleware will be assigned to every dashboard route, giving you
