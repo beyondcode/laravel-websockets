@@ -30,11 +30,13 @@ class WebSocketsServiceProvider extends ServiceProvider
             ], 'migrations');
         }
 
-        $this
-            ->registerRoutes()
-            ->registerDashboardGate();
+        if (config('websockets.path') !== null) {
+            $this
+                ->registerRoutes()
+                ->registerDashboardGate();
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
+            $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
+        }
 
         $this->commands([
             Console\StartWebSocketServer::class,
