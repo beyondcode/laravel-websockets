@@ -22,7 +22,7 @@ class FetchChannelsTest extends TestCase
 
         $requestPath = '/apps/1234/channels';
         $routeParams = [
-            'appId' => '1234'
+            'appId' => '1234',
         ];
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath);
@@ -45,7 +45,7 @@ class FetchChannelsTest extends TestCase
 
         $requestPath = '/apps/1234/channels';
         $routeParams = [
-            'appId' => '1234'
+            'appId' => '1234',
         ];
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
@@ -80,7 +80,7 @@ class FetchChannelsTest extends TestCase
 
         $requestPath = '/apps/1234/channels';
         $routeParams = [
-            'appId' => '1234'
+            'appId' => '1234',
         ];
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
