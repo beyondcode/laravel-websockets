@@ -85,7 +85,12 @@ abstract class Controller implements HttpServerInterface
 
     protected function ensureValidSignature(Request $request)
     {
-        $params = array_except($request->query(), ['auth_signature', 'body_md5']);
+        /*
+         * The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
+         *
+         * The `appId`, `appKey` & `channelName` parameters are actually route paramaters and are never supplied by the client.
+         */
+        $params = array_except($request->query(), ['auth_signature', 'body_md5', 'appId', 'appKey', 'channelName']);
 
         if ($request->getContent() !== '') {
             $params['body_md5'] = md5($request->getContent());
