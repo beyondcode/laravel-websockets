@@ -93,7 +93,7 @@ abstract class Controller implements HttpServerInterface
 
         ksort($params);
 
-        $signature = "{$request->getMethod()}\n/{$request->path()}\n" . Pusher::array_implode('=', '&', $params);
+        $signature = "{$request->getMethod()}\n/{$request->path()}\n".Pusher::array_implode('=', '&', $params);
 
         $authSignature = hash_hmac('sha256', $signature, App::findById($request->get('appId'))->secret);
 
