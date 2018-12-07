@@ -21,12 +21,13 @@ class FetchChannelsTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channels';
+        $routeParams = [
+            'appId' => '1234'
+        ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath, [
-            'appId' => '1234',
-        ]);
+        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath);
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelsController::class);
 
@@ -43,12 +44,13 @@ class FetchChannelsTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channels';
+        $routeParams = [
+            'appId' => '1234'
+        ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
-            'appId' => '1234',
-        ]);
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelsController::class);
 
@@ -77,13 +79,15 @@ class FetchChannelsTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channels';
+        $routeParams = [
+            'appId' => '1234'
+        ];
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
-            'appId'            => '1234',
             'filter_by_prefix' => 'presence-global',
         ]);
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelsController::class);
 

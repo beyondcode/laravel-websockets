@@ -21,13 +21,14 @@ class FetchChannelTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channel/my-channel';
-
-        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath, [
+        $routeParams = [
             'appId' => '1234',
             'channelName' => 'my-channel',
-        ]);
+        ];
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelController::class);
 
@@ -43,13 +44,14 @@ class FetchChannelTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channel/my-channel';
-
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $routeParams = [
             'appId' => '1234',
             'channelName' => 'my-channel',
-        ]);
+        ];
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelController::class);
 
@@ -75,13 +77,14 @@ class FetchChannelTest extends TestCase
         $connection = new Connection();
 
         $requestPath = '/apps/1234/channel/invalid-channel';
-
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $routeParams = [
             'appId' => '1234',
             'channelName' => 'invalid-channel',
-        ]);
+        ];
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}");
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchChannelController::class);
 
