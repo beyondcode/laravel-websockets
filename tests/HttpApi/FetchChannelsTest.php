@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
+use Pusher\Pusher;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
@@ -19,21 +20,13 @@ class FetchChannelsTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channels';
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath, [
+            'appId' => '1234',
+        ]);
 
-        $signature =
-            "GET\n/apps/1234/channels\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'InvalidSecret');
-
-        $request = new Request('GET', "/apps/1234/channels?appId=1234&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
         $controller = app(FetchChannelsController::class);
 
@@ -49,21 +42,13 @@ class FetchChannelsTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channels';
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+            'appId' => '1234',
+        ]);
 
-        $signature =
-            "GET\n/apps/1234/channels\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
-
-        $request = new Request('GET', "/apps/1234/channels?appId=1234&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
         $controller = app(FetchChannelsController::class);
 
@@ -91,22 +76,14 @@ class FetchChannelsTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channels';
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+            'appId'            => '1234',
+            'filter_by_prefix' => 'presence-global',
+        ]);
 
-        $signature =
-            "GET\n/apps/1234/channels\n".
-            'filter_by_prefix=presence-global' .
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
-
-        $request = new Request('GET', "/apps/1234/channels?filter_by_prefix=presence-global&appId=1234&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
         $controller = app(FetchChannelsController::class);
 
