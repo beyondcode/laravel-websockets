@@ -91,4 +91,9 @@ return [
          */
         'passphrase' => null,
     ],
+
+    /*
+     * Channel Manager
+     */
+    'channel_manager' => \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
 ];

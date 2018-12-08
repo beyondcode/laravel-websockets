@@ -51,7 +51,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            return new ChannelManager();
+            return app(config('websockets.channel_manager'));
         });
 
         $this->app->singleton(AppProvider::class, function () {
