@@ -1,5 +1,7 @@
 <?php
 
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
+
 return [
 
     /*
@@ -46,6 +48,18 @@ return [
      * This path will be used to register the necessary routes for the package.
      */
     'path' => 'laravel-websockets',
+
+    /*
+     * Dashboard Routes Middleware
+     *
+     * These middleware will be assigned to every dashboard route, giving you
+     * the chance to add your own middleware to this list or change any of
+     * the existing middleware. Or, you can simply stick with this list.
+     */
+    'middleware' => [
+        'web',
+        Authorize::class,
+    ],
 
     'statistics' => [
         /*
