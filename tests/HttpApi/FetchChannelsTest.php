@@ -80,4 +80,35 @@ class FetchChannelsTest extends TestCase
             ],
         ], json_decode($response->getContent(), true));
     }
+
+    /** @test */
+    public function it_returns_empty_object_for_no_channels_found()
+    {
+        $connection = new Connection();
+
+        $auth_key = 'TestKey';
+        $auth_timestamp = time();
+        $auth_version = '1.0';
+
+        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+
+        $signature =
+            "GET\n/apps/1234/channels\n".
+            "auth_key={$auth_key}".
+            "&auth_timestamp={$auth_timestamp}".
+            "&auth_version={$auth_version}";
+
+        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
+
+        $request = new Request('GET', "/apps/1234/channels?appId=1234&auth_signature={$auth_signature}&{$queryParameters}");
+
+        $controller = app(FetchChannelsController::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame('{"channels":{}}', $response->getContent());
+    }
 }
