@@ -2,11 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers;
 
+use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PrivateChannel;
-use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
+
 
 class ArrayChannelManager implements ChannelManager
 {

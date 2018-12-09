@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -13,6 +12,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
