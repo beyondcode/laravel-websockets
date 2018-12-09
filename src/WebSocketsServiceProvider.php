@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -51,7 +52,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            return app(config('websockets.channel_manager'));
+            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
+                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
         });
 
         $this->app->singleton(AppProvider::class, function () {
