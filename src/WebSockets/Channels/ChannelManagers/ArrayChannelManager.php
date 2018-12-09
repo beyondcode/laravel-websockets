@@ -8,7 +8,6 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PrivateChannel;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
-
 class ArrayChannelManager implements ChannelManager
 {
     /** @var string */
