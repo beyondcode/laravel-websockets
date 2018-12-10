@@ -97,4 +97,13 @@ return [
          */
         'passphrase' => null,
     ],
+
+    /*
+     * Channel Manager
+     * This class handles how channel persistence is handled.
+     * By default, persistence is stored in an array by the running webserver.
+     * The only requirement is that the class should implement
+     * `ChannelManager` interface provided by this package.
+     */
+    'channel_manager' => \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
 ];

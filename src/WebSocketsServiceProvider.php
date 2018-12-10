@@ -12,6 +12,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
@@ -51,7 +52,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            return new ChannelManager();
+            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
+                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
         });
 
         $this->app->singleton(AppProvider::class, function () {
