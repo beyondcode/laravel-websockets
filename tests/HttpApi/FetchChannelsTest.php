@@ -107,4 +107,28 @@ class FetchChannelsTest extends TestCase
             ],
         ], json_decode($response->getContent(), true));
     }
+
+    /** @test */
+    public function it_returns_empty_object_for_no_channels_found()
+    {
+        $connection = new Connection();
+
+        $requestPath = '/apps/1234/channels';
+        $routeParams = [
+            'appId' => '1234',
+        ];
+
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(FetchChannelsController::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame('{"channels":{}}', $response->getContent());
+    }
 }

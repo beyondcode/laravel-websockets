@@ -5,7 +5,10 @@ namespace BeyondCode\LaravelWebSockets\Console;
 use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
+use React\Dns\Config\Config as DnsConfig;
 use React\EventLoop\Factory as LoopFactory;
+use React\Dns\Resolver\Factory as DnsFactory;
+use React\Dns\Resolver\Resolver as ReactDnsResolver;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
@@ -47,7 +50,7 @@ class StartWebSocketServer extends Command
     protected function configureStatisticsLogger()
     {
         $connector = new Connector($this->loop, [
-            'dns' => new DnsResolver(),
+            'dns' => $this->getDnsResolver(),
             'tls' => [
                 'verify_peer' => config('app.env') === 'production',
                 'verify_peer_name' => config('app.env') === 'production',
@@ -122,5 +125,21 @@ class StartWebSocketServer extends Command
             ->setConsoleOutput($this->output)
             ->createServer()
             ->run();
+    }
+
+    protected function getDnsResolver(): ReactDnsResolver
+    {
+        if (! config('websockets.statistics.perform_dns_lookup')) {
+            return new DnsResolver;
+        }
+
+        $dnsConfig = DnsConfig::loadSystemConfigBlocking();
+
+        return (new DnsFactory)->createCached(
+            $dnsConfig->nameservers
+                ? reset($dnsConfig->nameservers)
+                : '1.1.1.1',
+            $this->loop
+        );
     }
 }

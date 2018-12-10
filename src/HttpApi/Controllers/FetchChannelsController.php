@@ -25,7 +25,7 @@ class FetchChannelsController extends Controller
                 return [
                     'user_count' => count($channel->getUsers()),
                 ];
-            })->toArray(),
+            })->toArray() ?: new \stdClass,
         ];
     }
 }
