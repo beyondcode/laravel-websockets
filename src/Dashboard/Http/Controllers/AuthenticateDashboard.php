@@ -18,7 +18,7 @@ class AuthenticateDashboard
          */
         $app = App::findById($request->header('x-app-id'));
 
-        $braodcaster = new PusherBroadcaster(new Pusher(
+        $broadcaster = new PusherBroadcaster(new Pusher(
             $app->key,
             $app->secret,
             $app->id,
