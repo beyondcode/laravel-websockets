@@ -2,8 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use stdClass;
+use BeyondCode\LaravelWebSockets\Events\MemberAdded;
+use BeyondCode\LaravelWebSockets\Events\MemberRemoved;
 use Ratchet\ConnectionInterface;
+use stdClass;
 
 class PresenceChannel extends Channel
 {
@@ -23,48 +25,52 @@ class PresenceChannel extends Channel
 
         $this->saveConnection($connection);
 
-        $channelData = json_decode($payload->channel_data);
+        $channelData                        = json_decode($payload->channel_data);
         $this->users[$connection->socketId] = $channelData;
 
         // Send the success event
         $connection->send(json_encode([
-            'event' => 'pusher_internal:subscription_succeeded',
+            'event'   => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelName,
-            'data' => json_encode($this->getChannelData()),
+            'data'    => json_encode($this->getChannelData()),
         ]));
 
         $this->broadcastToOthers($connection, [
-            'event' => 'pusher_internal:member_added',
+            'event'   => 'pusher_internal:member_added',
             'channel' => $this->channelName,
-            'data' => json_encode($channelData),
+            'data'    => json_encode($channelData),
         ]);
+
+        event(new MemberAdded($this->channelName, $channelData));
     }
 
     public function unsubscribe(ConnectionInterface $connection)
     {
         parent::unsubscribe($connection);
 
-        if (! isset($this->users[$connection->socketId])) {
+        if (!isset($this->users[$connection->socketId])) {
             return;
         }
 
         $this->broadcastToOthers($connection, [
-            'event' => 'pusher_internal:member_removed',
+            'event'   => 'pusher_internal:member_removed',
             'channel' => $this->channelName,
-            'data' => json_encode([
+            'data'    => json_encode($data = [
                 'user_id' => $this->users[$connection->socketId]->user_id,
             ]),
         ]);
 
         unset($this->users[$connection->socketId]);
+
+        event(new MemberRemoved($this->channelName, $data));
     }
 
     protected function getChannelData(): array
     {
         return [
             'presence' => [
-                'ids' => $this->getUserIds(),
-                'hash' => $this->getHash(),
+                'ids'   => $this->getUserIds(),
+                'hash'  => $this->getHash(),
                 'count' => count($this->users),
             ],
         ];
