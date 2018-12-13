@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
-use BeyondCode\LaravelWebSockets\Events\MemberAdded;
-use BeyondCode\LaravelWebSockets\Events\MemberRemoved;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Illuminate\Support\Facades\Event;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Events\MemberAdded;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Events\MemberRemoved;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class PresenceChannelTest extends TestCase
 {
@@ -47,12 +47,12 @@ class PresenceChannelTest extends TestCase
             ],
         ];
 
-        $signature = "{$connection->socketId}:presence-channel:" . json_encode($channelData);
+        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
 
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data'  => [
-                'auth'         => $connection->app->key . ':' . hash_hmac('sha256', $signature, $connection->app->secret),
+                'auth'         => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel'      => 'presence-channel',
                 'channel_data' => json_encode($channelData),
             ],

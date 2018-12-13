@@ -10,6 +10,6 @@ class MemberRemoved
     public function __construct($channel, $data)
     {
         $this->channel = $channel;
-        $this->data    = $data;
+        $this->data = $data;
     }
 }

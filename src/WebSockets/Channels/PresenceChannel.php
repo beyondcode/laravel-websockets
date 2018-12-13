@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
+use stdClass;
+use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Events\MemberAdded;
 use BeyondCode\LaravelWebSockets\Events\MemberRemoved;
-use Ratchet\ConnectionInterface;
-use stdClass;
 
 class PresenceChannel extends Channel
 {
@@ -25,7 +25,7 @@ class PresenceChannel extends Channel
 
         $this->saveConnection($connection);
 
-        $channelData                        = json_decode($payload->channel_data);
+        $channelData = json_decode($payload->channel_data);
         $this->users[$connection->socketId] = $channelData;
 
         // Send the success event
@@ -48,7 +48,7 @@ class PresenceChannel extends Channel
     {
         parent::unsubscribe($connection);
 
-        if (!isset($this->users[$connection->socketId])) {
+        if (! isset($this->users[$connection->socketId])) {
             return;
         }
 
