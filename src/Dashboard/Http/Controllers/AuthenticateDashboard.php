@@ -22,7 +22,7 @@ class AuthenticateDashboard
             $app->key,
             $app->secret,
             $app->id,
-            $config['options'] ?? []
+            []
         ));
 
         /*
