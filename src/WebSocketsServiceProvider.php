@@ -2,9 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Auth\Access\Gate;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -63,16 +62,19 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerRoutes()
     {
-        Route::prefix(config('websockets.path'))->group(function () {
-            Route::middleware(AuthorizeDashboard::class)->group(function () {
-                Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
-            });
+        app('router')->group([
+            'prefix' => config('websockets.path'),
+            // 'middleware' => AuthorizeDashboard::class
+        ], function () {
+            app('router')->get('/', ShowDashboard::class);
+            app('router')->get('/api/{appId}/statistics', DashboardApiController::class . '@getStatistics');
+            app('router')->post('auth', AuthenticateDashboard::class);
+            app('router')->post('event', SendMessage::class);
 
-            Route::middleware(AuthorizeStatistics::class)->group(function () {
-                Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
+            app('router')->group(['middleware' => AuthorizeStatistics::class], function () {
+                app('router')->post('statistics', [
+                    'as' => 'statistics',
+                    'uses' => WebSocketStatisticsEntriesController::class . '@store']);
             });
         });
 
@@ -81,7 +83,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerDashboardGate()
     {
-        Gate::define('viewWebSocketsDashboard', function ($user = null) {
+        app(Gate::class)->define('viewWebSocketsDashboard', function ($user = null) {
             return app()->environment('local');
         });
 
