@@ -64,7 +64,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     {
         app('router')->group([
             'prefix' => config('websockets.path'),
-            'middleware' => AuthorizeDashboard::class
+            'middleware' => AuthorizeDashboard::class,
         ], function () {
             app('router')->get('/', ShowDashboard::class);
             app('router')->get('/api/{appId}/statistics', DashboardApiController::class.'@getStatistics');
