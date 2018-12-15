@@ -67,14 +67,14 @@ class WebSocketsServiceProvider extends ServiceProvider
             // 'middleware' => AuthorizeDashboard::class
         ], function () {
             app('router')->get('/', ShowDashboard::class);
-            app('router')->get('/api/{appId}/statistics', DashboardApiController::class . '@getStatistics');
+            app('router')->get('/api/{appId}/statistics', DashboardApiController::class.'@getStatistics');
             app('router')->post('auth', AuthenticateDashboard::class);
             app('router')->post('event', SendMessage::class);
 
             app('router')->group(['middleware' => AuthorizeStatistics::class], function () {
                 app('router')->post('statistics', [
                     'as' => 'statistics',
-                    'uses' => WebSocketStatisticsEntriesController::class . '@store']);
+                    'uses' => WebSocketStatisticsEntriesController::class.'@store']);
             });
         });
 

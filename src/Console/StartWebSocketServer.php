@@ -14,9 +14,9 @@ use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
-use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger;
 
 class StartWebSocketServer extends Command
 {

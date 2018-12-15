@@ -3,8 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use Illuminate\Http\Request;
-use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger;
 
 class TriggerEventController extends Controller
 {
