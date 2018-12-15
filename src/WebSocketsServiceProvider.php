@@ -74,7 +74,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             app('router')->group(['middleware' => AuthorizeStatistics::class], function () {
                 app('router')->post('statistics', [
                     'as' => 'statistics',
-                    'uses' => WebSocketStatisticsEntriesController::class.'@store']);
+                    'uses' => WebSocketStatisticsEntriesController::class.'@store', ]);
             });
         });
 
