@@ -125,6 +125,20 @@ return [
     ],
 
     /*
+     * You can enable replication to publish and subscribe to messages across the driver
+     */
+    'replication' => [
+        'enabled' => false,
+
+        'driver' => 'redis',
+
+        'redis' => [
+            'connection' => 'default',
+        ],
+    ],
+
+
+    /*
      * Channel Manager
      * This class handles how channel persistence is handled.
      * By default, persistence is stored in an array by the running webserver.
