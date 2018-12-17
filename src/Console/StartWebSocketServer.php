@@ -10,6 +10,8 @@ use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory as DnsFactory;
 use React\Dns\Resolver\Resolver as ReactDnsResolver;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
+use BeyondCode\LaravelWebSockets\PubSub\PubSubInterface;
+use BeyondCode\LaravelWebSockets\PubSub\Redis\RedisClient;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
@@ -44,6 +46,7 @@ class StartWebSocketServer extends Command
             ->configureMessageLogger()
             ->configureConnectionLogger()
             ->registerEchoRoutes()
+            ->configurePubSubReplication()
             ->startWebSocketServer();
     }
 
@@ -126,6 +129,25 @@ class StartWebSocketServer extends Command
             ->createServer()
             ->run();
     }
+
+
+    protected function configurePubSubReplication()
+    {
+        if (config('websockets.replication.enabled') !== true) {
+            return $this;
+        }
+
+        if (config('websockets.replication.driver') === 'redis') {
+            $connection = (new RedisClient())->subscribe($this->loop);
+        }
+
+        app()->singleton(PubSubInterface::class, function () use ($connection) {
+            return $connection;
+        });
+
+        return $this;
+    }
+
 
     protected function getDnsResolver(): ReactDnsResolver
     {

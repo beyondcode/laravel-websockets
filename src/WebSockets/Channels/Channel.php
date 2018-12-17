@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use stdClass;
 use Ratchet\ConnectionInterface;
+use BeyondCode\LaravelWebSockets\PubSub\PubSubInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
@@ -87,11 +88,15 @@ class Channel
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
     }
 
-    public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
+    public function broadcastToEveryoneExcept($payload, ?string $socketId = null, ?string $appId = null)
     {
+        if (config('websockets.replication.enabled') === true) {
+            app()->get(PubSubInterface::class)->publish($appId, $payload);
+        }
+
         if (is_null($socketId)) {
             return $this->broadcast($payload);
         }
