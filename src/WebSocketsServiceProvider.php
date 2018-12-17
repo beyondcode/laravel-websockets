@@ -64,7 +64,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerRoutes()
     {
         Route::prefix(config('websockets.path'))->group(function () {
-            Route::middleware(AuthorizeDashboard::class)->group(function () {
+            Route::middleware(config('websockets.middleware', [AuthorizeDashboard::class]))->group(function () {
                 Route::get('/', ShowDashboard::class);
                 Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
                 Route::post('auth', AuthenticateDashboard::class);

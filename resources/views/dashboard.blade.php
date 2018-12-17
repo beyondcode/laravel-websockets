@@ -120,7 +120,8 @@
                     authEndpoint: '/{{ request()->path() }}/auth',
                     auth: {
                         headers: {
-                            'X-CSRF-Token': "{{ csrf_token() }}"
+                            'X-CSRF-Token': "{{ csrf_token() }}",
+                            'X-App-ID': this.app.id
                         }
                     },
                     enabledTransports: ['ws', 'flash']
