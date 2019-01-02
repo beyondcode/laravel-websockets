@@ -50,7 +50,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             ],
         ]);
 
-        include_once __DIR__ . '/../database/migrations/create_websockets_statistics_entries_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub';
 
         (new \CreateWebSocketsStatisticsEntriesTable())->up();
     }
@@ -99,12 +99,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             ],
         ];
 
-        $signature = "{$connection->socketId}:{$channel}:" . json_encode($channelData);
+        $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
 
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data'  => [
-                'auth'         => $connection->app->key . ':' . hash_hmac('sha256', $signature, $connection->app->secret),
+                'auth'         => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel'      => $channel,
                 'channel_data' => json_encode($channelData),
             ],
