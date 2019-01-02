@@ -22,10 +22,6 @@ class FakeStatisticsLogger implements StatisticsLogger
     {
     }
 
-    protected function initializeStatistics($id)
-    {
-    }
-
     public function save()
     {
     }
