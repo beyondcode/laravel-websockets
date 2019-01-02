@@ -13,6 +13,7 @@ use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerBatchedEventsController;
 
 class Router
 {
@@ -35,6 +36,7 @@ class Router
 
         $this->post('/apps/{appId}/events', TriggerEventController::class);
         $this->get('/apps/{appId}/channels', FetchChannelsController::class);
+        $this->post('/apps/{appId}/batch_events', TriggerBatchedEventsController::class);
         $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
     }

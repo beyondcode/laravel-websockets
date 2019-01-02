@@ -44,7 +44,7 @@ abstract class Controller implements HttpServerInterface
 
         $response = $this($laravelRequest);
 
-        $connection->send(JsonResponse::create($response));
+        $connection->send($response instanceof JsonResponse ? $response : JsonResponse::create($response));
         $connection->close();
     }
 
