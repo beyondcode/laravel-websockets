@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
+use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
@@ -10,6 +11,7 @@ use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -27,7 +29,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $this->channelManager = app(ChannelManager::class);
 
-        StatisticsLogger::fake();
+        StatisticsLogger::swap(new FakeStatisticsLogger($this->channelManager, $this->mock(Browser::class)));
     }
 
     protected function getPackageProviders($app)
@@ -39,16 +41,16 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         $app['config']->set('websockets.apps', [
             [
-                'name' => 'Test App',
-                'id' => 1234,
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
+                'name'                   => 'Test App',
+                'id'                     => 1234,
+                'key'                    => 'TestKey',
+                'secret'                 => 'TestSecret',
                 'enable_client_messages' => false,
-                'enable_statistics' => true,
+                'enable_statistics'      => true,
             ],
         ]);
 
-        include_once __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub';
+        include_once __DIR__ . '/../database/migrations/create_websockets_statistics_entries_table.php.stub';
 
         (new \CreateWebSocketsStatisticsEntriesTable())->up();
     }
@@ -73,7 +75,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         foreach ($channelsToJoin as $channel) {
             $message = new Message(json_encode([
                 'event' => 'pusher:subscribe',
-                'data' => [
+                'data'  => [
                     'channel' => $channel,
                 ],
             ]));
@@ -91,19 +93,19 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->pusherServer->onOpen($connection);
 
         $channelData = [
-            'user_id' => 1,
+            'user_id'   => 1,
             'user_info' => [
                 'name' => 'Marcel',
             ],
         ];
 
-        $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
+        $signature = "{$connection->socketId}:{$channel}:" . json_encode($channelData);
 
         $message = new Message(json_encode([
             'event' => 'pusher:subscribe',
-            'data' => [
-                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
-                'channel' => $channel,
+            'data'  => [
+                'auth'         => $connection->app->key . ':' . hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel'      => $channel,
                 'channel_data' => json_encode($channelData),
             ],
         ]));

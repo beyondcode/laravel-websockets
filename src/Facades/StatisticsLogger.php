@@ -13,9 +13,4 @@ class StatisticsLogger extends Facade
     {
         return StatisticsLoggerInterface::class;
     }
-
-    public static function fake()
-    {
-        static::swap(new FakeStatisticsLogger());
-    }
 }
