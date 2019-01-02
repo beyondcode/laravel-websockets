@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
+use Pusher\Pusher;
 use GuzzleHttp\Psr7\Request;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
@@ -18,21 +19,15 @@ class FetchUsersTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channel/my-channel';
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'my-channel',
+        ];
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath);
 
-        $signature =
-            "GET\n/apps/1234/channels\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'InvalidSecret');
-
-        $request = new Request('GET', "/apps/1234/channel/my-channel?appId=1234&channelName=my-channel&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchUsersController::class);
 
@@ -49,21 +44,15 @@ class FetchUsersTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channel/my-channel/users';
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'my-channel',
+        ];
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
-
-        $request = new Request('GET', "/apps/1234/channel/my-channel/users?appId=1234&channelName=my-channel&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchUsersController::class);
 
@@ -80,21 +69,15 @@ class FetchUsersTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channel/invalid-channel/users';
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'invalid-channel',
+        ];
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
-
-        $request = new Request('GET', "/apps/1234/channel/my-channel/users?appId=1234&channelName=invalid-channel&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchUsersController::class);
 
@@ -108,21 +91,15 @@ class FetchUsersTest extends TestCase
 
         $connection = new Connection();
 
-        $auth_key = 'TestKey';
-        $auth_timestamp = time();
-        $auth_version = '1.0';
+        $requestPath = '/apps/1234/channel/presence-channel/users';
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'presence-channel',
+        ];
 
-        $queryParameters = http_build_query(compact('auth_key', 'auth_timestamp', 'auth_version'));
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $signature =
-            "GET\n/apps/1234/channel/my-channel/users\n".
-            "auth_key={$auth_key}".
-            "&auth_timestamp={$auth_timestamp}".
-            "&auth_version={$auth_version}";
-
-        $auth_signature = hash_hmac('sha256', $signature, 'TestSecret');
-
-        $request = new Request('GET', "/apps/1234/channel/my-channel/users?appId=1234&channelName=presence-channel&auth_signature={$auth_signature}&{$queryParameters}");
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
         $controller = app(FetchUsersController::class);
 
