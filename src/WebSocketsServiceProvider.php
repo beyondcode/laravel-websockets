@@ -22,20 +22,14 @@ class WebSocketsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
+            __DIR__ . '/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
-            $this->publishes([
-                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
-            ], 'migrations');
-        }
+        $this->publishMigrations();
 
-        $this
-            ->registerRoutes()
-            ->registerDashboardGate();
+        $this->registerRoutes()->registerDashboardGate();
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'websockets');
 
         $this->commands([
             Console\StartWebSocketServer::class,
@@ -43,17 +37,33 @@ class WebSocketsServiceProvider extends ServiceProvider
         ]);
     }
 
+    public function publishMigrations()
+    {
+        if ( ! class_exists('CreateWebSocketsStatisticsEntries')) {
+            $this->publishes([
+                __DIR__ . '/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/' . date('Y_m_d_His',
+                        time()) . '_create_websockets_statistics_entries_table.php'),
+            ], 'migrations');
+        }
+
+        if ( ! class_exists('CreateWebSocketsApps')) {
+            $this->publishes([
+                __DIR__ . '/../database/migrations/create_websockets_apps_table.php.stub' => database_path('migrations/' . date('Y_m_d_His',
+                        time()) . '_create_websockets_apps_table.php'),
+            ], 'migrations');
+        }
+    }
+
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
+        $this->mergeConfigFrom(__DIR__ . '/../config/websockets.php', 'websockets');
 
         $this->app->singleton('websockets.router', function () {
             return new Router();
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
-                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
+            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager')) ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
         });
 
         $this->app->singleton(AppProvider::class, function () {
@@ -66,7 +76,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         Route::prefix(config('websockets.path'))->group(function () {
             Route::middleware(config('websockets.middleware', [AuthorizeDashboard::class]))->group(function () {
                 Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
+                Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics']);
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
             });

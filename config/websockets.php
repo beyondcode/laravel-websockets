@@ -34,7 +34,12 @@ return [
 	'database' => [
 		'tables' => [
 			/*
-			 * This table name will be used to store statistics entries
+			 * This table name will be used to migrate the table needed with DatabaseAppProvider
+			 */
+			'apps' => 'websockets_apps',
+
+			/*
+			 * This table name will be used to migrate the table needed
 			 */
 			'statistics_entries' => 'websockets_statistics_entries'
 		],
