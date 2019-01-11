@@ -8,7 +8,8 @@ class WebSocketsStatisticsEntry extends Model
 {
     protected $guarded = [];
 
-    public function getTable() {
-	    return config('websockets.database.tables.statistics_entries');
+    public function getTable()
+    {
+        return config('websockets.database.tables.statistics_entries');
     }
 }

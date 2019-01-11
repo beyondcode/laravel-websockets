@@ -31,14 +31,14 @@ return [
      */
     'app_provider' => BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider::class,
 
-	'database' => [
-		'tables' => [
-			/*
-			 * This table name will be used to store statistics entries
-			 */
-			'statistics_entries' => 'websockets_statistics_entries'
-		],
-	],
+    'database' => [
+        'tables' => [
+            /*
+             * This table name will be used to store statistics entries
+             */
+            'statistics_entries' => 'websockets_statistics_entries',
+        ],
+    ],
 
     /*
      * This array contains the hosts of which you want to allow incoming requests.
