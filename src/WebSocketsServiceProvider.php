@@ -12,8 +12,10 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
+use BeyondCode\LaravelWebSockets\Database\Http\Controllers\AppsController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
+use BeyondCode\LaravelWebSockets\Database\Http\Middleware\Authorize as AuthorizeAdmin;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 
@@ -25,11 +27,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
-            $this->publishes([
-                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
-            ], 'migrations');
-        }
+        $this->publishMigrations();
 
         $this
             ->registerRoutes()
@@ -40,6 +38,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->commands([
             Console\StartWebSocketServer::class,
             Console\CleanStatistics::class,
+            Database\Console\AppCreate::class,
         ]);
     }
 
@@ -61,6 +60,21 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
     }
 
+    protected function publishMigrations()
+    {
+        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
+            $this->publishes([
+                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
+            ], 'migrations');
+        }
+
+        if (! class_exists('CreateWebsocketsAppsTable')) {
+            $this->publishes([
+                __DIR__.'/../database/migrations/create_websockets_apps_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_apps_table.php'),
+            ], 'migrations');
+        }
+    }
+
     protected function registerRoutes()
     {
         Route::prefix(config('websockets.path'))->group(function () {
@@ -73,6 +87,15 @@ class WebSocketsServiceProvider extends ServiceProvider
 
             Route::middleware(AuthorizeStatistics::class)->group(function () {
                 Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
+            });
+
+            Route::middleware(config('websockets.middleware', [AuthorizeAdmin::class]))->group(function () {
+                Route::get('/admin', AppsController::class ."@index")->name('websockets.admin.index');
+                Route::get('/admin/create', AppsController::class ."@create")->name('websockets.admin.create');
+                Route::post('/admin/store', AppsController::class ."@store")->name('websockets.admin.store');
+                Route::get('/admin/{app}/edit', AppsController::class ."@edit")->name('websockets.admin.edit');
+                Route::post('/admin/{app}/store', AppsController::class ."@update")->name('websockets.admin.update');
+                Route::post('/admin/{app}/destroy', AppsController::class ."@destroy")->name('websockets.admin.destroy');
             });
         });
 
