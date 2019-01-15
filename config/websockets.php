@@ -43,6 +43,15 @@ return [
      */
     'app_provider' => BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider::class,
 
+    'database' => [
+        'tables' => [
+            /*
+             * This table name will be used to migrate the table needed with DatabaseAppProvider
+             */
+            'apps' => 'websockets_apps',
+        ],
+    ],
+
     /*
      * This array contains the hosts of which you want to allow incoming requests.
      * Leave this empty if you want to accept requests from all hosts.
