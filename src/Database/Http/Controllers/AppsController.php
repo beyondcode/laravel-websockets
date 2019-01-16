@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Database\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\Database\Http\Requests\StoreWebSocketsApp;
-use BeyondCode\LaravelWebSockets\Database\Models\App;
 use Illuminate\Http\Request;
+use BeyondCode\LaravelWebSockets\Database\Models\App;
+use BeyondCode\LaravelWebSockets\Database\Http\Requests\StoreWebSocketsApp;
 
 class AppsController
 {
@@ -53,7 +53,7 @@ class AppsController
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();
 
-        return redirect(route('websockets.admin.edit', [ 'app' => $app->id ]))->with('success', 'Record created.');
+        return redirect(route('websockets.admin.edit', ['app' => $app->id]))->with('success', 'Record created.');
     }
 
     /**
@@ -84,7 +84,7 @@ class AppsController
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();
 
-        return redirect(route('websockets.admin.edit', [ 'app' => $app->id ]))->with('success', 'Record saved.');
+        return redirect(route('websockets.admin.edit', ['app' => $app->id]))->with('success', 'Record saved.');
     }
 
     /**
