@@ -2,10 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Database\Console;
 
-use BeyondCode\LaravelWebSockets\Database\Models\App;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
+use BeyondCode\LaravelWebSockets\Database\Models\App;
 
 class AppCreate extends Command
 {
@@ -15,14 +13,14 @@ class AppCreate extends Command
 
     public function handle()
     {
-        $name = $this->ask("What is the app name? (required)");
+        $name = $this->ask('What is the app name? (required)');
 
         if (empty($name)) {
             $this->handle();
             return;
         }
 
-        $host = $this->ask("Host: ");
+        $host = $this->ask('Host: ');
 
         $enable_client_messages = $this->confirm('Would you enable client messages?');
 
@@ -34,11 +32,11 @@ class AppCreate extends Command
             'name' => $name,
             'host' => $host,
             'enable_client_messages' => $enable_client_messages,
-            'enable_statistics' => $enable_statistics
+            'enable_statistics' => $enable_statistics,
         ]);
 
-        $this->info("Key: ". $app->key);
-        $this->info("Secret: ". $app->secret);
+        $this->info('Key: '. $app->key);
+        $this->info('Secret: '. $app->secret);
 
         $this->comment('App has been created. Please save key and secret.');
     }
