@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Database\Http\Controllers;
 
+use BeyondCode\LaravelWebSockets\Database\Http\Requests\StoreWebSocketsApp;
 use BeyondCode\LaravelWebSockets\Database\Models\App;
 use Illuminate\Http\Request;
 
@@ -10,6 +11,7 @@ class AppsController
     /**
      * Display a listing of the resource.
      *
+     * @param  Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -38,10 +40,10 @@ class AppsController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  StoreWebSocketsApp  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreWebSocketsApp $request)
     {
         $app = new App();
 
@@ -70,11 +72,11 @@ class AppsController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  StoreWebSocketsApp  $request
      * @param  App  $app
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, App $app)
+    public function update(StoreWebSocketsApp $request, App $app)
     {
         $app->name = $request->name;
         $app->host = $request->host;
