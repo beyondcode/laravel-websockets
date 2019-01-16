@@ -11,26 +11,26 @@ class AppProvider implements IAppProvider
     public function all(): array
     {
         return DatabaseApp::all()->map(function (DatabaseApp $app) {
-            return $this->instanciate($app->toArray());
+            return $this->instantiate($app->toArray());
         })->toArray();
     }
 
     public function findById($appId): ?App
     {
-        return $this->instanciate(DatabaseApp::find($appId)->toArray() ?? null);
+        return $this->instantiate(DatabaseApp::find($appId)->toArray() ?? null);
     }
 
     public function findByKey(string $appKey): ?App
     {
-        return $this->instanciate(DatabaseApp::where('key', $appKey)->first()->toArray() ?? null);
+        return $this->instantiate(DatabaseApp::where('key', $appKey)->first()->toArray() ?? null);
     }
 
     public function findBySecret(string $appSecret): ?App
     {
-        return $this->instanciate(DatabaseApp::where('secret', $appSecret)->first()->toArray() ?? null);
+        return $this->instantiate(DatabaseApp::where('secret', $appSecret)->first()->toArray() ?? null);
     }
 
-    protected function instanciate(?array $appAttributes): ?App
+    protected function instantiate(?array $appAttributes): ?App
     {
         if (! $appAttributes) {
             return null;
