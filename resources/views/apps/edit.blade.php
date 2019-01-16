@@ -41,6 +41,13 @@
             @endif
                 @csrf
 
+                <div class="form-check mt-2 mb-4">
+                    <input class="form-check-input" type="checkbox" value="1" name="active" id="active" @if(optional($app)->active) checked @endif />
+                    <label class="form-check-label" for="active">
+                        Active
+                    </label>
+                </div>
+
                 <div class="form-group">
                     <label>Name</label>
                     <input type="text" name="name" class="form-control" value="{{ optional($app)->name ?? old('name') }}" />
