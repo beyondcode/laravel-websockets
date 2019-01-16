@@ -15,7 +15,6 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiControll
 use BeyondCode\LaravelWebSockets\Database\Http\Controllers\AppsController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
-use BeyondCode\LaravelWebSockets\Database\Http\Middleware\Authorize as AuthorizeAdmin;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 
@@ -83,19 +82,17 @@ class WebSocketsServiceProvider extends ServiceProvider
                 Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
-            });
 
-            Route::middleware(AuthorizeStatistics::class)->group(function () {
-                Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
-            });
-
-            Route::middleware(config('websockets.middleware', [AuthorizeAdmin::class]))->group(function () {
                 Route::get('/admin', AppsController::class ."@index")->name('websockets.admin.index');
                 Route::get('/admin/create', AppsController::class ."@create")->name('websockets.admin.create');
                 Route::post('/admin/store', AppsController::class ."@store")->name('websockets.admin.store');
                 Route::get('/admin/{app}/edit', AppsController::class ."@edit")->name('websockets.admin.edit');
                 Route::post('/admin/{app}/store', AppsController::class ."@update")->name('websockets.admin.update');
                 Route::post('/admin/{app}/destroy', AppsController::class ."@destroy")->name('websockets.admin.destroy');
+            });
+
+            Route::middleware(AuthorizeStatistics::class)->group(function () {
+                Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
             });
         });
 
