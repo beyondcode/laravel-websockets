@@ -22,6 +22,7 @@ class CreateWebsocketsAppsTable extends Migration
             $table->unique(['key', 'secret']);
             $table->boolean('enable_client_messages')->default(false);
             $table->boolean('enable_statistics')->default(true);
+            $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -16,6 +16,7 @@ class App extends Model
         'secret',
         'enable_client_messages',
         'enable_statistics',
+        'active',
     ];
 
     protected $guarded = [

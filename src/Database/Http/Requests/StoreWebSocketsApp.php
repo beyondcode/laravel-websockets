@@ -16,6 +16,7 @@ class StoreWebSocketsApp extends FormRequest
         return [
             'name' => 'required|max:255',
             'host' => 'nullable',
+            'active' => 'nullable|boolean',
             'enable_client_messages' => 'nullable|boolean',
             'enable_statistics' => 'nullable|boolean',
         ];
