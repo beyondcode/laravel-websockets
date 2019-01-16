@@ -37,7 +37,7 @@ class App extends Model
     {
         parent::boot();
 
-        static::creating(function(App $app) {
+        static::creating(function (App $app) {
             $app->key = str_random(40);
             $app->secret = str_random(40);
         });
