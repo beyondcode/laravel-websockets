@@ -81,6 +81,14 @@ return [
         'delete_statistics_older_than_days' => 60,
 
         /*
+         * By default, the websockets server attempts to connect to whatever
+         * your APP_URL is set to. If running in a more complex environment,
+         * you may wish to override the base URL for internal requests to
+         * allow statistics to be collected.
+         */
+        'base_url_override' => null,
+
+        /*
          * Use an DNS resolver to make the requests to the statistics logger
          * default is to resolve everything to 127.0.0.1.
          */
