@@ -39,7 +39,6 @@
     "require-dev": {
         "mockery/mockery": "^1.2",
         "orchestra/testbench": "3.7.* || 3.8.*",
-        "orchestra/testbench-core": "3.7.* || 3.8.* || 3.8.x-dev",
         "phpunit/phpunit": "^7.0"
     },
     "autoload": {
