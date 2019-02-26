@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use stdClass;
+use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
@@ -38,7 +39,7 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (str_after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->app->secret)) {
+        if (Str::after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->app->secret)) {
             throw new InvalidSignature();
         }
     }
