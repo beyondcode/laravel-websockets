@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use Exception;
 use Pusher\Pusher;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7\Response;
 use Ratchet\ConnectionInterface;
@@ -43,7 +44,7 @@ abstract class Controller implements HttpServerInterface
 
         $this->contentLength = $this->findContentLength($request->getHeaders());
 
-        $this->requestBuffer = (string)$request->getBody();
+        $this->requestBuffer = (string) $request->getBody();
 
         $this->checkContentLength($connection);
     }
@@ -123,7 +124,7 @@ abstract class Controller implements HttpServerInterface
          *
          * The `appId`, `appKey` & `channelName` parameters are actually route paramaters and are never supplied by the client.
          */
-        $params = array_except($request->query(), ['auth_signature', 'body_md5', 'appId', 'appKey', 'channelName']);
+        $params = Arr::except($request->query(), ['auth_signature', 'body_md5', 'appId', 'appKey', 'channelName']);
 
         if ($request->getContent() !== '') {
             $params['body_md5'] = md5($request->getContent());
