@@ -60,7 +60,7 @@ abstract class Controller implements HttpServerInterface
     {
         $this->requestBuffer .= $msg;
 
-        $this->checkContentLength();
+        $this->checkContentLength($from);
     }
 
     protected function checkContentLength(ConnectionInterface $connection)
