@@ -27,18 +27,18 @@
         "cboden/ratchet": "^0.4.1",
         "clue/buzz-react": "^2.5",
         "guzzlehttp/psr7": "^1.5",
-        "illuminate/broadcasting": "5.7.*",
-        "illuminate/console": "5.7.*",
-        "illuminate/http": "5.7.*",
-        "illuminate/routing": "5.7.*",
-        "illuminate/support": "5.7.*",
+        "illuminate/broadcasting": "5.7.* || 5.8.*",
+        "illuminate/console": "5.7.* || 5.8.*",
+        "illuminate/http": "5.7.* || 5.8.*",
+        "illuminate/routing": "5.7.* || 5.8.*",
+        "illuminate/support": "5.7.* || 5.8.*",
         "pusher/pusher-php-server": "~3.0",
         "symfony/http-kernel": "~4.0",
         "symfony/psr-http-message-bridge": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.2",
-        "orchestra/testbench": "3.7.*",
+        "orchestra/testbench": "3.7.* || 3.8.*",
         "phpunit/phpunit": "^7.0"
     },
     "autoload": {

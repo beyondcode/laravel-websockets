@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -34,11 +36,11 @@ class ArrayChannelManager implements ChannelManager
 
     protected function determineChannelClass(string $channelName): string
     {
-        if (starts_with($channelName, 'private-')) {
+        if (Str::startsWith($channelName, 'private-')) {
             return PrivateChannel::class;
         }
 
-        if (starts_with($channelName, 'presence-')) {
+        if (Str::startsWith($channelName, 'presence-')) {
             return PresenceChannel::class;
         }
 
@@ -67,18 +69,18 @@ class ArrayChannelManager implements ChannelManager
         /*
          * Remove the connection from all channels.
          */
-        collect(array_get($this->channels, $connection->app->id, []))->each->unsubscribe($connection);
+        collect(Arr::get($this->channels, $connection->app->id, []))->each->unsubscribe($connection);
 
         /*
          * Unset all channels that have no connections so we don't leak memory.
          */
-        collect(array_get($this->channels, $connection->app->id, []))
+        collect(Arr::get($this->channels, $connection->app->id, []))
             ->reject->hasConnections()
                     ->each(function (Channel $channel, string $channelName) use ($connection) {
                         unset($this->channels[$connection->app->id][$channelName]);
                     });
 
-        if (count(array_get($this->channels, $connection->app->id, [])) === 0) {
+        if (count(Arr::get($this->channels, $connection->app->id, [])) === 0) {
             unset($this->channels[$connection->app->id]);
         }
     }
