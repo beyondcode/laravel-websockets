@@ -43,7 +43,7 @@ abstract class Controller implements HttpServerInterface
 
         $this->contentLength = $this->findContentLength($request->getHeaders());
 
-        $this->requestBuffer = (string)$request->getBody();
+        $this->requestBuffer = (string) $request->getBody();
 
         $this->checkContentLength($connection);
     }
