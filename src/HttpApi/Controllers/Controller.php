@@ -52,7 +52,7 @@ abstract class Controller implements HttpServerInterface
     {
         return Collection::make($headers)->first(function ($values, $header) {
             return strtolower($header) === 'content-length';
-        });
+        })[0] ?? 0;
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
