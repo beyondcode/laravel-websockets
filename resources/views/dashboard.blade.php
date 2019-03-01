@@ -95,7 +95,6 @@
             connected: false,
             chart: null,
             pusher: null,
-            port: 6001,
             app: null,
             apps: {!! json_encode($apps) !!},
             form: {
@@ -114,7 +113,7 @@
             connect() {
                 this.pusher = new Pusher(this.app.key, {
                     wsHost: this.app.host === null ? window.location.hostname : this.app.host,
-                    wsPort: this.port,
+                    wsPort: this.app.port === null ? 6001 : this.app.port,
                     wssPort: this.port,
                     disableStats: true,
                     authEndpoint: '/{{ request()->path() }}/auth',
