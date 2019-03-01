@@ -114,7 +114,7 @@
                 this.pusher = new Pusher(this.app.key, {
                     wsHost: this.app.host === null ? window.location.hostname : this.app.host,
                     wsPort: this.app.port === null ? 6001 : this.app.port,
-                    wssPort: this.port,
+                    wssPort: this.app.port === null ? 6001 : this.app.port,
                     disableStats: true,
                     authEndpoint: '/{{ request()->path() }}/auth',
                     auth: {
