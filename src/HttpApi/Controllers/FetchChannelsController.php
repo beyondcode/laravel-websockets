@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
 class FetchChannelsController extends Controller
 {
@@ -25,7 +24,7 @@ class FetchChannelsController extends Controller
         if ($request->has('info')) {
             $attributes = explode(',', trim($request->info));
 
-            if (in_array('user_count', $attributes) && !Str::startsWith($request->filter_by_prefix, 'presence-')) {
+            if (in_array('user_count', $attributes) && ! Str::startsWith($request->filter_by_prefix, 'presence-')) {
                 throw new HttpException(400, 'Request must be limited to presence channels in order to fetch user_count');
             }
         }
@@ -36,6 +35,7 @@ class FetchChannelsController extends Controller
                 if (in_array('user_count', $attributes)) {
                     $info->user_count = count($channel->getUsers());
                 }
+
                 return $info;
             })->toArray() ?: new \stdClass,
         ];
