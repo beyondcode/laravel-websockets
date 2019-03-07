@@ -115,7 +115,7 @@
                     wsHost: this.app.host === null ? window.location.hostname : this.app.host,
                     wsPort: this.app.port === null ? 6001 : this.app.port,
                     wssPort: this.app.port === null ? 6001 : this.app.port,
-                    wssPath: this.app.path === null ? '' : this.app.path,
+                    wsPath: this.app.path === null ? '' : this.app.path,
                     disableStats: true,
                     authEndpoint: '/{{ request()->path() }}/auth',
                     auth: {
