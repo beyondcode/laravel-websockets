@@ -83,6 +83,10 @@ class WebSocketServerFactory
 
         $router = new Router($urlMatcher);
 
+        if (method_exists($router, 'withEventLoop')) {
+            $router->withEventLoop($this->loop);
+        }
+
         $app = new OriginCheck($router, config('websockets.allowed_origins', []));
 
         $httpServer = new HttpServer($app, config('websockets.max_request_size_in_kb') * 1024);
