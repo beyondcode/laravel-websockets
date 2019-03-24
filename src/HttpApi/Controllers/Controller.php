@@ -46,7 +46,11 @@ abstract class Controller implements HttpServerInterface
 
         $this->requestBuffer = (string) $request->getBody();
 
-        $this->checkContentLength($connection);
+        if (! $this->checkContentLength()) {
+            return;
+        }
+
+        $this->handleRequest($connection);
     }
 
     protected function findContentLength(array $headers): int
@@ -60,31 +64,38 @@ abstract class Controller implements HttpServerInterface
     {
         $this->requestBuffer .= $msg;
 
-        $this->checkContentLength($from);
+        if (! $this->checkContentLength()) {
+            return;
+        }
+
+        $this->handleRequest($from);
     }
 
-    protected function checkContentLength(ConnectionInterface $connection)
+    protected function checkContentLength()
     {
-        if (strlen($this->requestBuffer) === $this->contentLength) {
-            $serverRequest = (new ServerRequest(
-                $this->request->getMethod(),
-                $this->request->getUri(),
-                $this->request->getHeaders(),
-                $this->requestBuffer,
-                $this->request->getProtocolVersion()
-            ))->withQueryParams(QueryParameters::create($this->request)->all());
+        return strlen($this->requestBuffer) !== $this->contentLength;
+    }
 
-            $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
+    protected function handleRequest(ConnectionInterface $connection)
+    {
+        $serverRequest = (new ServerRequest(
+            $this->request->getMethod(),
+            $this->request->getUri(),
+            $this->request->getHeaders(),
+            $this->requestBuffer,
+            $this->request->getProtocolVersion()
+        ))->withQueryParams(QueryParameters::create($this->request)->all());
 
-            $this
-                ->ensureValidAppId($laravelRequest->appId)
-                ->ensureValidSignature($laravelRequest);
+        $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
-            $response = $this($laravelRequest);
+        $this
+            ->ensureValidAppId($laravelRequest->appId)
+            ->ensureValidSignature($laravelRequest);
 
-            $connection->send(JsonResponse::create($response));
-            $connection->close();
-        }
+        $response = $this($laravelRequest);
+
+        $connection->send(JsonResponse::create($response));
+        $connection->close();
     }
 
     public function onClose(ConnectionInterface $connection)
@@ -122,7 +133,7 @@ abstract class Controller implements HttpServerInterface
         /*
          * The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
          *
-         * The `appId`, `appKey` & `channelName` parameters are actually route paramaters and are never supplied by the client.
+         * The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.
          */
         $params = Arr::except($request->query(), ['auth_signature', 'body_md5', 'appId', 'appKey', 'channelName']);
 

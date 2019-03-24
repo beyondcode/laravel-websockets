@@ -137,7 +137,6 @@ return [
         ],
     ],
 
-
     /*
      * Channel Manager
      * This class handles how channel persistence is handled.

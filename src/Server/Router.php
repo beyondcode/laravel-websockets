@@ -94,7 +94,7 @@ class Router
          * If the given action is a class that handles WebSockets, then it's not a regular
          * controller but a WebSocketHandler that needs to converted to a WsServer.
          *
-         * If the given action is a regular controller we'll just instanciate it.
+         * If the given action is a regular controller we'll just instantiate it.
          */
         $action = is_subclass_of($action, MessageComponentInterface::class)
             ? $this->createWebSocketsServer($action)

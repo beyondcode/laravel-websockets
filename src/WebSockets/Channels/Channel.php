@@ -95,11 +95,14 @@ class Channel
     public function broadcastToEveryoneExcept($payload, ?string $socketId = null, ?string $appId = null)
     {
         if (config('websockets.replication.enabled') === true) {
-            app()->get(PubSubInterface::class)->publish($appId, $payload);
+            // Also broadcast via the other websocket instances
+            app()->get(PubSubInterface::class)
+                ->publish($appId, $payload);
         }
 
         if (is_null($socketId)) {
-            return $this->broadcast($payload);
+            $this->broadcast($payload);
+            return;
         }
 
         foreach ($this->subscribedConnections as $connection) {
