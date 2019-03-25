@@ -46,7 +46,7 @@ abstract class Controller implements HttpServerInterface
 
         $this->requestBuffer = (string) $request->getBody();
 
-        if (! $this->checkContentLength()) {
+        if (! $this->verifyContentLength()) {
             return;
         }
 
@@ -64,16 +64,16 @@ abstract class Controller implements HttpServerInterface
     {
         $this->requestBuffer .= $msg;
 
-        if (! $this->checkContentLength()) {
+        if (! $this->verifyContentLength()) {
             return;
         }
 
         $this->handleRequest($from);
     }
 
-    protected function checkContentLength()
+    protected function verifyContentLength()
     {
-        return strlen($this->requestBuffer) !== $this->contentLength;
+        return strlen($this->requestBuffer) === $this->contentLength;
     }
 
     protected function handleRequest(ConnectionInterface $connection)

@@ -9,8 +9,7 @@ use React\Dns\Config\Config as DnsConfig;
 use React\Dns\Resolver\ResolverInterface;
 use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory as DnsFactory;
-use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
-use BeyondCode\LaravelWebSockets\PubSub\PubSubInterface;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
@@ -146,12 +145,10 @@ class StartWebSocketServer extends Command
         }
 
         if (config('websockets.replication.driver') === 'redis') {
-            $connection = (new RedisClient())->subscribe($this->loop);
+            app()->singleton(ReplicationInterface::class, function () {
+                return (new RedisClient())->boot($this->loop);
+            });
         }
-
-        app()->singleton(PubSubInterface::class, function () use ($connection) {
-            return $connection;
-        });
 
         return $this;
     }

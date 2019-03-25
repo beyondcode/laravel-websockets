@@ -2,12 +2,16 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use Pusher\Pusher;
+use Psr\Log\LoggerInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Broadcasting\BroadcastManager;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\PubSub\Redis\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
@@ -19,7 +23,7 @@ use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatistics
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(BroadcastManager $broadcastManager)
     {
         $this->publishes([
             __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
@@ -41,6 +45,24 @@ class WebSocketsServiceProvider extends ServiceProvider
             Console\StartWebSocketServer::class,
             Console\CleanStatistics::class,
         ]);
+
+        $broadcastManager->extend('redis-pusher', function(array $config) {
+            $pusher = new Pusher(
+                $config['key'], $config['secret'],
+                $config['app_id'], $config['options'] ?? []
+            );
+
+            if ($config['log'] ?? false) {
+                $pusher->setLogger($this->app->make(LoggerInterface::class));
+            }
+
+            return new RedisPusherBroadcaster(
+                $pusher,
+                $config['app_id'],
+                $this->app->make('redis'),
+                $config['connection'] ?? null
+            );
+        });
     }
 
     public function register()

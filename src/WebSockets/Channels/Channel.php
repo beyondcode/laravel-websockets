@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 use stdClass;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
-use BeyondCode\LaravelWebSockets\PubSub\PubSubInterface;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
@@ -52,6 +52,12 @@ class Channel
     {
         $this->saveConnection($connection);
 
+        if (config('websockets.replication.enabled') === true) {
+            // Subscribe for broadcasted messages from the pub/sub backend
+            app(ReplicationInterface::class)
+                ->subscribe($connection->app->id, $this->channelName);
+        }
+
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelName,
@@ -61,6 +67,12 @@ class Channel
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscribedConnections[$connection->socketId]);
+
+        if (config('websockets.replication.enabled') === true) {
+            // Unsubscribe from the pub/sub backend
+            app(ReplicationInterface::class)
+                ->unsubscribe($connection->app->id, $this->channelName);
+        }
 
         if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
@@ -89,17 +101,17 @@ class Channel
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
+        if (config('websockets.replication.enabled') === true) {
+            // Also broadcast via the other websocket servers
+            app(ReplicationInterface::class)
+                ->publish($connection->app->id, $payload);
+        }
+
         $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
     }
 
     public function broadcastToEveryoneExcept($payload, ?string $socketId = null, ?string $appId = null)
     {
-        if (config('websockets.replication.enabled') === true) {
-            // Also broadcast via the other websocket instances
-            app()->get(PubSubInterface::class)
-                ->publish($appId, $payload);
-        }
-
         if (is_null($socketId)) {
             $this->broadcast($payload);
             return;
