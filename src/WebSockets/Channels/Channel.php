@@ -5,8 +5,8 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 use stdClass;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class Channel
@@ -114,6 +114,7 @@ class Channel
     {
         if (is_null($socketId)) {
             $this->broadcast($payload);
+
             return;
         }
 

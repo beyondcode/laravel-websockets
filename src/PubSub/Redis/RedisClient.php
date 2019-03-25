@@ -51,7 +51,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Boot the RedisClient, initializing the connections
+     * Boot the RedisClient, initializing the connections.
      *
      * @param LoopInterface $loop
      * @return ReplicationInterface
@@ -74,7 +74,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Handle a message received from Redis on a specific channel
+     * Handle a message received from Redis on a specific channel.
      *
      * @param string $redisChannel
      * @param string $payload
@@ -115,7 +115,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Subscribe to a channel on behalf of websocket user
+     * Subscribe to a channel on behalf of websocket user.
      *
      * @param string $appId
      * @param string $channel
@@ -136,7 +136,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Unsubscribe from a channel on behalf of a websocket user
+     * Unsubscribe from a channel on behalf of a websocket user.
      *
      * @param string $appId
      * @param string $channel
@@ -161,7 +161,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Publish a message to a channel on behalf of a websocket user
+     * Publish a message to a channel on behalf of a websocket user.
      *
      * @param string $appId
      * @param string $channel
@@ -179,7 +179,7 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Build the Redis connection URL from Laravel database config
+     * Build the Redis connection URL from Laravel database config.
      *
      * @return string
      */
@@ -188,7 +188,7 @@ class RedisClient implements ReplicationInterface
         $name = config('websockets.replication.connection') ?? 'default';
         $config = config("database.redis.$name");
         $host = $config['host'];
-        $port = $config['port'] ? (':' . $config['port']) : ':6379';
+        $port = $config['port'] ? (':'.$config['port']) : ':6379';
 
         $query = [];
         if ($config['password']) {

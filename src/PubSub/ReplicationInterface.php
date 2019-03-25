@@ -8,7 +8,7 @@ use React\EventLoop\LoopInterface;
 interface ReplicationInterface
 {
     /**
-     * Boot the pub/sub provider (open connections, initial subscriptions, etc.)
+     * Boot the pub/sub provider (open connections, initial subscriptions, etc).
      *
      * @param LoopInterface $loop
      * @return self
@@ -16,7 +16,7 @@ interface ReplicationInterface
     public function boot(LoopInterface $loop): self;
 
     /**
-     * Publish a payload on a specific channel, for a specific app
+     * Publish a payload on a specific channel, for a specific app.
      *
      * @param string $appId
      * @param string $channel
@@ -26,7 +26,7 @@ interface ReplicationInterface
     public function publish(string $appId, string $channel, stdClass $payload): bool;
 
     /**
-     * Subscribe to receive messages for a channel
+     * Subscribe to receive messages for a channel.
      *
      * @param string $channel
      * @return bool
@@ -34,7 +34,7 @@ interface ReplicationInterface
     public function subscribe(string $appId, string $channel): bool;
 
     /**
-     * Unsubscribe from a channel
+     * Unsubscribe from a channel.
      *
      * @param string $channel
      * @return bool
