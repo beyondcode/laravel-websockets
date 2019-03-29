@@ -107,11 +107,14 @@ class Channel
                 ->publish($connection->app->id, $payload);
         }
 
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
     }
 
-    public function broadcastToEveryoneExcept($payload, ?string $socketId = null, ?string $appId = null)
+    public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
     {
+        // Performance optimization, if we don't have a socket ID,
+        // then we avoid running the if condition in the foreach loop below
+        // by calling broadcast() instead.
         if (is_null($socketId)) {
             $this->broadcast($payload);
 

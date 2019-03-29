@@ -144,7 +144,7 @@ class RedisPusherBroadcaster extends Broadcaster
         ]);
 
         foreach ($this->formatChannels($channels) as $channel) {
-            $connection->publish($channel, $payload);
+            $connection->publish("{$this->appId}:$channel", $payload);
         }
     }
 }
