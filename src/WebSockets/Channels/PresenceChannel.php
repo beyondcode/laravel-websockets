@@ -4,18 +4,43 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use stdClass;
 use Ratchet\ConnectionInterface;
+use React\Promise\PromiseInterface;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class PresenceChannel extends Channel
 {
     protected $users = [];
 
-    public function getUsers(): array
+    /**
+     * @param string $appId
+     * @return array|PromiseInterface
+     */
+    public function getUsers(string $appId)
     {
+        if (config('websockets.replication.enabled') === true) {
+            // Get the members list from the replication backend
+            return app(ReplicationInterface::class)
+                ->channelMembers($appId, $this->channelName);
+        }
+
         return $this->users;
     }
 
-    /*
+    /**
+     * @return array
+     */
+    public function getUserCount()
+    {
+        return count($this->users);
+    }
+
+    /**
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
+     *
+     * @param ConnectionInterface $connection
+     * @param stdClass $payload
+     * @throws InvalidSignature
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
@@ -26,12 +51,36 @@ class PresenceChannel extends Channel
         $channelData = json_decode($payload->channel_data);
         $this->users[$connection->socketId] = $channelData;
 
-        // Send the success event
-        $connection->send(json_encode([
-            'event' => 'pusher_internal:subscription_succeeded',
-            'channel' => $this->channelName,
-            'data' => json_encode($this->getChannelData()),
-        ]));
+        if (config('websockets.replication.enabled') === true) {
+            // Add the connection as a member of the channel
+            app(ReplicationInterface::class)
+                ->joinChannel(
+                    $connection->app->id,
+                    $this->channelName,
+                    $connection->socketId,
+                    json_encode($channelData)
+                );
+
+            // We need to pull the channel data from the replication backend,
+            // otherwise we won't be sending the full details of the channel
+            app(ReplicationInterface::class)
+                ->channelMembers($connection->app->id, $this->channelName)
+                ->then(function ($users) use ($connection) {
+                    // Send the success event
+                    $connection->send(json_encode([
+                        'event' => 'pusher_internal:subscription_succeeded',
+                        'channel' => $this->channelName,
+                        'data' => json_encode($this->getChannelData($users)),
+                    ]));
+                });
+        } else {
+            // Send the success event
+            $connection->send(json_encode([
+                'event' => 'pusher_internal:subscription_succeeded',
+                'channel' => $this->channelName,
+                'data' => json_encode($this->getChannelData($this->users)),
+            ]));
+        }
 
         $this->broadcastToOthers($connection, [
             'event' => 'pusher_internal:member_added',
@@ -48,6 +97,16 @@ class PresenceChannel extends Channel
             return;
         }
 
+        if (config('websockets.replication.enabled') === true) {
+            // Remove the connection as a member of the channel
+            app(ReplicationInterface::class)
+                ->leaveChannel(
+                    $connection->app->id,
+                    $this->channelName,
+                    $connection->socketId
+                );
+        }
+
         $this->broadcastToOthers($connection, [
             'event' => 'pusher_internal:member_removed',
             'channel' => $this->channelName,
@@ -59,38 +118,51 @@ class PresenceChannel extends Channel
         unset($this->users[$connection->socketId]);
     }
 
-    protected function getChannelData(): array
+    /**
+     * @return PromiseInterface|array
+     */
+    public function toArray(string $appId = null)
     {
-        return [
-            'presence' => [
-                'ids' => $this->getUserIds(),
-                'hash' => $this->getHash(),
-                'count' => count($this->users),
-            ],
-        ];
-    }
+        if (config('websockets.replication.enabled') === true) {
+            return app(ReplicationInterface::class)
+                ->channelMembers($appId, $this->channelName)
+                ->then(function ($users) {
+                    return array_merge(parent::toArray(), [
+                        'user_count' => count($users),
+                    ]);
+                });
+        }
 
-    public function toArray(): array
-    {
         return array_merge(parent::toArray(), [
             'user_count' => count($this->users),
         ]);
     }
 
-    protected function getUserIds(): array
+    protected function getChannelData(array $users): array
+    {
+        return [
+            'presence' => [
+                'ids' => $this->getUserIds($users),
+                'hash' => $this->getHash($users),
+                'count' => count($users),
+            ],
+        ];
+    }
+
+    protected function getUserIds(array $users): array
     {
         $userIds = array_map(function ($channelData) {
             return (string) $channelData->user_id;
-        }, $this->users);
+        }, $users);
 
         return array_values($userIds);
     }
 
-    protected function getHash(): array
+    protected function getHash(array $users): array
     {
         $hash = [];
 
-        foreach ($this->users as $socketId => $channelData) {
+        foreach ($users as $socketId => $channelData) {
             $hash[$channelData->user_id] = $channelData->user_info;
         }
 

@@ -22,6 +22,11 @@ class Channel
         $this->channelName = $channelName;
     }
 
+    public function getChannelName(): string
+    {
+        return $this->channelName;
+    }
+
     public function hasConnections(): bool
     {
         return count($this->subscribedConnections) > 0;
@@ -32,6 +37,9 @@ class Channel
         return $this->subscribedConnections;
     }
 
+    /**
+     * @throws InvalidSignature
+     */
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
     {
         $signature = "{$connection->socketId}:{$this->channelName}";
@@ -40,12 +48,15 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (Str::after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->app->secret)) {
+        if (! hash_equals(
+            hash_hmac('sha256', $signature, $connection->app->secret),
+            Str::after($payload->auth, ':'))
+        ) {
             throw new InvalidSignature();
         }
     }
 
-    /*
+    /**
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
@@ -128,7 +139,7 @@ class Channel
         }
     }
 
-    public function toArray(): array
+    public function toArray()
     {
         return [
             'occupied' => count($this->subscribedConnections) > 0,

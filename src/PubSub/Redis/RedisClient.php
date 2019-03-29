@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
 use React\EventLoop\LoopInterface;
+use React\Promise\PromiseInterface;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 
@@ -181,6 +182,72 @@ class RedisClient implements ReplicationInterface
         $this->publishClient->__call('publish', ["$appId:$channel", json_encode($payload)]);
 
         return true;
+    }
+
+    /**
+     * Add a member to a channel. To be called when they have
+     * subscribed to the channel.
+     *
+     * @param string $appId
+     * @param string $channel
+     * @param string $socketId
+     * @param string $data
+     */
+    public function joinChannel(string $appId, string $channel, string $socketId, string $data)
+    {
+        $this->publishClient->__call('hset', ["$appId:$channel", $socketId, $data]);
+    }
+
+    /**
+     * Remove a member from the channel. To be called when they have
+     * unsubscribed from the channel.
+     *
+     * @param string $appId
+     * @param string $channel
+     * @param string $socketId
+     */
+    public function leaveChannel(string $appId, string $channel, string $socketId)
+    {
+        $this->publishClient->__call('hdel', ["$appId:$channel", $socketId]);
+    }
+
+    /**
+     * Retrieve the full information about the members in a presence channel.
+     *
+     * @param string $appId
+     * @param string $channel
+     * @return PromiseInterface
+     */
+    public function channelMembers(string $appId, string $channel): PromiseInterface
+    {
+        return $this->publishClient->__call('hgetall', ["$appId:$channel"])
+            ->then(function ($members) {
+                // The data is expected as objects, so we need to JSON decode
+                return array_walk($members, function ($user) {
+                    return json_decode($user);
+                });
+            });
+    }
+
+    /**
+     * Get the amount of users subscribed for each presence channel.
+     *
+     * @param string $appId
+     * @param array $channelNames
+     * @return PromiseInterface
+     */
+    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
+    {
+        $this->publishClient->__call('multi', []);
+
+        foreach ($channelNames as $channel) {
+            $this->publishClient->__call('hlen', ["$appId:$channel"]);
+        }
+
+        return $this->publishClient->__call('exec', [])
+            ->then(function ($data) use ($channelNames) {
+                return array_combine($channelNames, $data);
+            });
     }
 
     /**

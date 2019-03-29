@@ -11,6 +11,7 @@ use Ratchet\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Support\Collection;
+use React\Promise\PromiseInterface;
 use Ratchet\Http\HttpServerInterface;
 use Psr\Http\Message\RequestInterface;
 use BeyondCode\LaravelWebSockets\Apps\App;
@@ -30,7 +31,7 @@ abstract class Controller implements HttpServerInterface
     /** @var int */
     protected $contentLength;
 
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
+    /** @var ChannelManager */
     protected $channelManager;
 
     public function __construct(ChannelManager $channelManager)
@@ -92,8 +93,23 @@ abstract class Controller implements HttpServerInterface
             ->ensureValidAppId($laravelRequest->appId)
             ->ensureValidSignature($laravelRequest);
 
+        // Invoke the controller action
         $response = $this($laravelRequest);
 
+        // Allow for async IO in the controller action
+        if ($response instanceof PromiseInterface) {
+            $response->then(function ($response) use ($connection) {
+                $this->sendAndClose($connection, $response);
+            });
+
+            return;
+        }
+
+        $this->sendAndClose($connection, $response);
+    }
+
+    protected function sendAndClose(ConnectionInterface $connection, $response)
+    {
         $connection->send(JsonResponse::create($response));
         $connection->close();
     }
