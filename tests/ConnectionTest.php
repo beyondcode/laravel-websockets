@@ -36,7 +36,6 @@ class ConnectionTest extends TestCase
         $this->getConnectedWebSocketConnection(['test-channel']);
         $this->expectException(ConnectionsOverCapacity::class);
         $this->getConnectedWebSocketConnection(['test-channel']);
-
     }
 
     /** @test */

@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets;
 
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 use Exception;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Apps\App;
@@ -15,6 +14,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
 use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 
 class WebSocketHandler implements MessageComponentInterface
 {
