@@ -49,6 +49,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 'id' => 1234,
                 'key' => 'TestKey',
                 'secret' => 'TestSecret',
+                'host' => 'localhost',
                 'capacity' => null,
                 'enable_client_messages' => false,
                 'enable_statistics' => true,

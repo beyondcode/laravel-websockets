@@ -115,7 +115,7 @@ class Channel
         if (config('websockets.replication.enabled') === true) {
             // Also broadcast via the other websocket servers
             app(ReplicationInterface::class)
-                ->publish($connection->app->id, $payload);
+                ->publish($connection->app->id, $this->channelName, $payload);
         }
 
         $this->broadcastToEveryoneExcept($payload, $connection->socketId);
@@ -139,7 +139,7 @@ class Channel
         }
     }
 
-    public function toArray()
+    public function toArray(string $appId = null)
     {
         return [
             'occupied' => count($this->subscribedConnections) > 0,

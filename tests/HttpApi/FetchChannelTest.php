@@ -67,6 +67,38 @@ class FetchChannelTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_presence_channel_information()
+    {
+        $this->joinPresenceChannel('presence-channel');
+        $this->joinPresenceChannel('presence-channel');
+
+        $connection = new Connection();
+
+        $requestPath = '/apps/1234/channel/my-channel';
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'presence-channel',
+        ];
+
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(FetchChannelController::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame([
+            'occupied' => true,
+            'subscription_count' => 2,
+            'user_count' => 2,
+        ], json_decode($response->getContent(), true));
+    }
+
+    /** @test */
     public function it_returns_404_for_invalid_channels()
     {
         $this->expectException(HttpException::class);

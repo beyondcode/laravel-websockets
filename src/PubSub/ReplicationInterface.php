@@ -29,6 +29,7 @@ interface ReplicationInterface
     /**
      * Subscribe to receive messages for a channel.
      *
+     * @param string $appId
      * @param string $channel
      * @return bool
      */
@@ -37,6 +38,7 @@ interface ReplicationInterface
     /**
      * Unsubscribe from a channel.
      *
+     * @param string $appId
      * @param string $channel
      * @return bool
      */

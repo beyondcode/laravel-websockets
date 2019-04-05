@@ -82,7 +82,7 @@ class PresenceChannel extends Channel
             ]));
         }
 
-        $this->broadcastToOthers($connection, [
+        $this->broadcastToOthers($connection, (object) [
             'event' => 'pusher_internal:member_added',
             'channel' => $this->channelName,
             'data' => json_encode($channelData),
@@ -107,7 +107,7 @@ class PresenceChannel extends Channel
                 );
         }
 
-        $this->broadcastToOthers($connection, [
+        $this->broadcastToOthers($connection, (object) [
             'event' => 'pusher_internal:member_removed',
             'channel' => $this->channelName,
             'data' => json_encode([
@@ -119,6 +119,7 @@ class PresenceChannel extends Channel
     }
 
     /**
+     * @param string|null $appId
      * @return PromiseInterface|array
      */
     public function toArray(string $appId = null)

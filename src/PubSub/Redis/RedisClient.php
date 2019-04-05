@@ -223,9 +223,9 @@ class RedisClient implements ReplicationInterface
         return $this->publishClient->__call('hgetall', ["$appId:$channel"])
             ->then(function ($members) {
                 // The data is expected as objects, so we need to JSON decode
-                return array_walk($members, function ($user) {
+                return array_map(function ($user) {
                     return json_decode($user);
-                });
+                }, $members);
             });
     }
 

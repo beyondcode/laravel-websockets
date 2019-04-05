@@ -15,6 +15,6 @@ class FetchChannelController extends Controller
             throw new HttpException(404, "Unknown channel `{$request->channelName}`.");
         }
 
-        return $channel->toArray();
+        return $channel->toArray($request->appId);
     }
 }
