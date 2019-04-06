@@ -83,7 +83,7 @@ class App
         return $this;
     }
 
-    public function setCapacity($capacity)
+    public function setCapacity(?int $capacity)
     {
         $this->capacity = $capacity;
 
