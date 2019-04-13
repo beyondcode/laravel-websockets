@@ -44,6 +44,7 @@ class StartWebSocketServer extends Command
             ->configureMessageLogger()
             ->configureConnectionLogger()
             ->registerEchoRoutes()
+            ->registerCustomRoutes()
             ->startWebSocketServer();
     }
 
@@ -106,6 +107,13 @@ class StartWebSocketServer extends Command
     protected function registerEchoRoutes()
     {
         WebSocketsRouter::echo();
+
+        return $this;
+    }
+
+    protected function registerCustomRoutes()
+    {
+        WebSocketsRouter::customRoutes();
 
         return $this;
     }
