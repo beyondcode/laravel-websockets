@@ -46,7 +46,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             Console\CleanStatistics::class,
         ]);
 
-        $broadcastManager->extend('redis-pusher', function (array $config) {
+        $broadcastManager->extend('redis-pusher', function ($app, array $config) {
             $pusher = new Pusher(
                 $config['key'], $config['secret'],
                 $config['app_id'], $config['options'] ?? []
