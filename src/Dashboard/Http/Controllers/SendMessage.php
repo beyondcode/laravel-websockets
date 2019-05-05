@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
+use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
 
 class SendMessage
@@ -37,6 +38,8 @@ class SendMessage
             $validated['appId'],
             config('broadcasting.connections.pusher.options', [])
         );
+
+        $pusher->setLogger(app()->make(LoggerInterface::class));
 
         return new PusherBroadcaster($pusher);
     }
