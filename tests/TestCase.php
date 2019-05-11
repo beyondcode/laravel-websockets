@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
+use Mockery;
+use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
@@ -10,6 +12,7 @@ use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -27,7 +30,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $this->channelManager = app(ChannelManager::class);
 
-        StatisticsLogger::fake();
+        StatisticsLogger::swap(new FakeStatisticsLogger(
+            $this->channelManager,
+            Mockery::mock(Browser::class)
+        ));
     }
 
     protected function getPackageProviders($app)
