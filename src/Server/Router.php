@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use Ratchet\WebSocket\WsServer;
+use Illuminate\Support\Collection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Ratchet\WebSocket\MessageComponentInterface;
@@ -18,10 +19,12 @@ class Router
 {
     /** @var \Symfony\Component\Routing\RouteCollection */
     protected $routes;
+    protected $customRoutes;
 
     public function __construct()
     {
         $this->routes = new RouteCollection;
+        $this->customRoutes = new Collection();
     }
 
     public function getRoutes(): RouteCollection
@@ -37,6 +40,13 @@ class Router
         $this->get('/apps/{appId}/channels', FetchChannelsController::class);
         $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
+    }
+
+    public function customRoutes()
+    {
+        $this->customRoutes->each(function ($action, $uri) {
+            $this->get($uri, $action);
+        });
     }
 
     public function get(string $uri, $action)
@@ -70,7 +80,7 @@ class Router
             throw InvalidWebSocketController::withController($action);
         }
 
-        $this->get($uri, $action);
+        $this->customRoutes->put($uri, $action);
     }
 
     public function addRoute(string $method, string $uri, $action)
