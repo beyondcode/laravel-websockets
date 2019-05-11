@@ -21,6 +21,9 @@ class App
     /** @var string|null */
     public $host;
 
+    /** @var int|null */
+    public $capacity = null;
+
     /** @var bool */
     public $clientMessagesEnabled = false;
 
@@ -76,6 +79,13 @@ class App
     public function enableClientMessages(bool $enabled = true)
     {
         $this->clientMessagesEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function setCapacity(?int $capacity)
+    {
+        $this->capacity = $capacity;
 
         return $this;
     }

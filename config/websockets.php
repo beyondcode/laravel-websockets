@@ -8,6 +8,9 @@ return [
      * This package comes with multi tenancy out of the box. Here you can
      * configure the different apps that can use the webSockets server.
      *
+     * Optionally you specify capacity so you can limit the maximum
+     * concurrent connections for a specific app.
+     *
      * Optionally you can disable client events so clients cannot send
      * messages to each other via the webSockets.
      */
@@ -17,6 +20,7 @@ return [
             'name' => env('APP_NAME'),
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
+            'capacity' => null,
             'enable_client_messages' => false,
             'enable_statistics' => true,
         ],

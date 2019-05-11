@@ -14,6 +14,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
 use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 
 class WebSocketHandler implements MessageComponentInterface
 {
@@ -29,6 +30,7 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $this
             ->verifyAppKey($connection)
+            ->limitConcurrentConnections($connection)
             ->generateSocketId($connection)
             ->establishConnection($connection);
     }
@@ -69,6 +71,18 @@ class WebSocketHandler implements MessageComponentInterface
         }
 
         $connection->app = $app;
+
+        return $this;
+    }
+
+    protected function limitConcurrentConnections(ConnectionInterface $connection)
+    {
+        if (! is_null($capacity = $connection->app->capacity)) {
+            $connectionsCount = $this->channelManager->getConnectionCount($connection->app->id);
+            if ($connectionsCount >= $capacity) {
+                throw new ConnectionsOverCapacity();
+            }
+        }
 
         return $this;
     }
