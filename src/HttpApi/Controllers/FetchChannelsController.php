@@ -6,9 +6,9 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use React\Promise\PromiseInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelsController extends Controller
 {
@@ -47,7 +47,7 @@ class FetchChannelsController extends Controller
 
             // We return a promise since the backend runs async. We get $counts back
             // as a key-value array of channel names and their member count.
-            return $memberCounts->then(function (array $counts) use ($channels) {
+            return $memberCounts->then(function (array $counts) use ($channels, $attributes) {
                 return $this->collectUserCounts($channels, $attributes, function (PresenceChannel $channel) use ($counts) {
                     return $counts[$channel->getChannelName()];
                 });
@@ -67,7 +67,7 @@ class FetchChannelsController extends Controller
                 if (in_array('user_count', $attributes)) {
                     $info->user_count = $transformer($channel);
                 }
-                
+
                 return $info;
             })->toArray() ?: new \stdClass,
         ];
