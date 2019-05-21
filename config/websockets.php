@@ -5,6 +5,13 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 return [
 
     /*
+     * Set a custom dashboard configuration
+     */
+    'dashboard' => [
+        'port' => env('DASHBOARD_PORT', 6001),
+    ],
+
+    /*
      * This package comes with multi tenancy out of the box. Here you can
      * configure the different apps that can use the webSockets server.
      *
@@ -17,7 +24,6 @@ return [
             'name' => env('APP_NAME'),
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
-            'port' => env('PUSHER_APP_PORT'),
             'path' => env('PUSHER_APP_PATH'),
             'enable_client_messages' => false,
             'enable_statistics' => true,

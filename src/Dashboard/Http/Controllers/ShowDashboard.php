@@ -11,6 +11,7 @@ class ShowDashboard
     {
         return view('websockets::dashboard', [
             'apps' => $apps->all(),
+            'port' => config('websockets.dashboard.port', 6001),
         ]);
     }
 }
