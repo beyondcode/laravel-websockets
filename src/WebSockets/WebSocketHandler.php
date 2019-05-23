@@ -37,11 +37,18 @@ class WebSocketHandler implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $message = PusherMessageFactory::createForMessage($message, $connection, $this->channelManager);
+        $pusherMessage = PusherMessageFactory::createForMessage($message, $connection, $this->channelManager);
 
-        $message->respond();
+        $pusherMessage->respond();
 
-        StatisticsLogger::webSocketMessage($connection);
+        if ($connection->app->clientMessagesEnabled) {
+            $payload = json_decode($message->getPayload());
+            if (isset($payload->event)
+                && in_array($payload->event, $connection->app->dispatchEventsForClientMessages)
+            ) {
+                $this->dispatchClientMessageEvent($payload->event, $payload);
+            }
+        }
     }
 
     public function onClose(ConnectionInterface $connection)
@@ -111,5 +118,10 @@ class WebSocketHandler implements MessageComponentInterface
         StatisticsLogger::connection($connection);
 
         return $this;
+    }
+
+    protected function dispatchClientMessageEvent(string $event, $payload)
+    {
+        app('events')->dispatch('websockets.' . $event, [$payload]);
     }
 }

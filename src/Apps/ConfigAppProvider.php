@@ -71,6 +71,10 @@ class ConfigAppProvider implements AppProvider
             $app->setHost($appAttributes['host']);
         }
 
+        if (isset($appAttributes['dispatch_events_for_client_messages'])) {
+            $app->dispatchEventsForClientMessages($appAttributes['dispatch_events_for_client_messages']);
+        }
+
         $app
             ->enableClientMessages($appAttributes['enable_client_messages'])
             ->enableStatistics($appAttributes['enable_statistics'])

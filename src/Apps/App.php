@@ -27,6 +27,9 @@ class App
     /** @var bool */
     public $clientMessagesEnabled = false;
 
+    /** @var array */
+    public $dispatchEventsForClientMessages = [];
+
     /** @var bool */
     public $statisticsEnabled = true;
 
@@ -79,6 +82,13 @@ class App
     public function enableClientMessages(bool $enabled = true)
     {
         $this->clientMessagesEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function dispatchEventsForClientMessages(array $events = [])
+    {
+        $this->dispatchEventsForClientMessages = $events;
 
         return $this;
     }
