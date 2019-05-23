@@ -41,6 +41,8 @@ class WebSocketHandler implements MessageComponentInterface
 
         $pusherMessage->respond();
 
+        StatisticsLogger::webSocketMessage($connection);
+
         if ($connection->app->clientMessagesEnabled) {
             $payload = json_decode($message->getPayload());
             if (isset($payload->event)
@@ -122,6 +124,6 @@ class WebSocketHandler implements MessageComponentInterface
 
     protected function dispatchClientMessageEvent(string $event, $payload)
     {
-        app('events')->dispatch('websockets.' . $event, [$payload]);
+        app('events')->dispatch('websockets.'.$event, [$payload]);
     }
 }
