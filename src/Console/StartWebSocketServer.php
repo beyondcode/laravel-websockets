@@ -2,14 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
-use React\Dns\Resolver\ResolverInterface;
 use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
 use React\Dns\Config\Config as DnsConfig;
 use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory as DnsFactory;
-use React\Dns\Resolver\Resolver as ReactDnsResolver;
+use React\Dns\Resolver\ResolverInterface;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
