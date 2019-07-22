@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
+use React\Dns\Resolver\ResolverInterface;
 use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
@@ -135,7 +136,7 @@ class StartWebSocketServer extends Command
             ->run();
     }
 
-    protected function getDnsResolver(): ReactDnsResolver
+    protected function getDnsResolver(): ResolverInterface
     {
         if (! config('websockets.statistics.perform_dns_lookup')) {
             return new DnsResolver;
