@@ -27,6 +27,5 @@
     </logging>
     <php>
         <env name="DB_CONNECTION" value="testing"/>
-        <env name="REDIS_HOST" value="redis"/>
     </php>
 </phpunit>
