@@ -139,7 +139,7 @@ class StartWebSocketServer extends Command
 
     protected function configurePubSubReplication()
     {
-        app(ReplicationInterface::class)->boot($this->loop);
+        $this->laravel->get(ReplicationInterface::class)->boot($this->loop);
 
         return $this;
     }
