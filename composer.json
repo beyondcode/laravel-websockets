@@ -34,7 +34,8 @@
         "illuminate/support": "5.7.* || 5.8.*",
         "pusher/pusher-php-server": "~3.0 || ~4.0",
         "symfony/http-kernel": "~4.0",
-        "symfony/psr-http-message-bridge": "^1.1"
+        "symfony/psr-http-message-bridge": "^1.1",
+        "react/dns": "^1.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.2",
