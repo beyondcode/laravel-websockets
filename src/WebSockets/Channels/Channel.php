@@ -14,9 +14,7 @@ class Channel
     /** @var string */
     protected $channelName;
 
-    /**
-     * @var ReplicationInterface
-     */
+    /** @var ReplicationInterface */
     protected $pubSub;
 
     /** @var \Ratchet\ConnectionInterface[] */
