@@ -12,7 +12,6 @@ use React\Dns\Resolver\Factory as DnsFactory;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
-use BeyondCode\LaravelWebSockets\PubSub\Redis\RedisClient;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
@@ -117,7 +116,6 @@ class StartWebSocketServer extends Command
     protected function registerCustomRoutes()
     {
         WebSocketsRouter::customRoutes();
-
         return $this;
     }
 
@@ -140,15 +138,7 @@ class StartWebSocketServer extends Command
 
     protected function configurePubSubReplication()
     {
-        if (config('websockets.replication.enabled') !== true) {
-            return $this;
-        }
-
-        if (config('websockets.replication.driver') === 'redis') {
-            $this->laravel->singleton(ReplicationInterface::class, function () {
-                return (new RedisClient())->boot($this->loop);
-            });
-        }
+        app(ReplicationInterface::class)->boot($this->loop);
 
         return $this;
     }

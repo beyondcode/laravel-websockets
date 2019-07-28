@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\PubSub\Fake;
+namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
 use stdClass;
 use React\EventLoop\LoopInterface;
@@ -8,7 +8,7 @@ use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
-class FakeReplication implements ReplicationInterface
+class FakeReplicationClient implements ReplicationInterface
 {
     protected $channels = [];
 

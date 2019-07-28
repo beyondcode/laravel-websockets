@@ -2,8 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeReplicationClient;
+use Illuminate\Support\Facades\Config;
 use React\EventLoop\Factory;
-use BeyondCode\LaravelWebSockets\PubSub\Fake\FakeReplication;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
 trait TestsReplication
@@ -11,12 +12,12 @@ trait TestsReplication
     public function setupReplication()
     {
         app()->singleton(ReplicationInterface::class, function () {
-            return (new FakeReplication())->boot(Factory::create());
+            return (new FakeReplicationClient())->boot(Factory::create());
         });
 
-        config([
+        Config::set([
             'websockets.replication.enabled' => true,
-            'websockets.replication.driver' => 'fake',
+            'websockets.replication.driver' => 'redis',
         ]);
     }
 }

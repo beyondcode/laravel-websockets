@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\PubSub\Redis;
+namespace BeyondCode\LaravelWebSockets\PubSub\Drivers;
 
 use stdClass;
 use Illuminate\Support\Str;
@@ -129,6 +129,7 @@ class RedisClient implements ReplicationInterface
      */
     public function subscribe(string $appId, string $channel): bool
     {
+        $this->publishClient->__call('hset', ["$appId:$channel", 541561516, "qsgdqgsd"]);
         if (! isset($this->subscribedChannels["$appId:$channel"])) {
             // We're not subscribed to the channel yet, subscribe and set the count to 1
             $this->subscribeClient->__call('subscribe', ["$appId:$channel"]);

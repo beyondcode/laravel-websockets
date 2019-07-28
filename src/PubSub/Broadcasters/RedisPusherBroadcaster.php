@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\PubSub\Redis;
+namespace BeyondCode\LaravelWebSockets\PubSub\Broadcasters;
 
 use Pusher\Pusher;
 use Illuminate\Support\Arr;
