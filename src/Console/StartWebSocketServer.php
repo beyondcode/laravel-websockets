@@ -116,6 +116,7 @@ class StartWebSocketServer extends Command
     protected function registerCustomRoutes()
     {
         WebSocketsRouter::customRoutes();
+
         return $this;
     }
 

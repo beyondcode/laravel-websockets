@@ -10,7 +10,6 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
 class EmptyClient implements ReplicationInterface
 {
-
     /**
      * Boot the pub/sub provider (open connections, initial subscriptions, etc).
      *
@@ -70,7 +69,6 @@ class EmptyClient implements ReplicationInterface
      */
     public function joinChannel(string $appId, string $channel, string $socketId, string $data)
     {
-    
     }
 
     /**
@@ -83,7 +81,6 @@ class EmptyClient implements ReplicationInterface
      */
     public function leaveChannel(string $appId, string $channel, string $socketId)
     {
-
     }
 
     /**

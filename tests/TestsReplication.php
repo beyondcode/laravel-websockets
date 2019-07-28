@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeReplicationClient;
-use Illuminate\Support\Facades\Config;
 use React\EventLoop\Factory;
+use Illuminate\Support\Facades\Config;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeReplicationClient;
 
 trait TestsReplication
 {

@@ -52,7 +52,7 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (!hash_equals(
+        if (! hash_equals(
             hash_hmac('sha256', $signature, $connection->app->secret),
             Str::after($payload->auth, ':'))
         ) {
@@ -83,7 +83,7 @@ class Channel
         // Unsubscribe from the pub/sub backend
         $this->pubSub->unsubscribe($connection->app->id, $this->channelName);
 
-        if (!$this->hasConnections()) {
+        if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
         }
     }
@@ -94,7 +94,7 @@ class Channel
 
         $this->subscribedConnections[$connection->socketId] = $connection;
 
-        if (!$hadConnectionsPreviously) {
+        if (! $hadConnectionsPreviously) {
             DashboardLogger::occupied($connection, $this->channelName);
         }
 

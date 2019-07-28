@@ -2,10 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\EmptyClient;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use Pusher\Pusher;
 use Psr\Log\LoggerInterface;
 use Illuminate\Support\Facades\Gate;
@@ -14,9 +10,13 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Broadcasting\BroadcastManager;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\EmptyClient;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
+use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
@@ -29,12 +29,12 @@ class WebSocketsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/websockets.php' => base_path('config/websockets.php'),
+            __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        if (!class_exists('CreateWebSocketsStatisticsEntries')) {
+        if (! class_exists('CreateWebSocketsStatisticsEntries')) {
             $this->publishes([
-                __DIR__ . '/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_websockets_statistics_entries_table.php'),
+                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
             ], 'migrations');
         }
 
@@ -42,7 +42,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             ->registerRoutes()
             ->registerDashboardGate();
 
-        $this->loadViewsFrom(__DIR__ . '/../resources/views/', 'websockets');
+        $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
 
         $this->commands([
             Console\StartWebSocketServer::class,
@@ -50,15 +50,15 @@ class WebSocketsServiceProvider extends ServiceProvider
         ]);
 
         $this->configurePubSub();
-
     }
 
     protected function configurePubSub()
     {
         if (config('websockets.replication.enabled') !== true || config('websockets.replication.driver') !== 'redis') {
             $this->app->singleton(ReplicationInterface::class, function () {
-                return (new EmptyClient());
+                return new EmptyClient();
             });
+
             return;
         }
 
@@ -87,7 +87,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/websockets.php', 'websockets');
+        $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
 
         $this->app->singleton('websockets.router', function () {
             return new Router();
