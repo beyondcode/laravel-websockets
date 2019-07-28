@@ -66,7 +66,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             return (new RedisClient())->boot($this->loop);
         });
 
-        app(BroadcastManager::class)->extend('redis-pusher', function ($app, array $config) {
+        $this->app->get(BroadcastManager::class)->extend('redis-pusher', function ($app, array $config) {
             $pusher = new Pusher(
                 $config['key'], $config['secret'],
                 $config['app_id'], $config['options'] ?? []
@@ -95,11 +95,11 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->app->singleton(ChannelManager::class, function () {
             return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
-                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
+                ? $this->app->get(config('websockets.channel_manager')) : new ArrayChannelManager();
         });
 
         $this->app->singleton(AppProvider::class, function () {
-            return app(config('websockets.app_provider'));
+            return $this->app->get(config('websockets.app_provider'));
         });
     }
 
@@ -124,7 +124,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerDashboardGate()
     {
         Gate::define('viewWebSocketsDashboard', function ($user = null) {
-            return app()->environment('local');
+            return $this->app->environment('local');
         });
 
         return $this;
