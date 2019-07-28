@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Broadcasting\BroadcastManager;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Apps\AppProvider;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\EmptyClient;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -56,7 +56,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     {
         if (config('websockets.replication.enabled') !== true || config('websockets.replication.driver') !== 'redis') {
             $this->app->singleton(ReplicationInterface::class, function () {
-                return new EmptyClient();
+                return new LocalClient();
             });
 
             return;

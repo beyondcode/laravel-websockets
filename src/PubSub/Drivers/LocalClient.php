@@ -8,7 +8,7 @@ use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
-class EmptyClient implements ReplicationInterface
+class LocalClient implements ReplicationInterface
 {
     /**
      * Boot the pub/sub provider (open connections, initial subscriptions, etc).
