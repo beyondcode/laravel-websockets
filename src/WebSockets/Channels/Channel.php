@@ -110,14 +110,19 @@ class Channel
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        // Also broadcast via the other websocket servers
-        $this->replication->publish($connection->app->id, $this->channelName, $payload);
-
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
     }
 
-    public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
+    public function broadcastToEveryoneExcept($payload, ?string $socketId, string $appId, bool $publish = true)
     {
+        // Also broadcast via the other websocket server instances.
+        // This is set false in the Redis client because we don't want to cause a loop
+        // in this case. If this came from TriggerEventController, then we still want
+        // to publish to get the message out to other server instances.
+        if ($publish) {
+            $this->replication->publish($appId, $this->channelName, $payload);
+        }
+
         // Performance optimization, if we don't have a socket ID,
         // then we avoid running the if condition in the foreach loop below
         // by calling broadcast() instead.

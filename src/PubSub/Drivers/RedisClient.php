@@ -117,7 +117,7 @@ class RedisClient implements ReplicationInterface
         unset($payload->appId);
 
         // Push the message out to connected websocket clients
-        $channel->broadcastToEveryoneExcept($payload, $socket);
+        $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
     }
 
     /**
