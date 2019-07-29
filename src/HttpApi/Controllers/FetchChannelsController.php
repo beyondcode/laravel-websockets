@@ -32,30 +32,24 @@ class FetchChannelsController extends Controller
             });
         }
 
-        if (config('websockets.replication.enabled') === true) {
-            // We want to get the channel user count all in one shot when
-            // using a replication backend rather than doing individual queries.
-            // To do so, we first collect the list of channel names.
-            $channelNames = $channels->map(function (PresenceChannel $channel) use ($request) {
-                return $channel->getChannelName();
-            })->toArray();
+        // We want to get the channel user count all in one shot when
+        // using a replication backend rather than doing individual queries.
+        // To do so, we first collect the list of channel names.
+        $channelNames = $channels->map(function (PresenceChannel $channel) use ($request) {
+            return $channel->getChannelName();
+        })->toArray();
 
-            /** @var PromiseInterface $memberCounts */
-            // We ask the replication backend to get us the member count per channel
-            $memberCounts = app(ReplicationInterface::class)
-                ->channelMemberCounts($request->appId, $channelNames);
+        /** @var PromiseInterface $memberCounts */
+        // We ask the replication backend to get us the member count per channel
+        $memberCounts = app(ReplicationInterface::class)
+            ->channelMemberCounts($request->appId, $channelNames);
 
-            // We return a promise since the backend runs async. We get $counts back
-            // as a key-value array of channel names and their member count.
-            return $memberCounts->then(function (array $counts) use ($channels, $attributes) {
-                return $this->collectUserCounts($channels, $attributes, function (PresenceChannel $channel) use ($counts) {
-                    return $counts[$channel->getChannelName()];
-                });
+        // We return a promise since the backend runs async. We get $counts back
+        // as a key-value array of channel names and their member count.
+        return $memberCounts->then(function (array $counts) use ($channels, $attributes) {
+            return $this->collectUserCounts($channels, $attributes, function (PresenceChannel $channel) use ($counts) {
+                return $counts[$channel->getChannelName()];
             });
-        }
-
-        return $this->collectUserCounts($channels, $attributes, function (PresenceChannel $channel) {
-            return $channel->getUserCount();
         });
     }
 

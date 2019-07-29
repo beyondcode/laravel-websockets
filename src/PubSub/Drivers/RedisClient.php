@@ -97,7 +97,7 @@ class RedisClient implements ReplicationInterface
         // expect the channel name to not include the app ID.
         $payload->channel = Str::after($redisChannel, "$appId:");
 
-        /* @var $channelManager ChannelManager */
+        /* @var ChannelManager $channelManager */
         $channelManager = app(ChannelManager::class);
 
         // Load the Channel instance, if any
