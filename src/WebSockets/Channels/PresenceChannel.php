@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 use stdClass;
 use Ratchet\ConnectionInterface;
 use React\Promise\PromiseInterface;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 
 class PresenceChannel extends Channel
@@ -24,12 +23,12 @@ class PresenceChannel extends Channel
 
     /**
      * @param string $appId
-     * @return array|PromiseInterface
+     * @return PromiseInterface
      */
     public function getUsers(string $appId)
     {
         // Get the members list from the replication backend
-        return app(ReplicationInterface::class)
+        return $this->replication
             ->channelMembers($appId, $this->channelName);
     }
 
@@ -50,7 +49,7 @@ class PresenceChannel extends Channel
         $this->users[$connection->socketId] = $channelData;
 
         // Add the connection as a member of the channel
-        app(ReplicationInterface::class)
+        $this->replication
             ->joinChannel(
                 $connection->app->id,
                 $this->channelName,
@@ -60,7 +59,7 @@ class PresenceChannel extends Channel
 
         // We need to pull the channel data from the replication backend,
         // otherwise we won't be sending the full details of the channel
-        app(ReplicationInterface::class)
+        $this->replication
             ->channelMembers($connection->app->id, $this->channelName)
             ->then(function ($users) use ($connection) {
                 // Send the success event
@@ -87,7 +86,7 @@ class PresenceChannel extends Channel
         }
 
         // Remove the connection as a member of the channel
-        app(ReplicationInterface::class)
+        $this->replication
             ->leaveChannel(
                 $connection->app->id,
                 $this->channelName,
@@ -107,11 +106,11 @@ class PresenceChannel extends Channel
 
     /**
      * @param string|null $appId
-     * @return PromiseInterface|array
+     * @return PromiseInterface
      */
     public function toArray(string $appId = null)
     {
-        return app(ReplicationInterface::class)
+        return $this->replication
             ->channelMembers($appId, $this->channelName)
             ->then(function ($users) {
                 return array_merge(parent::toArray(), [

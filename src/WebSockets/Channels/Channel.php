@@ -15,7 +15,7 @@ class Channel
     protected $channelName;
 
     /** @var ReplicationInterface */
-    protected $pubSub;
+    protected $replication;
 
     /** @var \Ratchet\ConnectionInterface[] */
     protected $subscribedConnections = [];
@@ -23,7 +23,7 @@ class Channel
     public function __construct(string $channelName)
     {
         $this->channelName = $channelName;
-        $this->pubSub = app(ReplicationInterface::class);
+        $this->replication = app(ReplicationInterface::class);
     }
 
     public function getChannelName(): string
@@ -68,7 +68,7 @@ class Channel
         $this->saveConnection($connection);
 
         // Subscribe to broadcasted messages from the pub/sub backend
-        $this->pubSub->subscribe($connection->app->id, $this->channelName);
+        $this->replication->subscribe($connection->app->id, $this->channelName);
 
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
@@ -81,7 +81,7 @@ class Channel
         unset($this->subscribedConnections[$connection->socketId]);
 
         // Unsubscribe from the pub/sub backend
-        $this->pubSub->unsubscribe($connection->app->id, $this->channelName);
+        $this->replication->unsubscribe($connection->app->id, $this->channelName);
 
         if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
@@ -111,7 +111,7 @@ class Channel
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
         // Also broadcast via the other websocket servers
-        $this->pubSub->publish($connection->app->id, $this->channelName, $payload);
+        $this->replication->publish($connection->app->id, $this->channelName, $payload);
 
         $this->broadcastToEveryoneExcept($payload, $connection->socketId);
     }

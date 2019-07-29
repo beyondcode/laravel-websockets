@@ -5,13 +5,23 @@ namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use React\Promise\PromiseInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
 class FetchChannelsController extends Controller
 {
+    /** @var ReplicationInterface */
+    protected $replication;
+
+    public function __construct(ChannelManager $channelManager, ReplicationInterface $replication)
+    {
+        parent::__construct($channelManager);
+
+        $this->replication = $replication;
+    }
+
     public function __invoke(Request $request)
     {
         $attributes = [];
@@ -39,10 +49,8 @@ class FetchChannelsController extends Controller
             return $channel->getChannelName();
         })->toArray();
 
-        /** @var PromiseInterface $memberCounts */
         // We ask the replication backend to get us the member count per channel
-        $memberCounts = app(ReplicationInterface::class)
-            ->channelMemberCounts($request->appId, $channelNames);
+        $memberCounts = $this->replication->channelMemberCounts($request->appId, $channelNames);
 
         // We return a promise since the backend runs async. We get $counts back
         // as a key-value array of channel names and their member count.
