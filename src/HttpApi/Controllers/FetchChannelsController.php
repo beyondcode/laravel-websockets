@@ -49,29 +49,21 @@ class FetchChannelsController extends Controller
             return $channel->getChannelName();
         })->toArray();
 
-        // We ask the replication backend to get us the member count per channel
-        $memberCounts = $this->replication->channelMemberCounts($request->appId, $channelNames);
+        // We ask the replication backend to get us the member count per channel.
+        // We get $counts back as a key-value array of channel names and their member count.
+        return $this->replication
+            ->channelMemberCounts($request->appId, $channelNames)
+            ->then(function (array $counts) use ($channels, $attributes) {
+                return [
+                    'channels' => $channels->map(function (PresenceChannel $channel) use ($counts, $attributes) {
+                        $info = new \stdClass;
+                        if (in_array('user_count', $attributes)) {
+                            $info->user_count = $counts[$channel->getChannelName()];
+                        }
 
-        // We return a promise since the backend runs async. We get $counts back
-        // as a key-value array of channel names and their member count.
-        return $memberCounts->then(function (array $counts) use ($channels, $attributes) {
-            return $this->collectUserCounts($channels, $attributes, function (PresenceChannel $channel) use ($counts) {
-                return $counts[$channel->getChannelName()];
+                        return $info;
+                    })->toArray() ?: new \stdClass,
+                ];
             });
-        });
-    }
-
-    protected function collectUserCounts(Collection $channels, array $attributes, callable $transformer)
-    {
-        return [
-            'channels' => $channels->map(function (PresenceChannel $channel) use ($transformer, $attributes) {
-                $info = new \stdClass;
-                if (in_array('user_count', $attributes)) {
-                    $info->user_count = $transformer($channel);
-                }
-
-                return $info;
-            })->toArray() ?: new \stdClass,
-        ];
     }
 }

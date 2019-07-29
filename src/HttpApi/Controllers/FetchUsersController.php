@@ -22,23 +22,14 @@ class FetchUsersController extends Controller
             throw new HttpException(400, 'Invalid presence channel "'.$request->channelName.'"');
         }
 
-        $users = $channel->getUsers($request->appId);
-
-        if ($users instanceof PromiseInterface) {
-            return $users->then(function (array $users) {
-                return $this->collectUsers($users);
+        return $channel
+            ->getUsers($request->appId)
+            ->then(function (array $users) {
+                return [
+                    'users' => Collection::make($users)->map(function ($user) {
+                        return ['id' => $user->user_id];
+                    })->values(),
+                ];
             });
-        }
-
-        return $this->collectUsers($users);
-    }
-
-    protected function collectUsers(array $users)
-    {
-        return [
-            'users' => Collection::make($users)->map(function ($user) {
-                return ['id' => $user->user_id];
-            })->values(),
-        ];
     }
 }
