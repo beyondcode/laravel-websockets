@@ -6,9 +6,9 @@ use React\Socket\Connector;
 use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
 use React\Dns\Config\Config as DnsConfig;
+use React\Dns\Resolver\ResolverInterface;
 use React\EventLoop\Factory as LoopFactory;
 use React\Dns\Resolver\Factory as DnsFactory;
-use React\Dns\Resolver\Resolver as ReactDnsResolver;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
@@ -44,6 +44,7 @@ class StartWebSocketServer extends Command
             ->configureMessageLogger()
             ->configureConnectionLogger()
             ->registerEchoRoutes()
+            ->registerCustomRoutes()
             ->startWebSocketServer();
     }
 
@@ -110,6 +111,13 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    protected function registerCustomRoutes()
+    {
+        WebSocketsRouter::customRoutes();
+
+        return $this;
+    }
+
     protected function startWebSocketServer()
     {
         $this->info("Starting the WebSocket server on port {$this->option('port')}...");
@@ -127,7 +135,7 @@ class StartWebSocketServer extends Command
             ->run();
     }
 
-    protected function getDnsResolver(): ReactDnsResolver
+    protected function getDnsResolver(): ResolverInterface
     {
         if (! config('websockets.statistics.perform_dns_lookup')) {
             return new DnsResolver;

@@ -73,7 +73,8 @@ class ConfigAppProvider implements AppProvider
 
         $app
             ->enableClientMessages($appAttributes['enable_client_messages'])
-            ->enableStatistics($appAttributes['enable_statistics']);
+            ->enableStatistics($appAttributes['enable_statistics'])
+            ->setCapacity($appAttributes['capacity'] ?? null);
 
         return $app;
     }

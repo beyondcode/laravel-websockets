@@ -2,11 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics;
 
-use React\Dns\Resolver\Resolver;
 use React\Promise\FulfilledPromise;
+use React\Dns\Resolver\ResolverInterface;
 
-class DnsResolver extends Resolver
+class DnsResolver implements ResolverInterface
 {
+    private $internalIP = '127.0.0.1';
+
     /*
      * This empty constructor is needed so we don't have to setup the parent's dependencies.
      */
@@ -17,6 +19,21 @@ class DnsResolver extends Resolver
 
     public function resolve($domain)
     {
-        return new FulfilledPromise('127.0.0.1');
+        return $this->resolveInternal($domain);
+    }
+
+    public function resolveAll($domain, $type)
+    {
+        return $this->resolveInternal($domain, $type);
+    }
+
+    private function resolveInternal($domain, $type = null)
+    {
+        return new FulfilledPromise($this->internalIP);
+    }
+
+    public function __toString()
+    {
+        return $this->internalIP;
     }
 }

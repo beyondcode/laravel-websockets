@@ -55,9 +55,11 @@ class ArrayChannelManager implements ChannelManager
     public function getConnectionCount(string $appId): int
     {
         return collect($this->getChannels($appId))
-            ->sum(function ($channel) {
-                return count($channel->getSubscribedConnections());
-            });
+            ->flatMap(function (Channel $channel) {
+                return collect($channel->getSubscribedConnections())->pluck('socketId');
+            })
+            ->unique()
+            ->count();
     }
 
     public function removeFromAllChannels(ConnectionInterface $connection)

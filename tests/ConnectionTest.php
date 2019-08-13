@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Tests;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 
 class ConnectionTest extends TestCase
 {
@@ -24,6 +25,17 @@ class ConnectionTest extends TestCase
         $this->pusherServer->onOpen($connection);
 
         $connection->assertSentEvent('pusher:connection_established');
+    }
+
+    /** @test */
+    public function app_can_not_exceed_maximum_capacity()
+    {
+        $this->app['config']->set('websockets.apps.0.capacity', 2);
+
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->expectException(ConnectionsOverCapacity::class);
+        $this->getConnectedWebSocketConnection(['test-channel']);
     }
 
     /** @test */
