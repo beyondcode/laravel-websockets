@@ -10,7 +10,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 class PresenceChannel extends Channel
 {
     /**
-     * Data for the users connected to this channel
+     * Data for the users connected to this channel.
      *
      * Note: If replication is enabled, this will only contain entries
      * for the users directly connected to this server instance. Requests

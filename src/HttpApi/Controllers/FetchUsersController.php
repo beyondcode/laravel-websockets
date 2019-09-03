@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use React\Promise\PromiseInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 

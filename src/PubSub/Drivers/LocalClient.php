@@ -11,7 +11,7 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 class LocalClient implements ReplicationInterface
 {
     /**
-     * Mapping of the presence JSON data for users in each channel
+     * Mapping of the presence JSON data for users in each channel.
      *
      * @var string[][]
      */
