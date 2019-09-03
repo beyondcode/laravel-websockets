@@ -95,11 +95,11 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->app->singleton(ChannelManager::class, function () {
             return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
-                ? $this->app->get(config('websockets.channel_manager')) : new ArrayChannelManager();
+                ? $this->app->make(config('websockets.channel_manager')) : new ArrayChannelManager();
         });
 
         $this->app->singleton(AppProvider::class, function () {
-            return $this->app->get(config('websockets.app_provider'));
+            return $this->app->make(config('websockets.app_provider'));
         });
     }
 
