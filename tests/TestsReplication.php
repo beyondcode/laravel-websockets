@@ -2,17 +2,16 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use React\EventLoop\Factory;
 use Illuminate\Support\Facades\Config;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeReplicationClient;
 
 trait TestsReplication
 {
     public function setupReplication()
     {
         app()->singleton(ReplicationInterface::class, function () {
-            return (new FakeReplicationClient())->boot(Factory::create());
+            return new LocalClient();
         });
 
         Config::set([
