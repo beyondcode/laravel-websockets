@@ -142,6 +142,15 @@
                     this.logs = [];
                 });
 
+                this.pusher.connection.bind('error', event => {
+                    if (event.error.data.code === 4100) {
+                        $('div#status').text("Maximum connection limit exceeded!");
+                        this.connected = false;
+                        this.logs = [];
+                        throw new Error("Over capacity");
+                    }
+                });
+
                 this.subscribeToAllChannels();
 
                 this.subscribeToStatistics();
