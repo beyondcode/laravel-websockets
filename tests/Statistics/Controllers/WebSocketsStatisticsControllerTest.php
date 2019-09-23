@@ -22,16 +22,20 @@ class WebSocketsStatisticsControllerTest extends TestCase
 
         $this->assertCount(1, $entries);
 
-        $this->assertArraySubset($this->payload(), $entries->first()->attributesToArray());
+        $actual = $entries->first()->attributesToArray();
+        foreach ($this->payload() as $key => $value) {
+            $this->assertArrayHasKey($key, $actual);
+            $this->assertSame($value, $actual[$key]);
+        }
     }
 
     protected function payload(): array
     {
         return [
             'app_id' => config('websockets.apps.0.id'),
-            'peak_connection_count' => 1,
-            'websocket_message_count' => 2,
-            'api_message_count' => 3,
+            'peak_connection_count' => '1',
+            'websocket_message_count' => '2',
+            'api_message_count' => '3',
         ];
     }
 }
