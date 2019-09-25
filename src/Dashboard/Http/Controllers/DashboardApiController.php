@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 class DashboardApiController
 {
-    public function getStatistics($appId)
+    public function __invoke($appId)
     {
         $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
         $statistics = $webSocketsStatisticsEntryModelClass::where('app_id', $appId)->latest()->limit(120)->get();
