@@ -33,6 +33,8 @@
             </form>
             <div id="status"></div>
         </div>
+        <div>
+        </div>
         <div class="card-body">
             <div v-if="connected && app.statisticsEnabled">
                 <h4>Realtime Statistics</h4>
@@ -118,10 +120,9 @@
                     wssPort: this.port === null ? 6001 : this.port,
                     wsPath: this.app.path === null ? '' : this.app.path,
                     disableStats: true,
-                    authEndpoint: '/{{ request()->path() }}/auth',
+                    authEndpoint: '/{!! config('websockets.path') !!}/auth',
                     auth: {
                         headers: {
-                            'X-CSRF-Token': "{{ csrf_token() }}",
                             'X-App-ID': this.app.id
                         }
                     },
@@ -162,7 +163,7 @@
             },
 
             loadChart() {
-                $.getJSON('/{{ request()->path() }}/api/'+this.app.id+'/statistics', (data) => {
+                $.getJSON('/{!! config('websockets.path') !!}/api/'+this.app.id+'/statistics', (data) => {
 
                     let chartData = [
                         {
@@ -246,8 +247,7 @@
             },
 
             sendEvent() {
-                $.post('/{{ request()->path() }}/event', {
-                    _token: '{{ csrf_token() }}',
+                $.post('/{!! config('websockets.path') !!}/event', {
                     key: this.app.key,
                     secret: this.app.secret,
                     appId: this.app.id,
