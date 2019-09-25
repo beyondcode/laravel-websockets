@@ -74,7 +74,7 @@ class WebSocketsServiceProvider extends ServiceProvider
                 );
                 Route::get('/api/{appId}/statistics', [
                     'as' => 'api-statistics',
-                    'uses' => DashboardApiController::class,  'getStatistics'
+                    'uses' => DashboardApiController::class
                 ]);
                 Route::post('auth', [
                     'as' => 'auth',
