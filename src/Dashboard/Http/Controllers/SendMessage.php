@@ -11,7 +11,7 @@ class SendMessage
 {
     public function __invoke(Request $request)
     {
-        $validated = $request->validate([
+        $validated = \Validator::make($request->all(), [
             'appId' => ['required', new AppId()],
             'key' => 'required',
             'secret' => 'required',
@@ -20,10 +20,12 @@ class SendMessage
             'data' => 'json',
         ]);
 
-        $this->getPusherBroadcaster($validated)->broadcast(
-            [$validated['channel']],
-            $validated['event'],
-            json_decode($validated['data'], true)
+        $input = $validated->valid();
+
+        $this->getPusherBroadcaster($input)->broadcast(
+            [$input['channel']],
+            $input['event'],
+            json_decode($input['data'], true)
         );
 
         return 'ok';
