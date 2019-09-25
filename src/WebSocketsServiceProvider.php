@@ -63,16 +63,35 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerRoutes()
     {
-        Route::prefix(config('websockets.path'))->group(function () {
-            Route::middleware(config('websockets.middleware', [AuthorizeDashboard::class]))->group(function () {
-                Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
+        Route::group(['prefix' => config('websockets.path'), 'as' => 'websockets'], function () {
+            Route::group(['middleware' => config('websockets.middleware', [AuthorizeDashboard::class])], function () {
+                Route::get(
+                    '/',
+                    [
+                        'as' => 'dashboard',
+                        'uses' => ShowDashboard::class
+                    ]
+                );
+                Route::get('/api/{appId}/statistics', [
+                    'as' => 'api-statistics',
+                    'uses' => DashboardApiController::class,  'getStatistics'
+                ]);
+                Route::post('auth', [
+                    'as' => 'auth',
+                    'uses' => AuthenticateDashboard::class
+                ]);
+                Route::post('event', [
+                    'as' => 'event',
+                    'uses' => SendMessage::class
+                ]);
             });
 
-            Route::middleware(AuthorizeStatistics::class)->group(function () {
-                Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
+            Route::group(['middleware' => AuthorizeStatistics::class], function () {
+                Route::post('statistics', [
+                    'as' => 'statistics',
+                    'uses' =>
+                    WebSocketStatisticsEntriesController::class, 'store'
+                ]);
             });
         });
 
