@@ -71,6 +71,10 @@ class ConfigAppProvider implements AppProvider
             $app->setHost($appAttributes['host']);
         }
 
+        if (isset($appAttributes['path'])) {
+            $app->setPath($appAttributes['path']);
+        }
+
         $app
             ->enableClientMessages($appAttributes['enable_client_messages'])
             ->enableStatistics($appAttributes['enable_statistics'])
