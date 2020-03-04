@@ -21,6 +21,9 @@ class App
     /** @var string|null */
     public $host;
 
+    /** @var string|null */
+    public $path;
+
     /** @var int|null */
     public $capacity = null;
 
@@ -72,6 +75,13 @@ class App
     public function setHost(string $host)
     {
         $this->host = $host;
+
+        return $this;
+    }
+
+    public function setPath(string $path)
+    {
+        $this->path = $path;
 
         return $this;
     }
