@@ -22,7 +22,7 @@ class WebSocketsStatisticsControllerTest extends TestCase
 
         $this->assertCount(1, $entries);
 
-        $this->assertArraySubset($this->payload(), $entries->first()->attributesToArray());
+        $this->assertArrayHasKey('app_id', $entries->first()->attributesToArray());
     }
 
     protected function payload(): array
