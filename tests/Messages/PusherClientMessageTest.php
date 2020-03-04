@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Messages;
 
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class PusherClientMessageTest extends TestCase
 {

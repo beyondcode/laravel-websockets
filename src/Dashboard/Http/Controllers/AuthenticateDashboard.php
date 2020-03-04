@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
-use Pusher\Pusher;
-use Illuminate\Http\Request;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
 
 class AuthenticateDashboard
 {

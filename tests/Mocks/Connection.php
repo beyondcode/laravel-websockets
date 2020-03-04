@@ -3,8 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
 use GuzzleHttp\Psr7\Request;
-use Ratchet\ConnectionInterface;
 use PHPUnit\Framework\Assert as PHPUnit;
+use Ratchet\ConnectionInterface;
 
 class Connection implements ConnectionInterface
 {

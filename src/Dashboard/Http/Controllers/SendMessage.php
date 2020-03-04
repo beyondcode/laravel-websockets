@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
-use Pusher\Pusher;
-use Illuminate\Http\Request;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
 
 class SendMessage
 {

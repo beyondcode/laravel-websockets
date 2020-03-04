@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
+use Psr\Http\Message\RequestInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\CloseResponseTrait;
 use Ratchet\Http\HttpServerInterface;
-use Psr\Http\Message\RequestInterface;
 use Ratchet\MessageComponentInterface;
 
 class OriginCheck implements HttpServerInterface

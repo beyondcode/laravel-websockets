@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class StatisticsLoggerTest extends TestCase
 {

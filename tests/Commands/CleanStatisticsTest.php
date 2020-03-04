@@ -3,10 +3,10 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Commands;
 
 use Artisan;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 
 class CleanStatisticsTest extends TestCase
 {

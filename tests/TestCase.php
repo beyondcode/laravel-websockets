@@ -2,17 +2,17 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use Mockery;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
+use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
+use Mockery;
 use Ratchet\ConnectionInterface;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
-use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
-use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
