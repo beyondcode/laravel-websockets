@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Server\Logger;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Logger
 {

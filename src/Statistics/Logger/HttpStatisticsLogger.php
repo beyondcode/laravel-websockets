@@ -2,13 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use Clue\React\Buzz\Browser;
-use Ratchet\ConnectionInterface;
-use function GuzzleHttp\Psr7\stream_for;
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
+use Clue\React\Buzz\Browser;
+use function GuzzleHttp\Psr7\stream_for;
+use Ratchet\ConnectionInterface;
 
 class HttpStatisticsLogger implements StatisticsLogger
 {

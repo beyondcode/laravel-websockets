@@ -3,9 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Exceptions;
 
 use Exception;
-use Facade\IgnitionContracts\Solution;
 use Facade\IgnitionContracts\BaseSolution;
 use Facade\IgnitionContracts\ProvidesSolution;
+use Facade\IgnitionContracts\Solution;
 
 class InvalidApp extends Exception implements ProvidesSolution
 {
