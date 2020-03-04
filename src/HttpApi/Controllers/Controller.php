@@ -2,22 +2,22 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use Exception;
-use Pusher\Pusher;
-use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
-use GuzzleHttp\Psr7\Response;
-use Ratchet\ConnectionInterface;
-use Illuminate\Http\JsonResponse;
-use GuzzleHttp\Psr7\ServerRequest;
-use Illuminate\Support\Collection;
-use Ratchet\Http\HttpServerInterface;
-use Psr\Http\Message\RequestInterface;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\QueryParameters;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Exception;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\ServerRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Psr\Http\Message\RequestInterface;
+use Pusher\Pusher;
+use Ratchet\ConnectionInterface;
+use Ratchet\Http\HttpServerInterface;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 abstract class Controller implements HttpServerInterface
 {

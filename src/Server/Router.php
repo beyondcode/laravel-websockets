@@ -2,18 +2,18 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use Ratchet\WebSocket\WsServer;
+use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
+use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
+use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use Illuminate\Support\Collection;
+use Ratchet\WebSocket\MessageComponentInterface;
+use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Ratchet\WebSocket\MessageComponentInterface;
-use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
-use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 
 class Router
 {

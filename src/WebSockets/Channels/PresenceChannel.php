@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use stdClass;
 use Ratchet\ConnectionInterface;
+use stdClass;
 
 class PresenceChannel extends Channel
 {

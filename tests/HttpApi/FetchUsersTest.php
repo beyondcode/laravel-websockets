@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
-use Pusher\Pusher;
-use GuzzleHttp\Psr7\Request;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use GuzzleHttp\Psr7\Request;
+use Pusher\Pusher;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchUsersTest extends TestCase
 {

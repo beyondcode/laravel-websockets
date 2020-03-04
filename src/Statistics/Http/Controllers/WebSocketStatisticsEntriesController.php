@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Http\Controllers;
 
-use Illuminate\Http\Request;
-use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use BeyondCode\LaravelWebSockets\Statistics\Events\StatisticsUpdated;
+use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
+use Illuminate\Http\Request;
 
 class WebSocketStatisticsEntriesController
 {
