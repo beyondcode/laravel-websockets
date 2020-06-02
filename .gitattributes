@@ -8,4 +8,5 @@
 /phpunit.xml.dist   export-ignore
 /.scrutinizer.yml   export-ignore
 /tests              export-ignore
+/docs               export-ignore
 /.editorconfig      export-ignore
