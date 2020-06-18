@@ -67,31 +67,6 @@ class UpdateUserInfoTest extends TestCase
     }
 
     /** @test */
-    public function it_only_returns_works_for_presence_channels()
-    {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid presence channel');
-
-        $this->getConnectedWebSocketConnection(['my-channel']);
-
-        $connection = new Connection();
-
-        $requestPath = '/apps/1234/channels/my-channel/users';
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'my-channel',
-        ];
-
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'PUT', $requestPath);
-
-        $request = new Request('PUT', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
-
-        $controller = app(UpdateUserInfoController::class);
-
-        $controller->onOpen($connection, $request);
-    }
-
-    /** @test */
     public function it_returns_404_for_invalid_channels()
     {
         $this->expectException(HttpException::class);
