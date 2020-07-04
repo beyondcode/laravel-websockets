@@ -14,7 +14,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
     protected $app;
 
     /**
-     * WebsocketsLogger polymorphic constructor for Logger Singleton instanciation and WSServer instanciation 
+     * WebsocketsLogger polymorphic constructor for Logger Singleton instanciation and WSServer instanciation.
      *
      * @param MessageComponentInterface|OutputInterface $app
      */
@@ -26,7 +26,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
             $this->app = $app;
         }
     }
-    
+
     public static function decorate(MessageComponentInterface $app): self
     {
         $logger = app(self::class);
