@@ -15,7 +15,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
 
     public static function decorate(MessageComponentInterface $app): self
     {
-        $logger = app(self::class);
+        $logger = clone app(self::class);
 
         return $logger->setApp($app);
     }
