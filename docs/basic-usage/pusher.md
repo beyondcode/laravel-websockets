@@ -111,6 +111,7 @@ window.Echo = new Echo({
     key: 'your-pusher-key',
     wsHost: window.location.hostname,
     wsPort: 6001,
+    forceTLS: false,
     disableStats: true,
 });
 ```
