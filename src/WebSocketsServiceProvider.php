@@ -16,7 +16,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChanne
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema
+use Illuminate\Support\Facades\Schema;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
