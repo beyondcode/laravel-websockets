@@ -40,7 +40,7 @@ return [
         |
         */
 
-        'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider::class,
+        'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
 
         /*
         |--------------------------------------------------------------------------
