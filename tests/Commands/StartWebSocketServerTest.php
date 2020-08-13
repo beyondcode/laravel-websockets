@@ -2,11 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Commands;
 
-use Artisan;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class StartWebSocketServerTest extends TestCase
 {
