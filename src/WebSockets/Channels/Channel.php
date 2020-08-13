@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
@@ -13,12 +14,21 @@ class Channel
     /** @var string */
     protected $channelName;
 
+    /** @var ReplicationInterface */
+    protected $replication;
+
     /** @var \Ratchet\ConnectionInterface[] */
     protected $subscribedConnections = [];
 
     public function __construct(string $channelName)
     {
         $this->channelName = $channelName;
+        $this->replication = app(ReplicationInterface::class);
+    }
+
+    public function getChannelName(): string
+    {
+        return $this->channelName;
     }
 
     public function hasConnections(): bool
@@ -31,6 +41,9 @@ class Channel
         return $this->subscribedConnections;
     }
 
+    /**
+     * @throws InvalidSignature
+     */
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
     {
         $signature = "{$connection->socketId}:{$this->channelName}";
@@ -39,17 +52,23 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (Str::after($payload->auth, ':') !== hash_hmac('sha256', $signature, $connection->app->secret)) {
+        if (! hash_equals(
+            hash_hmac('sha256', $signature, $connection->app->secret),
+            Str::after($payload->auth, ':'))
+        ) {
             throw new InvalidSignature();
         }
     }
 
-    /*
+    /**
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
         $this->saveConnection($connection);
+
+        // Subscribe to broadcasted messages from the pub/sub backend
+        $this->replication->subscribe($connection->app->id, $this->channelName);
 
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
@@ -60,6 +79,9 @@ class Channel
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscribedConnections[$connection->socketId]);
+
+        // Unsubscribe from the pub/sub backend
+        $this->replication->unsubscribe($connection->app->id, $this->channelName);
 
         if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
@@ -88,13 +110,26 @@ class Channel
 
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId);
+        $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
     }
 
-    public function broadcastToEveryoneExcept($payload, ?string $socketId = null)
+    public function broadcastToEveryoneExcept($payload, ?string $socketId, string $appId, bool $publish = true)
     {
+        // Also broadcast via the other websocket server instances.
+        // This is set false in the Redis client because we don't want to cause a loop
+        // in this case. If this came from TriggerEventController, then we still want
+        // to publish to get the message out to other server instances.
+        if ($publish) {
+            $this->replication->publish($appId, $this->channelName, $payload);
+        }
+
+        // Performance optimization, if we don't have a socket ID,
+        // then we avoid running the if condition in the foreach loop below
+        // by calling broadcast() instead.
         if (is_null($socketId)) {
-            return $this->broadcast($payload);
+            $this->broadcast($payload);
+
+            return;
         }
 
         foreach ($this->subscribedConnections as $connection) {
@@ -104,7 +139,7 @@ class Channel
         }
     }
 
-    public function toArray(): array
+    public function toArray(string $appId = null)
     {
         return [
             'occupied' => count($this->subscribedConnections) > 0,

@@ -15,7 +15,7 @@ class ArrayChannelManager implements ChannelManager
     /** @var string */
     protected $appId;
 
-    /** @var array */
+    /** @var Channel[][] */
     protected $channels = [];
 
     public function findOrCreate(string $appId, string $channelName): Channel

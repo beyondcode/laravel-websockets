@@ -59,4 +59,75 @@ class PresenceChannelTest extends TestCase
             'channel' => 'presence-channel',
         ]);
     }
+
+    /** @test */
+    public function clients_with_valid_auth_signatures_can_leave_presence_channels()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $channelData = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Marcel',
+            ],
+        ];
+
+        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel' => 'presence-channel',
+                'channel_data' => json_encode($channelData),
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+        ]);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:unsubscribe',
+            'data' => [
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel' => 'presence-channel',
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+    }
+
+    /** @test */
+    public function clients_with_valid_auth_signatures_cannot_leave_channels_they_are_not_in()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $channelData = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Marcel',
+            ],
+        ];
+
+        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:unsubscribe',
+            'data' => [
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel' => 'presence-channel',
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $this->markTestAsPassed();
+    }
 }

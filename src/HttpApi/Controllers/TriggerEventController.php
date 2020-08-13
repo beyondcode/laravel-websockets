@@ -19,7 +19,7 @@ class TriggerEventController extends Controller
                 'channel' => $channelName,
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
-            ], $request->json()->get('socket_id'));
+            ], $request->json()->get('socket_id'), $request->appId);
 
             DashboardLogger::apiMessage(
                 $request->appId,

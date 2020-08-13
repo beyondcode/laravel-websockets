@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
@@ -49,6 +50,7 @@ class StartWebSocketServer extends Command
             ->configureRestartTimer()
             ->registerEchoRoutes()
             ->registerCustomRoutes()
+            ->configurePubSubReplication()
             ->startWebSocketServer();
     }
 
@@ -61,7 +63,7 @@ class StartWebSocketServer extends Command
 
         $browser = new Browser($this->loop, $connector);
 
-        app()->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
+        $this->laravel->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
             $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger::class);
 
             return new $class(app(ChannelManager::class), $browser);
@@ -76,7 +78,7 @@ class StartWebSocketServer extends Command
 
     protected function configureHttpLogger()
     {
-        app()->singleton(HttpLogger::class, function () {
+        $this->laravel->singleton(HttpLogger::class, function () {
             return (new HttpLogger($this->output))
                 ->enable($this->option('debug') ?: config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -87,7 +89,7 @@ class StartWebSocketServer extends Command
 
     protected function configureMessageLogger()
     {
-        app()->singleton(WebsocketsLogger::class, function () {
+        $this->laravel->singleton(WebsocketsLogger::class, function () {
             return (new WebsocketsLogger($this->output))
                 ->enable($this->option('debug') ?: config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -98,7 +100,7 @@ class StartWebSocketServer extends Command
 
     protected function configureConnectionLogger()
     {
-        app()->bind(ConnectionLogger::class, function () {
+        $this->laravel->bind(ConnectionLogger::class, function () {
             return (new ConnectionLogger($this->output))
                 ->enable(config('app.debug'))
                 ->verbose($this->output->isVerbose());
@@ -149,6 +151,13 @@ class StartWebSocketServer extends Command
             ->setConsoleOutput($this->output)
             ->createServer()
             ->run();
+    }
+
+    protected function configurePubSubReplication()
+    {
+        $this->laravel->get(ReplicationInterface::class)->boot($this->loop);
+
+        return $this;
     }
 
     protected function getDnsResolver(): ResolverInterface

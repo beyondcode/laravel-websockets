@@ -123,7 +123,7 @@ class ChannelTest extends TestCase
 
         $channel = $this->getChannel($connection1, 'test-channel');
 
-        $channel->broadcastToOthers($connection1, [
+        $channel->broadcastToOthers($connection1, (object) [
             'event' => 'broadcasted-event',
             'channel' => 'test-channel',
         ]);
