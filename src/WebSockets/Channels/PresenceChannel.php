@@ -139,12 +139,18 @@ class PresenceChannel extends Channel
         return array_values($userIds);
     }
 
+    /**
+     * Compute the hash for the presence channel integrity.
+     *
+     * @param  array  $users
+     * @return array
+     */
     protected function getHash(array $users): array
     {
         $hash = [];
 
         foreach ($users as $socketId => $channelData) {
-            $hash[$channelData->user_id] = $channelData->user_info;
+            $hash[$channelData->user_id] = $channelData->user_info ?? [];
         }
 
         return $hash;
