@@ -29,6 +29,7 @@ jobs:
                 uses: supercharge/redis-github-action@1.1.0
                 with:
                     redis-version: ${{ matrix.redis }}
+                if: ${{ matrix.os == 'ubuntu-latest' }}
 
             -   name: Cache dependencies
                 uses: actions/cache@v1
