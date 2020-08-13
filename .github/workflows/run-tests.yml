@@ -5,12 +5,6 @@ on: [push, pull_request]
 jobs:
     test:
         runs-on: ${{ matrix.os }}
-        services:
-            redis:
-                image: redis:${{ matrix.redis }}
-                ports:
-                    - 6379:6379
-                options: --entrypoint redis-server
         strategy:
             fail-fast: false
             matrix:
@@ -31,6 +25,11 @@ jobs:
             -   name: Checkout code
                 uses: actions/checkout@v1
 
+            -   name: Setup Redis ${{ matrix.redis }}
+                uses: supercharge/redis-github-action@1.1.0
+                with:
+                    redis-version: ${{ matrix.redis }}
+
             -   name: Cache dependencies
                 uses: actions/cache@v1
                 with:
@@ -49,10 +48,12 @@ jobs:
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
                     composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
-            -   name: Execute tests
-                run: |
-                    REPLICATION_DRIVER=local phpunit --coverage-text --coverage-clover=coverage_local.xml
-                    REPLICATION_DRIVER=redis phpunit --coverage-text --coverage-clover=coverage_redis.xml
+            -   name: Execute tests with Local driver
+                run: REPLICATION_DRIVER=local phpunit --coverage-text --coverage-clover=coverage_local.xml
+
+            -   name: Execute tests with Redis driver
+                run: REPLICATION_DRIVER=redis phpunit --coverage-text --coverage-clover=coverage_redis.xml
+                if: ${{ matrix.os == 'ubuntu-latest' }}
 
             -   uses: codecov/codecov-action@v1
                 with:
