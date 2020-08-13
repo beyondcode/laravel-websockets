@@ -118,7 +118,7 @@
                     wssPort: this.port === null ? 6001 : this.port,
                     wsPath: this.app.path === null ? '' : this.app.path,
                     disableStats: true,
-                    authEndpoint: '{{ url('/auth') }}',
+                    authEndpoint: '{{ url(request()->path().'/auth') }}',
                     auth: {
                         headers: {
                             'X-CSRF-Token': "{{ csrf_token() }}",
@@ -162,7 +162,7 @@
             },
 
             loadChart() {
-                $.getJSON('{{ url('/api') }}/' + this.app.id + '/statistics', (data) => {
+                $.getJSON('{{ url(request()->path().'/api') }}/' + this.app.id + '/statistics', (data) => {
 
                     let chartData = [
                         {
@@ -246,7 +246,7 @@
             },
 
             sendEvent() {
-                $.post('{{ url('/event') }}', {
+                $.post('{{ url(request()->path().'/event') }}', {
                     _token: '{{ csrf_token() }}',
                     key: this.app.key,
                     secret: this.app.secret,
