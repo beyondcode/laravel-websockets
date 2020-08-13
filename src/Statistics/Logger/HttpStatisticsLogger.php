@@ -79,7 +79,7 @@ class HttpStatisticsLogger implements StatisticsLogger
             $this
                 ->browser
                 ->post(
-                    $this->storeStatisticsUrl(),
+                    action([WebSocketStatisticsEntriesController::class, 'store']),
                     ['Content-Type' => 'application/json'],
                     stream_for(json_encode($postData))
                 );
@@ -87,16 +87,5 @@ class HttpStatisticsLogger implements StatisticsLogger
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
             $statistic->reset($currentConnectionCount);
         }
-    }
-
-    protected function storeStatisticsUrl(): string
-    {
-        $action = [WebSocketStatisticsEntriesController::class, 'store'];
-
-        $overridenUrl = config('websockets.statistics.base_url_override');
-
-        return $overridentUrl
-            ? $overridenUrl.action($action, [], false)
-            : action($action);
     }
 }
