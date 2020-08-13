@@ -17,6 +17,7 @@ class AppCreate extends Command
 
         if (empty($name)) {
             $this->handle();
+
             return;
         }
 
