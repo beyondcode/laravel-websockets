@@ -40,7 +40,7 @@ return [
         |
         */
 
-        'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider::class,
+        'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
 
         /*
         |--------------------------------------------------------------------------
@@ -195,7 +195,7 @@ return [
         |
         */
 
-        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger::class,
+        'logger' => BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
 
         /*
         |--------------------------------------------------------------------------

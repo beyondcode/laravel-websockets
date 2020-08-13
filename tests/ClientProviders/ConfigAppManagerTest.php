@@ -2,25 +2,25 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\ClientProviders;
 
-use BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider;
+use BeyondCode\LaravelWebSockets\Apps\ConfigAppManager;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
-class ConfigAppProviderTest extends TestCase
+class ConfigAppManagerTest extends TestCase
 {
-    /** @var \BeyondCode\LaravelWebSockets\Apps\ConfigAppProvider */
-    protected $configAppProvider;
+    /** @var \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager */
+    protected $appManager;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->configAppProvider = new ConfigAppProvider();
+        $this->appManager = new ConfigAppManager;
     }
 
     /** @test */
     public function it_can_get_apps_from_the_config_file()
     {
-        $apps = $this->configAppProvider->all();
+        $apps = $this->appManager->all();
 
         $this->assertCount(1, $apps);
 
@@ -38,11 +38,11 @@ class ConfigAppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_id()
     {
-        $app = $this->configAppProvider->findById(0000);
+        $app = $this->appManager->findById(0000);
 
         $this->assertNull($app);
 
-        $app = $this->configAppProvider->findById(1234);
+        $app = $this->appManager->findById(1234);
 
         $this->assertEquals('Test App', $app->name);
         $this->assertEquals(1234, $app->id);
@@ -55,11 +55,11 @@ class ConfigAppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_key()
     {
-        $app = $this->configAppProvider->findByKey('InvalidKey');
+        $app = $this->appManager->findByKey('InvalidKey');
 
         $this->assertNull($app);
 
-        $app = $this->configAppProvider->findByKey('TestKey');
+        $app = $this->appManager->findByKey('TestKey');
 
         $this->assertEquals('Test App', $app->name);
         $this->assertEquals(1234, $app->id);
@@ -72,11 +72,11 @@ class ConfigAppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_secret()
     {
-        $app = $this->configAppProvider->findBySecret('InvalidSecret');
+        $app = $this->appManager->findBySecret('InvalidSecret');
 
         $this->assertNull($app);
 
-        $app = $this->configAppProvider->findBySecret('TestSecret');
+        $app = $this->appManager->findBySecret('TestSecret');
 
         $this->assertEquals('Test App', $app->name);
         $this->assertEquals(1234, $app->id);
