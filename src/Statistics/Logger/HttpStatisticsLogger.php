@@ -69,10 +69,10 @@ class HttpStatisticsLogger implements StatisticsLogger
     {
         $action = [WebSocketStatisticsEntriesController::class, 'store'];
 
-        $url_override = config('websockets.statistics.base_url_override', null);
+        $overridenUrl = config('websockets.statistics.base_url_override');
 
-        if ($url_override !== null) {
-            return $url_override.action($action, [], false);
+        if ($overridenUrl) {
+            return $overridenUrl.action($action, [], false);
         }
 
         return action($action);
