@@ -57,13 +57,13 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function configurePubSub()
     {
-        if (config('websockets.replication.driver') === 'local') {
+        if (config('websockets.replication.driver', 'local') === 'local') {
             $this->app->singleton(ReplicationInterface::class, function () {
                 return new LocalClient;
             });
         }
 
-        if (config('websockets.replication.driver') === 'redis') {
+        if (config('websockets.replication.driver', 'local') === 'redis') {
             $this->app->singleton(ReplicationInterface::class, function () {
                 return (new RedisClient)->boot($this->loop ?? LoopFactory::create());
             });
