@@ -61,7 +61,9 @@ class StartWebSocketServer extends Command
         $browser = new Browser($this->loop, $connector);
 
         app()->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
-            return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
+            $class = config('websockets.statistics.logger') ?: \BeyondCode\LaravelWebSockets\Statistics\Logger::class;
+
+            return new $class(app(ChannelManager::class), $browser);
         });
 
         $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
