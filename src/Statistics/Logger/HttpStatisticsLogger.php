@@ -95,10 +95,8 @@ class HttpStatisticsLogger implements StatisticsLogger
 
         $overridenUrl = config('websockets.statistics.base_url_override');
 
-        if ($overridenUrl) {
-            return $overridenUrl.action($action, [], false);
-        }
-
-        return action($action);
+        return $overridentUrl
+            ? $overridenUrl.action($action, [], false)
+            : action($action);
     }
 }
