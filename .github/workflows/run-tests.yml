@@ -41,7 +41,7 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
-                    coverage: pcov
+                    coverage: xdebug
 
             -   name: Install dependencies
                 run: |
