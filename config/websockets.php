@@ -195,7 +195,7 @@ return [
         |
         */
 
-        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger::class,
+        'logger' => BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
 
         /*
         |--------------------------------------------------------------------------
