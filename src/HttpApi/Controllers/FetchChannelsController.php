@@ -13,13 +13,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class FetchChannelsController extends Controller
 {
     /** @var ReplicationInterface */
-    protected $pubsub;
+    protected $replicator;
 
-    public function __construct(ChannelManager $channelManager, ReplicationInterface $pubsub)
+    public function __construct(ChannelManager $channelManager, ReplicationInterface $replicator)
     {
         parent::__construct($channelManager);
 
-        $this->pubsub = $pubsub;
+        $this->replicator = $replicator;
     }
 
     public function __invoke(Request $request)
@@ -51,7 +51,7 @@ class FetchChannelsController extends Controller
 
         // We ask the replication backend to get us the member count per channel.
         // We get $counts back as a key-value array of channel names and their member count.
-        return $this->pubsub
+        return $this->replicator
             ->channelMemberCounts($request->appId, $channelNames)
             ->then(function (array $counts) use ($channels, $attributes) {
                 return [
