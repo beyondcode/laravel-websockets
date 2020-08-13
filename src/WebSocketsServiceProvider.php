@@ -30,8 +30,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         try {
             if (! Schema::hasTable('websockets_statistics_entries')) {
                 $this->publishes([
-                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
-            ], 'migrations');
+                    __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
+                ], 'migrations');
             }
 
             $this
