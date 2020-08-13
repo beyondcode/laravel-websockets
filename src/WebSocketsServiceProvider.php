@@ -26,7 +26,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
+            __DIR__.'/../database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
         ], 'migrations');
 
         $this
