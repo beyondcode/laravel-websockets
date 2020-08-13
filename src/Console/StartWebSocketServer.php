@@ -9,7 +9,6 @@ use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
-use BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Buzz\Browser;
@@ -61,7 +60,9 @@ class StartWebSocketServer extends Command
         $browser = new Browser($this->loop, $connector);
 
         app()->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
-            return new HttpStatisticsLogger(app(ChannelManager::class), $browser);
+            $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger::class);
+
+            return new $class(app(ChannelManager::class), $browser);
         });
 
         $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
