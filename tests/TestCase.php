@@ -56,8 +56,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ]);
 
         include_once __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_websockets_apps_table.php.stub';
 
         (new \CreateWebSocketsStatisticsEntriesTable())->up();
+        (new \CreateWebsocketsAppsTable())->up();
     }
 
     protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
