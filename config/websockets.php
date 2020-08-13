@@ -56,18 +56,24 @@ return [
         */
 
         'channel' => \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
+
     ],
 
     /*
-     * This package comes with multi tenancy out of the box. Here you can
-     * configure the different apps that can use the webSockets server.
-     *
-     * Optionally you specify capacity so you can limit the maximum
-     * concurrent connections for a specific app.
-     *
-     * Optionally you can disable client events so clients cannot send
-     * messages to each other via the webSockets.
-     */
+    |--------------------------------------------------------------------------
+    | Applications Repository
+    |--------------------------------------------------------------------------
+    |
+    | By default, the only allowed app is the one you define with
+    | your PUSHER_* variables from .env.
+    | You can configure to use multiple apps if you need to, or use
+    | a custom App Manager that will handle the apps from a database, per se.
+    |
+    | You can apply multiple settings, like the maximum capacity, enable
+    | client-to-client messages or statistics.
+    |
+    */
+
     'apps' => [
         [
             'id' => env('PUSHER_APP_ID'),
@@ -82,78 +88,142 @@ return [
     ],
 
     /*
-     * This array contains the hosts of which you want to allow incoming requests.
-     * Leave this empty if you want to accept requests from all hosts.
-     */
+    |--------------------------------------------------------------------------
+    | Allowed Origins
+    |--------------------------------------------------------------------------
+    |
+    | If not empty, you can whitelist certain origins that will be allowed
+    | to connect to the websocket server.
+    |
+    */
+
     'allowed_origins' => [
         //
     ],
 
     /*
-     * The maximum request size in kilobytes that is allowed for an incoming WebSocket request.
-     */
+    |--------------------------------------------------------------------------
+    | Maximum Request Size
+    |--------------------------------------------------------------------------
+    |
+    | The maximum request size in kilobytes that is allowed for
+    | an incoming WebSocket request.
+    |
+    */
+
     'max_request_size_in_kb' => 250,
 
     /*
-     * Define the optional SSL context for your WebSocket connections.
-     * You can see all available options at: http://php.net/manual/en/context.ssl.php
-     */
+    |--------------------------------------------------------------------------
+    | SSL Configuration
+    |--------------------------------------------------------------------------
+    |
+    | By default, the configuration allows only on HTTP. For SSL, you need
+    | to set up the the certificate, the key, and optionally, the passphrase
+    | for the private key.
+    | You will need to restart the server for the settings to take place.
+    |
+    */
+
     'ssl' => [
-        /*
-         * Path to local certificate file on filesystem. It must be a PEM encoded file which
-         * contains your certificate and private key. It can optionally contain the
-         * certificate chain of issuers. The private key also may be contained
-         * in a separate file specified by local_pk.
-         */
+
         'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT', null),
 
-        /*
-         * Path to local private key file on filesystem in case of separate files for
-         * certificate (local_cert) and private key.
-         */
+        'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA', null),
+
         'local_pk' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_PK', null),
 
-        /*
-         * Passphrase for your local_cert file.
-         */
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
+
+        'verify_peer' => env('APP_ENV') === 'production',
+
+        'allow_self_signed' => env('APP_ENV') !== 'production',
+
     ],
 
     'statistics' => [
 
         /*
-         * This model will be used to store the statistics of the WebSocketsServer.
-         * The only requirement is that the model should extend
-         * `WebSocketsStatisticsEntry` provided by this package.
-         */
+        |--------------------------------------------------------------------------
+        | Statistics Eloquent Model
+        |--------------------------------------------------------------------------
+        |
+        | This model will be used to store the statistics of the WebSocketsServer.
+        | The only requirement is that the model should extend
+        | `WebSocketsStatisticsEntry` provided by this package.
+        |
+        */
+
         'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
 
-        /**
-         * The Statistics Logger will, by default, handle the incoming statistics, store them
-         * and then release them into the database on each interval defined below.
-         */
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics Logger Handler
+        |--------------------------------------------------------------------------
+        |
+        | The Statistics Logger will, by default, handle the incoming statistics,
+        | store them into an array and then store them into the database
+        | on each interval.
+        |
+        */
 
         'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger::class,
 
         /*
-         * Here you can specify the interval in seconds at which statistics should be logged.
-         */
+        |--------------------------------------------------------------------------
+        | Statistics Interval Period
+        |--------------------------------------------------------------------------
+        |
+        | Here you can specify the interval in seconds at which
+        | statistics should be logged.
+        |
+        */
 
         'interval_in_seconds' => 60,
 
         /*
-         * When the clean-command is executed, all recorded statistics older than
-         * the number of days specified here will be deleted.
-         */
+        |--------------------------------------------------------------------------
+        | Statistics Deletion Period
+        |--------------------------------------------------------------------------
+        |
+        | When the clean-command is executed, all recorded statistics older than
+        | the number of days specified here will be deleted.
+        |
+        */
 
         'delete_statistics_older_than_days' => 60,
 
         /*
-         * Use an DNS resolver to make the requests to the statistics logger
-         * default is to resolve everything to 127.0.0.1.
-         */
+        |--------------------------------------------------------------------------
+        | DNS Lookup
+        |--------------------------------------------------------------------------
+        |
+        | Use an DNS resolver to make the requests to the statistics logger
+        | default is to resolve everything to 127.0.0.1.
+        |
+        */
 
         'perform_dns_lookup' => false,
+
+        /*
+        |--------------------------------------------------------------------------
+        | DNS Lookup TLS Settings
+        |--------------------------------------------------------------------------
+        |
+        | You can configure the DNS Lookup Connector the TLS settings.
+        | Check the available options here:
+        | https://github.com/reactphp/socket/blob/master/src/Connector.php#L29
+        |
+        */
+
+        'tls' => [
+
+            'verify_peer' => env('APP_ENV') === 'production',
+
+            'verify_peer_name' => env('APP_ENV') === 'production',
+
+        ],
+
     ],
 
 ];

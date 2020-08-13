@@ -56,10 +56,7 @@ class StartWebSocketServer extends Command
     {
         $connector = new Connector($this->loop, [
             'dns' => $this->getDnsResolver(),
-            'tls' => [
-                'verify_peer' => config('app.env') === 'production',
-                'verify_peer_name' => config('app.env') === 'production',
-            ],
+            'tls' => config('websockets.statistics.tls'),
         ]);
 
         $browser = new Browser($this->loop, $connector);
