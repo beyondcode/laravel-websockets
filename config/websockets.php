@@ -142,9 +142,6 @@ return [
     ],
   
     /*
-     * You can enable replication to publish and subscribe to messages across the driver
-     */
-    /*
     |--------------------------------------------------------------------------
     | Broadcasting Replication
     |--------------------------------------------------------------------------
@@ -157,6 +154,7 @@ return [
     | WebSocket servers.
     |
     */
+
     'replication' => [
 
         'enabled' => false,
