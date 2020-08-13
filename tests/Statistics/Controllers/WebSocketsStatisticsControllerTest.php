@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class WebSocketsStatisticsControllerTest extends TestCase
 {
@@ -23,6 +23,7 @@ class WebSocketsStatisticsControllerTest extends TestCase
         $this->assertCount(1, $entries);
 
         $actual = $entries->first()->attributesToArray();
+      
         foreach ($this->payload() as $key => $value) {
             $this->assertArrayHasKey($key, $actual);
             $this->assertSame($value, $actual[$key]);

@@ -2,17 +2,17 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
+use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use Ratchet\Http\Router;
-use React\Socket\Server;
 use Ratchet\Server\IoServer;
-use React\Socket\SecureServer;
-use React\EventLoop\LoopInterface;
 use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\LoopInterface;
+use React\Socket\SecureServer;
+use React\Socket\Server;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Console\Output\OutputInterface;
-use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 
 class WebSocketServerFactory
 {

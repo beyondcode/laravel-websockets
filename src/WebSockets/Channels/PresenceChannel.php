@@ -2,10 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use stdClass;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
 use React\Promise\PromiseInterface;
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
+use stdClass;
 
 class PresenceChannel extends Channel
 {

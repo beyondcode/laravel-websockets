@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics;
 
-use React\Promise\FulfilledPromise;
 use React\Dns\Resolver\ResolverInterface;
+use React\Promise\FulfilledPromise;
 
 class DnsResolver implements ResolverInterface
 {

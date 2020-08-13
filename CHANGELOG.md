@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-websockets` will be documented in this file
 
+## 1.4.0 - 2020-03-03
+
+- add support for Laravel 7
+
 ## 1.0.2 - 2018-12-06
 
 - Fix issue with wrong namespaces

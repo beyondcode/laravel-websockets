@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use stdClass;
-use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
+use Ratchet\ConnectionInterface;
+use stdClass;
 
 class PrivateChannel extends Channel
 {

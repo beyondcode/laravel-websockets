@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use stdClass;
-use Illuminate\Support\Str;
-use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
+use Illuminate\Support\Str;
+use Ratchet\ConnectionInterface;
+use stdClass;
 
 class Channel
 {
