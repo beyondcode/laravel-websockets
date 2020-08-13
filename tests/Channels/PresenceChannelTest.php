@@ -59,4 +59,33 @@ class PresenceChannelTest extends TestCase
             'channel' => 'presence-channel',
         ]);
     }
+
+    /** @test */
+    public function clients_with_no_user_info_can_join_presence_channels()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $channelData = [
+            'user_id' => 1,
+        ];
+
+        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
+
+        $message = new Message(json_encode([
+            'event' => 'pusher:subscribe',
+            'data' => [
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
+                'channel' => 'presence-channel',
+                'channel_data' => json_encode($channelData),
+            ],
+        ]));
+
+        $this->pusherServer->onMessage($connection, $message);
+
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+        ]);
+    }
 }
