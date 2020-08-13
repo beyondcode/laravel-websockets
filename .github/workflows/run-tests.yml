@@ -37,7 +37,7 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
-                    coverage: none
+                    coverage: pcov
 
             -   name: Install dependencies
                 run: |
@@ -45,4 +45,8 @@ jobs:
                     composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
             -   name: Execute tests
-                run: vendor/bin/phpunit
+                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+
+            -   uses: codecov/codecov-action@v1
+                with:
+                    fail_ci_if_error: false
