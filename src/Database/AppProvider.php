@@ -17,17 +17,17 @@ class AppProvider implements IAppProvider
 
     public function findById($appId): ?App
     {
-        return $this->instantiate(DatabaseApp::find($appId)->toArray() ?? null);
+        return $this->instantiate(optional(DatabaseApp::find($appId))->toArray() ?? null);
     }
 
     public function findByKey(string $appKey): ?App
     {
-        return $this->instantiate(DatabaseApp::where('key', $appKey)->first()->toArray() ?? null);
+        return $this->instantiate(optional(DatabaseApp::where('key', $appKey)->first())->toArray() ?? null);
     }
 
     public function findBySecret(string $appSecret): ?App
     {
-        return $this->instantiate(DatabaseApp::where('secret', $appSecret)->first()->toArray() ?? null);
+        return $this->instantiate(optional(DatabaseApp::where('secret', $appSecret)->first())->toArray() ?? null);
     }
 
     protected function instantiate(?array $appAttributes): ?App
