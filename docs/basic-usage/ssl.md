@@ -49,7 +49,7 @@ php artisan websockets:serve
 ## Client configuration
 
 When your SSL settings are in place and working, you still need to tell Laravel Echo that it should make use of it.
-You can do this by specifying the `encrypted` property in your JavaScript file, like this:
+You can do this by specifying the `forceTLS` property in your JavaScript file, like this:
 
 ```js
 import Echo from "laravel-echo"
@@ -62,7 +62,7 @@ window.Echo = new Echo({
     wsHost: window.location.hostname,
     wsPort: 6001,
     disableStats: true,
-    encrypted: true
+    forceTLS: true
 });
 ```
 
