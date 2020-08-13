@@ -40,7 +40,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function getPackageProviders($app)
     {
         return [
-            \Illuminate\Broadcasting\BroadcastServiceProvider::class,
             \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
         ];
     }

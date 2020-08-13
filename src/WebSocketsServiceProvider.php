@@ -66,7 +66,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             });
         }
 
-        $this->app->get(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
+        $this->app->make(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
             $pusher = new Pusher(
                 $config['key'], $config['secret'],
                 $config['app_id'], $config['options'] ?? []
