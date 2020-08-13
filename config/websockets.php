@@ -140,7 +140,7 @@ return [
         'allow_self_signed' => env('APP_ENV') !== 'production',
 
     ],
-  
+
     /*
     |--------------------------------------------------------------------------
     | Broadcasting Replication
