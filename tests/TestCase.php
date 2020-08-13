@@ -66,10 +66,31 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'database' => env('REDIS_DB', '0'),
         ]);
 
+        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
+
         $app['config']->set(
-            'websockets.replication.driver',
-            getenv('REPLICATION_DRIVER') ?: 'local'
+            'websockets.replication.driver', $replicationDriver
         );
+
+        $app['config']->set(
+            'broadcasting.connections.websockets', [
+                'driver' => 'websockets',
+                'key' => 'TestKey',
+                'secret' => 'TestSecret',
+                'app_id' => '1234',
+                'options' => [
+                    'cluster' => 'mt1',
+                    'encrypted' => true,
+                    'host' => '127.0.0.1',
+                    'port' => 6001,
+                    'scheme' => 'http',
+                ],
+            ]
+        );
+
+        if (in_array($replicationDriver, ['redis'])) {
+            $app['config']->set('broadcasting.default', 'websockets');
+        }
     }
 
     protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
