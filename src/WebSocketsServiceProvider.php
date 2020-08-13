@@ -54,19 +54,20 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
-                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
+            $channelManager = config('websockets.managers.channel', ArrayChannelManager::class);
+
+            return new $channelManager;
         });
 
         $this->app->singleton(AppProvider::class, function () {
-            return app(config('websockets.app_provider'));
+            return app(config('websockets.managers.app'));
         });
     }
 
     protected function registerRoutes()
     {
-        Route::prefix(config('websockets.path'))->group(function () {
-            Route::middleware(config('websockets.middleware', [AuthorizeDashboard::class]))->group(function () {
+        Route::prefix(config('websockets.dashboard.path'))->group(function () {
+            Route::middleware(config('websockets.dashboard.middleware', [AuthorizeDashboard::class]))->group(function () {
                 Route::get('/', ShowDashboard::class);
                 Route::get('/api/{appId}/statistics', [DashboardApiController::class,  'getStatistics']);
                 Route::post('auth', AuthenticateDashboard::class);
