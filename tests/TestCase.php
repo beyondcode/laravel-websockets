@@ -8,7 +8,6 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
-use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Mockery;
@@ -40,7 +39,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function getPackageProviders($app)
     {
-        return [WebSocketsServiceProvider::class];
+        return [
+            \Illuminate\Broadcasting\BroadcastServiceProvider::class,
+            \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
+        ];
     }
 
     protected function getEnvironmentSetUp($app)
