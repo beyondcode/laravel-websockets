@@ -8,7 +8,7 @@ class ChannelReplicationTest extends ChannelTest
 {
     use TestsReplication;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\PubSub;
 
-use stdClass;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
+use stdClass;
 
 interface ReplicationInterface
 {

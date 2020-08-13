@@ -23,7 +23,7 @@ class WebSocketsStatisticsControllerTest extends TestCase
         $this->assertCount(1, $entries);
 
         $actual = $entries->first()->attributesToArray();
-      
+
         foreach ($this->payload() as $key => $value) {
             $this->assertArrayHasKey($key, $actual);
             $this->assertSame($value, $actual[$key]);

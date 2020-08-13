@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\PubSub\Broadcasters;
 
-use Pusher\Pusher;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Broadcasting\Broadcasters\Broadcaster;
 use Illuminate\Broadcasting\Broadcasters\UsePusherChannelConventions;
+use Illuminate\Contracts\Redis\Factory as Redis;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class RedisPusherBroadcaster extends Broadcaster

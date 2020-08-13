@@ -2,14 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\PubSub\Drivers;
 
-use stdClass;
-use Illuminate\Support\Str;
-use Clue\React\Redis\Client;
-use Clue\React\Redis\Factory;
-use React\EventLoop\LoopInterface;
-use React\Promise\PromiseInterface;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Clue\React\Redis\Client;
+use Clue\React\Redis\Factory;
+use Illuminate\Support\Str;
+use React\EventLoop\LoopInterface;
+use React\Promise\PromiseInterface;
+use stdClass;
 
 class RedisClient implements ReplicationInterface
 {
