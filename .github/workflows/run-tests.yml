@@ -11,7 +11,6 @@ jobs:
                 os: [ubuntu-latest, windows-latest]
                 php: [7.4, 7.3, 7.2]
                 laravel: [6.*, 7.*]
-                redis: [5, 6]
                 dependency-version: [prefer-lowest, prefer-stable]
                 include:
                     -   laravel: 7.*
@@ -19,16 +18,16 @@ jobs:
                     -   laravel: 6.*
                         testbench: 4.*
 
-        name: P${{ matrix.php }} - L${{ matrix.laravel }} - R${{ matrix.redis }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+        name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v1
 
-            -   name: Setup Redis ${{ matrix.redis }}
+            -   name: Setup Redis
                 uses: supercharge/redis-github-action@1.1.0
                 with:
-                    redis-version: ${{ matrix.redis }}
+                    redis-version: 6
                 if: ${{ matrix.os == 'ubuntu-latest' }}
 
             -   name: Cache dependencies
