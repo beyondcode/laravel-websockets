@@ -2,13 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 
 class FetchChannelsController extends Controller
 {
@@ -45,7 +45,7 @@ class FetchChannelsController extends Controller
         // We want to get the channel user count all in one shot when
         // using a replication backend rather than doing individual queries.
         // To do so, we first collect the list of channel names.
-        $channelNames = $channels->map(function (PresenceChannel $channel) use ($request) {
+        $channelNames = $channels->map(function (PresenceChannel $channel) {
             return $channel->getChannelName();
         })->toArray();
 

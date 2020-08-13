@@ -8,7 +8,7 @@ class FetchUsersReplicationTest extends FetchUsersTest
 {
     use TestsReplication;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

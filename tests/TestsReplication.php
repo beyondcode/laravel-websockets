@@ -2,9 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use Illuminate\Support\Facades\Config;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use Illuminate\Support\Facades\Config;
 
 trait TestsReplication
 {

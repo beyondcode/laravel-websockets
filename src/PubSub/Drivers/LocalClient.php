@@ -2,11 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\PubSub\Drivers;
 
-use stdClass;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use React\EventLoop\LoopInterface;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use stdClass;
 
 class LocalClient implements ReplicationInterface
 {
@@ -23,7 +23,7 @@ class LocalClient implements ReplicationInterface
      * @param LoopInterface $loop
      * @return self
      */
-    public function boot(LoopInterface $loop) : ReplicationInterface
+    public function boot(LoopInterface $loop): ReplicationInterface
     {
         return $this;
     }
@@ -36,7 +36,7 @@ class LocalClient implements ReplicationInterface
      * @param stdClass $payload
      * @return bool
      */
-    public function publish(string $appId, string $channel, stdClass $payload) : bool
+    public function publish(string $appId, string $channel, stdClass $payload): bool
     {
         // Nothing to do, nobody to publish to
         return true;
@@ -49,7 +49,7 @@ class LocalClient implements ReplicationInterface
      * @param string $channel
      * @return bool
      */
-    public function subscribe(string $appId, string $channel) : bool
+    public function subscribe(string $appId, string $channel): bool
     {
         return true;
     }
@@ -61,7 +61,7 @@ class LocalClient implements ReplicationInterface
      * @param string $channel
      * @return bool
      */
-    public function unsubscribe(string $appId, string $channel) : bool
+    public function unsubscribe(string $appId, string $channel): bool
     {
         return true;
     }
@@ -103,7 +103,7 @@ class LocalClient implements ReplicationInterface
      * @param string $channel
      * @return PromiseInterface
      */
-    public function channelMembers(string $appId, string $channel) : PromiseInterface
+    public function channelMembers(string $appId, string $channel): PromiseInterface
     {
         $members = $this->channelData["$appId:$channel"] ?? [];
 
@@ -122,7 +122,7 @@ class LocalClient implements ReplicationInterface
      * @param array $channelNames
      * @return PromiseInterface
      */
-    public function channelMemberCounts(string $appId, array $channelNames) : PromiseInterface
+    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
     {
         $results = [];
 
