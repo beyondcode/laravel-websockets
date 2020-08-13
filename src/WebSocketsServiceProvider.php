@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\Apps\AppProvider;
+use BeyondCode\LaravelWebSockets\Apps\AppManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
@@ -101,7 +101,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             return new $channelManager;
         });
 
-        $this->app->singleton(AppProvider::class, function () {
+        $this->app->singleton(AppManager::class, function () {
             return $this->app->make(config('websockets.managers.app'));
         });
     }
