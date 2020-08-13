@@ -65,19 +65,6 @@ class HttpStatisticsLogger implements StatisticsLogger
         return $this->statistics[$appId];
     }
 
-    protected function getUrl(): string
-    {
-        $action = [WebSocketStatisticsEntriesController::class, 'store'];
-
-        $overridenUrl = config('websockets.statistics.base_url_override');
-
-        if ($overridenUrl) {
-            return $overridenUrl.action($action, [], false);
-        }
-
-        return action($action);
-    }
-
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
@@ -92,7 +79,7 @@ class HttpStatisticsLogger implements StatisticsLogger
             $this
                 ->browser
                 ->post(
-                    $this->getUrl(),
+                    $this->storeStatisticsUrl(),
                     ['Content-Type' => 'application/json'],
                     stream_for(json_encode($postData))
                 );
@@ -100,5 +87,18 @@ class HttpStatisticsLogger implements StatisticsLogger
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
             $statistic->reset($currentConnectionCount);
         }
+    }
+
+    protected function storeStatisticsUrl(): string
+    {
+        $action = [WebSocketStatisticsEntriesController::class, 'store'];
+
+        $overridenUrl = config('websockets.statistics.base_url_override');
+
+        if ($overridenUrl) {
+            return $overridenUrl.action($action, [], false);
+        }
+
+        return action($action);
     }
 }
