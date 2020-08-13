@@ -34,6 +34,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $this->channelManager,
             Mockery::mock(Browser::class)
         ));
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -67,10 +69,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'websockets.replication.driver',
             getenv('REPLICATION_DRIVER') ?: 'local'
         );
-
-        include_once __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub';
-
-        (new \CreateWebSocketsStatisticsEntriesTable())->up();
     }
 
     protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection

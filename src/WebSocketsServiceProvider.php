@@ -20,7 +20,6 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChanne
 use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
@@ -34,11 +33,9 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../config/websockets.php' => base_path('config/websockets.php'),
         ], 'config');
 
-        if (! Schema::hasTable('websockets_statistics_entries')) {
-            $this->publishes([
-                __DIR__.'/../database/migrations/create_websockets_statistics_entries_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_statistics_entries_table.php'),
-            ], 'migrations');
-        }
+        $this->publishes([
+            __DIR__.'/../database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
+        ], 'migrations');
 
         $this
             ->registerRoutes()
