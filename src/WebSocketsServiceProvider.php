@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
+use React\EventLoop\Factory as LoopFactory;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
@@ -56,19 +57,19 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function configurePubSub()
     {
-        if (config('websockets.replication.enabled') !== true || config('websockets.replication.driver') !== 'redis') {
+        if (config('websockets.replication.driver') === 'local') {
             $this->app->singleton(ReplicationInterface::class, function () {
-                return new LocalClient();
+                return new LocalClient;
             });
-
-            return;
         }
 
-        $this->app->singleton(ReplicationInterface::class, function () {
-            return (new RedisClient())->boot($this->loop);
-        });
+        if (config('websockets.replication.driver') === 'redis') {
+            $this->app->singleton(ReplicationInterface::class, function () {
+                return (new RedisClient)->boot($this->loop ?? LoopFactory::create());
+            });
+        }
 
-        $this->app->get(BroadcastManager::class)->extend('redis-pusher', function ($app, array $config) {
+        $this->app->get(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
             $pusher = new Pusher(
                 $config['key'], $config['secret'],
                 $config['app_id'], $config['options'] ?? []

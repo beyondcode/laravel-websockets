@@ -38,7 +38,6 @@ class LocalClient implements ReplicationInterface
      */
     public function publish(string $appId, string $channel, stdClass $payload): bool
     {
-        // Nothing to do, nobody to publish to
         return true;
     }
 

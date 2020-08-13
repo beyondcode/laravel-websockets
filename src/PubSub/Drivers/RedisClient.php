@@ -257,20 +257,24 @@ class RedisClient implements ReplicationInterface
      */
     protected function getConnectionUri()
     {
-        $name = config('websockets.replication.connection') ?? 'default';
-        $config = config("database.redis.$name");
+        $name = config('websockets.replication.redis.connection') ?? 'default';
+        $config = config('database.redis')[$name];
+
         $host = $config['host'];
-        $port = $config['port'] ? (':'.$config['port']) : ':6379';
+        $port = $config['port'] ?: 6379;
 
         $query = [];
+
         if ($config['password']) {
             $query['password'] = $config['password'];
         }
+
         if ($config['database']) {
             $query['database'] = $config['database'];
         }
+
         $query = http_build_query($query);
 
-        return "redis://$host$port".($query ? '?'.$query : '');
+        return "redis://{$host}:{$port}".($query ? "?{$query}" : '');
     }
 }
