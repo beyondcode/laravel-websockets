@@ -2,9 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
-use Clue\Redis\Protocol\Factory as ProtocolFactory;
 use Clue\React\Redis\Factory;
-use React\EventLoop\Factory as LoopFactory;
+use Clue\Redis\Protocol\Factory as ProtocolFactory;
 use React\EventLoop\LoopInterface;
 use React\Socket\ConnectorInterface;
 
@@ -28,7 +27,7 @@ class RedisFactory extends Factory
     }
 
     /**
-     * Create Redis client connected to address of given redis instance
+     * Create Redis client connected to address of given redis instance.
      *
      * @param  string  $target
      * @return Client

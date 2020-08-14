@@ -63,9 +63,9 @@ class PresenceChannelTest extends TestCase
                 json_encode($channelData),
             ])
             ->assertCalledWithArgs('hgetall', [
-                '1234:presence-channel'
+                '1234:presence-channel',
             ]);
-            // TODO: This fails somehow
+        // TODO: This fails somehow
             // Debugging shows the exact same pattern as good.
             /* ->assertCalledWithArgs('publish', [
                 '1234:presence-channel',

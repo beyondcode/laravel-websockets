@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
-use React\EventLoop\Factory as LoopFactory;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
