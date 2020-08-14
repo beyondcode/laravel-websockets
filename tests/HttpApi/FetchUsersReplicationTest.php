@@ -2,7 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
-class FetchUsersReplicationTest extends FetchUsersTest
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
+
+class FetchUsersReplicationTest extends TestCase
 {
     //
 }
