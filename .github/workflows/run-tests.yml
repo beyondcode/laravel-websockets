@@ -24,6 +24,12 @@ jobs:
             -   name: Checkout code
                 uses: actions/checkout@v1
 
+            -   name: Setup Redis
+                uses: supercharge/redis-github-action@1.1.0
+                with:
+                    redis-version: 6
+                if: ${{ matrix.os == 'ubuntu-latest' }}
+
             -   name: Cache dependencies
                 uses: actions/cache@v1
                 with:
@@ -35,16 +41,25 @@ jobs:
                 with:
                     php-version: ${{ matrix.php }}
                     extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
-                    coverage: pcov
+                    coverage: xdebug
 
             -   name: Install dependencies
                 run: |
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
                     composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
-            -   name: Execute tests
-                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+            -   name: Execute tests with Local driver
+                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage_local.xml
+                env:
+                    REPLICATION_DRIVER: local
+
+            -   name: Execute tests with Redis driver
+                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage_redis.xml
+                if: ${{ matrix.os == 'ubuntu-latest' }}
+                env:
+                    REPLICATION_DRIVER: redis
 
             -   uses: codecov/codecov-action@v1
                 with:
                     fail_ci_if_error: false
+                    file: '*.xml'

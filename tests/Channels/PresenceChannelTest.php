@@ -31,6 +31,8 @@ class PresenceChannelTest extends TestCase
     /** @test */
     public function clients_with_valid_auth_signatures_can_join_presence_channels()
     {
+        $this->skipOnRedisReplication();
+
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
@@ -63,6 +65,8 @@ class PresenceChannelTest extends TestCase
     /** @test */
     public function clients_with_valid_auth_signatures_can_leave_presence_channels()
     {
+        $this->skipOnRedisReplication();
+
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
@@ -102,6 +106,8 @@ class PresenceChannelTest extends TestCase
     /** @test */
     public function clients_with_no_user_info_can_join_presence_channels()
     {
+        $this->skipOnRedisReplication();
+
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);

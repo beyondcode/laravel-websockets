@@ -15,7 +15,7 @@ class Channel
     protected $channelName;
 
     /** @var ReplicationInterface */
-    protected $replication;
+    protected $replicator;
 
     /** @var \Ratchet\ConnectionInterface[] */
     protected $subscribedConnections = [];
@@ -23,7 +23,7 @@ class Channel
     public function __construct(string $channelName)
     {
         $this->channelName = $channelName;
-        $this->replication = app(ReplicationInterface::class);
+        $this->replicator = app(ReplicationInterface::class);
     }
 
     public function getChannelName(): string
@@ -67,21 +67,19 @@ class Channel
     {
         $this->saveConnection($connection);
 
-        // Subscribe to broadcasted messages from the pub/sub backend
-        $this->replication->subscribe($connection->app->id, $this->channelName);
-
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelName,
         ]));
+
+        $this->replicator->subscribe($connection->app->id, $this->channelName);
     }
 
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscribedConnections[$connection->socketId]);
 
-        // Unsubscribe from the pub/sub backend
-        $this->replication->unsubscribe($connection->app->id, $this->channelName);
+        $this->replicator->unsubscribe($connection->app->id, $this->channelName);
 
         if (! $this->hasConnections()) {
             DashboardLogger::vacated($connection, $this->channelName);
@@ -120,7 +118,7 @@ class Channel
         // in this case. If this came from TriggerEventController, then we still want
         // to publish to get the message out to other server instances.
         if ($publish) {
-            $this->replication->publish($appId, $this->channelName, $payload);
+            $this->replicator->publish($appId, $this->channelName, $payload);
         }
 
         // Performance optimization, if we don't have a socket ID,

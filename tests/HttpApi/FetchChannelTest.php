@@ -69,6 +69,8 @@ class FetchChannelTest extends TestCase
     /** @test */
     public function it_returns_presence_channel_information()
     {
+        $this->runOnlyOnLocalReplication();
+
         $this->joinPresenceChannel('presence-channel');
         $this->joinPresenceChannel('presence-channel');
 

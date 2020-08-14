@@ -3,16 +3,19 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
-use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Mockery;
 use Ratchet\ConnectionInterface;
+use React\EventLoop\Factory as LoopFactory;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -22,6 +25,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -36,13 +42,23 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ));
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        $this->configurePubSub();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getPackageProviders($app)
     {
-        return [WebSocketsServiceProvider::class];
+        return [
+            \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
+        ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('websockets.apps', [
@@ -57,6 +73,39 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 'enable_statistics' => true,
             ],
         ]);
+
+        $app['config']->set('database.redis.default', [
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_DB', '0'),
+        ]);
+
+        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
+
+        $app['config']->set(
+            'websockets.replication.driver', $replicationDriver
+        );
+
+        $app['config']->set(
+            'broadcasting.connections.websockets', [
+                'driver' => 'websockets',
+                'key' => 'TestKey',
+                'secret' => 'TestSecret',
+                'app_id' => '1234',
+                'options' => [
+                    'cluster' => 'mt1',
+                    'encrypted' => true,
+                    'host' => '127.0.0.1',
+                    'port' => 6001,
+                    'scheme' => 'http',
+                ],
+            ]
+        );
+
+        if (in_array($replicationDriver, ['redis'])) {
+            $app['config']->set('broadcasting.default', 'websockets');
+        }
     }
 
     protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
@@ -124,8 +173,69 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $this->channelManager->findOrCreate($connection->app->id, $channelName);
     }
 
+    protected function configurePubSub()
+    {
+        // Replace the publish and subscribe clients with a Mocked
+        // factory lazy instance on boot.
+        if (config('websockets.replication.driver') === 'redis') {
+            $this->app->singleton(ReplicationInterface::class, function () {
+                return (new RedisClient)->boot(
+                    LoopFactory::create(), Mocks\RedisFactory::class
+                );
+            });
+        }
+
+        if (config('websockets.replication.driver') === 'local') {
+            $this->app->singleton(ReplicationInterface::class, function () {
+                return new LocalClient;
+            });
+        }
+    }
+
     protected function markTestAsPassed()
     {
         $this->assertTrue(true);
+    }
+
+    protected function runOnlyOnRedisReplication()
+    {
+        if (config('websockets.replication.driver') !== 'redis') {
+            $this->markTestSkipped('Skipped test because the replication driver is not set to Redis.');
+        }
+    }
+
+    protected function runOnlyOnLocalReplication()
+    {
+        if (config('websockets.replication.driver') !== 'local') {
+            $this->markTestSkipped('Skipped test because the replication driver is not set to Local.');
+        }
+    }
+
+    protected function skipOnRedisReplication()
+    {
+        if (config('websockets.replication.driver') === 'redis') {
+            $this->markTestSkipped('Skipped test because the replication driver is Redis.');
+        }
+    }
+
+    protected function skipOnLocalReplication()
+    {
+        if (config('websockets.replication.driver') === 'local') {
+            $this->markTestSkipped('Skipped test because the replication driver is Local.');
+        }
+    }
+
+    protected function getSubscribeClient()
+    {
+        return $this->app
+            ->make(ReplicationInterface::class)
+            ->getSubscribeClient();
+    }
+
+    protected function getPublishClient()
+    {
+        return $this->app
+            ->make(ReplicationInterface::class)
+            ->getPublishClient();
     }
 }
