@@ -200,14 +200,28 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function runOnlyOnRedisReplication()
     {
         if (config('websockets.replication.driver') !== 'redis') {
-            $this->markTestSkipped('Skipped test because the replication driver is set to Redis.');
+            $this->markTestSkipped('Skipped test because the replication driver is not set to Redis.');
         }
     }
 
     protected function runOnlyOnLocalReplication()
     {
         if (config('websockets.replication.driver') !== 'local') {
-            $this->markTestSkipped('Skipped test because the replication driver is set to Local.');
+            $this->markTestSkipped('Skipped test because the replication driver is not set to Local.');
+        }
+    }
+
+    protected function skipOnRedisReplication()
+    {
+        if (config('websockets.replication.driver') === 'redis') {
+            $this->markTestSkipped('Skipped test because the replication driver is Redis.');
+        }
+    }
+
+    protected function skipOnLocalReplication()
+    {
+        if (config('websockets.replication.driver') === 'local') {
+            $this->markTestSkipped('Skipped test because the replication driver is Local.');
         }
     }
 

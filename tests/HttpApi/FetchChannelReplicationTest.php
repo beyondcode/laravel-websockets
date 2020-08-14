@@ -79,6 +79,8 @@ class FetchChannelReplicationTest extends TestCase
     /** @test */
     public function replication_it_returns_presence_channel_information()
     {
+        $this->skipOnRedisReplication();
+
         $this->joinPresenceChannel('presence-channel');
         $this->joinPresenceChannel('presence-channel');
 
