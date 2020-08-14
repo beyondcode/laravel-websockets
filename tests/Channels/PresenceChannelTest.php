@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
