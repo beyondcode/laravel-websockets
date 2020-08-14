@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class PresenceChannelReplicationTest extends TestCase
