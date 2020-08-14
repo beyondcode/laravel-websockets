@@ -103,8 +103,6 @@ class FetchChannelReplicationTest extends TestCase
 
         $this->getSubscribeClient()->assertNothingCalled();
 
-        dd($this->getSubscribeClient());
-
         $this->getPublishClient()
             ->assertCalled('hset')
             ->assertCalled('hgetall');

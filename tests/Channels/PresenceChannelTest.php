@@ -56,27 +56,9 @@ class PresenceChannelTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
-        $this->getPublishClient()
-            ->assertCalledWithArgs('hset', [
-                '1234:presence-channel',
-                $connection->socketId,
-                json_encode($channelData),
-            ])
-            ->assertCalledWithArgs('hgetall', [
-                '1234:presence-channel'
-            ]);
-            // TODO: This fails somehow
-            // Debugging shows the exact same pattern as good.
-            /* ->assertCalledWithArgs('publish', [
-                '1234:presence-channel',
-                json_encode([
-                    'event' => 'pusher_internal:member_added',
-                    'channel' => 'presence-channel',
-                    'data' => $channelData,
-                    'appId' => '1234',
-                    'serverId' => $this->app->make(ReplicationInterface::class)->getServerId(),
-                ]),
-            ]) */
+        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+        ]);
     }
 
     /** @test */
