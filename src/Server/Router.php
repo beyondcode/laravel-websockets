@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
 use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
+use BeyondCode\LaravelWebSockets\HttpApi\Controllers\UpdateUserInfoController;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use Illuminate\Support\Collection;
@@ -40,6 +41,7 @@ class Router
         $this->get('/apps/{appId}/channels', FetchChannelsController::class);
         $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
         $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
+        $this->put('/apps/{appId}/channels/{channelName}/users/{userId}', UpdateUserInfoController::class);
     }
 
     public function customRoutes()

@@ -14,6 +14,16 @@ class PresenceChannel extends Channel
         return $this->users;
     }
 
+    public function updateUserInfo(int $id, object $info)
+    {
+        foreach ($this->users as $key => $user) {
+            if ($user->user_id === $id) {
+                $user->user_info = $info;
+                break;
+            }
+        }
+    }
+
     /*
      * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
