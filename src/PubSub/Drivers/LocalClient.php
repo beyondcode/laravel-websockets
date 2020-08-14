@@ -21,9 +21,10 @@ class LocalClient implements ReplicationInterface
      * Boot the pub/sub provider (open connections, initial subscriptions, etc).
      *
      * @param  LoopInterface  $loop
+     * @param  string|null  $factoryClass
      * @return self
      */
-    public function boot(LoopInterface $loop): ReplicationInterface
+    public function boot(LoopInterface $loop, $factoryClass = null): ReplicationInterface
     {
         return $this;
     }

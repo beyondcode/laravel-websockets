@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
+namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
-class FetchUsersReplicationTest extends TestCase
+class PrivateChannelReplicationTest extends TestCase
 {
     /**
      * {@inheritdoc}

@@ -9,9 +9,6 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
@@ -54,18 +51,6 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function configurePubSub()
     {
-        if (config('websockets.replication.driver', 'local') === 'local') {
-            $this->app->singleton(ReplicationInterface::class, function () {
-                return new LocalClient;
-            });
-        }
-
-        if (config('websockets.replication.driver', 'local') === 'redis') {
-            $this->app->singleton(ReplicationInterface::class, function () {
-                return (new RedisClient)->boot($this->loop ?? LoopFactory::create());
-            });
-        }
-
         $this->app->make(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
             $pusher = new Pusher(
                 $config['key'], $config['secret'],

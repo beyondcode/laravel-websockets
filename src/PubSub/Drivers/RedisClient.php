@@ -66,14 +66,17 @@ class RedisClient implements ReplicationInterface
      * Boot the RedisClient, initializing the connections.
      *
      * @param  LoopInterface  $loop
+     * @param  string|null  $factoryClass
      * @return ReplicationInterface
      */
-    public function boot(LoopInterface $loop): ReplicationInterface
+    public function boot(LoopInterface $loop, $factoryClass = null): ReplicationInterface
     {
+        $factoryClass = $factoryClass ?: Factory::class;
+
         $this->loop = $loop;
 
         $connectionUri = $this->getConnectionUri();
-        $factory = new Factory($this->loop);
+        $factory = new $factoryClass($this->loop);
 
         $this->publishClient = $factory->createLazyClient($connectionUri);
         $this->subscribeClient = $factory->createLazyClient($connectionUri);
@@ -108,7 +111,7 @@ class RedisClient implements ReplicationInterface
         // We need to put the channel name in the payload.
         // We strip the app ID from the channel name, websocket clients
         // expect the channel name to not include the app ID.
-        $payload->channel = Str::after($redisChannel, "$appId:");
+        $payload->channel = Str::after($redisChannel, "{$appId}:");
 
         $channelManager = app(ChannelManager::class);
 
@@ -295,5 +298,35 @@ class RedisClient implements ReplicationInterface
         $query = http_build_query($query);
 
         return "redis://{$host}:{$port}".($query ? "?{$query}" : '');
+    }
+
+    /**
+     * Get the Subscribe client instance.
+     *
+     * @return Client
+     */
+    public function getSubscribeClient()
+    {
+        return $this->subscribeClient;
+    }
+
+    /**
+     * Get the Publish client instance.
+     *
+     * @return Client
+     */
+    public function getPublishClient()
+    {
+        return $this->publishClient;
+    }
+
+    /**
+     * Get the unique identifier for the server.
+     *
+     * @return string
+     */
+    public function getServerId()
+    {
+        return $this->serverId;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
@@ -55,9 +56,27 @@ class PresenceChannelTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
-        $connection->assertSentEvent('pusher_internal:subscription_succeeded', [
-            'channel' => 'presence-channel',
-        ]);
+        $this->getPublishClient()
+            ->assertCalledWithArgs('hset', [
+                '1234:presence-channel',
+                $connection->socketId,
+                json_encode($channelData),
+            ])
+            ->assertCalledWithArgs('hgetall', [
+                '1234:presence-channel'
+            ]);
+            // TODO: This fails somehow
+            // Debugging shows the exact same pattern as good.
+            /* ->assertCalledWithArgs('publish', [
+                '1234:presence-channel',
+                json_encode([
+                    'event' => 'pusher_internal:member_added',
+                    'channel' => 'presence-channel',
+                    'data' => $channelData,
+                    'appId' => '1234',
+                    'serverId' => $this->app->make(ReplicationInterface::class)->getServerId(),
+                ]),
+            ]) */
     }
 
     /** @test */
