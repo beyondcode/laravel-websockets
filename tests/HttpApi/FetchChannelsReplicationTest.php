@@ -2,16 +2,24 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\HttpApi;
 
-use BeyondCode\LaravelWebSockets\Tests\TestsReplication;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
-class FetchChannelsReplicationTest extends FetchChannelsTest
+class FetchChannelsReplicationTest extends TestCase
 {
-    use TestsReplication;
-
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->setupReplication();
+        $this->runOnlyOnRedisReplication();
+    }
+
+    public function test_not_implemented()
+    {
+        $this->markTestIncomplete(
+            'Not yet implemented tests.'
+        );
     }
 }

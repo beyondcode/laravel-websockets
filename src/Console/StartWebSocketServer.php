@@ -4,6 +4,8 @@ namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
+use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
@@ -23,7 +25,12 @@ use React\Socket\Connector;
 
 class StartWebSocketServer extends Command
 {
-    protected $signature = 'websockets:serve {--host=0.0.0.0} {--port=6001} {--debug : Forces the loggers to be enabled and thereby overriding the app.debug config setting } ';
+    protected $signature = 'websockets:serve
+        {--host=0.0.0.0}
+        {--port=6001}
+        {--debug : Forces the loggers to be enabled and thereby overriding the APP_DEBUG setting.}
+        {--test : Prepare the server, but do not start it.}
+    ';
 
     protected $description = 'Start the Laravel WebSocket Server';
 
@@ -48,6 +55,7 @@ class StartWebSocketServer extends Command
             ->configureMessageLogger()
             ->configureConnectionLogger()
             ->configureRestartTimer()
+            ->configurePubSub()
             ->registerEchoRoutes()
             ->registerCustomRoutes()
             ->configurePubSubReplication()
@@ -66,7 +74,10 @@ class StartWebSocketServer extends Command
         $this->laravel->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
             $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class);
 
-            return new $class(app(ChannelManager::class), $browser);
+            return new $class(
+                $this->laravel->make(ChannelManager::class),
+                $browser
+            );
         });
 
         $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
@@ -122,6 +133,28 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Configure the replicators.
+     *
+     * @return void
+     */
+    public function configurePubSub()
+    {
+        if (config('websockets.replication.driver', 'local') === 'local') {
+            $this->laravel->singleton(ReplicationInterface::class, function () {
+                return new LocalClient;
+            });
+        }
+
+        if (config('websockets.replication.driver', 'local') === 'redis') {
+            $this->laravel->singleton(ReplicationInterface::class, function () {
+                return (new RedisClient)->boot($this->loop);
+            });
+        }
+
+        return $this;
+    }
+
     protected function registerEchoRoutes()
     {
         WebSocketsRouter::echo();
@@ -142,20 +175,25 @@ class StartWebSocketServer extends Command
 
         $routes = WebSocketsRouter::getRoutes();
 
-        /* 🛰 Start the server 🛰  */
-        (new WebSocketServerFactory())
+        $server = (new WebSocketServerFactory())
             ->setLoop($this->loop)
             ->useRoutes($routes)
             ->setHost($this->option('host'))
             ->setPort($this->option('port'))
             ->setConsoleOutput($this->output)
-            ->createServer()
-            ->run();
+            ->createServer();
+
+        if (! $this->option('test')) {
+            /* 🛰 Start the server 🛰  */
+            $server->run();
+        }
     }
 
     protected function configurePubSubReplication()
     {
-        $this->laravel->get(ReplicationInterface::class)->boot($this->loop);
+        $this->laravel
+            ->get(ReplicationInterface::class)
+            ->boot($this->loop);
 
         return $this;
     }

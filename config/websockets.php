@@ -143,23 +143,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Broadcasting Replication
+    | Broadcasting Replication PubSub
     |--------------------------------------------------------------------------
     |
     | You can enable replication to publish and subscribe to
     | messages across the driver.
-    |
-    | By default, it is disabled, but you can configure it to use drivers
+
+    | By default, it is set to 'local', but you can configure it to use drivers
     | like Redis to ensure connection between multiple instances of
-    | WebSocket servers.
+    | WebSocket servers. Just set the driver to 'redis' to enable the PubSub using Redis.
     |
     */
 
     'replication' => [
 
-        'enabled' => false,
-
-        'driver' => 'redis',
+        'driver' => 'local',
 
         'redis' => [
 
