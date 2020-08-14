@@ -54,7 +54,7 @@ class RedisClient implements ReplicationInterface
     /**
      * Boot the RedisClient, initializing the connections.
      *
-     * @param LoopInterface $loop
+     * @param  LoopInterface  $loop
      * @return ReplicationInterface
      */
     public function boot(LoopInterface $loop): ReplicationInterface
@@ -77,8 +77,9 @@ class RedisClient implements ReplicationInterface
     /**
      * Handle a message received from Redis on a specific channel.
      *
-     * @param string $redisChannel
-     * @param string $payload
+     * @param  string  $redisChannel
+     * @param  string  $payload
+     * @return void
      */
     protected function onMessage(string $redisChannel, string $payload)
     {
@@ -123,8 +124,8 @@ class RedisClient implements ReplicationInterface
     /**
      * Subscribe to a channel on behalf of websocket user.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return bool
      */
     public function subscribe(string $appId, string $channel): bool
@@ -144,8 +145,8 @@ class RedisClient implements ReplicationInterface
     /**
      * Unsubscribe from a channel on behalf of a websocket user.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return bool
      */
     public function unsubscribe(string $appId, string $channel): bool
@@ -169,9 +170,9 @@ class RedisClient implements ReplicationInterface
     /**
      * Publish a message to a channel on behalf of a websocket user.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param stdClass $payload
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  stdClass  $payload
      * @return bool
      */
     public function publish(string $appId, string $channel, stdClass $payload): bool
@@ -188,10 +189,11 @@ class RedisClient implements ReplicationInterface
      * Add a member to a channel. To be called when they have
      * subscribed to the channel.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param string $socketId
-     * @param string $data
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @param  string  $data
+     * @return void
      */
     public function joinChannel(string $appId, string $channel, string $socketId, string $data)
     {
@@ -202,9 +204,10 @@ class RedisClient implements ReplicationInterface
      * Remove a member from the channel. To be called when they have
      * unsubscribed from the channel.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param string $socketId
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @return void
      */
     public function leaveChannel(string $appId, string $channel, string $socketId)
     {
@@ -214,8 +217,8 @@ class RedisClient implements ReplicationInterface
     /**
      * Retrieve the full information about the members in a presence channel.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return PromiseInterface
      */
     public function channelMembers(string $appId, string $channel): PromiseInterface
@@ -232,8 +235,8 @@ class RedisClient implements ReplicationInterface
     /**
      * Get the amount of users subscribed for each presence channel.
      *
-     * @param string $appId
-     * @param array $channelNames
+     * @param  string  $appId
+     * @param  array  $channelNames
      * @return PromiseInterface
      */
     public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface

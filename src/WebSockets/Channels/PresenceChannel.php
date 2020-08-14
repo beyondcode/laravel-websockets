@@ -22,22 +22,24 @@ class PresenceChannel extends Channel
     protected $users = [];
 
     /**
-     * @param string $appId
+     * Get the members in the presence channel.
+     *
+     * @param  string  $appId
      * @return PromiseInterface
      */
     public function getUsers(string $appId)
     {
-        // Get the members list from the replication backend
-        return $this->replicator
-            ->channelMembers($appId, $this->channelName);
+        return $this->replicator->channelMembers($appId, $this->channelName);
     }
 
     /**
-     * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
+     * Subscribe the connection to the channel.
      *
-     * @param ConnectionInterface $connection
-     * @param stdClass $payload
+     * @param  ConnectionInterface  $connection
+     * @param  stdClass  $payload
+     * @return void
      * @throws InvalidSignature
+     * @see     https://pusher.com/docs/pusher_protocol#presence-channel-events
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
@@ -49,20 +51,18 @@ class PresenceChannel extends Channel
         $this->users[$connection->socketId] = $channelData;
 
         // Add the connection as a member of the channel
-        $this->replicator
-            ->joinChannel(
-                $connection->app->id,
-                $this->channelName,
-                $connection->socketId,
-                json_encode($channelData)
-            );
+        $this->replicator->joinChannel(
+            $connection->app->id,
+            $this->channelName,
+            $connection->socketId,
+            json_encode($channelData)
+        );
 
         // We need to pull the channel data from the replication backend,
         // otherwise we won't be sending the full details of the channel
         $this->replicator
             ->channelMembers($connection->app->id, $this->channelName)
             ->then(function ($users) use ($connection) {
-                // Send the success event
                 $connection->send(json_encode([
                     'event' => 'pusher_internal:subscription_succeeded',
                     'channel' => $this->channelName,
@@ -77,6 +77,12 @@ class PresenceChannel extends Channel
         ]);
     }
 
+    /**
+     * Unsubscribe the connection from the Presence channel.
+     *
+     * @param  ConnectionInterface  $connection
+     * @return void
+     */
     public function unsubscribe(ConnectionInterface $connection)
     {
         parent::unsubscribe($connection);
@@ -105,7 +111,9 @@ class PresenceChannel extends Channel
     }
 
     /**
-     * @param string|null $appId
+     * Get the Presence Channel to array.
+     *
+     * @param  string|null  $appId
      * @return PromiseInterface
      */
     public function toArray(string $appId = null)
@@ -119,6 +127,12 @@ class PresenceChannel extends Channel
             });
     }
 
+    /**
+     * Get the Presence channel data.
+     *
+     * @param  array  $users
+     * @return array
+     */
     protected function getChannelData(array $users): array
     {
         return [
@@ -130,6 +144,12 @@ class PresenceChannel extends Channel
         ];
     }
 
+    /**
+     * Get the Presence Channel's users.
+     *
+     * @param  array  $users
+     * @return array
+     */
     protected function getUserIds(array $users): array
     {
         $userIds = array_map(function ($channelData) {

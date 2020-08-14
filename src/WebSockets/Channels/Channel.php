@@ -67,20 +67,18 @@ class Channel
     {
         $this->saveConnection($connection);
 
-        // Subscribe to broadcasted messages from the pub/sub backend
-        $this->replicator->subscribe($connection->app->id, $this->channelName);
-
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->channelName,
         ]));
+
+        $this->replicator->subscribe($connection->app->id, $this->channelName);
     }
 
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscribedConnections[$connection->socketId]);
 
-        // Unsubscribe from the pub/sub backend
         $this->replicator->unsubscribe($connection->app->id, $this->channelName);
 
         if (! $this->hasConnections()) {

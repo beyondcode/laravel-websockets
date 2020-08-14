@@ -20,7 +20,7 @@ class LocalClient implements ReplicationInterface
     /**
      * Boot the pub/sub provider (open connections, initial subscriptions, etc).
      *
-     * @param LoopInterface $loop
+     * @param  LoopInterface  $loop
      * @return self
      */
     public function boot(LoopInterface $loop): ReplicationInterface
@@ -31,9 +31,9 @@ class LocalClient implements ReplicationInterface
     /**
      * Publish a payload on a specific channel, for a specific app.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param stdClass $payload
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  stdClass  $payload
      * @return bool
      */
     public function publish(string $appId, string $channel, stdClass $payload): bool
@@ -44,8 +44,8 @@ class LocalClient implements ReplicationInterface
     /**
      * Subscribe to receive messages for a channel.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return bool
      */
     public function subscribe(string $appId, string $channel): bool
@@ -56,8 +56,8 @@ class LocalClient implements ReplicationInterface
     /**
      * Unsubscribe from a channel.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return bool
      */
     public function unsubscribe(string $appId, string $channel): bool
@@ -69,10 +69,11 @@ class LocalClient implements ReplicationInterface
      * Add a member to a channel. To be called when they have
      * subscribed to the channel.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param string $socketId
-     * @param string $data
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @param  string  $data
+     * @return void
      */
     public function joinChannel(string $appId, string $channel, string $socketId, string $data)
     {
@@ -83,13 +84,15 @@ class LocalClient implements ReplicationInterface
      * Remove a member from the channel. To be called when they have
      * unsubscribed from the channel.
      *
-     * @param string $appId
-     * @param string $channel
-     * @param string $socketId
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @return void
      */
     public function leaveChannel(string $appId, string $channel, string $socketId)
     {
         unset($this->channelData["$appId:$channel"][$socketId]);
+
         if (empty($this->channelData["$appId:$channel"])) {
             unset($this->channelData["$appId:$channel"]);
         }
@@ -98,15 +101,14 @@ class LocalClient implements ReplicationInterface
     /**
      * Retrieve the full information about the members in a presence channel.
      *
-     * @param string $appId
-     * @param string $channel
+     * @param  string  $appId
+     * @param  string  $channel
      * @return PromiseInterface
      */
     public function channelMembers(string $appId, string $channel): PromiseInterface
     {
         $members = $this->channelData["$appId:$channel"] ?? [];
 
-        // The data is expected as objects, so we need to JSON decode
         $members = array_map(function ($user) {
             return json_decode($user);
         }, $members);
@@ -117,8 +119,8 @@ class LocalClient implements ReplicationInterface
     /**
      * Get the amount of users subscribed for each presence channel.
      *
-     * @param string $appId
-     * @param array $channelNames
+     * @param  string  $appId
+     * @param  array  $channelNames
      * @return PromiseInterface
      */
     public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
