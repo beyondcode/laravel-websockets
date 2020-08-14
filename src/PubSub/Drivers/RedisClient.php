@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\PubSub\Drivers;
 
+use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Redis\Client;
@@ -139,6 +140,8 @@ class RedisClient implements ReplicationInterface
             $this->subscribedChannels["$appId:$channel"]++;
         }
 
+        DashboardLogger::replicatorSubscribed($appId, $channel, $this->serverId);
+
         return true;
     }
 
@@ -161,8 +164,11 @@ class RedisClient implements ReplicationInterface
         // If we no longer have subscriptions to that channel, unsubscribe
         if ($this->subscribedChannels["$appId:$channel"] < 1) {
             $this->subscribeClient->__call('unsubscribe', ["$appId:$channel"]);
+
             unset($this->subscribedChannels["$appId:$channel"]);
         }
+
+        DashboardLogger::replicatorUnsubscribed($appId, $channel, $this->serverId);
 
         return true;
     }

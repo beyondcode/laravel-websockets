@@ -9,13 +9,24 @@ use stdClass;
 class DashboardLogger
 {
     const LOG_CHANNEL_PREFIX = 'private-websockets-dashboard-';
+
     const TYPE_DISCONNECTION = 'disconnection';
+
     const TYPE_CONNECTION = 'connection';
+
     const TYPE_VACATED = 'vacated';
+
     const TYPE_OCCUPIED = 'occupied';
+
     const TYPE_SUBSCRIBED = 'subscribed';
+
     const TYPE_CLIENT_MESSAGE = 'client-message';
+
     const TYPE_API_MESSAGE = 'api-message';
+
+    const TYPE_REPLICATOR_SUBSCRIBED = 'replicator-subscribed';
+
+    const TYPE_REPLICATOR_UNSUBSCRIBED = 'replicator-unsubscribed';
 
     public static function connection(ConnectionInterface $connection)
     {
@@ -71,6 +82,20 @@ class DashboardLogger
         static::log($appId, static::TYPE_API_MESSAGE, [
             'details' => "Channel: {$channel}, Event: {$event}",
             'data' => $payload,
+        ]);
+    }
+
+    public static function replicatorSubscribed(string $appId, string $channel, string $serverId)
+    {
+        static::log($appId, static::TYPE_REPLICATOR_SUBSCRIBED, [
+            'details' => "Server ID: {$serverId} on Channel: {$channel}",
+        ]);
+    }
+
+    public static function replicatorUnsubscribed(string $appId, string $channel, string $serverId)
+    {
+        static::log($appId, static::TYPE_REPLICATOR_UNSUBSCRIBED, [
+            'details' => "Server ID: {$serverId} on Channel: {$channel}",
         ]);
     }
 

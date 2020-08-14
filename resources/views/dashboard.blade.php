@@ -207,6 +207,8 @@
                     'subscribed',
                     'client-message',
                     'api-message',
+                    'replicator-subscribed',
+                    'replicator-unsubscribed',
                 ].forEach(channelName => this.subscribeToChannel(channelName))
             },
 

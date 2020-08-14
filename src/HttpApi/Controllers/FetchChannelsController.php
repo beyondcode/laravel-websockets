@@ -8,6 +8,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use stdClass;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelsController extends Controller
@@ -54,15 +55,18 @@ class FetchChannelsController extends Controller
         return $this->replicator
             ->channelMemberCounts($request->appId, $channelNames)
             ->then(function (array $counts) use ($channels, $attributes) {
-                return [
-                    'channels' => $channels->map(function (PresenceChannel $channel) use ($counts, $attributes) {
-                        $info = new \stdClass;
-                        if (in_array('user_count', $attributes)) {
-                            $info->user_count = $counts[$channel->getChannelName()];
-                        }
+                $channels = $channels->map(function (PresenceChannel $channel) use ($counts, $attributes) {
+                    $info = new stdClass;
 
-                        return $info;
-                    })->toArray() ?: new \stdClass,
+                    if (in_array('user_count', $attributes)) {
+                        $info->user_count = $counts[$channel->getChannelName()];
+                    }
+
+                    return $info;
+                })->toArray();
+
+                return [
+                    'channels' => $channels ?: new stdClass,
                 ];
             });
     }
