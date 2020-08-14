@@ -34,68 +34,91 @@ class DashboardLogger
         $request = $connection->httpRequest;
 
         static::log($connection->app->id, static::TYPE_CONNECTION, [
-            'details' => "Origin: {$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
-            'socketId' => $connection->socketId,
+            'details' => [
+                'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
+                'socketId' => $connection->socketId,
+            ],
         ]);
     }
 
     public static function occupied(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->app->id, static::TYPE_OCCUPIED, [
-            'details' => "Channel: {$channelName}",
+            'details' => [
+                'channel' => $channelName,
+            ],
         ]);
     }
 
     public static function subscribed(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->app->id, static::TYPE_SUBSCRIBED, [
-            'socketId' => $connection->socketId,
-            'details' => "Channel: {$channelName}",
+            'details' => [
+                'socketId' => $connection->socketId,
+                'channel' => $channelName,
+            ],
         ]);
     }
 
     public static function clientMessage(ConnectionInterface $connection, stdClass $payload)
     {
         static::log($connection->app->id, static::TYPE_CLIENT_MESSAGE, [
-            'details' => "Channel: {$payload->channel}, Event: {$payload->event}",
-            'socketId' => $connection->socketId,
-            'data' => json_encode($payload),
+            'details' => [
+                'socketId' => $connection->socketId,
+                'channel' => $payload->channel,
+                'event' => $payload->event,
+                'data' => $payload,
+            ],
         ]);
     }
 
     public static function disconnection(ConnectionInterface $connection)
     {
         static::log($connection->app->id, static::TYPE_DISCONNECTION, [
-            'socketId' => $connection->socketId,
+            'details' => [
+                'socketId' => $connection->socketId,
+            ],
         ]);
     }
 
     public static function vacated(ConnectionInterface $connection, string $channelName)
     {
         static::log($connection->app->id, static::TYPE_VACATED, [
-            'details' => "Channel: {$channelName}",
+            'details' => [
+                'socketId' => $connection->socketId,
+                'channel' => $channelName,
+            ],
         ]);
     }
 
     public static function apiMessage($appId, string $channel, string $event, string $payload)
     {
         static::log($appId, static::TYPE_API_MESSAGE, [
-            'details' => "Channel: {$channel}, Event: {$event}",
-            'data' => $payload,
+            'details' => [
+                'channel' => $connection,
+                'event' => $event,
+                'payload' => $payload,
+            ],
         ]);
     }
 
     public static function replicatorSubscribed(string $appId, string $channel, string $serverId)
     {
         static::log($appId, static::TYPE_REPLICATOR_SUBSCRIBED, [
-            'details' => "Server ID: {$serverId} on Channel: {$channel}",
+            'details' => [
+                'serverId' => $serverId,
+                'channel' => $channel,
+            ],
         ]);
     }
 
     public static function replicatorUnsubscribed(string $appId, string $channel, string $serverId)
     {
         static::log($appId, static::TYPE_REPLICATOR_UNSUBSCRIBED, [
-            'details' => "Server ID: {$serverId} on Channel: {$channel}",
+            'details' => [
+                'serverId' => $serverId,
+                'channel' => $channel,
+            ],
         ]);
     }
 

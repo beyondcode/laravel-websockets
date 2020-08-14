@@ -70,7 +70,6 @@
                 <thead>
                 <tr>
                     <th>Type</th>
-                    <th>Socket</th>
                     <th>Details</th>
                     <th>Time</th>
                 </tr>
@@ -78,8 +77,7 @@
                 <tbody>
                 <tr v-for="log in logs.slice().reverse()">
                     <td><span class="badge" :class="getBadgeClass(log)">@{{ log.type }}</span></td>
-                    <td>@{{ log.socketId }}</td>
-                    <td>@{{ log.details }}</td>
+                    <td><pre>@{{ log.details }}</pre></td>
                     <td>@{{ log.time }}</td>
                 </tr>
                 </tbody>
