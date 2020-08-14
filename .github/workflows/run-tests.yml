@@ -49,12 +49,12 @@ jobs:
                     composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
             -   name: Execute tests with Local driver
-                run: phpunit --coverage-text --coverage-clover=coverage_local.xml
+                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage_local.xml
                 env:
                     REPLICATION_DRIVER: local
 
             -   name: Execute tests with Redis driver
-                run: phpunit --coverage-text --coverage-clover=coverage_redis.xml
+                run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage_redis.xml
                 if: ${{ matrix.os == 'ubuntu-latest' }}
                 env:
                     REPLICATION_DRIVER: redis
