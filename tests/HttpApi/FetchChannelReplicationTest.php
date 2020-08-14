@@ -105,7 +105,8 @@ class FetchChannelReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalled('hgetall');
+            ->assertCalled('hgetall')
+            ->assertCalled('publish');
 
         $this->assertSame([
             'occupied' => true,
