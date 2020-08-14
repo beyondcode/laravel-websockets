@@ -15,4 +15,11 @@ class FetchUsersReplicationTest extends TestCase
 
         $this->runOnlyOnRedisReplication();
     }
+
+    public function test_not_implemented()
+    {
+        $this->markTestIncomplete(
+            'Not yet implemented tests.'
+        );
+    }
 }
