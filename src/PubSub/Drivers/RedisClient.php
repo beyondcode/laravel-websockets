@@ -15,21 +15,29 @@ use stdClass;
 class RedisClient implements ReplicationInterface
 {
     /**
+     * The running loop.
+     *
      * @var LoopInterface
      */
     protected $loop;
 
     /**
+     * The unique server identifier.
+     *
      * @var string
      */
     protected $serverId;
 
     /**
+     * The pub client.
+     *
      * @var Client
      */
     protected $publishClient;
 
     /**
+     * The sub client.
+     *
      * @var Client
      */
     protected $subscribeClient;
@@ -45,7 +53,9 @@ class RedisClient implements ReplicationInterface
     protected $subscribedChannels = [];
 
     /**
-     * RedisClient constructor.
+     * Create a new Redis client.
+     *
+     * @return void
      */
     public function __construct()
     {
@@ -68,6 +78,7 @@ class RedisClient implements ReplicationInterface
         $this->publishClient = $factory->createLazyClient($connectionUri);
         $this->subscribeClient = $factory->createLazyClient($connectionUri);
 
+        // The subscribed client gets a message, it triggers the onMessage().
         $this->subscribeClient->on('message', function ($channel, $payload) {
             $this->onMessage($channel, $payload);
         });
@@ -86,7 +97,7 @@ class RedisClient implements ReplicationInterface
     {
         $payload = json_decode($payload);
 
-        // Ignore messages sent by ourselves
+        // Ignore messages sent by ourselves.
         if (isset($payload->serverId) && $this->serverId === $payload->serverId) {
             return;
         }
@@ -99,10 +110,9 @@ class RedisClient implements ReplicationInterface
         // expect the channel name to not include the app ID.
         $payload->channel = Str::after($redisChannel, "$appId:");
 
-        /* @var ChannelManager $channelManager */
         $channelManager = app(ChannelManager::class);
 
-        // Load the Channel instance, if any
+        // Load the Channel instance to sync.
         $channel = $channelManager->find($appId, $payload->channel);
 
         // If no channel is found, none of our connections want to
@@ -113,12 +123,12 @@ class RedisClient implements ReplicationInterface
 
         $socket = $payload->socket ?? null;
 
-        // Remove fields intended for internal use from the payload
+        // Remove fields intended for internal use from the payload.
         unset($payload->socket);
         unset($payload->serverId);
         unset($payload->appId);
 
-        // Push the message out to connected websocket clients
+        // Push the message out to connected websocket clients.
         $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
     }
 

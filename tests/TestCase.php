@@ -21,6 +21,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
     protected $channelManager;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -37,6 +40,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getPackageProviders($app)
     {
         return [
@@ -44,6 +50,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('websockets.apps', [
