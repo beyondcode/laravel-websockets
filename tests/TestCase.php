@@ -10,7 +10,6 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Mockery;
@@ -32,7 +31,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        $this->pusherServer = app(WebSocketHandler::class);
+        $this->pusherServer = app(config('websockets.handlers.websocket'));
 
         $this->channelManager = app(ChannelManager::class);
 
