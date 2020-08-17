@@ -12,7 +12,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;
 
-class RedisClient implements ReplicationInterface
+class RedisClient extends LocalClient
 {
     /**
      * The running loop.
@@ -90,49 +90,29 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
-     * Handle a message received from Redis on a specific channel.
+     * Publish a message to a channel on behalf of a websocket user.
      *
-     * @param  string  $redisChannel
-     * @param  string  $payload
-     * @return void
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  stdClass  $payload
+     * @return bool
      */
-    protected function onMessage(string $redisChannel, string $payload)
+    public function publish(string $appId, string $channel, stdClass $payload): bool
     {
-        $payload = json_decode($payload);
+        $payload->appId = $appId;
+        $payload->serverId = $this->getServerId();
 
-        // Ignore messages sent by ourselves.
-        if (isset($payload->serverId) && $this->serverId === $payload->serverId) {
-            return;
-        }
+        $payload = json_encode($payload);
 
-        // Pull out the app ID. See RedisPusherBroadcaster
-        $appId = $payload->appId;
+        $this->publishClient->__call('publish', ["$appId:$channel", $payload]);
 
-        // We need to put the channel name in the payload.
-        // We strip the app ID from the channel name, websocket clients
-        // expect the channel name to not include the app ID.
-        $payload->channel = Str::after($redisChannel, "{$appId}:");
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_PUBLISHED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'payload' => $payload,
+        ]);
 
-        $channelManager = app(ChannelManager::class);
-
-        // Load the Channel instance to sync.
-        $channel = $channelManager->find($appId, $payload->channel);
-
-        // If no channel is found, none of our connections want to
-        // receive this message, so we ignore it.
-        if (! $channel) {
-            return;
-        }
-
-        $socket = $payload->socket ?? null;
-
-        // Remove fields intended for internal use from the payload.
-        unset($payload->socket);
-        unset($payload->serverId);
-        unset($payload->appId);
-
-        // Push the message out to connected websocket clients.
-        $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
+        return true;
     }
 
     /**
@@ -153,7 +133,10 @@ class RedisClient implements ReplicationInterface
             $this->subscribedChannels["$appId:$channel"]++;
         }
 
-        DashboardLogger::replicatorSubscribed($appId, $channel, $this->serverId);
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+        ]);
 
         return true;
     }
@@ -181,25 +164,10 @@ class RedisClient implements ReplicationInterface
             unset($this->subscribedChannels["$appId:$channel"]);
         }
 
-        DashboardLogger::replicatorUnsubscribed($appId, $channel, $this->serverId);
-
-        return true;
-    }
-
-    /**
-     * Publish a message to a channel on behalf of a websocket user.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return bool
-     */
-    public function publish(string $appId, string $channel, stdClass $payload): bool
-    {
-        $payload->appId = $appId;
-        $payload->serverId = $this->serverId;
-
-        $this->publishClient->__call('publish', ["$appId:$channel", json_encode($payload)]);
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+        ]);
 
         return true;
     }
@@ -217,6 +185,13 @@ class RedisClient implements ReplicationInterface
     public function joinChannel(string $appId, string $channel, string $socketId, string $data)
     {
         $this->publishClient->__call('hset', ["$appId:$channel", $socketId, $data]);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'socketId' => $socketId,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -231,6 +206,12 @@ class RedisClient implements ReplicationInterface
     public function leaveChannel(string $appId, string $channel, string $socketId)
     {
         $this->publishClient->__call('hdel', ["$appId:$channel", $socketId]);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_LEFT_CHANNEL, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'socketId' => $socketId,
+        ]);
     }
 
     /**
@@ -270,6 +251,62 @@ class RedisClient implements ReplicationInterface
             ->then(function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
             });
+    }
+
+    /**
+     * Handle a message received from Redis on a specific channel.
+     *
+     * @param  string  $redisChannel
+     * @param  string  $payload
+     * @return void
+     */
+    protected function onMessage(string $redisChannel, string $payload)
+    {
+        $payload = json_decode($payload);
+
+        // Ignore messages sent by ourselves.
+        if (isset($payload->serverId) && $this->getServerId() === $payload->serverId) {
+            return;
+        }
+
+        // Pull out the app ID. See RedisPusherBroadcaster
+        $appId = $payload->appId;
+
+        // We need to put the channel name in the payload.
+        // We strip the app ID from the channel name, websocket clients
+        // expect the channel name to not include the app ID.
+        $payload->channel = Str::after($redisChannel, "{$appId}:");
+
+        $channelManager = app(ChannelManager::class);
+
+        // Load the Channel instance to sync.
+        $channel = $channelManager->find($appId, $payload->channel);
+
+        // If no channel is found, none of our connections want to
+        // receive this message, so we ignore it.
+        if (! $channel) {
+            return;
+        }
+
+        $socket = $payload->socket ?? null;
+        $serverId = $payload->serverId ?? null;
+
+        // Remove fields intended for internal use from the payload.
+        unset($payload->socket);
+        unset($payload->serverId);
+        unset($payload->appId);
+
+        // Push the message out to connected websocket clients.
+        $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
+            'channel' => $channel->getChannelName(),
+            'redisChannel' => $redisChannel,
+            'serverId' => $this->getServer(),
+            'incomingServerId' => $serverId,
+            'incomingSocketId' => $socket,
+            'payload' => $payload,
+        ]);
     }
 
     /**

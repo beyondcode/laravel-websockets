@@ -48,7 +48,9 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $this->channelManager->removeFromAllChannels($connection);
 
-        DashboardLogger::disconnection($connection);
+        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
+            'socketId' => $connection->socketId,
+        ]);
 
         StatisticsLogger::disconnection($connection);
     }
@@ -106,9 +108,13 @@ class WebSocketHandler implements MessageComponentInterface
             ]),
         ]));
 
-        DashboardLogger::connection($connection);
+        /** @var \GuzzleHttp\Psr7\Request $request */
+        $request = $connection->httpRequest;
 
-        StatisticsLogger::connection($connection);
+        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
+            'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
+            'socketId' => $connection->socketId,
+        ]);
 
         return $this;
     }

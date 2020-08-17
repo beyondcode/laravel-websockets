@@ -82,7 +82,10 @@ class Channel
         $this->replicator->unsubscribe($connection->app->id, $this->channelName);
 
         if (! $this->hasConnections()) {
-            DashboardLogger::vacated($connection, $this->channelName);
+            DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_VACATED, [
+                'socketId' => $connection->socketId,
+                'channel' => $this->channelName,
+            ]);
         }
     }
 
@@ -93,10 +96,15 @@ class Channel
         $this->subscribedConnections[$connection->socketId] = $connection;
 
         if (! $hadConnectionsPreviously) {
-            DashboardLogger::occupied($connection, $this->channelName);
+            DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_OCCUPIED, [
+                'channel' => $this->channelName,
+            ]);
         }
 
-        DashboardLogger::subscribed($connection, $this->channelName);
+        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
+            'socketId' => $connection->socketId,
+            'channel' => $this->channelName,
+        ]);
     }
 
     public function broadcast($payload)
