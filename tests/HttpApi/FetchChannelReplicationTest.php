@@ -103,7 +103,8 @@ class FetchChannelReplicationTest extends TestCase
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
 
-        $this->getSubscribeClient()->assertNothingCalled();
+        $this->getSubscribeClient()
+            ->assertEventDispatched('message');
 
         $this->getPublishClient()
             ->assertCalled('hset')
