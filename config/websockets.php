@@ -143,12 +143,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Route Handlers
+    |--------------------------------------------------------------------------
+    |
+    | Here you can specify the route handlers that will take over
+    | the incoming/outgoing websocket connections. You can extend the
+    | original class and implement your own logic, alongside
+    | with the existing logic.
+    |
+    */
+
+    'handlers' => [
+
+        'websocket' => \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler::class,
+
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Broadcasting Replication PubSub
     |--------------------------------------------------------------------------
     |
     | You can enable replication to publish and subscribe to
     | messages across the driver.
-
+    |
     | By default, it is set to 'local', but you can configure it to use drivers
     | like Redis to ensure connection between multiple instances of
     | WebSocket servers. Just set the driver to 'redis' to enable the PubSub using Redis.

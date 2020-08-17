@@ -34,7 +34,7 @@ class Router
 
     public function echo()
     {
-        $this->get('/app/{appKey}', WebSocketHandler::class);
+        $this->get('/app/{appKey}', config('websockets.handlers.websocket', WebSocketHandler::class));
 
         $this->post('/apps/{appId}/events', TriggerEventController::class);
         $this->get('/apps/{appId}/channels', FetchChannelsController::class);
