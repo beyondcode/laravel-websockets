@@ -191,9 +191,13 @@ return [
         | store them into an array and then store them into the database
         | on each interval.
         |
+        | You can opt-in to avoid any statistics storage by setting the logger
+        | to the built-in NullLogger.
+        |
         */
 
-        'logger' => BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
+        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
+        // 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class,
 
         /*
         |--------------------------------------------------------------------------

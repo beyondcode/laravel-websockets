@@ -6,7 +6,7 @@ use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as Statistic
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger
+ * @see   \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger
  * @mixin \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger
  */
 class StatisticsLogger extends Facade
