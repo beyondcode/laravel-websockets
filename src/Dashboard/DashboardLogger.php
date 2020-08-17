@@ -3,8 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\Dashboard;
 
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Ratchet\ConnectionInterface;
-use stdClass;
 
 class DashboardLogger
 {
