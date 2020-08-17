@@ -116,6 +116,8 @@ class WebSocketHandler implements MessageComponentInterface
             'socketId' => $connection->socketId,
         ]);
 
+        StatisticsLogger::connection($connection);
+
         return $this;
     }
 }
