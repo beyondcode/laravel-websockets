@@ -94,6 +94,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             ],
         ]);
 
+        $app['config']->set('websockets.statistics.perform_dns_lookup', true);
+
         $app['config']->set('database.redis.default', [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD', null),
