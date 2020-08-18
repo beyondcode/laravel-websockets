@@ -1,265 +1,423 @@
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>WebSockets Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script
-            src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-            crossorigin="anonymous"></script>
-    <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+  <title>WebSockets Dashboard</title>
+
+  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vue-json-editor@1.4.2/assets/jsoneditor.min.css" rel="stylesheet">
+
+  <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/v-jsoneditor@1.4.1/dist/v-jsoneditor.min.js"></script>
+
+  <script>
+    window.baseURL = '{{ url(request()->path()) }}';
+    axios.defaults.baseURL = baseURL;
+  </script>
 </head>
 
-<body>
-<div class="container" id="app">
-    <div class="card col-xs-12 mt-4">
-        <div class="card-header">
-            <form id="connect" class="form-inline" role="form">
-                <label class="my-1 mr-2" for="app">App:</label>
-                <select class="form-control form-control-sm mr-2" name="app" id="app" v-model="app">
-                    <option v-for="app in apps" :value="app">@{{ app.name }}</option>
-                </select>
-                <label class="my-1 mr-2" for="app">Port:</label>
-                <input class="form-control form-control-sm mr-2" v-model="port" placeholder="Port">
-                <button v-if="! connected" type="submit" @click.prevent="connect" class="mr-2 btn btn-sm btn-primary">
-                    Connect
-                </button>
-                <button v-if="connected" type="submit" @click.prevent="disconnect" class="btn btn-sm btn-danger">
-                    Disconnect
-                </button>
-            </form>
-            <div id="status"></div>
-        </div>
-        <div class="card-body">
-            <div v-if="connected && app.statisticsEnabled">
-                <h4>Realtime Statistics</h4>
-                <div id="statisticsChart" style="width: 100%; height: 250px;"></div>
-            </div>
-            <div v-if="connected">
-                <h4>Event Creator</h4>
-                <form>
-                    <div class="row">
-                        <div class="col">
-                            <input type="text" class="form-control" v-model="form.channel" placeholder="Channel">
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control" v-model="form.event" placeholder="Event">
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col">
-                            <div class="form-group">
-                                <textarea placeholder="Data" v-model="form.data" class="form-control" id="data"
-                                          rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row text-right">
-                        <div class="col">
-                            <button type="submit" @click.prevent="sendEvent" class="btn btn-sm btn-primary">Send event
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <h4>Events</h4>
-            <table id="events" class="table table-striped table-hover">
-                <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Details</th>
-                    <th>Time</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="log in logs.slice().reverse()">
-                    <td><span class="badge" :class="getBadgeClass(log)">@{{ log.type }}</span></td>
-                    <td><pre>@{{ log.details }}</pre></td>
-                    <td>@{{ log.time }}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<script>
-    new Vue({
-        el: '#app',
+<body class="px-6">
+  <div
+    id="app"
+    class="mx-auto"
+    :class="{
+      'max-w-xl': ! connected,
+      'max-w-6xl': connected,
+    }"
+  >
+    <div class="w-full my-6 rounded-lg bg-gray-100 p-6">
+      <div class="font-semibold uppercase text-gray-700 mb-6">
+        Connect to app
+      </div>
 
-        data: {
-            connected: false,
-            chart: null,
-            pusher: null,
-            app: null,
-            port: {{ $port }},
-            apps: {!! json_encode($apps) !!},
-            form: {
+      <div class="flex flex-row justify-between">
+        <div class="relative">
+          <select
+            v-model="app"
+            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-2 px-6 pr-12 rounded-lg focus:outline-none focus:bg-white focus:border-gray-500"
+            id="grid-state"
+          >
+            <option
+              v-for="app in apps"
+              :value="app"
+            >
+              @{{ app.name }}
+            </option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+          </div>
+        </div>
+        <div>
+          <button
+            v-if="connected"
+            @click.prevent="disconnect"
+            class="bg-red-500 hover:bg-red-600 rounded-full px-3 py-2 text-white focus:outline-none"
+          >
+            Disconnect
+          </button>
+
+          <button
+            v-else
+            @click.prevent="connect"
+            class="rounded-full px-3 py-2 text-white focus:outline-none"
+            :class="{
+              'bg-green-500 hover:bg-green-600': ! connecting,
+              'bg-gray-500 cursor-not-allowed': connecting,
+            }"
+          >
+            <template v-if="connecting">
+              Connecting...
+            </template>
+            <template v-else>
+              Connect
+            </template>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="connected && app.statisticsEnabled"
+      class="w-full my-6 px-6"
+    >
+    <div class="font-semibold uppercase text-gray-700">
+      Live statistics
+    </div>
+
+      <div
+        id="statisticsChart"
+        style="width: 100%; height: 250px;"
+      ></div>
+    </div>
+
+    <div
+      v-if="connected"
+      class="flex flex-col rounded-lg bg-gray-100 p-6 my-6 space-y-6"
+    >
+      <div class="font-semibold uppercase text-gray-700">
+        Send payload event to channel
+      </div>
+
+      <div class="flex flex-col space-y-6 md:flex-row md:space-x-6 md:space-y-0">
+        <div class="w-full md:w-1/2">
+          <label
+            class="block text-gray-700 text-sm font-bold mb-2"
+            for="channel"
+          >
+            Channel name
+          </label>
+          <input
+            v-model="form.channel"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="channel"
+            type="text"
+            placeholder="ex: orders"
+          >
+        </div>
+        <div class="w-full md:w-1/2">
+          <label
+            class="block text-gray-700 text-sm font-bold mb-2"
+            for="event"
+          >
+            Event name
+          </label>
+          <input
+            v-model="form.event"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="event"
+            type="text"
+            placeholder="ex: OrderShipped"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-gray-700 text-sm font-bold mb-2">
+          Payload
+        </label>
+
+        <v-jsoneditor
+          v-model="form.data"
+          :options="{ mode: 'code' }"
+        />
+      </div>
+
+      <div>
+        <button
+          @click.prevent="sendEvent"
+          class="rounded-full px-3 py-2 text-white focus:outline-none"
+          :class="{
+            'bg-blue-500 hover:bg-blue-600': ! sendingEvent,
+            'bg-gray-500 cursor-not-allowed': sendingEvent,
+          }"
+        >
+          <template v-if="sendingEvent">
+            Sending...
+          </template>
+          <template v-else>
+            Send event
+          </template>
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="connected"
+      class="flex flex-col my-6"
+    >
+      <div class="font-semibold uppercase text-gray-700 mb-6">
+        Server activity
+      </div>
+
+      <div class="overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Details
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Time
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr
+                v-for="(log, index) in logs.slice().reverse()"
+                :key="index"
+              >
+                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                  <div
+                    :class="[getBadgeClass(log)]"
+                    class="rounded-full px-3 py-1 inline-block text-sm"
+                  >
+                    @{{ log.type }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                  <pre class="text-xs">@{{ log.details }}</pre>
+                </td>
+                <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                  @{{ log.time }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      connected: false,
+      connecting: false,
+      sendingEvent: false,
+      chart: null,
+      pusher: null,
+      app: null,
+      port: {{ config('websockets.dashboard.port') }},
+      apps: @json($apps),
+      form: {
+        channel: null,
+        event: null,
+        data: null,
+      },
+      logs: [],
+    },
+    mounted () {
+      this.app = this.apps[0] || null;
+    },
+    methods: {
+      connect () {
+        this.connecting = true;
+
+        this.pusher = new Pusher(this.app.key, {
+          wsHost: this.app.host === null ? window.location.hostname : this.app.host,
+          wsPort: this.port === null ? 6001 : this.port,
+          wssPort: this.port === null ? 6001 : this.port,
+          wsPath: this.app.path === null ? '' : this.app.path,
+          disableStats: true,
+          authEndpoint: `${window.baseURL}/auth`,
+          auth: {
+            headers: {
+              'X-CSRF-Token': "{{ csrf_token() }}",
+              'X-App-ID': this.app.id,
+            },
+          },
+          enabledTransports: ['ws', 'wss'],
+          forceTLS: false,
+        });
+
+        this.pusher.connection.bind('state_change', states => {
+          this.connecting = false;
+        });
+
+        this.pusher.connection.bind('connected', () => {
+          this.connected = true;
+          this.connecting = false;
+
+          if (this.app.statisticsEnabled) {
+            this.loadChart();
+          }
+        });
+
+        this.pusher.connection.bind('disconnected', () => {
+          this.connected = false;
+          this.connecting = false;
+          this.logs = [];
+        });
+
+        this.pusher.connection.bind('error', event => {
+          if (event.error.data.code === 4100) {
+            this.connected = false;
+            this.logs = [];
+
+            throw new Error("Over capacity");
+          }
+
+          this.connecting = false;
+        });
+
+        this.subscribeToAllChannels();
+        this.subscribeToStatistics();
+      },
+
+      disconnect () {
+        this.pusher.disconnect();
+        this.connecting = false;
+      },
+
+      loadChart () {
+        axios.get(`/api/${this.app.id}/statistics`)
+          .then(res => {
+            let data = res.data;
+
+            let chartData = [
+              {
+                x: data.peak_connections.x,
+                y: data.peak_connections.y,
+                type: 'lines',
+                name: '# Peak Connections'
+              },
+              {
+                x: data.websocket_message_count.x,
+                y: data.websocket_message_count.y,
+                type: 'bar',
+                name: '# Websocket Messages'
+              },
+              {
+                x: data.api_message_count.x,
+                y: data.api_message_count.y,
+                type: 'bar',
+                name: '# API Messages'
+              },
+            ];
+
+            let layout = {
+              margin: {
+                l: 50,
+                r: 0,
+                b: 50,
+                t: 50,
+                pad: 4,
+              },
+              autosize: true,
+            };
+
+            this.chart = Plotly.newPlot('statisticsChart', chartData, layout);
+        });
+      },
+
+      subscribeToAllChannels () {
+        @json($channels).forEach(channelName => this.subscribeToChannel(channelName))
+      },
+
+      subscribeToChannel (channel) {
+        this.pusher.subscribe(`{{ $logPrefix }}${channel}`)
+          .bind('log-message', (data) => {
+            this.logs.push(data);
+          });
+      },
+
+      subscribeToStatistics () {
+        this.pusher.subscribe('{{ $logPrefix }}statistics')
+          .bind('statistics-updated', (data) => {
+            var update = {
+              x:  [[data.time], [data.time], [data.time]],
+              y: [[data.peak_connection_count], [data.websocket_message_count], [data.api_message_count]],
+            };
+
+            Plotly.extendTraces('statisticsChart', update, [0, 1, 2]);
+          });
+      },
+
+      sendEvent () {
+        if (! this.sendingEvent) {
+          this.sendingEvent = true;
+
+          let payload = {
+            _token: '{{ csrf_token() }}',
+            key: this.app.key,
+            secret: this.app.secret,
+            appId: this.app.id,
+            channel: this.form.channel,
+            event: this.form.event,
+            data: JSON.stringify(this.form.data),
+          };
+
+          axios
+            .post('/event', payload)
+            .then(() => {
+              this.form = {
                 channel: null,
                 event: null,
-                data: null
-            },
-            logs: [],
-        },
-
-        mounted() {
-            this.app = this.apps[0] || null;
-        },
-
-        methods: {
-            connect() {
-                this.pusher = new Pusher(this.app.key, {
-                    wsHost: this.app.host === null ? window.location.hostname : this.app.host,
-                    wsPort: this.port === null ? 6001 : this.port,
-                    wssPort: this.port === null ? 6001 : this.port,
-                    wsPath: this.app.path === null ? '' : this.app.path,
-                    disableStats: true,
-                    authEndpoint: '{{ url(request()->path().'/auth') }}',
-                    auth: {
-                        headers: {
-                            'X-CSRF-Token': "{{ csrf_token() }}",
-                            'X-App-ID': this.app.id
-                        }
-                    },
-                    enabledTransports: ['ws', 'flash']
-                });
-
-                this.pusher.connection.bind('state_change', states => {
-                    $('div#status').text("Channels current state is " + states.current);
-                });
-
-                this.pusher.connection.bind('connected', () => {
-                    this.connected = true;
-
-                    this.loadChart();
-                });
-
-                this.pusher.connection.bind('disconnected', () => {
-                    this.connected = false;
-                    this.logs = [];
-                });
-
-                this.pusher.connection.bind('error', event => {
-                    if (event.error.data.code === 4100) {
-                        $('div#status').text("Maximum connection limit exceeded!");
-                        this.connected = false;
-                        this.logs = [];
-                        throw new Error("Over capacity");
-                    }
-                });
-
-                this.subscribeToAllChannels();
-
-                this.subscribeToStatistics();
-            },
-
-            disconnect() {
-                this.pusher.disconnect();
-            },
-
-            loadChart() {
-                $.getJSON('{{ url(request()->path().'/api') }}/' + this.app.id + '/statistics', (data) => {
-
-                    let chartData = [
-                        {
-                            x: data.peak_connections.x,
-                            y: data.peak_connections.y,
-                            type: 'lines',
-                            name: '# Peak Connections'
-                        },
-                        {
-                            x: data.websocket_message_count.x,
-                            y: data.websocket_message_count.y,
-                            type: 'bar',
-                            name: '# Websocket Messages'
-                        },
-                        {
-                            x: data.api_message_count.x,
-                            y: data.api_message_count.y,
-                            type: 'bar',
-                            name: '# API Messages'
-                        }
-                    ];
-                    let layout = {
-                        margin: {
-                            l: 50,
-                            r: 0,
-                            b: 50,
-                            t: 50,
-                            pad: 4
-                        }
-                    };
-
-                    this.chart = Plotly.newPlot('statisticsChart', chartData, layout);
-                });
-            },
-
-            subscribeToAllChannels() {
-                [
-                    'disconnection',
-                    'connection',
-                    'vacated',
-                    'occupied',
-                    'subscribed',
-                    'client-message',
-                    'api-message',
-                    'replicator-subscribed',
-                    'replicator-unsubscribed',
-                ].forEach(channelName => this.subscribeToChannel(channelName))
-            },
-
-            subscribeToChannel(channel) {
-                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}' + channel)
-                    .bind('log-message', (data) => {
-                        this.logs.push(data);
-                    });
-            },
-
-            subscribeToStatistics() {
-                this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}statistics')
-                    .bind('statistics-updated', (data) => {
-                            var update = {
-                                x:  [[data.time], [data.time], [data.time]],
-                                y: [[data.peak_connection_count], [data.websocket_message_count], [data.api_message_count]]
-                            };
-
-                            Plotly.extendTraces('statisticsChart', update, [0, 1, 2]);
-                    });
-            },
-
-            getBadgeClass(log) {
-                if (log.type === 'occupied' || log.type === 'connection') {
-                    return 'badge-primary';
-                }
-                if (log.type === 'vacated') {
-                    return 'badge-warning';
-                }
-                if (log.type === 'disconnection') {
-                    return 'badge-error';
-                }
-                if (log.type === 'api_message') {
-                    return 'badge-info';
-                }
-                return 'badge-secondary';
-            },
-
-            sendEvent() {
-                $.post('{{ url(request()->path().'/event') }}', {
-                    _token: '{{ csrf_token() }}',
-                    key: this.app.key,
-                    secret: this.app.secret,
-                    appId: this.app.id,
-                    channel: this.form.channel,
-                    event: this.form.event,
-                    data: this.form.data,
-                }).fail(() => {
-                    alert('Error sending event.');
-                });
-            }
+                data: null,
+              };
+            })
+            .catch(err => {
+              alert('Error sending event.');
+            })
+            .then(() => {
+              this.sendingEvent = false;
+            });
         }
-    });
+      },
+
+      getBadgeClass (log) {
+        if (['connection', 'subscribed'].includes(log.type)) {
+          return 'bg-green-500 text-white';
+        }
+
+        if (['replicator-subscribed', 'replicator-joined'].includes(log.type)) {
+          return 'bg-green-700 text-white';
+        }
+
+        if (log.type === 'vacated') {
+          return 'bg-orange-500 text-white';
+        }
+
+        if (['disconnection', 'occupied', 'replicator-unsubscribed', 'replicator-left'].includes(log.type)) {
+          return 'bg-red-700 text-white';
+        }
+
+        if (['api_message', 'replicator-message-published', 'replicator-message-received'].includes(log.type)) {
+          return 'bg-black text-white';
+        }
+
+        return 'bg-gray-700 text-white';
+      },
+    },
+  });
 </script>
 </body>
 </html>
