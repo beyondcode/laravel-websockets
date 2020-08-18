@@ -8,6 +8,7 @@ use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\OriginNotAllowed;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\WebSocketException;
 use BeyondCode\LaravelWebSockets\WebSockets\Messages\PusherMessageFactory;
@@ -30,6 +31,7 @@ class WebSocketHandler implements MessageComponentInterface
     {
         $this
             ->verifyAppKey($connection)
+            ->verifyOrigin($connection)
             ->limitConcurrentConnections($connection)
             ->generateSocketId($connection)
             ->establishConnection($connection);
@@ -73,6 +75,23 @@ class WebSocketHandler implements MessageComponentInterface
         }
 
         $connection->app = $app;
+
+        return $this;
+    }
+
+    protected function verifyOrigin(ConnectionInterface $connection)
+    {
+        if (! $connection->app->allowedOrigins) {
+            return $this;
+        }
+
+        $header = (string) ($connection->httpRequest->getHeader('Origin')[0] ?? null);
+
+        $origin = parse_url($header, PHP_URL_HOST) ?: $header;
+
+        if (! $header || ! in_array($origin, $connection->app->allowedOrigins)) {
+            throw new OriginNotAllowed($connection->app->key);
+        }
 
         return $this;
     }
