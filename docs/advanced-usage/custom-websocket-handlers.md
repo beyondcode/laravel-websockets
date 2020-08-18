@@ -1,6 +1,11 @@
+---
+title: Custom WebSocket Handlers
+order: 2
+---
+
 # Custom WebSocket Handlers
 
-While this package's main purpose is to make the usage of either the Pusher JavaScript client or Laravel Echo as easy as possible, you are not limited to the Pusher protocol at all. 
+While this package's main purpose is to make the usage of either the Pusher JavaScript client or Laravel Echo as easy as possible, you are not limited to the Pusher protocol at all.
 There might be situations where all you need is a simple, bare-bone, WebSocket server where you want to have full control over the incoming payload and what you want to do with it - without having "channels" in the way.
 
 You can easily create your own custom WebSocketHandler class. All you need to do is implement Ratchets `Ratchet\WebSocket\MessageComponentInterface`.
@@ -21,7 +26,7 @@ class MyCustomWebSocketHandler implements MessageComponentInterface
     {
         // TODO: Implement onOpen() method.
     }
-    
+
     public function onClose(ConnectionInterface $connection)
     {
         // TODO: Implement onClose() method.

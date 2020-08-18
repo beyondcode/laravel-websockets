@@ -14,7 +14,7 @@ In addition to logging the events to the console, you can also use a real-time d
 The default location of the WebSocket dashboard is at `/laravel-websockets`. The routes get automatically registered.
 If you want to change the URL of the dashboard, you can configure it with the `path` setting in your `config/websockets.php` file.
 
-To access the debug dashboard, you can visit the dashboard URL of your Laravel project in the browser. 
+To access the debug dashboard, you can visit the dashboard URL of your Laravel project in the browser
 Since your WebSocket server has support for multiple apps, you can select which app you want to connect to and inspect.
 
 By pressing the "Connect" button, you can establish the WebSocket connection and see all events taking place on your WebSocket server from there on in real-time.
@@ -65,6 +65,31 @@ protected function schedule(Schedule $schedule)
 {
    $schedule->command('websockets:clean')->daily();
 }
+```
+
+## Disable Statistics
+
+Each app contains an `enable_statistics` that defines wether that app generates statistics or not. The statistics are being stored for the `interval_in_seconds` seconds and then they are inserted in the database.
+
+However, to disable it entirely and void any incoming statistic, you can uncomment the following line in the config:
+
+```php
+/*
+|--------------------------------------------------------------------------
+| Statistics Logger Handler
+|--------------------------------------------------------------------------
+|
+| The Statistics Logger will, by default, handle the incoming statistics,
+| store them into an array and then store them into the database
+| on each interval.
+|
+| You can opt-in to avoid any statistics storage by setting the logger
+| to the built-in NullLogger.
+|
+*/
+
+// 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
+'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class, // use the `NullStatisticsLogger` instead
 ```
 
 ## Event Creator
