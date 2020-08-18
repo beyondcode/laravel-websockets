@@ -240,10 +240,16 @@ class StartWebSocketServer extends Command
 
         $this->buildServer();
 
-        if (! $this->option('test')) {
-            /* 🛰 Start the server 🛰  */
-            $this->server->run();
+        // For testing, just boot up the server, run it
+        // but exit after the next tick.
+        if ($this->option('test')) {
+            $this->loop->futureTick(function () {
+                $this->loop->stop();
+            });
         }
+
+        /* 🛰 Start the server 🛰  */
+        $this->server->run();
     }
 
     /**
