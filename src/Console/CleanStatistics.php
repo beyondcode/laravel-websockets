@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 
 class CleanStatistics extends Command
 {
