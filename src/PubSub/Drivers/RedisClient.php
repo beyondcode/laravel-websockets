@@ -97,7 +97,7 @@ class RedisClient extends LocalClient
      * @param  stdClass  $payload
      * @return bool
      */
-    public function publish(string $appId, string $channel, stdClass $payload): bool
+    public function publish($appId, string $channel, stdClass $payload): bool
     {
         $payload->appId = $appId;
         $payload->serverId = $this->getServerId();
@@ -123,7 +123,7 @@ class RedisClient extends LocalClient
      * @param  string  $channel
      * @return bool
      */
-    public function subscribe(string $appId, string $channel): bool
+    public function subscribe($appId, string $channel): bool
     {
         if (! isset($this->subscribedChannels["{$appId}:{$channel}"])) {
             // We're not subscribed to the channel yet, subscribe and set the count to 1
@@ -150,7 +150,7 @@ class RedisClient extends LocalClient
      * @param  string  $channel
      * @return bool
      */
-    public function unsubscribe(string $appId, string $channel): bool
+    public function unsubscribe($appId, string $channel): bool
     {
         if (! isset($this->subscribedChannels["{$appId}:{$channel}"])) {
             return false;
@@ -185,7 +185,7 @@ class RedisClient extends LocalClient
      * @param  string  $data
      * @return void
      */
-    public function joinChannel(string $appId, string $channel, string $socketId, string $data)
+    public function joinChannel($appId, string $channel, string $socketId, string $data)
     {
         $this->publishClient->__call('hset', ["{$appId}:{$channel}", $socketId, $data]);
 
@@ -207,7 +207,7 @@ class RedisClient extends LocalClient
      * @param  string  $socketId
      * @return void
      */
-    public function leaveChannel(string $appId, string $channel, string $socketId)
+    public function leaveChannel($appId, string $channel, string $socketId)
     {
         $this->publishClient->__call('hdel', ["{$appId}:{$channel}", $socketId]);
 
@@ -226,7 +226,7 @@ class RedisClient extends LocalClient
      * @param  string  $channel
      * @return PromiseInterface
      */
-    public function channelMembers(string $appId, string $channel): PromiseInterface
+    public function channelMembers($appId, string $channel): PromiseInterface
     {
         return $this->publishClient->__call('hgetall', ["{$appId}:{$channel}"])
             ->then(function ($members) {
@@ -244,7 +244,7 @@ class RedisClient extends LocalClient
      * @param  array  $channelNames
      * @return PromiseInterface
      */
-    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
+    public function channelMemberCounts($appId, array $channelNames): PromiseInterface
     {
         $this->publishClient->__call('multi', []);
 

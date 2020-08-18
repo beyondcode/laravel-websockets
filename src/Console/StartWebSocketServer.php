@@ -25,6 +25,11 @@ use React\Socket\Connector;
 
 class StartWebSocketServer extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'websockets:serve
         {--host=0.0.0.0}
         {--port=6001}
@@ -32,14 +37,39 @@ class StartWebSocketServer extends Command
         {--test : Prepare the server, but do not start it.}
     ';
 
+    /**
+     * The console command description.
+     *
+     * @var string|null
+     */
     protected $description = 'Start the Laravel WebSocket Server';
 
-    /** @var \React\EventLoop\LoopInterface */
+    /**
+     * Get the loop instance.
+     *
+     * @var \React\EventLoop\LoopInterface
+     */
     protected $loop;
 
-    /** @var int */
+    /**
+     * The Pusher server instance.
+     *
+     * @var \Ratchet\Server\IoServer
+     */
+    public $server;
+
+    /**
+     * Track the last restart.
+     *
+     * @var int
+     */
     protected $lastRestart;
 
+    /**
+     * Initialize the command.
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
@@ -47,6 +77,11 @@ class StartWebSocketServer extends Command
         $this->loop = LoopFactory::create();
     }
 
+    /**
+     * Run the command.
+     *
+     * @return void
+     */
     public function handle()
     {
         $this
@@ -56,12 +91,15 @@ class StartWebSocketServer extends Command
             ->configureConnectionLogger()
             ->configureRestartTimer()
             ->configurePubSub()
-            ->registerEchoRoutes()
-            ->registerCustomRoutes()
-            ->configurePubSubReplication()
+            ->registerRoutes()
             ->startWebSocketServer();
     }
 
+    /**
+     * Configure the statistics logger class.
+     *
+     * @return $this
+     */
     protected function configureStatisticsLogger()
     {
         $connector = new Connector($this->loop, [
@@ -87,6 +125,11 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Configure the HTTP logger class.
+     *
+     * @return $this
+     */
     protected function configureHttpLogger()
     {
         $this->laravel->singleton(HttpLogger::class, function () {
@@ -98,6 +141,11 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Configure the logger for messages.
+     *
+     * @return $this
+     */
     protected function configureMessageLogger()
     {
         $this->laravel->singleton(WebsocketsLogger::class, function () {
@@ -109,6 +157,11 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Configure the connection logger.
+     *
+     * @return $this
+     */
     protected function configureConnectionLogger()
     {
         $this->laravel->bind(ConnectionLogger::class, function () {
@@ -120,6 +173,11 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Configure the Redis PubSub handler.
+     *
+     * @return $this
+     */
     public function configureRestartTimer()
     {
         $this->lastRestart = $this->getLastRestart();
@@ -152,45 +210,6 @@ class StartWebSocketServer extends Command
             });
         }
 
-        return $this;
-    }
-
-    protected function registerEchoRoutes()
-    {
-        WebSocketsRouter::echo();
-
-        return $this;
-    }
-
-    protected function registerCustomRoutes()
-    {
-        WebSocketsRouter::customRoutes();
-
-        return $this;
-    }
-
-    protected function startWebSocketServer()
-    {
-        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
-
-        $routes = WebSocketsRouter::getRoutes();
-
-        $server = (new WebSocketServerFactory())
-            ->setLoop($this->loop)
-            ->useRoutes($routes)
-            ->setHost($this->option('host'))
-            ->setPort($this->option('port'))
-            ->setConsoleOutput($this->output)
-            ->createServer();
-
-        if (! $this->option('test')) {
-            /* 🛰 Start the server 🛰  */
-            $server->run();
-        }
-    }
-
-    protected function configurePubSubReplication()
-    {
         $this->laravel
             ->get(ReplicationInterface::class)
             ->boot($this->loop);
@@ -198,6 +217,58 @@ class StartWebSocketServer extends Command
         return $this;
     }
 
+    /**
+     * Register the routes.
+     *
+     * @return $this
+     */
+    protected function registerRoutes()
+    {
+        WebSocketsRouter::routes();
+
+        return $this;
+    }
+
+    /**
+     * Start the server.
+     *
+     * @return void
+     */
+    protected function startWebSocketServer()
+    {
+        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
+
+        $this->buildServer();
+
+        if (! $this->option('test')) {
+            /* 🛰 Start the server 🛰  */
+            $this->server->run();
+        }
+    }
+
+    /**
+     * Build the server instance.
+     *
+     * @return void
+     */
+    protected function buildServer()
+    {
+        $this->server = new WebSocketServerFactory(
+            $this->option('host'), $this->option('port')
+        );
+
+        $this->server = $this->server
+            ->setLoop($this->loop)
+            ->useRoutes(WebSocketsRouter::getRoutes())
+            ->setConsoleOutput($this->output)
+            ->createServer();
+    }
+
+    /**
+     * Create a DNS resolver for the stats manager.
+     *
+     * @return \React\Dns\Resolver\ResolverInterface
+     */
     protected function getDnsResolver(): ResolverInterface
     {
         if (! config('websockets.statistics.perform_dns_lookup')) {
@@ -214,6 +285,11 @@ class StartWebSocketServer extends Command
         );
     }
 
+    /**
+     * Get the last time the server restarted.
+     *
+     * @return int
+     */
     protected function getLastRestart()
     {
         return Cache::get('beyondcode:websockets:restart', 0);

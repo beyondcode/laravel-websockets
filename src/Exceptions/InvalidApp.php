@@ -9,16 +9,34 @@ use Facade\IgnitionContracts\Solution;
 
 class InvalidApp extends Exception implements ProvidesSolution
 {
+    /**
+     * Throw an "app not found by id" exception.
+     *
+     * @param  mixed  $appId
+     * @return \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
+     */
     public static function notFound($appId)
     {
         return new static("Could not find app for app id `{$appId}`.");
     }
 
+    /**
+     * Throw an "app id required" exception.
+     *
+     * @param  string  $name
+     * @param  mixed  $appId
+     * @return \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
+     */
     public static function valueIsRequired($name, $appId)
     {
         return new static("{$name} is required but was empty for app id `{$appId}`.");
     }
 
+    /**
+     * Provide the solution for Igniter.
+     *
+     * @return \Facade\IgnitionContracts\BaseSolution
+     */
     public function getSolution(): Solution
     {
         return BaseSolution::create('Your application id could not be found')

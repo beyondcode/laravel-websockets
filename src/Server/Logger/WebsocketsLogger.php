@@ -10,9 +10,19 @@ use Ratchet\WebSocket\MessageComponentInterface;
 
 class WebsocketsLogger extends Logger implements MessageComponentInterface
 {
-    /** @var \Ratchet\Http\HttpServerInterface */
+    /**
+     * The HTTP app instance to watch.
+     *
+     * @var \Ratchet\Http\HttpServerInterface
+     */
     protected $app;
 
+    /**
+     * Create a new instance and add the app to watch.
+     *
+     * @param  \Ratchet\MessageComponentInterface  $app
+     * @return Self
+     */
     public static function decorate(MessageComponentInterface $app): self
     {
         $logger = app(self::class);
@@ -20,6 +30,12 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         return $logger->setApp($app);
     }
 
+    /**
+     * Set a new app to watch.
+     *
+     * @param  \Ratchet\MessageComponentInterface  $app
+     * @return $this
+     */
     public function setApp(MessageComponentInterface $app)
     {
         $this->app = $app;
@@ -27,6 +43,12 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         return $this;
     }
 
+    /**
+     * Handle the HTTP open request.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function onOpen(ConnectionInterface $connection)
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
@@ -36,6 +58,13 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         $this->app->onOpen(ConnectionLogger::decorate($connection));
     }
 
+    /**
+     * Handle the HTTP message request.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \Ratchet\RFC6455\Messaging\MessageInterface  $message
+     * @return void
+     */
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
         $this->info("{$connection->app->id}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
@@ -43,6 +72,12 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         $this->app->onMessage(ConnectionLogger::decorate($connection), $message);
     }
 
+    /**
+     * Handle the HTTP close request.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function onClose(ConnectionInterface $connection)
     {
         $socketId = $connection->socketId ?? null;
@@ -52,6 +87,13 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         $this->app->onClose(ConnectionLogger::decorate($connection));
     }
 
+    /**
+     * Handle HTTP errors.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  Exception  $exception
+     * @return void
+     */
     public function onError(ConnectionInterface $connection, Exception $exception)
     {
         $exceptionClass = get_class($exception);

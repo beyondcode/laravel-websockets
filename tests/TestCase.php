@@ -18,10 +18,18 @@ use React\EventLoop\Factory as LoopFactory;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler */
+    /**
+     * A test Pusher server.
+     *
+     * @var \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler
+     */
     protected $pusherServer;
 
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
+    /**
+     * The test Channel manager.
+     *
+     * @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager
+     */
     protected $channelManager;
 
     /**
@@ -120,18 +128,33 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         }
     }
 
+    /**
+     * Get the websocket connection for a specific URL.
+     *
+     * @param  mixed  $appKey
+     * @param  array  $headers
+     * @return \BeyondCode\LaravelWebSockets\Tests\Mocks\Connection
+     */
     protected function getWebSocketConnection(string $appKey = 'TestKey', array $headers = []): Connection
     {
-        $connection = new Connection();
+        $connection = new Connection;
 
         $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
         return $connection;
     }
 
+    /**
+     * Get a connected websocket connection.
+     *
+     * @param  array  $channelsToJoin
+     * @param  string  $appKey
+     * @param  array  $headers
+     * @return \BeyondCode\LaravelWebSockets\Tests\Mocks\Connection
+     */
     protected function getConnectedWebSocketConnection(array $channelsToJoin = [], string $appKey = 'TestKey', array $headers = []): Connection
     {
-        $connection = new Connection();
+        $connection = new Connection;
 
         $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
@@ -151,6 +174,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $connection;
     }
 
+    /**
+     * Join a presence channel.
+     *
+     * @param  string  $channel
+     * @return \BeyondCode\LaravelWebSockets\Tests\Mocks\Connection
+     */
     protected function joinPresenceChannel($channel): Connection
     {
         $connection = $this->getWebSocketConnection();
@@ -180,11 +209,23 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $connection;
     }
 
+    /**
+     * Get a channel from connection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  string $channelName
+     * @return \BeyondCode\LaravelWebSockets\WebSockets\Channels\Channel|null
+     */
     protected function getChannel(ConnectionInterface $connection, string $channelName)
     {
         return $this->channelManager->findOrCreate($connection->app->id, $channelName);
     }
 
+    /**
+     * Configure the replicator clients.
+     *
+     * @return void
+     */
     protected function configurePubSub()
     {
         // Replace the publish and subscribe clients with a Mocked
@@ -202,11 +243,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 return new LocalClient;
             });
         }
-    }
-
-    protected function markTestAsPassed()
-    {
-        $this->assertTrue(true);
     }
 
     protected function runOnlyOnRedisReplication()
@@ -237,6 +273,11 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         }
     }
 
+    /**
+     * Get the subscribed client for the replication.
+     *
+     * @return ReplicationInterface
+     */
     protected function getSubscribeClient()
     {
         return $this->app
@@ -244,6 +285,11 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             ->getSubscribeClient();
     }
 
+    /**
+     * Get the publish client for the replication.
+     *
+     * @return ReplicationInterface
+     */
     protected function getPublishClient()
     {
         return $this->app

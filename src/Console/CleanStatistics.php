@@ -8,11 +8,27 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CleanStatistics extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'websockets:clean
-                            {appId? : (optional) The app id that will be cleaned.}';
+        {appId? : (optional) The app id that will be cleaned.}
+    ';
 
+    /**
+     * The console command description.
+     *
+     * @var string|null
+     */
     protected $description = 'Clean up old statistics from the websocket log.';
 
+    /**
+     * Run the command.
+     *
+     * @return void
+     */
     public function handle()
     {
         $this->comment('Cleaning WebSocket Statistics...');
@@ -23,16 +39,14 @@ class CleanStatistics extends Command
 
         $cutOffDate = Carbon::now()->subDay($maxAgeInDays)->format('Y-m-d H:i:s');
 
-        $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
+        $class = config('websockets.statistics.model');
 
-        $amountDeleted = $webSocketsStatisticsEntryModelClass::where('created_at', '<', $cutOffDate)
+        $amountDeleted = $class::where('created_at', '<', $cutOffDate)
             ->when(! is_null($appId), function (Builder $query) use ($appId) {
                 $query->where('app_id', $appId);
             })
             ->delete();
 
         $this->info("Deleted {$amountDeleted} record(s) from the WebSocket statistics.");
-
-        $this->comment('All done!');
     }
 }

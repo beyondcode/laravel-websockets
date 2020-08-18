@@ -9,15 +9,21 @@ use Pusher\Pusher;
 
 class SendMessage
 {
+    /**
+     * Send the message to the requested channel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function __invoke(Request $request)
     {
         $validated = $request->validate([
-            'appId' => ['required', new AppId()],
-            'key' => 'required',
-            'secret' => 'required',
-            'channel' => 'required',
-            'event' => 'required',
-            'data' => 'json',
+            'appId' => ['required', new AppId],
+            'key' => 'required|string',
+            'secret' => 'required|string',
+            'channel' => 'required|string',
+            'event' => 'required|string',
+            'data' => 'required|json',
         ]);
 
         $this->getPusherBroadcaster($validated)->broadcast(
@@ -29,6 +35,12 @@ class SendMessage
         return 'ok';
     }
 
+    /**
+     * Get the pusher broadcaster for the current request.
+     *
+     * @param  array  $validated
+     * @return \Illuminate\Broadcasting\Broadcasters\PusherBroadcaster
+     */
     protected function getPusherBroadcaster(array $validated): PusherBroadcaster
     {
         $pusher = new Pusher(

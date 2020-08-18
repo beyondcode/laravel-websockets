@@ -27,7 +27,7 @@ class PresenceChannel extends Channel
      * @param  string  $appId
      * @return PromiseInterface
      */
-    public function getUsers(string $appId)
+    public function getUsers($appId)
     {
         return $this->replicator->channelMembers($appId, $this->channelName);
     }
@@ -116,7 +116,7 @@ class PresenceChannel extends Channel
      * @param  string|null  $appId
      * @return PromiseInterface
      */
-    public function toArray(string $appId = null)
+    public function toArray($appId = null)
     {
         return $this->replicator
             ->channelMembers($appId, $this->channelName)

@@ -11,37 +11,75 @@ use stdClass;
 
 class Channel
 {
-    /** @var string */
+    /**
+     * The channel name.
+     *
+     * @var string
+     */
     protected $channelName;
 
-    /** @var ReplicationInterface */
+    /**
+     * The replicator client.
+     *
+     * @var ReplicationInterface
+     */
     protected $replicator;
 
-    /** @var \Ratchet\ConnectionInterface[] */
+    /**
+     * The connections that got subscribed.
+     *
+     * @var array
+     */
     protected $subscribedConnections = [];
 
+    /**
+     * Create a new instance.
+     *
+     * @param  string  $channelName
+     * @return void
+     */
     public function __construct(string $channelName)
     {
         $this->channelName = $channelName;
         $this->replicator = app(ReplicationInterface::class);
     }
 
+    /**
+     * Get the channel name.
+     *
+     * @return string
+     */
     public function getChannelName(): string
     {
         return $this->channelName;
     }
 
+    /**
+     * Check if the channel has connections.
+     *
+     * @return bool
+     */
     public function hasConnections(): bool
     {
         return count($this->subscribedConnections) > 0;
     }
 
+    /**
+     * Get all subscribed connections.
+     *
+     * @return array
+     */
     public function getSubscribedConnections(): array
     {
         return $this->subscribedConnections;
     }
 
     /**
+     * Check if the signature for the payload is valid.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \stdClass  $payload
+     * @return void
      * @throws InvalidSignature
      */
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
@@ -61,7 +99,12 @@ class Channel
     }
 
     /**
-     * @link https://pusher.com/docs/pusher_protocol#presence-channel-events
+     * Subscribe to the channel.
+     *
+     * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \stdClass  $payload
+     * @return void
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
@@ -75,6 +118,12 @@ class Channel
         $this->replicator->subscribe($connection->app->id, $this->channelName);
     }
 
+    /**
+     * Unsubscribe connection from the channel.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function unsubscribe(ConnectionInterface $connection)
     {
         unset($this->subscribedConnections[$connection->socketId]);
@@ -89,6 +138,12 @@ class Channel
         }
     }
 
+    /**
+     * Store the connection to the subscribers list.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     protected function saveConnection(ConnectionInterface $connection)
     {
         $hadConnectionsPreviously = $this->hasConnections();
@@ -107,6 +162,12 @@ class Channel
         ]);
     }
 
+    /**
+     * Broadcast a payload to the subscribed connections.
+     *
+     * @param  \stdClass  $payload
+     * @return void
+     */
     public function broadcast($payload)
     {
         foreach ($this->subscribedConnections as $connection) {
@@ -114,12 +175,30 @@ class Channel
         }
     }
 
+    /**
+     * Broadcast the payload, but exclude the current connection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \stdClass  $payload
+     * @return void
+     */
     public function broadcastToOthers(ConnectionInterface $connection, $payload)
     {
-        $this->broadcastToEveryoneExcept($payload, $connection->socketId, $connection->app->id);
+        $this->broadcastToEveryoneExcept(
+            $payload, $connection->socketId, $connection->app->id
+        );
     }
 
-    public function broadcastToEveryoneExcept($payload, ?string $socketId, string $appId, bool $publish = true)
+    /**
+     * Broadcast the payload, but exclude a specific socket id.
+     *
+     * @param  \stdClass  $payload
+     * @param  string|null  $socketId
+     * @param  mixed  $appId
+     * @param  bool  $publish
+     * @return void
+     */
+    public function broadcastToEveryoneExcept($payload, ?string $socketId, $appId, bool $publish = true)
     {
         // Also broadcast via the other websocket server instances.
         // This is set false in the Redis client because we don't want to cause a loop
@@ -145,7 +224,13 @@ class Channel
         }
     }
 
-    public function toArray(string $appId = null)
+    /**
+     * Convert the channel to array.
+     *
+     * @param  mixed  $appId
+     * @return array
+     */
+    public function toArray($appId = null)
     {
         return [
             'occupied' => count($this->subscribedConnections) > 0,

@@ -9,6 +9,14 @@ use Ratchet\RFC6455\Messaging\MessageInterface;
 
 class PusherMessageFactory
 {
+    /**
+     * Create a new message.
+     *
+     * @param  \Ratchet\RFC6455\Messaging\MessageInterface  $message
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @return PusherMessage
+     */
     public static function createForMessage(
         MessageInterface $message,
         ConnectionInterface $connection,

@@ -55,6 +55,14 @@ class DashboardLogger
         self::TYPE_REPLICATOR_MESSAGE_RECEIVED,
     ];
 
+    /**
+     * Log an event for an app.
+     *
+     * @param  mixed  $appId
+     * @param  string  $type
+     * @param  array  $details
+     * @return void
+     */
     public static function log($appId, string $type, array $details = [])
     {
         $channelName = static::LOG_CHANNEL_PREFIX.$type;

@@ -9,13 +9,16 @@ use Pusher\Pusher;
 
 class AuthenticateDashboard
 {
+    /**
+     * Find the app by using the header
+     * and then reconstruct the PusherBroadcaster
+     * using our own app selection.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function __invoke(Request $request)
     {
-        /**
-         * Find the app by using the header
-         * and then reconstruct the PusherBroadcaster
-         * using our own app selection.
-         */
         $app = App::findById($request->header('x-app-id'));
 
         $broadcaster = new PusherBroadcaster(new Pusher(
