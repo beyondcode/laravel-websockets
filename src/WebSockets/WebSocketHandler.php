@@ -19,24 +19,46 @@ use Ratchet\WebSocket\MessageComponentInterface;
 
 class WebSocketHandler implements MessageComponentInterface
 {
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
+    /**
+     * The channel manager.
+     *
+     * @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager
+     */
     protected $channelManager;
 
+    /**
+     * Initialize a new handler.
+     *
+     * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @return void
+     */
     public function __construct(ChannelManager $channelManager)
     {
         $this->channelManager = $channelManager;
     }
 
+    /**
+     * Handle the socket opening.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function onOpen(ConnectionInterface $connection)
     {
-        $this
-            ->verifyAppKey($connection)
+        $this->verifyAppKey($connection)
             ->verifyOrigin($connection)
             ->limitConcurrentConnections($connection)
             ->generateSocketId($connection)
             ->establishConnection($connection);
     }
 
+    /**
+     * Handle the incoming message.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \Ratchet\RFC6455\Messaging\MessageInterface  $message
+     * @return void
+     */
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
         $message = PusherMessageFactory::createForMessage($message, $connection, $this->channelManager);
@@ -46,6 +68,12 @@ class WebSocketHandler implements MessageComponentInterface
         StatisticsLogger::webSocketMessage($connection);
     }
 
+    /**
+     * Handle the websocket close.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function onClose(ConnectionInterface $connection)
     {
         $this->channelManager->removeFromAllChannels($connection);
@@ -57,6 +85,13 @@ class WebSocketHandler implements MessageComponentInterface
         StatisticsLogger::disconnection($connection);
     }
 
+    /**
+     * Handle the websocket errors.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  WebSocketException  $exception
+     * @return void
+     */
     public function onError(ConnectionInterface $connection, Exception $exception)
     {
         if ($exception instanceof WebSocketException) {
@@ -66,6 +101,12 @@ class WebSocketHandler implements MessageComponentInterface
         }
     }
 
+    /**
+     * Verify the app key validity.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return $this
+     */
     protected function verifyAppKey(ConnectionInterface $connection)
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
@@ -79,6 +120,12 @@ class WebSocketHandler implements MessageComponentInterface
         return $this;
     }
 
+    /**
+     * Verify the origin.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return $this
+     */
     protected function verifyOrigin(ConnectionInterface $connection)
     {
         if (! $connection->app->allowedOrigins) {
@@ -96,6 +143,12 @@ class WebSocketHandler implements MessageComponentInterface
         return $this;
     }
 
+    /**
+     * Limit the connections count by the app.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return $this
+     */
     protected function limitConcurrentConnections(ConnectionInterface $connection)
     {
         if (! is_null($capacity = $connection->app->capacity)) {
@@ -108,6 +161,12 @@ class WebSocketHandler implements MessageComponentInterface
         return $this;
     }
 
+    /**
+     * Create a socket id.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return $this
+     */
     protected function generateSocketId(ConnectionInterface $connection)
     {
         $socketId = sprintf('%d.%d', random_int(1, 1000000000), random_int(1, 1000000000));
@@ -117,6 +176,12 @@ class WebSocketHandler implements MessageComponentInterface
         return $this;
     }
 
+    /**
+     * Establish connection with the client.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return $this
+     */
     protected function establishConnection(ConnectionInterface $connection)
     {
         $connection->send(json_encode([

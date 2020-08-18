@@ -23,6 +23,11 @@ use Pusher\Pusher;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
+    /**
+     * Boot the service provider.
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->publishes([
@@ -33,8 +38,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
         ], 'migrations');
 
-        $this
-            ->registerRoutes()
+        $this->registerDashboardRoutes()
             ->registerDashboardGate();
 
         $this->loadViewsFrom(__DIR__.'/../resources/views/', 'websockets');
@@ -48,6 +52,35 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->configurePubSub();
     }
 
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
+
+        $this->app->singleton('websockets.router', function () {
+            return new Router();
+        });
+
+        $this->app->singleton(ChannelManager::class, function () {
+            $channelManager = config('websockets.managers.channel', ArrayChannelManager::class);
+
+            return new $channelManager;
+        });
+
+        $this->app->singleton(AppManager::class, function () {
+            return $this->app->make(config('websockets.managers.app'));
+        });
+    }
+
+    /**
+     * Configure the PubSub replication.
+     *
+     * @return void
+     */
     protected function configurePubSub()
     {
         $this->app->make(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
@@ -69,26 +102,12 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
     }
 
-    public function register()
-    {
-        $this->mergeConfigFrom(__DIR__.'/../config/websockets.php', 'websockets');
-
-        $this->app->singleton('websockets.router', function () {
-            return new Router();
-        });
-
-        $this->app->singleton(ChannelManager::class, function () {
-            $channelManager = config('websockets.managers.channel', ArrayChannelManager::class);
-
-            return new $channelManager;
-        });
-
-        $this->app->singleton(AppManager::class, function () {
-            return $this->app->make(config('websockets.managers.app'));
-        });
-    }
-
-    protected function registerRoutes()
+    /**
+     * Register the dashboard routes.
+     *
+     * @return void
+     */
+    protected function registerDashboardRoutes()
     {
         Route::prefix(config('websockets.dashboard.path'))->group(function () {
             Route::middleware(config('websockets.dashboard.middleware', [AuthorizeDashboard::class]))->group(function () {
@@ -106,6 +125,11 @@ class WebSocketsServiceProvider extends ServiceProvider
         return $this;
     }
 
+    /**
+     * Register the dashboard gate.
+     *
+     * @return void
+     */
     protected function registerDashboardGate()
     {
         Gate::define('viewWebSocketsDashboard', function ($user = null) {

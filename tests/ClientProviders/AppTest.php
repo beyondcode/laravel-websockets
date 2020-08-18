@@ -13,7 +13,7 @@ class AppTest extends TestCase
     {
         new App(1, 'appKey', 'appSecret');
 
-        $this->markTestAsPassed();
+        $this->assertTrue(true);
     }
 
     /** @test */

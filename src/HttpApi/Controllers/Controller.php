@@ -22,23 +22,53 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 abstract class Controller implements HttpServerInterface
 {
-    /** @var string */
+    /**
+     * The request buffer.
+     *
+     * @var string
+     */
     protected $requestBuffer = '';
 
-    /** @var RequestInterface */
+    /**
+     * The incoming request.
+     *
+     * @var \Psr\Http\Message\RequestInterface
+     */
     protected $request;
 
-    /** @var int */
+    /**
+     * The content length that will
+     * be calculated.
+     *
+     * @var int
+     */
     protected $contentLength;
 
-    /** @var ChannelManager */
+    /**
+     * The channel manager.
+     *
+     * @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager
+     */
     protected $channelManager;
 
+    /**
+     * Initialize the request.
+     *
+     * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @return void
+     */
     public function __construct(ChannelManager $channelManager)
     {
         $this->channelManager = $channelManager;
     }
 
+    /**
+     * Handle the opened socket connection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \Psr\Http\Message\RequestInterface  $request
+     * @return void
+     */
     public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
     {
         $this->request = $request;
@@ -54,13 +84,13 @@ abstract class Controller implements HttpServerInterface
         $this->handleRequest($connection);
     }
 
-    protected function findContentLength(array $headers): int
-    {
-        return Collection::make($headers)->first(function ($values, $header) {
-            return strtolower($header) === 'content-length';
-        })[0] ?? 0;
-    }
-
+    /**
+     * Handle the oncoming message and add it to buffer.
+     *
+     * @param  \Ratchet\ConnectionInterface  $from
+     * @param  mixed  $msg
+     * @return void
+     */
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $this->requestBuffer .= $msg;
@@ -72,11 +102,70 @@ abstract class Controller implements HttpServerInterface
         $this->handleRequest($from);
     }
 
+    /**
+     * Handle the socket closing.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
+    public function onClose(ConnectionInterface $connection)
+    {
+        //
+    }
+
+    /**
+     * Handle the errors.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  Exception  $exception
+     * @return void
+     */
+    public function onError(ConnectionInterface $connection, Exception $exception)
+    {
+        if (! $exception instanceof HttpException) {
+            return;
+        }
+
+        $response = new Response($exception->getStatusCode(), [
+            'Content-Type' => 'application/json',
+        ], json_encode([
+            'error' => $exception->getMessage(),
+        ]));
+
+        $connection->send(\GuzzleHttp\Psr7\str($response));
+
+        $connection->close();
+    }
+
+    /**
+     * Get the content length from the headers.
+     *
+     * @param  array  $headers
+     * @return int
+     */
+    protected function findContentLength(array $headers): int
+    {
+        return Collection::make($headers)->first(function ($values, $header) {
+            return strtolower($header) === 'content-length';
+        })[0] ?? 0;
+    }
+
+    /**
+     * Check the content length.
+     *
+     * @return bool
+     */
     protected function verifyContentLength()
     {
         return strlen($this->requestBuffer) === $this->contentLength;
     }
 
+    /**
+     * Handle the oncoming connection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     protected function handleRequest(ConnectionInterface $connection)
     {
         $serverRequest = (new ServerRequest(
@@ -108,34 +197,26 @@ abstract class Controller implements HttpServerInterface
         $this->sendAndClose($connection, $response);
     }
 
+    /**
+     * Send the response and close the connection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $response
+     * @return void
+     */
     protected function sendAndClose(ConnectionInterface $connection, $response)
     {
-        $connection->send(JsonResponse::create($response));
-        $connection->close();
+        tap($connection)->send(JsonResponse::create($response))->close();
     }
 
-    public function onClose(ConnectionInterface $connection)
-    {
-    }
-
-    public function onError(ConnectionInterface $connection, Exception $exception)
-    {
-        if (! $exception instanceof HttpException) {
-            return;
-        }
-
-        $response = new Response($exception->getStatusCode(), [
-            'Content-Type' => 'application/json',
-        ], json_encode([
-            'error' => $exception->getMessage(),
-        ]));
-
-        $connection->send(\GuzzleHttp\Psr7\str($response));
-
-        $connection->close();
-    }
-
-    public function ensureValidAppId(string $appId)
+    /**
+     * Ensure app existence.
+     *
+     * @param  mixed  $appId
+     * @return $this
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     */
+    public function ensureValidAppId($appId)
     {
         if (! App::findById($appId)) {
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
@@ -144,11 +225,18 @@ abstract class Controller implements HttpServerInterface
         return $this;
     }
 
+    /**
+     * Ensure signature integrity coming from an
+     * authorized application.
+     *
+     * @param  \GuzzleHttp\Psr7\ServerRequest  $request
+     * @return $this
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     */
     protected function ensureValidSignature(Request $request)
     {
         /*
          * The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
-         *
          * The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.
          */
         $params = Arr::except($request->query(), ['auth_signature', 'body_md5', 'appId', 'appKey', 'channelName']);
@@ -170,5 +258,11 @@ abstract class Controller implements HttpServerInterface
         return $this;
     }
 
+    /**
+     * Handle the incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
     abstract public function __invoke(Request $request);
 }

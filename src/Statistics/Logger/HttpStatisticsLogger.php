@@ -12,59 +12,93 @@ use Ratchet\ConnectionInterface;
 
 class HttpStatisticsLogger implements StatisticsLogger
 {
-    /** @var \BeyondCode\LaravelWebSockets\Statistics\Statistic[] */
+    /**
+     * The list of stored statistics.
+     *
+     * @var array
+     */
     protected $statistics = [];
 
-    /** @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager */
+    /**
+     * The Channel manager.
+     *
+     * @var \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager
+     */
     protected $channelManager;
 
-    /** @var \Clue\React\Buzz\Browser */
+    /**
+     * The Browser instance.
+     *
+     * @var \Clue\React\Buzz\Browser
+     */
     protected $browser;
 
+    /**
+     * Initialize the logger.
+     *
+     * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @param  \Clue\React\Buzz\Browser  $browser
+     * @return void
+     */
     public function __construct(ChannelManager $channelManager, Browser $browser)
     {
         $this->channelManager = $channelManager;
-
         $this->browser = $browser;
     }
 
+    /**
+     * Handle the incoming websocket message.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function webSocketMessage(ConnectionInterface $connection)
     {
-        $this
-            ->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($connection->app->id)
             ->webSocketMessage();
     }
 
+    /**
+     * Handle the incoming API message.
+     *
+     * @param  mixed  $appId
+     * @return void
+     */
     public function apiMessage($appId)
     {
-        $this
-            ->findOrMakeStatisticForAppId($appId)
+        $this->findOrMakeStatisticForAppId($appId)
             ->apiMessage();
     }
 
+    /**
+     * Handle the new conection.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function connection(ConnectionInterface $connection)
     {
-        $this
-            ->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($connection->app->id)
             ->connection();
     }
 
+    /**
+     * Handle disconnections.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
     public function disconnection(ConnectionInterface $connection)
     {
-        $this
-            ->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($connection->app->id)
             ->disconnection();
     }
 
-    protected function findOrMakeStatisticForAppId($appId): Statistic
-    {
-        if (! isset($this->statistics[$appId])) {
-            $this->statistics[$appId] = new Statistic($appId);
-        }
-
-        return $this->statistics[$appId];
-    }
-
+    /**
+     * Save all the stored statistics.
+     *
+     * @return void
+     */
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
@@ -76,8 +110,7 @@ class HttpStatisticsLogger implements StatisticsLogger
                 'secret' => App::findById($appId)->secret,
             ]);
 
-            $this
-                ->browser
+            $this->browser
                 ->post(
                     action([WebSocketStatisticsEntriesController::class, 'store']),
                     ['Content-Type' => 'application/json'],
@@ -85,7 +118,23 @@ class HttpStatisticsLogger implements StatisticsLogger
                 );
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
+
             $statistic->reset($currentConnectionCount);
         }
+    }
+
+    /**
+     * Find or create a defined statistic for an app.
+     *
+     * @param  mixed  $appId
+     * @return Statistic
+     */
+    protected function findOrMakeStatisticForAppId($appId): Statistic
+    {
+        if (! isset($this->statistics[$appId])) {
+            $this->statistics[$appId] = new Statistic($appId);
+        }
+
+        return $this->statistics[$appId];
     }
 }

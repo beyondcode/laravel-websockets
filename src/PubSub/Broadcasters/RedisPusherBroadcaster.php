@@ -46,11 +46,11 @@ class RedisPusherBroadcaster extends Broadcaster
      * Create a new broadcaster instance.
      *
      * @param  Pusher $pusher
-     * @param  string $appId
+     * @param  $appId
      * @param  \Illuminate\Contracts\Redis\Factory $redis
      * @param  string|null $connection
      */
-    public function __construct(Pusher $pusher, string $appId, Redis $redis, $connection = null)
+    public function __construct(Pusher $pusher, $appId, Redis $redis, $connection = null)
     {
         $this->pusher = $pusher;
         $this->appId = $appId;

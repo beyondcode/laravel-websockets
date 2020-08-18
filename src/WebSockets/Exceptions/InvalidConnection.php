@@ -4,10 +4,15 @@ namespace BeyondCode\LaravelWebSockets\WebSockets\Exceptions;
 
 class InvalidConnection extends WebSocketException
 {
+    /**
+     * Initialize the instance.
+     *
+     * @see    https://pusher.com/docs/pusher_protocol#error-codes
+     * @return void
+     */
     public function __construct()
     {
         $this->message = 'Invalid Connection';
-
         $this->code = 4009;
     }
 }

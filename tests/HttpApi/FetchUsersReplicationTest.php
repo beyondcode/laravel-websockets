@@ -22,7 +22,7 @@ class FetchUsersReplicationTest extends TestCase
     }
 
     /** @test */
-    public function test_invalid_signatures_can_not_access_the_api()
+    public function invalid_signatures_can_not_access_the_api()
     {
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Invalid auth signature provided.');
@@ -45,7 +45,7 @@ class FetchUsersReplicationTest extends TestCase
     }
 
     /** @test */
-    public function test_it_only_returns_data_for_presence_channels()
+    public function it_only_returns_data_for_presence_channels()
     {
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Invalid presence channel');
@@ -70,7 +70,7 @@ class FetchUsersReplicationTest extends TestCase
     }
 
     /** @test */
-    public function test_it_returns_404_for_invalid_channels()
+    public function it_returns_404_for_invalid_channels()
     {
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unknown channel');
@@ -95,7 +95,7 @@ class FetchUsersReplicationTest extends TestCase
     }
 
     /** @test */
-    public function test_it_returns_connected_user_information()
+    public function it_returns_connected_user_information()
     {
         $this->skipOnRedisReplication();
 

@@ -25,7 +25,7 @@ interface ReplicationInterface
      * @param  stdClass  $payload
      * @return bool
      */
-    public function publish(string $appId, string $channel, stdClass $payload): bool;
+    public function publish($appId, string $channel, stdClass $payload): bool;
 
     /**
      * Subscribe to receive messages for a channel.
@@ -34,7 +34,7 @@ interface ReplicationInterface
      * @param  string  $channel
      * @return bool
      */
-    public function subscribe(string $appId, string $channel): bool;
+    public function subscribe($appId, string $channel): bool;
 
     /**
      * Unsubscribe from a channel.
@@ -43,7 +43,7 @@ interface ReplicationInterface
      * @param  string  $channel
      * @return bool
      */
-    public function unsubscribe(string $appId, string $channel): bool;
+    public function unsubscribe($appId, string $channel): bool;
 
     /**
      * Add a member to a channel. To be called when they have
@@ -55,7 +55,7 @@ interface ReplicationInterface
      * @param  string  $data
      * @return void
      */
-    public function joinChannel(string $appId, string $channel, string $socketId, string $data);
+    public function joinChannel($appId, string $channel, string $socketId, string $data);
 
     /**
      * Remove a member from the channel. To be called when they have
@@ -66,7 +66,7 @@ interface ReplicationInterface
      * @param  string  $socketId
      * @return void
      */
-    public function leaveChannel(string $appId, string $channel, string $socketId);
+    public function leaveChannel($appId, string $channel, string $socketId);
 
     /**
      * Retrieve the full information about the members in a presence channel.
@@ -75,7 +75,7 @@ interface ReplicationInterface
      * @param  string  $channel
      * @return PromiseInterface
      */
-    public function channelMembers(string $appId, string $channel): PromiseInterface;
+    public function channelMembers($appId, string $channel): PromiseInterface;
 
     /**
      * Get the amount of users subscribed for each presence channel.
@@ -84,5 +84,5 @@ interface ReplicationInterface
      * @param  array  $channelNames
      * @return PromiseInterface
      */
-    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface;
+    public function channelMemberCounts($appId, array $channelNames): PromiseInterface;
 }

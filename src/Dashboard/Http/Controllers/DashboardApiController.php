@@ -4,10 +4,20 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 class DashboardApiController
 {
+    /**
+     * Get statistics for an app ID.
+     *
+     * @param  mixed  $appId
+     * @return \Illuminate\Http\Response
+     */
     public function getStatistics($appId)
     {
-        $webSocketsStatisticsEntryModelClass = config('websockets.statistics.model');
-        $statistics = $webSocketsStatisticsEntryModelClass::where('app_id', $appId)->latest()->limit(120)->get();
+        $model = config('websockets.statistics.model');
+
+        $statistics = $model::where('app_id', $appId)
+            ->latest()
+            ->limit(120)
+            ->get();
 
         $statisticData = $statistics->map(function ($statistic) {
             return [

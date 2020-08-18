@@ -25,10 +25,10 @@ interface AppManager
     public function findById($appId): ?App;
 
     /**  @return BeyondCode\LaravelWebSockets\Apps\App */
-    public function findByKey(string $appKey): ?App;
+    public function findByKey($appKey): ?App;
 
     /**  @return BeyondCode\LaravelWebSockets\Apps\App */
-    public function findBySecret(string $appSecret): ?App;
+    public function findBySecret($appSecret): ?App;
 }
 ```
 
@@ -56,12 +56,12 @@ class MyCustomAppManager implements AppManager
         return $this->normalize(Application::findById($appId)->toArray());
     }
 
-    public function findByKey(string $appKey) : ? App
+    public function findByKey($appKey) : ? App
     {
         return $this->normalize(Application::findByKey($appKey)->toArray());
     }
 
-    public function findBySecret(string $appSecret) : ? App
+    public function findBySecret($appSecret) : ? App
     {
         return $this->normalize(Application::findBySecret($appSecret)->toArray());
     }
