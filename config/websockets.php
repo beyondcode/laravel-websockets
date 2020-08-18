@@ -178,16 +178,25 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Statistics Eloquent Model
+        | Statistics Driver
         |--------------------------------------------------------------------------
         |
-        | This model will be used to store the statistics of the WebSocketsServer.
-        | The only requirement is that the model should extend
-        | `WebSocketsStatisticsEntry` provided by this package.
+        | Here you can specify which driver to use to store the statistics to.
+        | See down below for each driver's setting.
+        |
+        | Available: database
         |
         */
 
-        'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
+        'driver' => 'database',
+
+        'database' => [
+
+            'driver' => \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class,
+
+            'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
+
+        ],
 
         /*
         |--------------------------------------------------------------------------
