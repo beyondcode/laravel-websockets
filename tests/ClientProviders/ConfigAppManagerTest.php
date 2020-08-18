@@ -22,7 +22,7 @@ class ConfigAppManagerTest extends TestCase
     {
         $apps = $this->appManager->all();
 
-        $this->assertCount(1, $apps);
+        $this->assertCount(2, $apps);
 
         /** @var $app */
         $app = $apps[0];
