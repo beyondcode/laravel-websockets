@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Events;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
@@ -14,21 +14,21 @@ class StatisticsUpdated implements ShouldBroadcast
     use SerializesModels;
 
     /**
-     * The statistic instance that got updated.
+     * The statistics driver instance.
      *
-     * @var \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry
+     * @var \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
      */
-    protected $webSocketsStatisticsEntry;
+    protected $driver;
 
     /**
      * Initialize the event.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry  $webSocketsStatisticsEntry
+     * @param  \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver  $driver
      * @return void
      */
-    public function __construct(WebSocketsStatisticsEntry $webSocketsStatisticsEntry)
+    public function __construct(StatisticsDriver $driver)
     {
-        $this->webSocketsStatisticsEntry = $webSocketsStatisticsEntry;
+        $this->driver = $driver;
     }
 
     /**
@@ -39,11 +39,11 @@ class StatisticsUpdated implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'time' => (string) $this->webSocketsStatisticsEntry->created_at,
-            'app_id' => $this->webSocketsStatisticsEntry->app_id,
-            'peak_connection_count' => $this->webSocketsStatisticsEntry->peak_connection_count,
-            'websocket_message_count' => $this->webSocketsStatisticsEntry->websocket_message_count,
-            'api_message_count' => $this->webSocketsStatisticsEntry->api_message_count,
+            'time' => $this->driver->getTime(),
+            'app_id' => $this->driver->getAppId(),
+            'peak_connection_count' => $this->driver->getPeakConnectionCount(),
+            'websocket_message_count' => $this->driver->getWebsocketMessageCount(),
+            'api_message_count' => $this->driver->getApiMessageCount(),
         ];
     }
 

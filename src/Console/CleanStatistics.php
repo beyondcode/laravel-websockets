@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Console;
 
-use Carbon\Carbon;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -27,25 +27,14 @@ class CleanStatistics extends Command
     /**
      * Run the command.
      *
+     * @param  \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver  $driver
      * @return void
      */
-    public function handle()
+    public function handle(StatisticsDriver $driver)
     {
         $this->comment('Cleaning WebSocket Statistics...');
 
-        $appId = $this->argument('appId');
-
-        $maxAgeInDays = config('websockets.statistics.delete_statistics_older_than_days');
-
-        $cutOffDate = Carbon::now()->subDay($maxAgeInDays)->format('Y-m-d H:i:s');
-
-        $class = config('websockets.statistics.model');
-
-        $amountDeleted = $class::where('created_at', '<', $cutOffDate)
-            ->when(! is_null($appId), function (Builder $query) use ($appId) {
-                $query->where('app_id', $appId);
-            })
-            ->delete();
+        $amountDeleted = $driver::delete($this->argument('appId'));
 
         $this->info("Deleted {$amountDeleted} record(s) from the WebSocket statistics.");
     }

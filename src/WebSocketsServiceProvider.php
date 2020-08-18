@@ -10,6 +10,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Server\Router;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -73,6 +74,16 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->app->singleton(AppManager::class, function () {
             return $this->app->make(config('websockets.managers.app'));
+        });
+
+        $this->app->singleton(StatisticsDriver::class, function () {
+            $driver = config('websockets.statistics.driver');
+
+            return $this->app->make(
+                config('websockets.statistics')[$driver]['driver']
+                ??
+                \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
+            );
         });
     }
 

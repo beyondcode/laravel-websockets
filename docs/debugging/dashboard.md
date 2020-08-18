@@ -92,6 +92,14 @@ However, to disable it entirely and void any incoming statistic, you can uncomme
 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class, // use the `NullStatisticsLogger` instead
 ```
 
+## Custom Statistics Drivers
+
+By default, the package comes with a few drivers like the Database driver which stores the data into the database.
+
+You should add your custom drivers under the `statistics` key in `websockets.php` and create a driver class that implements the `\BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver` interface.
+
+Take a quick look at the `\BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver` driver to see how to perform your integration.
+
 ## Event Creator
 
 The dashboard also comes with an easy-to-use event creator, that lets you manually send events to your channels.
