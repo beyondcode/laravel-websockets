@@ -2,8 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Apps;
 
-use Illuminate\Support\Collection;
-
 class ConfigAppManager implements AppManager
 {
     /**

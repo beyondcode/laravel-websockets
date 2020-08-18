@@ -17,7 +17,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
      * Create a new instance and add a connection to watch.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return Self
+     * @return self
      */
     public static function decorate(ConnectionInterface $app): self
     {

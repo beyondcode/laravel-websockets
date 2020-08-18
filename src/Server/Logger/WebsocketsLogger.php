@@ -21,7 +21,7 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
      * Create a new instance and add the app to watch.
      *
      * @param  \Ratchet\MessageComponentInterface  $app
-     * @return Self
+     * @return self
      */
     public static function decorate(MessageComponentInterface $app): self
     {
