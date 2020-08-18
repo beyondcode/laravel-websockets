@@ -225,7 +225,6 @@
       chart: null,
       pusher: null,
       app: null,
-      port: {{ config('websockets.dashboard.port') }},
       apps: @json($apps),
       form: {
         channel: null,
@@ -243,8 +242,8 @@
 
         this.pusher = new Pusher(this.app.key, {
           wsHost: this.app.host === null ? window.location.hostname : this.app.host,
-          wsPort: this.port === null ? 6001 : this.port,
-          wssPort: this.port === null ? 6001 : this.port,
+          wsPort: {{ $port }},
+          wssPort: {{ $port }},
           wsPath: this.app.path === null ? '' : this.app.path,
           disableStats: true,
           authEndpoint: `${window.baseURL}/auth`,
