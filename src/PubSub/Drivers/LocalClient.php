@@ -78,7 +78,7 @@ class LocalClient implements ReplicationInterface
      */
     public function joinChannel(string $appId, string $channel, string $socketId, string $data)
     {
-        $this->channelData["$appId:$channel"][$socketId] = $data;
+        $this->channelData["{$appId}:{$channel}"][$socketId] = $data;
     }
 
     /**
@@ -92,10 +92,10 @@ class LocalClient implements ReplicationInterface
      */
     public function leaveChannel(string $appId, string $channel, string $socketId)
     {
-        unset($this->channelData["$appId:$channel"][$socketId]);
+        unset($this->channelData["{$appId}:{$channel}"][$socketId]);
 
-        if (empty($this->channelData["$appId:$channel"])) {
-            unset($this->channelData["$appId:$channel"]);
+        if (empty($this->channelData["{$appId}:{$channel}"])) {
+            unset($this->channelData["{$appId}:{$channel}"]);
         }
     }
 
@@ -108,7 +108,7 @@ class LocalClient implements ReplicationInterface
      */
     public function channelMembers(string $appId, string $channel): PromiseInterface
     {
-        $members = $this->channelData["$appId:$channel"] ?? [];
+        $members = $this->channelData["{$appId}:{$channel}"] ?? [];
 
         $members = array_map(function ($user) {
             return json_decode($user);
@@ -130,8 +130,8 @@ class LocalClient implements ReplicationInterface
 
         // Count the number of users per channel
         foreach ($channelNames as $channel) {
-            $results[$channel] = isset($this->channelData["$appId:$channel"])
-                ? count($this->channelData["$appId:$channel"])
+            $results[$channel] = isset($this->channelData["{$appId}:{$channel}"])
+                ? count($this->channelData["{$appId}:{$channel}"])
                 : 0;
         }
 

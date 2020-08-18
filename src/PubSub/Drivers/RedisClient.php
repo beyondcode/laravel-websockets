@@ -12,7 +12,7 @@ use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;
 
-class RedisClient implements ReplicationInterface
+class RedisClient extends LocalClient
 {
     /**
      * The running loop.
@@ -90,6 +90,175 @@ class RedisClient implements ReplicationInterface
     }
 
     /**
+     * Publish a message to a channel on behalf of a websocket user.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  stdClass  $payload
+     * @return bool
+     */
+    public function publish(string $appId, string $channel, stdClass $payload): bool
+    {
+        $payload->appId = $appId;
+        $payload->serverId = $this->getServerId();
+
+        $payload = json_encode($payload);
+
+        $this->publishClient->__call('publish', ["{$appId}:{$channel}", $payload]);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_PUBLISHED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'payload' => $payload,
+            'pubsub' => "{$appId}:{$channel}",
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Subscribe to a channel on behalf of websocket user.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @return bool
+     */
+    public function subscribe(string $appId, string $channel): bool
+    {
+        if (! isset($this->subscribedChannels["{$appId}:{$channel}"])) {
+            // We're not subscribed to the channel yet, subscribe and set the count to 1
+            $this->subscribeClient->__call('subscribe', ["{$appId}:{$channel}"]);
+            $this->subscribedChannels["{$appId}:{$channel}"] = 1;
+        } else {
+            // Increment the subscribe count if we've already subscribed
+            $this->subscribedChannels["{$appId}:{$channel}"]++;
+        }
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'pubsub' => "{$appId}:{$channel}",
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Unsubscribe from a channel on behalf of a websocket user.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @return bool
+     */
+    public function unsubscribe(string $appId, string $channel): bool
+    {
+        if (! isset($this->subscribedChannels["{$appId}:{$channel}"])) {
+            return false;
+        }
+
+        // Decrement the subscription count for this channel
+        $this->subscribedChannels["{$appId}:{$channel}"]--;
+
+        // If we no longer have subscriptions to that channel, unsubscribe
+        if ($this->subscribedChannels["{$appId}:{$channel}"] < 1) {
+            $this->subscribeClient->__call('unsubscribe', ["{$appId}:{$channel}"]);
+
+            unset($this->subscribedChannels["{$appId}:{$channel}"]);
+        }
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'pubsub' => "{$appId}:{$channel}",
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Add a member to a channel. To be called when they have
+     * subscribed to the channel.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @param  string  $data
+     * @return void
+     */
+    public function joinChannel(string $appId, string $channel, string $socketId, string $data)
+    {
+        $this->publishClient->__call('hset', ["{$appId}:{$channel}", $socketId, $data]);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'socketId' => $socketId,
+            'data' => $data,
+            'pubsub' => "{$appId}:{$channel}",
+        ]);
+    }
+
+    /**
+     * Remove a member from the channel. To be called when they have
+     * unsubscribed from the channel.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @param  string  $socketId
+     * @return void
+     */
+    public function leaveChannel(string $appId, string $channel, string $socketId)
+    {
+        $this->publishClient->__call('hdel', ["{$appId}:{$channel}", $socketId]);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_LEFT_CHANNEL, [
+            'channel' => $channel,
+            'serverId' => $this->getServerId(),
+            'socketId' => $socketId,
+            'pubsub' => "{$appId}:{$channel}",
+        ]);
+    }
+
+    /**
+     * Retrieve the full information about the members in a presence channel.
+     *
+     * @param  string  $appId
+     * @param  string  $channel
+     * @return PromiseInterface
+     */
+    public function channelMembers(string $appId, string $channel): PromiseInterface
+    {
+        return $this->publishClient->__call('hgetall', ["{$appId}:{$channel}"])
+            ->then(function ($members) {
+                // The data is expected as objects, so we need to JSON decode
+                return array_map(function ($user) {
+                    return json_decode($user);
+                }, $members);
+            });
+    }
+
+    /**
+     * Get the amount of users subscribed for each presence channel.
+     *
+     * @param  string  $appId
+     * @param  array  $channelNames
+     * @return PromiseInterface
+     */
+    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
+    {
+        $this->publishClient->__call('multi', []);
+
+        foreach ($channelNames as $channel) {
+            $this->publishClient->__call('hlen', ["{$appId}:{$channel}"]);
+        }
+
+        return $this->publishClient->__call('exec', [])
+            ->then(function ($data) use ($channelNames) {
+                return array_combine($channelNames, $data);
+            });
+    }
+
+    /**
      * Handle a message received from Redis on a specific channel.
      *
      * @param  string  $redisChannel
@@ -101,7 +270,7 @@ class RedisClient implements ReplicationInterface
         $payload = json_decode($payload);
 
         // Ignore messages sent by ourselves.
-        if (isset($payload->serverId) && $this->serverId === $payload->serverId) {
+        if (isset($payload->serverId) && $this->getServerId() === $payload->serverId) {
             return;
         }
 
@@ -125,6 +294,7 @@ class RedisClient implements ReplicationInterface
         }
 
         $socket = $payload->socket ?? null;
+        $serverId = $payload->serverId ?? null;
 
         // Remove fields intended for internal use from the payload.
         unset($payload->socket);
@@ -133,143 +303,15 @@ class RedisClient implements ReplicationInterface
 
         // Push the message out to connected websocket clients.
         $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
-    }
 
-    /**
-     * Subscribe to a channel on behalf of websocket user.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @return bool
-     */
-    public function subscribe(string $appId, string $channel): bool
-    {
-        if (! isset($this->subscribedChannels["$appId:$channel"])) {
-            // We're not subscribed to the channel yet, subscribe and set the count to 1
-            $this->subscribeClient->__call('subscribe', ["$appId:$channel"]);
-            $this->subscribedChannels["$appId:$channel"] = 1;
-        } else {
-            // Increment the subscribe count if we've already subscribed
-            $this->subscribedChannels["$appId:$channel"]++;
-        }
-
-        DashboardLogger::replicatorSubscribed($appId, $channel, $this->serverId);
-
-        return true;
-    }
-
-    /**
-     * Unsubscribe from a channel on behalf of a websocket user.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @return bool
-     */
-    public function unsubscribe(string $appId, string $channel): bool
-    {
-        if (! isset($this->subscribedChannels["$appId:$channel"])) {
-            return false;
-        }
-
-        // Decrement the subscription count for this channel
-        $this->subscribedChannels["$appId:$channel"]--;
-
-        // If we no longer have subscriptions to that channel, unsubscribe
-        if ($this->subscribedChannels["$appId:$channel"] < 1) {
-            $this->subscribeClient->__call('unsubscribe', ["$appId:$channel"]);
-
-            unset($this->subscribedChannels["$appId:$channel"]);
-        }
-
-        DashboardLogger::replicatorUnsubscribed($appId, $channel, $this->serverId);
-
-        return true;
-    }
-
-    /**
-     * Publish a message to a channel on behalf of a websocket user.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return bool
-     */
-    public function publish(string $appId, string $channel, stdClass $payload): bool
-    {
-        $payload->appId = $appId;
-        $payload->serverId = $this->serverId;
-
-        $this->publishClient->__call('publish', ["$appId:$channel", json_encode($payload)]);
-
-        return true;
-    }
-
-    /**
-     * Add a member to a channel. To be called when they have
-     * subscribed to the channel.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @param  string  $socketId
-     * @param  string  $data
-     * @return void
-     */
-    public function joinChannel(string $appId, string $channel, string $socketId, string $data)
-    {
-        $this->publishClient->__call('hset', ["$appId:$channel", $socketId, $data]);
-    }
-
-    /**
-     * Remove a member from the channel. To be called when they have
-     * unsubscribed from the channel.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @param  string  $socketId
-     * @return void
-     */
-    public function leaveChannel(string $appId, string $channel, string $socketId)
-    {
-        $this->publishClient->__call('hdel', ["$appId:$channel", $socketId]);
-    }
-
-    /**
-     * Retrieve the full information about the members in a presence channel.
-     *
-     * @param  string  $appId
-     * @param  string  $channel
-     * @return PromiseInterface
-     */
-    public function channelMembers(string $appId, string $channel): PromiseInterface
-    {
-        return $this->publishClient->__call('hgetall', ["$appId:$channel"])
-            ->then(function ($members) {
-                // The data is expected as objects, so we need to JSON decode
-                return array_map(function ($user) {
-                    return json_decode($user);
-                }, $members);
-            });
-    }
-
-    /**
-     * Get the amount of users subscribed for each presence channel.
-     *
-     * @param  string  $appId
-     * @param  array  $channelNames
-     * @return PromiseInterface
-     */
-    public function channelMemberCounts(string $appId, array $channelNames): PromiseInterface
-    {
-        $this->publishClient->__call('multi', []);
-
-        foreach ($channelNames as $channel) {
-            $this->publishClient->__call('hlen', ["$appId:$channel"]);
-        }
-
-        return $this->publishClient->__call('exec', [])
-            ->then(function ($data) use ($channelNames) {
-                return array_combine($channelNames, $data);
-            });
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
+            'channel' => $channel->getChannelName(),
+            'redisChannel' => $redisChannel,
+            'serverId' => $this->getServer(),
+            'incomingServerId' => $serverId,
+            'incomingSocketId' => $socket,
+            'payload' => $payload,
+        ]);
     }
 
     /**

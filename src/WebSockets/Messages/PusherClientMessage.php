@@ -38,7 +38,12 @@ class PusherClientMessage implements PusherMessage
             return;
         }
 
-        DashboardLogger::clientMessage($this->connection, $this->payload);
+        DashboardLogger::log($this->connection->app->id, DashboardLogger::TYPE_WS_MESSAGE, [
+            'socketId' => $this->connection->socketId,
+            'channel' => $this->payload->channel,
+            'event' => $this->payload->event,
+            'data' => $this->payload,
+        ]);
 
         $channel = $this->channelManager->find($this->connection->app->id, $this->payload->channel);
 
