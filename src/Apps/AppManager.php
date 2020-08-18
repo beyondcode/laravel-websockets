@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Apps;
 
 interface AppManager
 {
-     /**
+    /**
      * Get all apps.
      *
      * @return array[\BeyondCode\LaravelWebSockets\Apps\App]

@@ -14,7 +14,7 @@ class StatisticsUpdated implements ShouldBroadcast
     use SerializesModels;
 
     /**
-     * The statistic instance that got updated
+     * The statistic instance that got updated.
      *
      * @var \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry
      */
