@@ -2,10 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\PubSub;
 
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use React\EventLoop\Factory as LoopFactory;
-use BeyondCode\LaravelWebSockets\Tests\Mocks\RedisFactory;
 
 class RedisDriverTest extends TestCase
 {
