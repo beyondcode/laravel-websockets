@@ -47,6 +47,12 @@ sudo pecl install event
 
 If your are using [Laravel Forge](https://forge.laravel.com/) for the deployment [this article by Alex Bouma](https://alex.bouma.dev/installing-laravel-websockets-on-forge) might help you out.
 
+#### Deploying on Laravel Vapor
+
+Since [Laravel Vapor](https://vapor.laravel.com) runs on a serverless architecture, you will need to spin up an actual EC2 Instance that runs in the same VPC as the Lambda function to be able to make use of the WebSocket connection.
+
+The Lambda function will make sure your HTTP request gets fulfilled, then the EC2 Instance will be continuously polled through the WebSocket protocol.
+
 ## Keeping the socket server running with supervisord
 
 The `websockets:serve` daemon needs to always be running in order to accept connections. This is a prime use case for `supervisor`, a task runner on Linux.
