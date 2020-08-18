@@ -84,21 +84,10 @@ return [
             'capacity' => null,
             'enable_client_messages' => false,
             'enable_statistics' => true,
+            'allowed_origins' => [
+                //
+            ],
         ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Allowed Origins
-    |--------------------------------------------------------------------------
-    |
-    | If not empty, you can whitelist certain origins that will be allowed
-    | to connect to the websocket server.
-    |
-    */
-
-    'allowed_origins' => [
-        //
     ],
 
     /*

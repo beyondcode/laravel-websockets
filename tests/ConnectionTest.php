@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Tests;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
+use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\OriginNotAllowed;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
 
 class ConnectionTest extends TestCase
@@ -14,7 +15,7 @@ class ConnectionTest extends TestCase
     {
         $this->expectException(UnknownAppKey::class);
 
-        $this->pusherServer->onOpen($this->getWebSocketConnection('/?appKey=test'));
+        $this->pusherServer->onOpen($this->getWebSocketConnection('test'));
     }
 
     /** @test */
@@ -64,5 +65,39 @@ class ConnectionTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $connection->assertSentEvent('pusher:pong');
+    }
+
+    /** @test */
+    public function origin_validation_should_fail_for_no_origin()
+    {
+        $this->expectException(OriginNotAllowed::class);
+
+        $connection = $this->getWebSocketConnection('TestOrigin');
+
+        $this->pusherServer->onOpen($connection);
+
+        $connection->assertSentEvent('pusher:connection_established');
+    }
+
+    /** @test */
+    public function origin_validation_should_fail_for_wrong_origin()
+    {
+        $this->expectException(OriginNotAllowed::class);
+
+        $connection = $this->getWebSocketConnection('TestOrigin', ['Origin' => 'https://google.ro']);
+
+        $this->pusherServer->onOpen($connection);
+
+        $connection->assertSentEvent('pusher:connection_established');
+    }
+
+    /** @test */
+    public function origin_validation_should_pass_for_the_right_origin()
+    {
+        $connection = $this->getWebSocketConnection('TestOrigin', ['Origin' => 'https://test.origin.com']);
+
+        $this->pusherServer->onOpen($connection);
+
+        $connection->assertSentEvent('pusher:connection_established');
     }
 }

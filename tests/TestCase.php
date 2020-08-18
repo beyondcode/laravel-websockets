@@ -70,6 +70,19 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 'capacity' => null,
                 'enable_client_messages' => false,
                 'enable_statistics' => true,
+                'allowed_origins' => [],
+            ],
+            [
+                'name' => 'Origin Test App',
+                'id' => '1234',
+                'key' => 'TestOrigin',
+                'secret' => 'TestSecret',
+                'capacity' => null,
+                'enable_client_messages' => false,
+                'enable_statistics' => true,
+                'allowed_origins' => [
+                    'test.origin.com',
+                ],
             ],
         ]);
 
@@ -107,20 +120,20 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         }
     }
 
-    protected function getWebSocketConnection(string $url = '/?appKey=TestKey'): Connection
+    protected function getWebSocketConnection(string $appKey = 'TestKey', array $headers = []): Connection
     {
         $connection = new Connection();
 
-        $connection->httpRequest = new Request('GET', $url);
+        $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
         return $connection;
     }
 
-    protected function getConnectedWebSocketConnection(array $channelsToJoin = [], string $url = '/?appKey=TestKey'): Connection
+    protected function getConnectedWebSocketConnection(array $channelsToJoin = [], string $appKey = 'TestKey', array $headers = []): Connection
     {
         $connection = new Connection();
 
-        $connection->httpRequest = new Request('GET', $url);
+        $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
         $this->pusherServer->onOpen($connection);
 

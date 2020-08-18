@@ -33,6 +33,9 @@ class App
     /** @var bool */
     public $statisticsEnabled = true;
 
+    /** @var array */
+    public $allowedOrigins = [];
+
     public static function findById($appId)
     {
         return app(AppManager::class)->findById($appId);
@@ -103,6 +106,13 @@ class App
     public function enableStatistics(bool $enabled = true)
     {
         $this->statisticsEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function setAllowedOrigins(array $allowedOrigins)
+    {
+        $this->allowedOrigins = $allowedOrigins;
 
         return $this;
     }

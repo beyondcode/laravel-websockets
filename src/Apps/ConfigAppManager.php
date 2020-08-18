@@ -78,7 +78,8 @@ class ConfigAppManager implements AppManager
         $app
             ->enableClientMessages($appAttributes['enable_client_messages'])
             ->enableStatistics($appAttributes['enable_statistics'])
-            ->setCapacity($appAttributes['capacity'] ?? null);
+            ->setCapacity($appAttributes['capacity'] ?? null)
+            ->setAllowedOrigins($appAttributes['allowed_origins'] ?? []);
 
         return $app;
     }

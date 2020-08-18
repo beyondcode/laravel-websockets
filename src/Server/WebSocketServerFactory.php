@@ -79,11 +79,9 @@ class WebSocketServerFactory
             $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
         }
 
-        $urlMatcher = new UrlMatcher($this->routes, new RequestContext);
-
-        $router = new Router($urlMatcher);
-
-        $app = new OriginCheck($router, config('websockets.allowed_origins', []));
+        $app = new Router(
+            new UrlMatcher($this->routes, new RequestContext)
+        );
 
         $httpServer = new HttpServer($app, config('websockets.max_request_size_in_kb') * 1024);
 
