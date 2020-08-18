@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Drivers;
 
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use Carbon\Carbon;
 
 class DatabaseDriver implements StatisticsDriver
