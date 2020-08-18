@@ -7,14 +7,16 @@ order: 1
 
 The easiest way to get started with Laravel WebSockets is by using it as a [Pusher](https://pusher.com) replacement. The integrated WebSocket and HTTP Server has complete feature parity with the Pusher WebSocket and HTTP API. In addition to that, this package also ships with an easy to use debugging dashboard to see all incoming and outgoing WebSocket requests.
 
+To make it clear, the package does not restrict connections numbers or depend on the Pusher's service. It does comply with the Pusher protocol to make it easy to use the Pusher SDK with it.
+
 ## Requirements
 
-To make use of the Laravel WebSockets package in combination with Pusher, you first need to install the official Pusher PHP SDK. 
+To make use of the Laravel WebSockets package in combination with Pusher, you first need to install the official Pusher PHP SDK.
 
 If you are not yet familiar with the concept of Broadcasting in Laravel, please take a look at the [Laravel documentation](https://laravel.com/docs/6.0/broadcasting).
 
 ```bash
-composer require pusher/pusher-php-server "~3.0"
+composer require pusher/pusher-php-server "~4.0"
 ```
 
 Next, you should make sure to use Pusher as your broadcasting driver. This can be achieved by setting the `BROADCAST_DRIVER` environment variable in your `.env` file:
@@ -40,7 +42,7 @@ To do this, you should add the `host` and `port` configuration key to your `conf
         'encrypted' => true,
         'host' => '127.0.0.1',
         'port' => 6001,
-        'scheme' => 'http'
+        'scheme' => 'http',
     ],
 ],
 ```
@@ -68,6 +70,8 @@ You may add additional apps in your `config/websockets.php` file.
         'name' => env('APP_NAME'),
         'key' => env('PUSHER_APP_KEY'),
         'secret' => env('PUSHER_APP_SECRET'),
+        'path' => env('PUSHER_APP_PATH'),
+        'capacity' => null,
         'enable_client_messages' => false,
         'enable_statistics' => true,
     ],
@@ -113,7 +117,8 @@ window.Echo = new Echo({
     wsPort: 6001,
     forceTLS: false,
     disableStats: true,
+    enabledTransports: ['ws', 'wss'],
 });
 ```
 
-Now you can use all Laravel Echo features in combination with Laravel WebSockets, such as [Presence Channels](https://laravel.com/docs/6.0/broadcasting#presence-channels), [Notifications](https://laravel.com/docs/6.0/broadcasting#notifications) and [Client Events](https://laravel.com/docs/6.0/broadcasting#client-events).
+Now you can use all Laravel Echo features in combination with Laravel WebSockets, such as [Presence Channels](https://laravel.com/docs/7.x/broadcasting#presence-channels), [Notifications](https://laravel.com/docs/7.x/broadcasting#notifications) and [Client Events](https://laravel.com/docs/7.x/broadcasting#client-events).

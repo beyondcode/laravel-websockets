@@ -1,9 +1,9 @@
 ---
-title: ... but does it scale?
+title: Benchmarks
 order: 2
 ---
 
-# ... but does it scale?
+# Benchmarks
 
 Of course, this is not a question with an easy answer as your mileage may vary. But with the appropriate server-side configuration your WebSocket server can easily hold a **lot** of concurrent connections.
 

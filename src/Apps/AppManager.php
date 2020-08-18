@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Apps;
 
 interface AppManager
 {
-    /**  @return array[BeyondCode\LaravelWebSockets\AppProviders\App] */
+    /**  @return array[BeyondCode\LaravelWebSockets\Apps\App] */
     public function all(): array;
 
     public function findById($appId): ?App;
