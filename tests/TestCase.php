@@ -11,9 +11,7 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
-use Mockery;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
 

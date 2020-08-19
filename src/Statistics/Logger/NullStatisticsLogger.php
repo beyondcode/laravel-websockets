@@ -2,10 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
-use Ratchet\ConnectionInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Ratchet\ConnectionInterface;
 
 class NullStatisticsLogger implements StatisticsLogger
 {
