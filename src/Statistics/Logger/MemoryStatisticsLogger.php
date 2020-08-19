@@ -3,6 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
+use BeyondCode\LaravelWebSockets\Statistics\Events\StatisticsUpdated;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -27,23 +29,23 @@ class MemoryStatisticsLogger implements StatisticsLogger
     protected $channelManager;
 
     /**
-     * The Browser instance.
+     * The statistics driver instance.
      *
-     * @var \Clue\React\Buzz\Browser
+     * @var \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
      */
-    protected $browser;
+    protected $driver;
 
     /**
      * Initialize the logger.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
-     * @param  \Clue\React\Buzz\Browser  $browser
+     * @param  \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver  $driver
      * @return void
      */
-    public function __construct(ChannelManager $channelManager, Browser $browser)
+    public function __construct(ChannelManager $channelManager, StatisticsDriver $driver)
     {
         $this->channelManager = $channelManager;
-        $this->browser = $browser;
+        $this->driver = $driver;
     }
 
     /**
@@ -106,16 +108,9 @@ class MemoryStatisticsLogger implements StatisticsLogger
                 continue;
             }
 
-            $postData = array_merge($statistic->toArray(), [
-                'secret' => App::findById($appId)->secret,
-            ]);
-
-            $this->browser
-                ->post(
-                    action([WebSocketStatisticsEntriesController::class, 'store']),
-                    ['Content-Type' => 'application/json'],
-                    stream_for(json_encode($postData))
-                );
+            broadcast(new StatisticsUpdated(
+                $this->driver::create($statistic->toArray())
+            ));
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 

@@ -239,37 +239,6 @@ return [
 
         'delete_statistics_older_than_days' => 60,
 
-        /*
-        |--------------------------------------------------------------------------
-        | DNS Lookup
-        |--------------------------------------------------------------------------
-        |
-        | Use an DNS resolver to make the requests to the statistics logger
-        | default is to resolve everything to 127.0.0.1.
-        |
-        */
-
-        'perform_dns_lookup' => false,
-
-        /*
-        |--------------------------------------------------------------------------
-        | DNS Lookup TLS Settings
-        |--------------------------------------------------------------------------
-        |
-        | You can configure the DNS Lookup Connector the TLS settings.
-        | Check the available options here:
-        | https://github.com/reactphp/socket/blob/master/src/Connector.php#L29
-        |
-        */
-
-        'tls' => [
-
-            'verify_peer' => env('APP_ENV') === 'production',
-
-            'verify_peer_name' => env('APP_ENV') === 'production',
-
-        ],
-
     ],
 
 ];
