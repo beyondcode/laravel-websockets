@@ -132,9 +132,7 @@ abstract class Controller implements HttpServerInterface
             'error' => $exception->getMessage(),
         ]));
 
-        $connection->send(\GuzzleHttp\Psr7\str($response));
-
-        $connection->close();
+        tap($connection)->send(\GuzzleHttp\Psr7\str($response))->close();
     }
 
     /**
