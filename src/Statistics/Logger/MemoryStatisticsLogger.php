@@ -121,6 +121,8 @@ class MemoryStatisticsLogger implements StatisticsLogger
 
             $statistic->reset($currentConnectionCount);
         }
+
+        $this->statistics = [];
     }
 
     /**
