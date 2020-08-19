@@ -88,7 +88,7 @@ However, to disable it entirely and void any incoming statistic, you can uncomme
 |
 */
 
-// 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
+// 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class, // use the `NullStatisticsLogger` instead
 ```
 

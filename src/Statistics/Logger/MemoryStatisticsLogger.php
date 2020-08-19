@@ -10,7 +10,7 @@ use Clue\React\Buzz\Browser;
 use function GuzzleHttp\Psr7\stream_for;
 use Ratchet\ConnectionInterface;
 
-class HttpStatisticsLogger implements StatisticsLogger
+class MemoryStatisticsLogger implements StatisticsLogger
 {
     /**
      * The list of stored statistics.

@@ -33,6 +33,7 @@ class StartWebSocketServer extends Command
     protected $signature = 'websockets:serve
         {--host=0.0.0.0}
         {--port=6001}
+        {--statistics-interval= : Overwrite the statistics interval set in the config.}
         {--debug : Forces the loggers to be enabled and thereby overriding the APP_DEBUG setting.}
         {--test : Prepare the server, but do not start it.}
     ';
@@ -110,7 +111,7 @@ class StartWebSocketServer extends Command
         $browser = new Browser($this->loop, $connector);
 
         $this->laravel->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
-            $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class);
+            $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class);
 
             return new $class(
                 $this->laravel->make(ChannelManager::class),
@@ -118,7 +119,9 @@ class StartWebSocketServer extends Command
             );
         });
 
-        $this->loop->addPeriodicTimer(config('websockets.statistics.interval_in_seconds'), function () {
+        $this->loop->addPeriodicTimer($this->option('statistics-interval') ?: config('websockets.statistics.interval_in_seconds'), function () {
+            $this->line('Saving statistics...');
+
             StatisticsLogger::save();
         });
 

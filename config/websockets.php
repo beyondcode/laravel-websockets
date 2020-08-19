@@ -212,7 +212,7 @@ return [
         |
         */
 
-        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class,
+        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
         // 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class,
 
         /*
