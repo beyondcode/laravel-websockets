@@ -11,18 +11,12 @@ use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
-use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use React\Dns\Config\Config as DnsConfig;
-use React\Dns\Resolver\Factory as DnsFactory;
-use React\Dns\Resolver\ResolverInterface;
 use React\EventLoop\Factory as LoopFactory;
-use React\Socket\Connector;
 
 class StartWebSocketServer extends Command
 {

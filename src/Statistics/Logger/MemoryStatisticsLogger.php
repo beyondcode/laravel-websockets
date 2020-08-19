@@ -5,11 +5,8 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Statistics\Events\StatisticsUpdated;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
-use function GuzzleHttp\Psr7\stream_for;
 use Ratchet\ConnectionInterface;
 
 class MemoryStatisticsLogger implements StatisticsLogger
