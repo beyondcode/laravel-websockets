@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
-use BeyondCode\LaravelWebSockets\Statistics\Events\StatisticsUpdated;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Ratchet\ConnectionInterface;
@@ -105,9 +104,7 @@ class MemoryStatisticsLogger implements StatisticsLogger
                 continue;
             }
 
-            /* broadcast(new StatisticsUpdated(
-                $this->driver::create($statistic->toArray())
-            )); */
+            $this->driver::create($statistic->toArray());
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 
