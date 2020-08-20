@@ -105,9 +105,9 @@ class MemoryStatisticsLogger implements StatisticsLogger
                 continue;
             }
 
-            broadcast(new StatisticsUpdated(
+            /* broadcast(new StatisticsUpdated(
                 $this->driver::create($statistic->toArray())
-            ));
+            )); */
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 
