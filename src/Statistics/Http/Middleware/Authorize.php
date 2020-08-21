@@ -8,6 +8,11 @@ class Authorize
 {
     public function handle($request, $next)
     {
-        return is_null(App::findBySecret($request->secret)) ? abort(403) : $next($request);
+        $app = App::findBySecret($request->secret);
+        if (is_null($app) || $app->id != $request->app_id) {
+            return abort(403);
+        }
+    
+        $next($request);
     }
 }
