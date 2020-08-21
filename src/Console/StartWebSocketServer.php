@@ -11,17 +11,12 @@ use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
-use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\StatisticsLogger as StatisticsLoggerInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use React\Dns\Config\Config as DnsConfig;
-use React\Dns\Resolver\Factory as DnsFactory;
-use React\Dns\Resolver\ResolverInterface;
 use React\EventLoop\Factory as LoopFactory;
-use React\Socket\Connector;
 
 class StartWebSocketServer extends Command
 {
@@ -103,19 +98,12 @@ class StartWebSocketServer extends Command
      */
     protected function configureStatisticsLogger()
     {
-        $connector = new Connector($this->loop, [
-            'dns' => $this->getDnsResolver(),
-            'tls' => config('websockets.statistics.tls'),
-        ]);
-
-        $browser = new Browser($this->loop, $connector);
-
-        $this->laravel->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
+        $this->laravel->singleton(StatisticsLoggerInterface::class, function () {
             $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class);
 
             return new $class(
                 $this->laravel->make(ChannelManager::class),
-                $browser
+                $this->laravel->make(StatisticsDriver::class)
             );
         });
 
@@ -271,27 +259,6 @@ class StartWebSocketServer extends Command
             ->useRoutes(WebSocketsRouter::getRoutes())
             ->setConsoleOutput($this->output)
             ->createServer();
-    }
-
-    /**
-     * Create a DNS resolver for the stats manager.
-     *
-     * @return \React\Dns\Resolver\ResolverInterface
-     */
-    protected function getDnsResolver(): ResolverInterface
-    {
-        if (! config('websockets.statistics.perform_dns_lookup')) {
-            return new DnsResolver;
-        }
-
-        $dnsConfig = DnsConfig::loadSystemConfigBlocking();
-
-        return (new DnsFactory)->createCached(
-            $dnsConfig->nameservers
-                ? reset($dnsConfig->nameservers)
-                : '1.1.1.1',
-            $this->loop
-        );
     }
 
     /**

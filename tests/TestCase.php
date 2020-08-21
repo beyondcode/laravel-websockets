@@ -6,13 +6,12 @@ use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
-use Mockery;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
 
@@ -45,7 +44,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         StatisticsLogger::swap(new FakeStatisticsLogger(
             $this->channelManager,
-            Mockery::mock(Browser::class)
+            app(StatisticsDriver::class)
         ));
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
@@ -93,8 +92,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
                 ],
             ],
         ]);
-
-        $app['config']->set('websockets.statistics.perform_dns_lookup', true);
 
         $app['config']->set('database.redis.default', [
             'host' => env('REDIS_HOST', '127.0.0.1'),

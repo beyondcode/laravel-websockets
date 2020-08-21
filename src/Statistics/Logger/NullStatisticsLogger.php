@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Clue\React\Buzz\Browser;
 use Ratchet\ConnectionInterface;
 
 class NullStatisticsLogger implements StatisticsLogger
@@ -16,23 +16,23 @@ class NullStatisticsLogger implements StatisticsLogger
     protected $channelManager;
 
     /**
-     * The Browser instance.
+     * The statistics driver instance.
      *
-     * @var \Clue\React\Buzz\Browser
+     * @var \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
      */
-    protected $browser;
+    protected $driver;
 
     /**
      * Initialize the logger.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
-     * @param  \Clue\React\Buzz\Browser  $browser
+     * @param  \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver  $driver
      * @return void
      */
-    public function __construct(ChannelManager $channelManager, Browser $browser)
+    public function __construct(ChannelManager $channelManager, StatisticsDriver $driver)
     {
         $this->channelManager = $channelManager;
-        $this->browser = $browser;
+        $this->driver = $driver;
     }
 
     /**

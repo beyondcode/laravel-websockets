@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Drivers;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DatabaseDriver implements StatisticsDriver
 {
@@ -85,6 +86,46 @@ class DatabaseDriver implements StatisticsDriver
         $class = config('websockets.statistics.database.model');
 
         return new static($class::create($data));
+    }
+
+    /**
+     * Get the records to show to the dashboard.
+     *
+     * @param  mixed  $appId
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public static function get($appId, Request $request): array
+    {
+        $class = config('websockets.statistics.database.model');
+
+        $statistics = $class::whereAppId($appId)
+            ->latest()
+            ->limit(120)
+            ->get()
+            ->map(function ($statistic) {
+                return [
+                    'timestamp' => (string) $statistic->created_at,
+                    'peak_connection_count' => $statistic->peak_connection_count,
+                    'websocket_message_count' => $statistic->websocket_message_count,
+                    'api_message_count' => $statistic->api_message_count,
+                ];
+            })->reverse();
+
+        return [
+            'peak_connections' => [
+                'x' => $statistics->pluck('timestamp'),
+                'y' => $statistics->pluck('peak_connection_count'),
+            ],
+            'websocket_message_count' => [
+                'x' => $statistics->pluck('timestamp'),
+                'y' => $statistics->pluck('websocket_message_count'),
+            ],
+            'api_message_count' => [
+                'x' => $statistics->pluck('timestamp'),
+                'y' => $statistics->pluck('api_message_count'),
+            ],
+        ];
     }
 
     /**
