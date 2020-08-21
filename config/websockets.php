@@ -125,7 +125,7 @@ return [
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
 
         'verify_peer' => env('APP_ENV') === 'production',
-        
+
         'allow_self_signed' => env('APP_ENV') !== 'production',
 
     ],
