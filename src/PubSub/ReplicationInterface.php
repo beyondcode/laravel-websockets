@@ -22,10 +22,10 @@ interface ReplicationInterface
      *
      * @param  string  $appId
      * @param  string  $channel
-     * @param  stdClass  $payload
+     * @param  array  $payload
      * @return bool
      */
-    public function publish($appId, string $channel, stdClass $payload): bool;
+    public function publish($appId, string $channel, array $payload): bool;
 
     /**
      * Subscribe to receive messages for a channel.
