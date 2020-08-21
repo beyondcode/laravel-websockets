@@ -164,11 +164,11 @@ return [
 
     'replication' => [
 
-        'driver' => 'local',
+        'driver' => env('LARAVEL_WEBSOCKETS_REPLICATION_DRIVER', 'local'),
 
         'redis' => [
 
-            'connection' => 'default',
+            'connection' => env('LARAVEL_WEBSOCKETS_REPLICATION_CONNECTION', 'default'),
 
         ],
 
@@ -188,7 +188,7 @@ return [
         |
         */
 
-        'driver' => 'database',
+        'driver' => env('LARAVEL_WEBSOCKETS_STATISTICS_DRIVER', 'database'),
 
         'database' => [
 
