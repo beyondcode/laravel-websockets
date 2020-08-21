@@ -13,6 +13,6 @@ class Authorize
             return abort(403);
         }
     
-        $next($request);
+        return $next($request);
     }
 }
