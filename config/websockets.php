@@ -14,9 +14,7 @@ return [
     'dashboard' => [
 
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
-
         'path' => 'laravel-websockets',
-
         'middleware' => [
             'web',
             \BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize::class,
@@ -115,17 +113,12 @@ return [
     */
 
     'ssl' => [
-
+        
         'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT', null),
-
         'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA', null),
-
         'local_pk' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_PK', null),
-
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
-
         'verify_peer' => env('APP_ENV') === 'production',
-
         'allow_self_signed' => env('APP_ENV') !== 'production',
 
     ],
@@ -164,11 +157,11 @@ return [
 
     'replication' => [
 
-        'driver' => 'local',
+        'driver' => env('LARAVEL_WEBSOCKETS_REPLICATION_DRIVER', 'local'),
 
         'redis' => [
 
-            'connection' => 'default',
+            'connection' => env('LARAVEL_WEBSOCKETS_REPLICATION_CONNECTION', 'default'),
 
         ],
 
@@ -188,7 +181,7 @@ return [
         |
         */
 
-        'driver' => 'database',
+        'driver' => env('LARAVEL_WEBSOCKETS_STATISTICS_DRIVER', 'database'),
 
         'database' => [
 
