@@ -30,12 +30,12 @@ class RedisDriverTest extends TestCase
             ],
         ];
 
-        $payload = [
+        $payload = json_encode([
             'appId' => '1234',
             'event' => 'test',
             'data' => $channelData,
             'socket' => $connection->socketId,
-        ];
+        ]);
 
         $this->getSubscribeClient()->onMessage('1234:test-channel', $payload);
 

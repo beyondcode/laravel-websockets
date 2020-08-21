@@ -34,10 +34,10 @@ class LocalClient implements ReplicationInterface
      *
      * @param  string  $appId
      * @param  string  $channel
-     * @param  array  $payload
+     * @param  stdClass  $payload
      * @return bool
      */
-    public function publish($appId, string $channel, array $payload): bool
+    public function publish($appId, string $channel, stdClass $payload): bool
     {
         return true;
     }
