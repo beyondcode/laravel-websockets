@@ -160,12 +160,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->pusherServer->onOpen($connection);
 
         foreach ($channelsToJoin as $channel) {
-            $message = new Message(json_encode([
+            $message = new Message([
                 'event' => 'pusher:subscribe',
                 'data' => [
                     'channel' => $channel,
                 ],
-            ]));
+            ]);
 
             $this->pusherServer->onMessage($connection, $message);
         }
@@ -194,14 +194,14 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => $channel,
                 'channel_data' => json_encode($channelData),
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
