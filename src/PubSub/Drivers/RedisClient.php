@@ -265,7 +265,7 @@ class RedisClient extends LocalClient
      * @param  string  $payload
      * @return void
      */
-    protected function onMessage(string $redisChannel, string $payload)
+    public function onMessage(string $redisChannel, string $payload)
     {
         $payload = json_decode($payload);
 
