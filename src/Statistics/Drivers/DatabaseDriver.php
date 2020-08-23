@@ -92,10 +92,10 @@ class DatabaseDriver implements StatisticsDriver
      * Get the records to show to the dashboard.
      *
      * @param  mixed  $appId
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request|null  $request
      * @return array
      */
-    public static function get($appId, Request $request): array
+    public static function get($appId, ?Request $request): array
     {
         $class = config('websockets.statistics.database.model');
 
