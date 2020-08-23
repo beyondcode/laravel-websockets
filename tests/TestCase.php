@@ -32,15 +32,24 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected $channelManager;
 
     /**
+     * The used statistics driver.
+     *
+     * @var \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
+     */
+    protected $statisticsDriver;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->pusherServer = app(config('websockets.handlers.websocket'));
+        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
 
-        $this->channelManager = app(ChannelManager::class);
+        $this->channelManager = $this->app->make(ChannelManager::class);
+
+        $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
 
         StatisticsLogger::swap(new FakeStatisticsLogger(
             $this->channelManager,

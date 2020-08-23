@@ -3,6 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class StatisticsLoggerTest extends TestCase
@@ -42,5 +45,51 @@ class StatisticsLoggerTest extends TestCase
         StatisticsLogger::save();
 
         $this->assertEquals(1, StatisticsLogger::getForAppId(1234)['peak_connection_count']);
+    }
+
+    /** @test */
+    public function it_counts_connections_with_memory_logger()
+    {
+        $connection = $this->getConnectedWebSocketConnection(['channel-1']);
+
+        $logger = new MemoryStatisticsLogger(
+            $this->channelManager,
+            $this->statisticsDriver
+        );
+
+        $logger->webSocketMessage($connection->app->id);
+        $logger->apiMessage($connection->app->id);
+        $logger->connection($connection->app->id);
+        $logger->disconnection($connection->app->id);
+
+        $logger->save();
+
+        $this->assertCount(1, WebSocketsStatisticsEntry::all());
+
+        $entry = WebSocketsStatisticsEntry::first();
+
+        $this->assertEquals(1, $entry->peak_connection_count);
+        $this->assertEquals(1, $entry->websocket_message_count);
+        $this->assertEquals(1, $entry->api_message_count);
+    }
+
+    /** @test */
+    public function it_counts_connections_with_null_logger()
+    {
+        $connection = $this->getConnectedWebSocketConnection(['channel-1']);
+
+        $logger = new NullStatisticsLogger(
+            $this->channelManager,
+            $this->statisticsDriver
+        );
+
+        $logger->webSocketMessage($connection->app->id);
+        $logger->apiMessage($connection->app->id);
+        $logger->connection($connection->app->id);
+        $logger->disconnection($connection->app->id);
+
+        $logger->save();
+
+        $this->assertCount(0, WebSocketsStatisticsEntry::all());
     }
 }

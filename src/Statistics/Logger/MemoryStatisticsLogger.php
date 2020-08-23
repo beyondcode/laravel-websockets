@@ -125,4 +125,14 @@ class MemoryStatisticsLogger implements StatisticsLogger
 
         return $this->statistics[$appId];
     }
+
+    /**
+     * Get the saved statistics.
+     *
+     * @return array
+     */
+    public function getStatistics(): array
+    {
+        return $this->statistics;
+    }
 }
