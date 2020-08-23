@@ -42,4 +42,34 @@ class CleanStatisticsTest extends TestCase
 
         $this->assertCount(0, WebSocketsStatisticsEntry::where('created_at', '<', $cutOffDate)->get());
     }
+
+    /** @test */
+    public function it_can_clean_the_statistics_for_app_id_only()
+    {
+        Collection::times(60)->each(function (int $index) {
+            WebSocketsStatisticsEntry::create([
+                'app_id' => 'app_id',
+                'peak_connection_count' => 1,
+                'websocket_message_count' => 2,
+                'api_message_count' => 3,
+                'created_at' => Carbon::now()->subDays($index)->startOfDay(),
+            ]);
+        });
+
+        Collection::times(60)->each(function (int $index) {
+            WebSocketsStatisticsEntry::create([
+                'app_id' => 'app_id2',
+                'peak_connection_count' => 1,
+                'websocket_message_count' => 2,
+                'api_message_count' => 3,
+                'created_at' => Carbon::now()->subDays($index)->startOfDay(),
+            ]);
+        });
+
+        $this->assertCount(120, WebSocketsStatisticsEntry::all());
+
+        Artisan::call('websockets:clean', ['appId' => 'app_id']);
+
+        $this->assertCount(91, WebSocketsStatisticsEntry::all());
+    }
 }
