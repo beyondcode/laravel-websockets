@@ -125,8 +125,8 @@ class WebSocketsServiceProvider extends ServiceProvider
         ], function () {
             Route::get('/', ShowDashboard::class)->name('dashboard');
             Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics'])->name('statistics');
-            Route::post('auth', AuthenticateDashboard::class)->name('auth');
-            Route::post('event', SendMessage::class)->name('send');
+            Route::post('/auth', AuthenticateDashboard::class)->name('auth');
+            Route::post('/event', SendMessage::class)->name('send');
         });
 
         return $this;
@@ -140,7 +140,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerDashboardGate()
     {
         Gate::define('viewWebSocketsDashboard', function ($user = null) {
-            return $this->app->environment(['local', 'testing']);
+            return $this->app->environment('local');
         });
 
         return $this;

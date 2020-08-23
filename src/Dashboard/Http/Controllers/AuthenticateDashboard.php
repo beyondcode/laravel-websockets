@@ -3,12 +3,15 @@
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\Contracts\PushesToPusher;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 
 class AuthenticateDashboard
 {
+    use PushesToPusher;
+
     /**
      * Find the app by using the header
      * and then reconstruct the PusherBroadcaster
@@ -21,12 +24,11 @@ class AuthenticateDashboard
     {
         $app = App::findById($request->header('x-app-id'));
 
-        $broadcaster = new PusherBroadcaster(new Pusher(
-            $app->key,
-            $app->secret,
-            $app->id,
-            []
-        ));
+        $broadcaster = $this->getPusherBroadcaster([
+            'key' => $app->key,
+            'secret' => $app->secret,
+            'id' =>$app->id,
+        ]);
 
         /*
          * Since the dashboard itself is already secured by the

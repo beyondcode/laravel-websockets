@@ -4,3 +4,4 @@ vendor
 coverage
 .phpunit.result.cache
 .idea/
+database.sqlite

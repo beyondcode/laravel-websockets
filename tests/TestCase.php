@@ -46,6 +46,12 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        $this->resetDatabase();
+
+        $this->loadLaravelMigrations(['--database' => 'sqlite']);
+
+        $this->withFactories(__DIR__.'/database/factories');
+
         $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
 
         $this->channelManager = $this->app->make(ChannelManager::class);
@@ -69,6 +75,7 @@ abstract class TestCase extends BaseTestCase
     {
         return [
             \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
+            TestServiceProvider::class,
         ];
     }
 
@@ -78,6 +85,16 @@ abstract class TestCase extends BaseTestCase
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('app.key', 'wslxrEFGWY6GfGhvN9L3wH3KSRJQQpBD');
+
+        $app['config']->set('auth.providers.users.model', Models\User::class);
+
+        $app['config']->set('database.default', 'sqlite');
+
+        $app['config']->set('database.connections.sqlite', [
+            'driver'   => 'sqlite',
+            'database' => __DIR__.'/database.sqlite',
+            'prefix'   => '',
+        ]);
 
         $app['config']->set('websockets.apps', [
             [
@@ -306,5 +323,15 @@ abstract class TestCase extends BaseTestCase
         return $this->app
             ->make(ReplicationInterface::class)
             ->getPublishClient();
+    }
+
+    /**
+     * Reset the database.
+     *
+     * @return void
+     */
+    protected function resetDatabase()
+    {
+        file_put_contents(__DIR__.'/database.sqlite', null);
     }
 }
