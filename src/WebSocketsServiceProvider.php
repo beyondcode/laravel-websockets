@@ -118,13 +118,15 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     protected function registerDashboardRoutes()
     {
-        Route::prefix(config('websockets.dashboard.path'))->group(function () {
-            Route::middleware(config('websockets.dashboard.middleware', [AuthorizeDashboard::class]))->group(function () {
-                Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics']);
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
-            });
+        Route::group([
+            'prefix' => config('websockets.dashboard.path'),
+            'as' => 'laravel-websockets.',
+            'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),
+        ], function () {
+            Route::get('/', ShowDashboard::class)->name('dashboard');
+            Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics'])->name('statistics');
+            Route::post('auth', AuthenticateDashboard::class)->name('auth');
+            Route::post('event', SendMessage::class)->name('send');
         });
 
         return $this;
@@ -138,7 +140,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerDashboardGate()
     {
         Gate::define('viewWebSocketsDashboard', function ($user = null) {
-            return $this->app->environment('local');
+            return $this->app->environment(['local', 'testing']);
         });
 
         return $this;

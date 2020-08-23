@@ -45,10 +45,10 @@ class RedisPusherBroadcaster extends Broadcaster
     /**
      * Create a new broadcaster instance.
      *
-     * @param  Pusher $pusher
-     * @param  $appId
-     * @param  \Illuminate\Contracts\Redis\Factory $redis
-     * @param  string|null $connection
+     * @param  Pusher  $pusher
+     * @param  mixed  $appId
+     * @param  \Illuminate\Contracts\Redis\Factory  $redis
+     * @param  string|null  $connection
      */
     public function __construct(Pusher $pusher, $appId, Redis $redis, $connection = null)
     {
@@ -63,7 +63,6 @@ class RedisPusherBroadcaster extends Broadcaster
      *
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
-     *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     public function auth($request)
@@ -83,8 +82,8 @@ class RedisPusherBroadcaster extends Broadcaster
     /**
      * Return the valid authentication response.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  mixed $result
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $result
      * @return mixed
      * @throws \Pusher\PusherException
      */
@@ -144,7 +143,7 @@ class RedisPusherBroadcaster extends Broadcaster
         ]);
 
         foreach ($this->formatChannels($channels) as $channel) {
-            $connection->publish("{$this->appId}:$channel", $payload);
+            $connection->publish("{$this->appId}:{$channel}", $payload);
         }
     }
 }

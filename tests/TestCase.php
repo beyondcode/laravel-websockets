@@ -12,10 +12,11 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
+use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
 
-abstract class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends BaseTestCase
 {
     /**
      * A test Pusher server.
@@ -76,6 +77,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function getEnvironmentSetUp($app)
     {
+        $app['config']->set('app.key', 'wslxrEFGWY6GfGhvN9L3wH3KSRJQQpBD');
+
         $app['config']->set('websockets.apps', [
             [
                 'name' => 'Test App',
