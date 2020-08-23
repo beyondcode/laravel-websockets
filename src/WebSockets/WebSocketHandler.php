@@ -65,7 +65,7 @@ class WebSocketHandler implements MessageComponentInterface
 
         $message->respond();
 
-        StatisticsLogger::webSocketMessage($connection);
+        StatisticsLogger::webSocketMessage($connection->app->id);
     }
 
     /**
@@ -82,7 +82,7 @@ class WebSocketHandler implements MessageComponentInterface
             'socketId' => $connection->socketId,
         ]);
 
-        StatisticsLogger::disconnection($connection);
+        StatisticsLogger::disconnection($connection->app->id);
     }
 
     /**
@@ -200,7 +200,7 @@ class WebSocketHandler implements MessageComponentInterface
             'socketId' => $connection->socketId,
         ]);
 
-        StatisticsLogger::connection($connection);
+        StatisticsLogger::connection($connection->app->id);
 
         return $this;
     }

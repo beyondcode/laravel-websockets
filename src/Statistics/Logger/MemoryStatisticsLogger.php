@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Ratchet\ConnectionInterface;
 
 class MemoryStatisticsLogger implements StatisticsLogger
 {
@@ -47,12 +46,12 @@ class MemoryStatisticsLogger implements StatisticsLogger
     /**
      * Handle the incoming websocket message.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function webSocketMessage(ConnectionInterface $connection)
+    public function webSocketMessage($appId)
     {
-        $this->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($appId)
             ->webSocketMessage();
     }
 
@@ -71,24 +70,24 @@ class MemoryStatisticsLogger implements StatisticsLogger
     /**
      * Handle the new conection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function connection(ConnectionInterface $connection)
+    public function connection($appId)
     {
-        $this->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($appId)
             ->connection();
     }
 
     /**
      * Handle disconnections.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function disconnection(ConnectionInterface $connection)
+    public function disconnection($appId)
     {
-        $this->findOrMakeStatisticForAppId($connection->app->id)
+        $this->findOrMakeStatisticForAppId($appId)
             ->disconnection();
     }
 

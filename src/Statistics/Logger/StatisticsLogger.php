@@ -2,17 +2,15 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
-use Ratchet\ConnectionInterface;
-
 interface StatisticsLogger
 {
     /**
      * Handle the incoming websocket message.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function webSocketMessage(ConnectionInterface $connection);
+    public function webSocketMessage($appId);
 
     /**
      * Handle the incoming API message.
@@ -25,18 +23,18 @@ interface StatisticsLogger
     /**
      * Handle the new conection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function connection(ConnectionInterface $connection);
+    public function connection($appId);
 
     /**
      * Handle disconnections.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function disconnection(ConnectionInterface $connection);
+    public function disconnection($appId);
 
     /**
      * Save all the stored statistics.
