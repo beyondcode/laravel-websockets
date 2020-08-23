@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use BeyondCode\LaravelWebSockets\Tests\Models\User;
+use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class DashboardTest extends TestCase
 {
