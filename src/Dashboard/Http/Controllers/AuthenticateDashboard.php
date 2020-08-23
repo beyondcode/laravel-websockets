@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Contracts\PushesToPusher;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
-use Pusher\Pusher;
 
 class AuthenticateDashboard
 {
