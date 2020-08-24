@@ -26,7 +26,7 @@ trait PushesToPusher
         }
 
         return new PusherBroadcaster(
-            new Pusher($app['key'], $app['secret'], $app['id'], config('broadcasting.connections.pusher.options', [])),
+            new Pusher($app['key'], $app['secret'], $app['id'], config('broadcasting.connections.pusher.options', []))
         );
     }
 }
