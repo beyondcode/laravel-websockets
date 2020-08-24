@@ -35,10 +35,12 @@ class SendMessage
         ]);
 
         try {
+            $decodedData = @json_decode($request->data, true);
+
             $broadcaster->broadcast(
                 [$request->channel],
                 $request->event,
-                json_decode($request->data, true)
+                $decodedData ?: []
             );
         } catch (Exception $e) {
             return response()->json([
