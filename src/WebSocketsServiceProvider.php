@@ -105,8 +105,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             return new RedisPusherBroadcaster(
                 $pusher,
                 $config['app_id'],
-                $this->app->make('redis'),
-                $config['connection'] ?? null
+                $this->app->make('redis')
             );
         });
     }

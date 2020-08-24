@@ -20,8 +20,7 @@ trait PushesToPusher
             return new RedisPusherBroadcaster(
                 new Pusher($app['key'], $app['secret'], $app['id'], config('broadcasting.connections.websockets.options', [])),
                 $app['id'],
-                app('redis'),
-                config('broadcasting.connections.websockets.connection', null)
+                app('redis')
             );
         }
 

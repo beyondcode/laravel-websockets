@@ -36,26 +36,17 @@ class RedisPusherBroadcaster extends Broadcaster
     protected $redis;
 
     /**
-     * The Redis connection to use for broadcasting.
-     *
-     * @var string|null
-     */
-    protected $connection;
-
-    /**
      * Create a new broadcaster instance.
      *
      * @param  Pusher  $pusher
      * @param  mixed  $appId
      * @param  \Illuminate\Contracts\Redis\Factory  $redis
-     * @param  string|null  $connection
      */
-    public function __construct(Pusher $pusher, $appId, Redis $redis, $connection = null)
+    public function __construct(Pusher $pusher, $appId, Redis $redis)
     {
         $this->pusher = $pusher;
         $this->appId = $appId;
         $this->redis = $redis;
-        $this->connection = $connection;
     }
 
     /**
@@ -133,7 +124,9 @@ class RedisPusherBroadcaster extends Broadcaster
      */
     public function broadcast(array $channels, $event, array $payload = [])
     {
-        $connection = $this->redis->connection($this->connection);
+        $connection = $this->redis->connection(
+            config('websockets.replication.redis.connection') ?: 'default'
+        );
 
         $payload = json_encode([
             'appId' => $this->appId,
