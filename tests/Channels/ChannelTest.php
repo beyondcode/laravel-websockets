@@ -12,12 +12,12 @@ class ChannelTest extends TestCase
     {
         $connection = $this->getWebSocketConnection();
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'channel' => 'basic-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onOpen($connection);
 
@@ -37,12 +37,12 @@ class ChannelTest extends TestCase
 
         $this->assertTrue($channel->hasConnections());
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:unsubscribe',
             'data' => [
                 'channel' => 'test-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -57,7 +57,7 @@ class ChannelTest extends TestCase
 
         $connection = $this->getConnectedWebSocketConnection(['test-channel']);
 
-        $message = new Message('{"event": "client-test", "data": {}, "channel": "test-channel"}');
+        $message = new Message(['event' => 'client-test', 'data' => [], 'channel' => 'test-channel']);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -74,7 +74,7 @@ class ChannelTest extends TestCase
 
         $connection = $this->getConnectedWebSocketConnection(['test-channel']);
 
-        $message = new Message('{"event": "client-test", "data": {}, "channel": "test-channel"}');
+        $message = new Message(['event' => 'client-test', 'data' => [], 'channel' => 'test-channel']);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -137,9 +137,9 @@ class ChannelTest extends TestCase
     {
         $connection = $this->getConnectedWebSocketConnection();
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:ping',
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 

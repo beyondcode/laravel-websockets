@@ -15,13 +15,13 @@ class PresenceChannelTest extends TestCase
 
         $connection = $this->getWebSocketConnection();
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => 'invalid',
                 'channel' => 'presence-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onOpen($connection);
 
@@ -46,14 +46,14 @@ class PresenceChannelTest extends TestCase
 
         $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
                 'channel_data' => json_encode($channelData),
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -77,14 +77,14 @@ class PresenceChannelTest extends TestCase
 
         $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
                 'channel_data' => json_encode($channelData),
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -92,13 +92,13 @@ class PresenceChannelTest extends TestCase
             'channel' => 'presence-channel',
         ]);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:unsubscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
     }
@@ -118,14 +118,14 @@ class PresenceChannelTest extends TestCase
 
         $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
                 'channel_data' => json_encode($channelData),
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -150,13 +150,13 @@ class PresenceChannelTest extends TestCase
 
         $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:unsubscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 

@@ -61,10 +61,10 @@ interface StatisticsDriver
      * Get the records to show to the dashboard.
      *
      * @param  mixed  $appId
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request|null  $request
      * @return void
      */
-    public static function get($appId, Request $request);
+    public static function get($appId, ?Request $request);
 
     /**
      * Delete statistics from the store,

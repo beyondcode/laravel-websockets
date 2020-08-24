@@ -58,7 +58,7 @@ class ConnectionTest extends TestCase
     {
         $connection = $this->getWebSocketConnection();
 
-        $message = new Message('{"event": "pusher:ping"}');
+        $message = new Message(['event' => 'pusher:ping']);
 
         $this->pusherServer->onOpen($connection);
 

@@ -25,13 +25,13 @@ class PrivateChannelReplicationTest extends TestCase
 
         $connection = $this->getWebSocketConnection();
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => 'invalid',
                 'channel' => 'private-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onOpen($connection);
 
@@ -49,13 +49,13 @@ class PrivateChannelReplicationTest extends TestCase
 
         $hashedAppSecret = hash_hmac('sha256', $signature, $connection->app->secret);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => "{$connection->app->key}:{$hashedAppSecret}",
                 'channel' => 'private-channel',
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 

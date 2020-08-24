@@ -9,7 +9,7 @@ class StartWebSocketServerTest extends TestCase
     /** @test */
     public function does_not_fail_if_building_up()
     {
-        $this->artisan('websockets:serve', ['--test' => true]);
+        $this->artisan('websockets:serve', ['--test' => true, '--debug' => true]);
 
         $this->assertTrue(true);
     }

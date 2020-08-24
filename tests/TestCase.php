@@ -12,10 +12,11 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
+use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
 
-abstract class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends BaseTestCase
 {
     /**
      * A test Pusher server.
@@ -32,15 +33,30 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected $channelManager;
 
     /**
+     * The used statistics driver.
+     *
+     * @var \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
+     */
+    protected $statisticsDriver;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->pusherServer = app(config('websockets.handlers.websocket'));
+        $this->resetDatabase();
 
-        $this->channelManager = app(ChannelManager::class);
+        $this->loadLaravelMigrations(['--database' => 'sqlite']);
+
+        $this->withFactories(__DIR__.'/database/factories');
+
+        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
+
+        $this->channelManager = $this->app->make(ChannelManager::class);
+
+        $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
 
         StatisticsLogger::swap(new FakeStatisticsLogger(
             $this->channelManager,
@@ -59,6 +75,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         return [
             \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
+            TestServiceProvider::class,
         ];
     }
 
@@ -67,6 +84,18 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function getEnvironmentSetUp($app)
     {
+        $app['config']->set('app.key', 'wslxrEFGWY6GfGhvN9L3wH3KSRJQQpBD');
+
+        $app['config']->set('auth.providers.users.model', Models\User::class);
+
+        $app['config']->set('database.default', 'sqlite');
+
+        $app['config']->set('database.connections.sqlite', [
+            'driver'   => 'sqlite',
+            'database' => __DIR__.'/database.sqlite',
+            'prefix'   => '',
+        ]);
+
         $app['config']->set('websockets.apps', [
             [
                 'name' => 'Test App',
@@ -160,12 +189,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $this->pusherServer->onOpen($connection);
 
         foreach ($channelsToJoin as $channel) {
-            $message = new Message(json_encode([
+            $message = new Message([
                 'event' => 'pusher:subscribe',
                 'data' => [
                     'channel' => $channel,
                 ],
-            ]));
+            ]);
 
             $this->pusherServer->onMessage($connection, $message);
         }
@@ -194,14 +223,14 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $signature = "{$connection->socketId}:{$channel}:".json_encode($channelData);
 
-        $message = new Message(json_encode([
+        $message = new Message([
             'event' => 'pusher:subscribe',
             'data' => [
                 'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => $channel,
                 'channel_data' => json_encode($channelData),
             ],
-        ]));
+        ]);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -294,5 +323,15 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $this->app
             ->make(ReplicationInterface::class)
             ->getPublishClient();
+    }
+
+    /**
+     * Reset the database.
+     *
+     * @return void
+     */
+    protected function resetDatabase()
+    {
+        file_put_contents(__DIR__.'/database.sqlite', null);
     }
 }

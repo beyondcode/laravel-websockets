@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use Illuminate\Http\Request;
 
-class DashboardApiController
+class ShowStatistics
 {
     /**
      * Get statistics for an app ID.
@@ -15,7 +15,7 @@ class DashboardApiController
      * @param  mixed  $appId
      * @return \Illuminate\Http\Response
      */
-    public function getStatistics(Request $request, StatisticsDriver $driver, $appId)
+    public function __invoke(Request $request, StatisticsDriver $driver, $appId)
     {
         return $driver::get($appId, $request);
     }

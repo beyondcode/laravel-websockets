@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use Ratchet\ConnectionInterface;
 
 class NullStatisticsLogger implements StatisticsLogger
 {
@@ -38,10 +37,10 @@ class NullStatisticsLogger implements StatisticsLogger
     /**
      * Handle the incoming websocket message.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function webSocketMessage(ConnectionInterface $connection)
+    public function webSocketMessage($appId)
     {
         //
     }
@@ -60,10 +59,10 @@ class NullStatisticsLogger implements StatisticsLogger
     /**
      * Handle the new conection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function connection(ConnectionInterface $connection)
+    public function connection($appId)
     {
         //
     }
@@ -71,10 +70,10 @@ class NullStatisticsLogger implements StatisticsLogger
     /**
      * Handle disconnections.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  mixed  $appId
      * @return void
      */
-    public function disconnection(ConnectionInterface $connection)
+    public function disconnection($appId)
     {
         //
     }

@@ -4,9 +4,9 @@ namespace BeyondCode\LaravelWebSockets;
 
 use BeyondCode\LaravelWebSockets\Apps\AppManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
-use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\DashboardApiController;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Server\Router;
@@ -118,13 +118,15 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     protected function registerDashboardRoutes()
     {
-        Route::prefix(config('websockets.dashboard.path'))->group(function () {
-            Route::middleware(config('websockets.dashboard.middleware', [AuthorizeDashboard::class]))->group(function () {
-                Route::get('/', ShowDashboard::class);
-                Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics']);
-                Route::post('auth', AuthenticateDashboard::class);
-                Route::post('event', SendMessage::class);
-            });
+        Route::group([
+            'prefix' => config('websockets.dashboard.path'),
+            'as' => 'laravel-websockets.',
+            'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),
+        ], function () {
+            Route::get('/', ShowDashboard::class)->name('dashboard');
+            Route::get('/api/{appId}/statistics', ShowStatistics::class)->name('statistics');
+            Route::post('/auth', AuthenticateDashboard::class)->name('auth');
+            Route::post('/event', SendMessage::class)->name('event');
         });
 
         return $this;
