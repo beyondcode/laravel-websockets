@@ -182,7 +182,7 @@ class Channel
      * @param  \stdClass  $payload
      * @return void
      */
-    public function broadcastToOthers(ConnectionInterface $connection, $payload)
+    public function broadcastToOthers(ConnectionInterface $connection, stdClass $payload)
     {
         $this->broadcastToEveryoneExcept(
             $payload, $connection->socketId, $connection->app->id
@@ -198,7 +198,7 @@ class Channel
      * @param  bool  $publish
      * @return void
      */
-    public function broadcastToEveryoneExcept($payload, ?string $socketId, $appId, bool $publish = true)
+    public function broadcastToEveryoneExcept(stdClass $payload, ?string $socketId, $appId, bool $publish = true)
     {
         // Also broadcast via the other websocket server instances.
         // This is set false in the Redis client because we don't want to cause a loop

@@ -21,7 +21,7 @@ class TriggerEventController extends Controller
         foreach ($request->json()->get('channels', []) as $channelName) {
             $channel = $this->channelManager->find($request->appId, $channelName);
 
-            optional($channel)->broadcastToEveryoneExcept([
+            optional($channel)->broadcastToEveryoneExcept((object) [
                 'channel' => $channelName,
                 'event' => $request->json()->get('name'),
                 'data' => $request->json()->get('data'),
