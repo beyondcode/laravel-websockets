@@ -11,8 +11,6 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as Authoriz
 use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
-use BeyondCode\LaravelWebSockets\Statistics\Http\Middleware\Authorize as AuthorizeStatistics;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
 use Illuminate\Broadcasting\BroadcastManager;
@@ -126,10 +124,6 @@ class WebSocketsServiceProvider extends ServiceProvider
                 Route::get('/api/{appId}/statistics', [DashboardApiController::class, 'getStatistics']);
                 Route::post('auth', AuthenticateDashboard::class);
                 Route::post('event', SendMessage::class);
-            });
-
-            Route::middleware(AuthorizeStatistics::class)->group(function () {
-                Route::post('statistics', [WebSocketStatisticsEntriesController::class, 'store']);
             });
         });
 

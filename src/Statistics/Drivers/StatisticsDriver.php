@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Drivers;
 
+use Illuminate\Http\Request;
+
 interface StatisticsDriver
 {
     /**
@@ -54,6 +56,15 @@ interface StatisticsDriver
      * @return \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver
      */
     public static function create(array $data): StatisticsDriver;
+
+    /**
+     * Get the records to show to the dashboard.
+     *
+     * @param  mixed  $appId
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    public static function get($appId, Request $request);
 
     /**
      * Delete statistics from the store,

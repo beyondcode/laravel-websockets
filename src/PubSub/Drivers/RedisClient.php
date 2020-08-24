@@ -307,7 +307,7 @@ class RedisClient extends LocalClient
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
             'channel' => $channel->getChannelName(),
             'redisChannel' => $redisChannel,
-            'serverId' => $this->getServer(),
+            'serverId' => $this->getServerId(),
             'incomingServerId' => $serverId,
             'incomingSocketId' => $socket,
             'payload' => $payload,
