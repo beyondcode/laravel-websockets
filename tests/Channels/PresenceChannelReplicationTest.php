@@ -50,7 +50,7 @@ class PresenceChannelReplicationTest extends TestCase
                 $connection->socketId,
                 json_encode($channelData),
             ])
-            ->assertCalledWithArgs('hgetall', ['1234:presence-channel'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
     }
 
@@ -83,7 +83,7 @@ class PresenceChannelReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['1234:presence-channel'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
 
         $this->getPublishClient()
@@ -130,7 +130,7 @@ class PresenceChannelReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertcalledWithArgs('hgetall', ['1234:presence-channel'])
+            ->assertcalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
     }
 }

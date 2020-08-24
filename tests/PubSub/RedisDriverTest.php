@@ -44,7 +44,7 @@ class RedisDriverTest extends TestCase
 
         $this->getSubscribeClient()
             ->assertEventDispatched('message')
-            ->assertCalledWithArgs('subscribe', ['1234:test-channel'])
+            ->assertCalledWithArgs('subscribe', ['laravel_database_1234:test-channel'])
             ->assertCalledWithArgs('onMessage', [
                 '1234:test-channel', $payload,
             ]);

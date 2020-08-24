@@ -49,10 +49,10 @@ class FetchChannelsReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['1234:presence-channel'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish')
             ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['1234:presence-channel'])
+            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-channel'])
             ->assertCalled('exec');
     }
 
@@ -89,14 +89,14 @@ class FetchChannelsReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['1234:presence-global.1'])
-            ->assertCalledWithArgs('hgetall', ['1234:presence-global.2'])
-            ->assertCalledWithArgs('hgetall', ['1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])
             ->assertCalled('publish')
             ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['1234:presence-global.1'])
-            ->assertCalledWithArgs('hlen', ['1234:presence-global.2'])
-            ->assertNotCalledWithArgs('hlen', ['1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.1'])
+            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.2'])
+            ->assertNotCalledWithArgs('hlen', ['laravel_database_1234:presence-notglobal.2'])
             ->assertCalled('exec');
     }
 
@@ -134,14 +134,14 @@ class FetchChannelsReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['1234:presence-global.1'])
-            ->assertCalledWithArgs('hgetall', ['1234:presence-global.2'])
-            ->assertCalledWithArgs('hgetall', ['1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
+            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])
             ->assertCalled('publish')
             ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['1234:presence-global.1'])
-            ->assertCalledWithArgs('hlen', ['1234:presence-global.2'])
-            ->assertNotCalledWithArgs('hlen', ['1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.1'])
+            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.2'])
+            ->assertNotCalledWithArgs('hlen', ['laravel_database_1234:presence-notglobal.2'])
             ->assertCalled('exec');
     }
 
