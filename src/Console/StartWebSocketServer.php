@@ -71,6 +71,14 @@ class StartWebSocketServer extends Command
         parent::__construct();
 
         $this->loop = LoopFactory::create();
+
+        $this->loop->addPeriodicTimer(1, function () {
+            gc_collect_cycles();
+
+            $memoryInMb = round(memory_get_usage() / 1048576, 6);
+
+            $this->line("Using: {$memoryInMb} MB");
+        });
     }
 
     /**
