@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Contracts\PushesToPusher;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
+use Exception;
 use Illuminate\Http\Request;
 
 class SendMessage
@@ -33,12 +34,21 @@ class SendMessage
             'id' => $request->appId,
         ]);
 
-        $broadcaster->broadcast(
-            [$request->channel],
-            $request->event,
-            json_decode($request->data, true)
-        );
+        try {
+            $broadcaster->broadcast(
+                [$request->channel],
+                $request->event,
+                json_decode($request->data, true)
+            );
+        } catch (Exception $e) {
+            return response()->json([
+                'ok' => false,
+                'exception' => $e->getMessage(),
+            ]);
+        }
 
-        return 'ok';
+        return response()->json([
+            'ok' => true,
+        ]);
     }
 }
