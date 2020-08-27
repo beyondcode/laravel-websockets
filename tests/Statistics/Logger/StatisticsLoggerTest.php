@@ -97,6 +97,8 @@ class StatisticsLoggerTest extends TestCase
     /** @test */
     public function it_counts_connections_with_redis_logger_with_no_data()
     {
+        config(['cache.default' => 'redis']);
+
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
         $logger = new RedisStatisticsLogger(
@@ -125,6 +127,8 @@ class StatisticsLoggerTest extends TestCase
     /** @test */
     public function it_counts_connections_with_redis_logger_with_existing_data()
     {
+        config(['cache.default' => 'redis']);
+
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
         $logger = new RedisStatisticsLogger(
