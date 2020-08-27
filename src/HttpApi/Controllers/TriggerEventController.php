@@ -29,15 +29,19 @@ class TriggerEventController extends Controller
                 'data' => $request->data,
             ];
 
-            optional($channel)->broadcastToEveryoneExcept($payload, $request->socket_id, $request->appId);
+            if ($channel) {
+                $channel->broadcastToEveryoneExcept(
+                    $payload, $request->socket_id, $request->appId
+                );
+            } else {
+                // If the setup is horizontally-scaled using the Redis Pub/Sub,
+                // then we're going to make sure it gets streamed to the other
+                // servers as well that are subscribed to the Pub/Sub topics
+                // attached to the current iterated app & channel.
+                // For local setups, the local driver will ignore the publishes.
 
-            // If the setup is horizontally-scaled using the Redis Pub/Sub,
-            // then we're going to make sure it gets streamed to the other
-            // servers as well that are subscribed to the Pub/Sub topics
-            // attached to the current iterated app & channel.
-            // For local setups, the local driver will ignore the publishes.
-
-            $this->replicator->publish($request->appId, $channelName, $payload);
+                $this->replicator->publish($request->appId, $channelName, $payload);
+            }
 
             DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
                 'channel' => $channelName,
