@@ -75,9 +75,9 @@ When broadcasting events from your Laravel application to the WebSocket server, 
     'options' => [
         'cluster' => env('PUSHER_APP_CLUSTER'),
         'encrypted' => true,
-        'host' => '127.0.0.1',
-        'port' => 6001,
-        'scheme' => 'https',
+        'host' => env('PUSHER_APP_HOST', '127.0.0.1'),
+        'port' => env('PUSHER_APP_PORT', 6001),
+        'scheme' => env('PUSHER_APP_SCHEME', 'http'),
     ],
 ],
 ```
@@ -124,13 +124,13 @@ You also need to disable SSL verification.
     'options' => [
         'cluster' => env('PUSHER_APP_CLUSTER'),
         'encrypted' => true,
-        'host' => '127.0.0.1',
-        'port' => 6001,
-        'scheme' => 'https',
+        'host' => env('PUSHER_APP_HOST', '127.0.0.1'),
+        'port' => env('PUSHER_APP_PORT', 6001),
+        'scheme' => env('PUSHER_APP_SCHEME', 'http'),
         'curl_options' => [
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
-        ]
+        ],
     ],
 ],
 ```
@@ -199,7 +199,7 @@ server {
   location / {
     try_files /nonexistent @$type;
   }
-  
+
   location @web {
     try_files $uri $uri/ /index.php?$query_string;
   }
@@ -283,7 +283,7 @@ socket.yourapp.tld {
         transparent
         websocket
     }
-    
+
     tls youremail.com
 }
 ```
