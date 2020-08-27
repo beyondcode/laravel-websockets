@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use Illuminate\Cache\RedisLock;
 use Illuminate\Support\Facades\Cache;
 
 class RedisStatisticsLogger implements StatisticsLogger
@@ -115,24 +116,26 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     public function save()
     {
-        foreach ($this->redis->smembers('laravel-websockets:apps') as $appId) {
-            if (! $statistic = $this->redis->hgetall($this->getHash($appId))) {
-                continue;
+        $this->lock()->get(function () {
+            foreach ($this->redis->smembers('laravel-websockets:apps') as $appId) {
+                if (! $statistic = $this->redis->hgetall($this->getHash($appId))) {
+                    continue;
+                }
+
+                $this->driver::create([
+                    'app_id' => $appId,
+                    'peak_connection_count' => $statistic['peak_connection_count'] ?? 0,
+                    'websocket_message_count' => $statistic['websocket_message_count'] ?? 0,
+                    'api_message_count' => $statistic['api_message_count'] ?? 0,
+                ]);
+
+                $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
+
+                $currentConnectionCount === 0
+                    ? $this->resetAppTraces($appId)
+                    : $this->resetStatistics($appId, $currentConnectionCount);
             }
-
-            $this->driver::create([
-                'app_id' => $appId,
-                'peak_connection_count' => $statistic['peak_connection_count'] ?? 0,
-                'websocket_message_count' => $statistic['websocket_message_count'] ?? 0,
-                'api_message_count' => $statistic['api_message_count'] ?? 0,
-            ]);
-
-            $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
-
-            $currentConnectionCount === 0
-                ? $this->resetAppTraces($appId)
-                : $this->resetStatistics($appId, $currentConnectionCount);
-        }
+        });
     }
 
     /**
@@ -189,5 +192,15 @@ class RedisStatisticsLogger implements StatisticsLogger
     protected function getHash($appId): string
     {
         return "laravel-websockets:app:{$appId}";
+    }
+
+    /**
+     * Get a new RedisLock instance to avoid race conditions.
+     *
+     * @return \Illuminate\Cache\CacheLock
+     */
+    protected function lock()
+    {
+        return new RedisLock($this->redis, 'laravel-websockets:lock', 0);
     }
 }
