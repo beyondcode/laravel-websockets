@@ -48,9 +48,6 @@ class SendMessageTest extends TestCase
                 'channel' => 'test-channel',
                 'event' => 'some-event',
                 'data' => json_encode(['data' => 'yes']),
-            ])
-            ->seeJson([
-                'ok' => true,
             ]);
     }
 

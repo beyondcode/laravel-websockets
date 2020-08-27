@@ -405,13 +405,7 @@
 
           axios
             .post('/event', payload)
-            .then(() => {
-              this.form = {
-                channel: null,
-                event: null,
-                data: null,
-              };
-            })
+            .then(() => {})
             .catch(err => {
               alert('Error sending event.');
             })

@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Exception;
@@ -52,14 +53,23 @@ abstract class Controller implements HttpServerInterface
     protected $channelManager;
 
     /**
+     * The replicator driver.
+     *
+     * @var \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * Initialize the request.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @param  \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface  $replicator
      * @return void
      */
-    public function __construct(ChannelManager $channelManager)
+    public function __construct(ChannelManager $channelManager, ReplicationInterface $replicator)
     {
         $this->channelManager = $channelManager;
+        $this->replicator = $replicator;
     }
 
     /**

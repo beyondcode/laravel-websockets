@@ -2,8 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -13,27 +11,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelsController extends Controller
 {
-    /**
-     * The replicator driver.
-     *
-     * @var \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface
-     */
-    protected $replicator;
-
-    /**
-     * Initialize the class.
-     *
-     * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
-     * @param  \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface  $replicator
-     * @return void
-     */
-    public function __construct(ChannelManager $channelManager, ReplicationInterface $replicator)
-    {
-        parent::__construct($channelManager);
-
-        $this->replicator = $replicator;
-    }
-
     /**
      * Handle the incoming request.
      *
