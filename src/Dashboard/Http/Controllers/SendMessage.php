@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\Contracts\PushesToPusher;
+use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
 use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
 use Exception;
 use Illuminate\Http\Request;

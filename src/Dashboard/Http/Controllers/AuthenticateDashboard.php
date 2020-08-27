@@ -3,7 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Contracts\PushesToPusher;
+use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
 
