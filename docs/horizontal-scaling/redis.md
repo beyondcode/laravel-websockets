@@ -34,4 +34,3 @@ You can set the connection name to the Redis database under `redis`:
 ```
 
 The connections can be found in your `config/database.php` file, under the `redis` key. It defaults to connection `default`.
-
