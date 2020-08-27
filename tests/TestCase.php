@@ -137,7 +137,7 @@ abstract class TestCase extends BaseTestCase
 
         $app['config']->set(
             'broadcasting.connections.websockets', [
-                'driver' => 'websockets',
+                'driver' => 'pusher',
                 'key' => 'TestKey',
                 'secret' => 'TestSecret',
                 'app_id' => '1234',
@@ -152,7 +152,7 @@ abstract class TestCase extends BaseTestCase
         );
 
         if (in_array($replicationDriver, ['redis'])) {
-            $app['config']->set('broadcasting.default', 'websockets');
+            $app['config']->set('broadcasting.default', 'pusher');
         }
     }
 

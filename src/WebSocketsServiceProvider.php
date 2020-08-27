@@ -8,7 +8,6 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
-use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
@@ -47,8 +46,6 @@ class WebSocketsServiceProvider extends ServiceProvider
             Console\CleanStatistics::class,
             Console\RestartWebSocketServer::class,
         ]);
-
-        $this->configurePubSub();
     }
 
     /**
@@ -81,31 +78,6 @@ class WebSocketsServiceProvider extends ServiceProvider
                 config('websockets.statistics')[$driver]['driver']
                 ??
                 \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
-            );
-        });
-    }
-
-    /**
-     * Configure the PubSub replication.
-     *
-     * @return void
-     */
-    protected function configurePubSub()
-    {
-        $this->app->make(BroadcastManager::class)->extend('websockets', function ($app, array $config) {
-            $pusher = new Pusher(
-                $config['key'], $config['secret'],
-                $config['app_id'], $config['options'] ?? []
-            );
-
-            if ($config['log'] ?? false) {
-                $pusher->setLogger($this->app->make(LoggerInterface::class));
-            }
-
-            return new RedisPusherBroadcaster(
-                $pusher,
-                $config['app_id'],
-                $this->app->make('redis')
             );
         });
     }

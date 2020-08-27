@@ -37,7 +37,7 @@ class RedisDriverTest extends TestCase
             'appId' => '1234',
             'event' => 'test',
             'data' => $channelData,
-            'socket' => $connection->socketId,
+            'socketId' => $connection->socketId,
         ]);
 
         $this->getSubscribeClient()->onMessage('1234:test-channel', $payload);
@@ -68,7 +68,7 @@ class RedisDriverTest extends TestCase
             'appId' => '1234',
             'event' => 'test',
             'data' => $channelData,
-            'socket' => $connection->socketId,
+            'socketId' => $connection->socketId,
         ]);
 
         $client = (new RedisClient)->boot(

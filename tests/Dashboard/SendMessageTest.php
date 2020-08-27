@@ -50,7 +50,8 @@ class SendMessageTest extends TestCase
                 'data' => json_encode(['data' => 'yes']),
             ])
             ->seeJson([
-                'ok' => true,
+                'exception' => 'Failed to connect to Pusher.',
+                'ok' => false,
             ]);
     }
 

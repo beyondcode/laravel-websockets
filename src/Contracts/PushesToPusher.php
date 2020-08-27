@@ -16,16 +16,13 @@ trait PushesToPusher
      */
     public function getPusherBroadcaster(array $app)
     {
-        if (config('websockets.replication.driver') === 'redis') {
-            return new RedisPusherBroadcaster(
-                new Pusher($app['key'], $app['secret'], $app['id'], config('broadcasting.connections.websockets.options', [])),
-                $app['id'],
-                app('redis')
-            );
-        }
-
         return new PusherBroadcaster(
-            new Pusher($app['key'], $app['secret'], $app['id'], config('broadcasting.connections.pusher.options', []))
+            new Pusher(
+                $app['key'],
+                $app['secret'],
+                $app['id'],
+                config('broadcasting.connections.pusher.options', [])
+            )
         );
     }
 }

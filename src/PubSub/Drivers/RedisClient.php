@@ -293,23 +293,23 @@ class RedisClient extends LocalClient
             return;
         }
 
-        $socket = $payload->socket ?? null;
+        $socketId = $payload->socketId ?? null;
         $serverId = $payload->serverId ?? null;
 
         // Remove fields intended for internal use from the payload.
-        unset($payload->socket);
+        unset($payload->socketId);
         unset($payload->serverId);
         unset($payload->appId);
 
         // Push the message out to connected websocket clients.
-        $channel->broadcastToEveryoneExcept($payload, $socket, $appId, false);
+        $channel->broadcastToEveryoneExcept($payload, $socketId, $appId, false);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
             'channel' => $channel->getChannelName(),
             'redisChannel' => $redisChannel,
             'serverId' => $this->getServerId(),
             'incomingServerId' => $serverId,
-            'incomingSocketId' => $socket,
+            'incomingSocketId' => $socketId,
             'payload' => $payload,
         ]);
     }

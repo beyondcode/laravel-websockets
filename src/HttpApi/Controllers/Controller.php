@@ -19,6 +19,7 @@ use Ratchet\Http\HttpServerInterface;
 use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
 abstract class Controller implements HttpServerInterface
 {
@@ -52,14 +53,23 @@ abstract class Controller implements HttpServerInterface
     protected $channelManager;
 
     /**
+     * The replicator driver.
+     *
+     * @var \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * Initialize the request.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
+     * @param  \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface  $replicator
      * @return void
      */
-    public function __construct(ChannelManager $channelManager)
+    public function __construct(ChannelManager $channelManager, ReplicationInterface $replicator)
     {
         $this->channelManager = $channelManager;
+        $this->replicator = $replicator;
     }
 
     /**

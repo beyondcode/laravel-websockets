@@ -27,43 +27,8 @@ To enable the replication, simply change the `replication.driver` name in the `w
 ],
 ```
 
+Now, when your app broadcasts the message, it will make sure the connection reaches other servers which are under the same load balancer.
+
 The available drivers for replication are:
 
 - [Redis](redis)
-
-## Configure the Broadcasting driver
-
-Laravel WebSockets comes with an additional `websockets` broadcaster driver that accepts configurations like the Pusher driver, but will make sure the broadcasting will work across all websocket servers:
-
-```php
-'connections' => [
-    'pusher' => [
-        ...
-    ],
-
-    'websockets' => [
-        'driver' => 'websockets',
-        'key' => env('PUSHER_APP_KEY'),
-        'secret' => env('PUSHER_APP_SECRET'),
-        'app_id' => env('PUSHER_APP_ID'),
-        'options' => [
-            'cluster' => env('PUSHER_APP_CLUSTER'),
-            'encrypted' => true,
-            'host' => env('PUSHER_APP_HOST', '127.0.0.1'),
-            'port' => env('PUSHER_APP_PORT', 6001),
-            'scheme' => env('PUSHER_APP_SCHEME', 'http'),
-            'curl_options' => [
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-            ],
-        ],
-    ],
-```
-
-Make sure to change the `BROADCAST_DRIVER`:
-
-```
-BROADCAST_DRIVER=websockets
-```
-
-Now, when your app broadcasts the message, it will make sure the connection reaches other servers which are under the same load balancer.
