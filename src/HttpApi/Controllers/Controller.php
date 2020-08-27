@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Exception;
@@ -19,7 +20,6 @@ use Ratchet\Http\HttpServerInterface;
 use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 
 abstract class Controller implements HttpServerInterface
 {
