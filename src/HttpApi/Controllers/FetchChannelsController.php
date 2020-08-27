@@ -2,8 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\HttpApi\Controllers;
 
-use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;

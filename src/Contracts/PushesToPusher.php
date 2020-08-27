@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use BeyondCode\LaravelWebSockets\PubSub\Broadcasters\RedisPusherBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Pusher\Pusher;
 

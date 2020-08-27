@@ -12,12 +12,9 @@ use BeyondCode\LaravelWebSockets\Server\Router;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager;
-use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Psr\Log\LoggerInterface;
-use Pusher\Pusher;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
