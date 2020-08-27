@@ -9,7 +9,7 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeMemoryStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
 use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
@@ -58,7 +58,7 @@ abstract class TestCase extends BaseTestCase
 
         $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
 
-        StatisticsLogger::swap(new FakeStatisticsLogger(
+        StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
             $this->channelManager,
             app(StatisticsDriver::class)
         ));

@@ -1,10 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Logger;
+namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
 use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
 
-class FakeStatisticsLogger extends MemoryStatisticsLogger
+class FakeMemoryStatisticsLogger extends MemoryStatisticsLogger
 {
     /**
      * {@inheritdoc}
