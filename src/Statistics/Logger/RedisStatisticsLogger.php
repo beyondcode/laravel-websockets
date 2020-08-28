@@ -83,7 +83,7 @@ class RedisStatisticsLogger implements StatisticsLogger
         $currentPeakConnectionCount = $this->redis->hget($this->getHash($appId), 'peak_connection_count');
 
         $peakConnectionCount = is_null($currentPeakConnectionCount)
-            ? 1
+            ? $currentConnectionCount
             : max($currentPeakConnectionCount, $currentConnectionCount);
 
         $this->redis->hset($this->getHash($appId), 'peak_connection_count', $peakConnectionCount);
@@ -103,7 +103,7 @@ class RedisStatisticsLogger implements StatisticsLogger
         $currentPeakConnectionCount = $this->redis->hget($this->getHash($appId), 'peak_connection_count');
 
         $peakConnectionCount = is_null($currentPeakConnectionCount)
-            ? 0
+            ? $currentConnectionCount
             : max($currentPeakConnectionCount, $currentConnectionCount);
 
         $this->redis->hset($this->getHash($appId), 'peak_connection_count', $peakConnectionCount);
