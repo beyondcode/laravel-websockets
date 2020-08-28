@@ -4,8 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Console;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
@@ -189,17 +187,16 @@ class StartWebSocketServer extends Command
      */
     public function configurePubSub()
     {
-        if (config('websockets.replication.driver', 'local') === 'local') {
-            $this->laravel->singleton(ReplicationInterface::class, function () {
-                return new LocalClient;
-            });
-        }
+        $this->laravel->singleton(ReplicationInterface::class, function () {
+            $driver = config('websockets.replication.driver', 'local');
 
-        if (config('websockets.replication.driver', 'local') === 'redis') {
-            $this->laravel->singleton(ReplicationInterface::class, function () {
-                return (new RedisClient)->boot($this->loop);
-            });
-        }
+            $client = config(
+                "websockets.replication.{$driver}.client",
+                \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class
+            );
+
+            return (new $client)->boot($this->loop);
+        });
 
         $this->laravel
             ->get(ReplicationInterface::class)

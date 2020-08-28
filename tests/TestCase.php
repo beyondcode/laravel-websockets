@@ -258,19 +258,18 @@ abstract class TestCase extends BaseTestCase
     {
         // Replace the publish and subscribe clients with a Mocked
         // factory lazy instance on boot.
-        if (config('websockets.replication.driver') === 'redis') {
-            $this->app->singleton(ReplicationInterface::class, function () {
-                return (new RedisClient)->boot(
-                    LoopFactory::create(), Mocks\RedisFactory::class
-                );
-            });
-        }
+        $this->app->singleton(ReplicationInterface::class, function () {
+            $driver = config('websockets.replication.driver', 'local');
 
-        if (config('websockets.replication.driver') === 'local') {
-            $this->app->singleton(ReplicationInterface::class, function () {
-                return new LocalClient;
-            });
-        }
+            $client = config(
+                "websockets.replication.{$driver}.client",
+                \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class
+            );
+
+            return (new $client)->boot(
+                LoopFactory::create(), Mocks\RedisFactory::class
+            );
+        });
     }
 
     protected function runOnlyOnRedisReplication()

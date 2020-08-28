@@ -166,9 +166,40 @@ return [
 
         'driver' => env('LARAVEL_WEBSOCKETS_REPLICATION_DRIVER', 'local'),
 
+        /*
+        |--------------------------------------------------------------------------
+        | Local Replication
+        |--------------------------------------------------------------------------
+        |
+        | Local replication is actually a null replicator, meaning that it
+        | is the default behaviour of storing the connections into an array.
+        |
+        */
+
+        'local' => [
+
+            'client' => \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class,
+
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redis Replication
+        |--------------------------------------------------------------------------
+        |
+        | Redis replication relies on the Redis' Pub/Sub protocol. When users
+        | are connected across multiple nodes, whenever some event gets triggered
+        | on one instance, the rest of the instances get the same copy and, in
+        | case the connected users to other instances are valid to receive
+        | the event, they will receive it.
+        |
+        */
+
         'redis' => [
 
             'connection' => env('LARAVEL_WEBSOCKETS_REPLICATION_CONNECTION', 'default'),
+
+            'client' => \BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient::class,
 
         ],
 
