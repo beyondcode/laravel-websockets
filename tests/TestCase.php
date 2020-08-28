@@ -3,8 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\Tests;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient;
-use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
