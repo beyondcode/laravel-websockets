@@ -51,7 +51,7 @@ trait TestsWebSockets
 
         StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
             $this->channelManager,
-            app(StatisticsDriver::class)
+            $this->statisticsDriver
         ));
 
         $this->configurePubSub();
