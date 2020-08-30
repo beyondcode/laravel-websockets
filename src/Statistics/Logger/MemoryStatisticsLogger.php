@@ -103,7 +103,7 @@ class MemoryStatisticsLogger implements StatisticsLogger
                 continue;
             }
 
-            $this->driver::create($statistic->toArray());
+            $this->createRecord($statistic);
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 
@@ -134,5 +134,16 @@ class MemoryStatisticsLogger implements StatisticsLogger
     public function getStatistics(): array
     {
         return $this->statistics;
+    }
+
+    /**
+     * Create a new record using the Statistic Driver.
+     *
+     * @param  Statistic  $statistic
+     * @return void
+     */
+    public function createRecord(Statistic $statistic)
+    {
+        $this->driver::create($statistic->toArray());
     }
 }

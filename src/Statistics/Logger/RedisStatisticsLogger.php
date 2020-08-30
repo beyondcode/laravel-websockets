@@ -122,12 +122,7 @@ class RedisStatisticsLogger implements StatisticsLogger
                     continue;
                 }
 
-                $this->driver::create([
-                    'app_id' => $appId,
-                    'peak_connection_count' => $statistic['peak_connection_count'] ?? 0,
-                    'websocket_message_count' => $statistic['websocket_message_count'] ?? 0,
-                    'api_message_count' => $statistic['api_message_count'] ?? 0,
-                ]);
+                $this->createRecord($statistic);
 
                 $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 
@@ -202,5 +197,21 @@ class RedisStatisticsLogger implements StatisticsLogger
     protected function lock()
     {
         return new RedisLock($this->redis, 'laravel-websockets:lock', 0);
+    }
+
+    /**
+     * Create a new record using the Statistic Driver.
+     *
+     * @param  array  $statistic
+     * @return void
+     */
+    protected function createRecord(array $statistic): void
+    {
+        $this->driver::create([
+            'app_id' => $appId,
+            'peak_connection_count' => $statistic['peak_connection_count'] ?? 0,
+            'websocket_message_count' => $statistic['websocket_message_count'] ?? 0,
+            'api_message_count' => $statistic['api_message_count'] ?? 0,
+        ]);
     }
 }
