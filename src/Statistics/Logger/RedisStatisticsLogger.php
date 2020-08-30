@@ -122,7 +122,7 @@ class RedisStatisticsLogger implements StatisticsLogger
                     continue;
                 }
 
-                $this->createRecord($statistic);
+                $this->createRecord($statistic, $appId);
 
                 $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
 
@@ -203,9 +203,10 @@ class RedisStatisticsLogger implements StatisticsLogger
      * Create a new record using the Statistic Driver.
      *
      * @param  array  $statistic
+     * @param  mixed  $appId
      * @return void
      */
-    protected function createRecord(array $statistic): void
+    protected function createRecord(array $statistic, $appId): void
     {
         $this->driver::create([
             'app_id' => $appId,
