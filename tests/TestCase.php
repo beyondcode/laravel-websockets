@@ -2,12 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests;
 
-use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
-
-abstract class TestCase extends BaseTestCase
+abstract class TestCase extends WebSocketsTestCase
 {
-    use Concerns\TestsWebSockets;
-
     /**
      * {@inheritdoc}
      */
