@@ -1,10 +1,19 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests;
+namespace BeyondCode\LaravelWebSockets\Tests\Concerns;
 
-use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeMemoryStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
+use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
+use GuzzleHttp\Psr7\Request;
+use Ratchet\ConnectionInterface;
+use React\EventLoop\Factory as LoopFactory;
 
-class WebSocketsTestCase extends BaseTestCase
+trait TestsWebSockets
 {
     /**
      * A test Pusher server.
