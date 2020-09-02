@@ -64,7 +64,13 @@ window.Echo = new Echo({
 
 ## Server configuration
 
-When broadcasting events from your Laravel application to the WebSocket server, you also need to tell Laravel to make use of HTTPS instead of HTTP. You can do this by setting the `scheme` option in your `config/broadcasting.php` file to `https`:
+When broadcasting events from your Laravel application to the WebSocket server, you also need to tell Laravel to make use of HTTPS instead of HTTP. You can do this by setting the `PUSHER_APP_SCHEME` variable to `https`
+
+```env
+PUSHER_APP_SCHEME=https
+```
+
+Your connection from `config/broadcasting.php` would look like this:
 
 ```php
 'pusher' => [
