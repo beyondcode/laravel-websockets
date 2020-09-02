@@ -2,25 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
-use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
-use Ratchet\ConnectionInterface;
-use stdClass;
+use BeyondCode\LaravelWebSockets\Concerns\PrivatelyChannelable;
 
 class PrivateChannel extends Channel
 {
-    /**
-     * Subscribe to the channel.
-     *
-     * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  \stdClass  $payload
-     * @return void
-     * @throws InvalidSignature
-     */
-    public function subscribe(ConnectionInterface $connection, stdClass $payload)
-    {
-        $this->verifySignature($connection, $payload);
-
-        parent::subscribe($connection, $payload);
-    }
+    use PrivatelyChannelable;
 }
