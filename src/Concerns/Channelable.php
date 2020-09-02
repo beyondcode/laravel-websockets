@@ -116,8 +116,6 @@ trait Channelable
         ]));
 
         $this->replicator->subscribe($connection->app->id, $this->channelName);
-
-        event(new )
     }
 
     /**
