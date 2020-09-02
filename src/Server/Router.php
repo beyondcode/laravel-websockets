@@ -61,10 +61,10 @@ class Router
     {
         $this->get('/app/{appKey}', config('websockets.handlers.websocket', WebSocketHandler::class));
 
-        $this->post('/apps/{appId}/events', TriggerEventController::class);
-        $this->get('/apps/{appId}/channels', FetchChannelsController::class);
-        $this->get('/apps/{appId}/channels/{channelName}', FetchChannelController::class);
-        $this->get('/apps/{appId}/channels/{channelName}/users', FetchUsersController::class);
+        $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event', TriggerEventController::class));
+        $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels', FetchChannelsController::class));
+        $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel', FetchChannelController::class));
+        $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users', FetchUsersController::class));
 
         $this->customRoutes->each(function ($action, $uri) {
             $this->get($uri, $action);

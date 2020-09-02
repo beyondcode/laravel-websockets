@@ -147,6 +147,14 @@ return [
 
         'websocket' => \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler::class,
 
+        'trigger_event' => \BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController::class,
+
+        'fetch_channels' => \BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController::class,
+
+        'fetch_channel' => \BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController::class,
+
+        'fetch_users' => \BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController::class,
+
     ],
 
     /*
