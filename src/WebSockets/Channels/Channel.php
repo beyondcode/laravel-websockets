@@ -3,6 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\WebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\MessagesBroadcasted;
+use BeyondCode\LaravelWebSockets\Events\Subscribed;
+use BeyondCode\LaravelWebSockets\Events\Unsubscribed;
 use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Illuminate\Support\Str;
@@ -116,6 +119,8 @@ class Channel
         ]));
 
         $this->replicator->subscribe($connection->app->id, $this->channelName);
+
+        Subscribed::dispatch($this->channelName, $connection);
     }
 
     /**
@@ -136,6 +141,8 @@ class Channel
                 'channel' => $this->channelName,
             ]);
         }
+
+        Unsubscribed::dispatch($this->channelName, $connection);
     }
 
     /**
@@ -173,6 +180,8 @@ class Channel
         foreach ($this->subscribedConnections as $connection) {
             $connection->send(json_encode($payload));
         }
+
+        MessagesBroadcasted::dispatch(count($this->subscribedConnections));
     }
 
     /**
@@ -217,11 +226,16 @@ class Channel
             return;
         }
 
-        foreach ($this->subscribedConnections as $connection) {
-            if ($connection->socketId !== $socketId) {
-                $connection->send(json_encode($payload));
-            }
+        $connections = collect($this->subscribedConnections)
+            ->reject(function ($connection) use ($socketId) {
+                return $connection->socketId === $socketId;
+            });
+
+        foreach ($connections as $connection) {
+            $connection->send(json_encode($payload));
         }
+
+        MessagesBroadcasted::dispatch($connections->count());
     }
 
     /**
