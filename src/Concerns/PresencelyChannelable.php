@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Concerns;
 
-use BeyondCode\LaravelWebSockets\Concerns\Channelable;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
 use stdClass;
