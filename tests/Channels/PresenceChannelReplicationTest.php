@@ -46,7 +46,7 @@ class PresenceChannelReplicationTest extends TestCase
 
         $this->getPublishClient()
             ->assertCalledWithArgs('hset', [
-                '1234:presence-channel',
+                'laravel_database_1234:presence-channel',
                 $connection->socketId,
                 json_encode($channelData),
             ])
