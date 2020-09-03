@@ -161,7 +161,7 @@ class RedisClient extends LocalClient
 
         // If we no longer have subscriptions to that channel, unsubscribe
         if ($this->subscribedChannels["{$appId}:{$channel}"] < 1) {
-            $this->subscribeClient->__call('unsubscribe', ["{$appId}:{$channel}"]);
+            $this->subscribeClient->__call('unsubscribe', [$this->getTopicName($appId, $channel)]);
 
             unset($this->subscribedChannels["{$appId}:{$channel}"]);
         }
@@ -187,7 +187,7 @@ class RedisClient extends LocalClient
      */
     public function joinChannel($appId, string $channel, string $socketId, string $data)
     {
-        $this->publishClient->__call('hset', ["{$appId}:{$channel}", $socketId, $data]);
+        $this->publishClient->__call('hset', [$this->getTopicName($appId, $channel), $socketId, $data]);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
             'channel' => $channel,
