@@ -4,9 +4,17 @@ namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use Illuminate\Support\Facades\Cache;
 
 class PresenceChannelReplicationTest extends TestCase
 {
+    /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
     /**
      * {@inheritdoc}
      */
@@ -15,6 +23,8 @@ class PresenceChannelReplicationTest extends TestCase
         parent::setUp();
 
         $this->runOnlyOnRedisReplication();
+
+        $this->redis = Cache::getRedis();
     }
 
     /** @test */
@@ -45,13 +55,17 @@ class PresenceChannelReplicationTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->getPublishClient()
-            ->assertCalledWithArgs('hset', [
+            ->assertNotCalledWithArgs('hset', [
                 'laravel_database_1234:presence-channel',
                 $connection->socketId,
                 json_encode($channelData),
             ])
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
+
+        $this->assertNotNull(
+            $this->redis->hget('laravel_database_1234:presence-channel', $connection->socketId)
+        );
     }
 
     /** @test */
@@ -82,7 +96,7 @@ class PresenceChannelReplicationTest extends TestCase
             ->assertEventDispatched('message');
 
         $this->getPublishClient()
-            ->assertCalled('hset')
+            ->assertNotCalled('hset')
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
 
@@ -100,7 +114,7 @@ class PresenceChannelReplicationTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->getPublishClient()
-            ->assertCalled('hdel')
+            ->assertNotCalled('hdel')
             ->assertCalled('publish');
     }
 
@@ -129,7 +143,7 @@ class PresenceChannelReplicationTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->getPublishClient()
-            ->assertCalled('hset')
+            ->assertNotCalled('hset')
             ->assertcalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish');
     }

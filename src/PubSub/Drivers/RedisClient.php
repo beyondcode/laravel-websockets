@@ -226,7 +226,7 @@ class RedisClient extends LocalClient
      */
     public function joinChannel($appId, string $channel, string $socketId, string $data)
     {
-        $this->publishClient->__call('hset', [$this->getTopicName($appId, $channel), $socketId, $data]);
+        $this->redis->hset($this->getTopicName($appId, $channel), $socketId, $data);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
             'channel' => $channel,
@@ -248,7 +248,7 @@ class RedisClient extends LocalClient
      */
     public function leaveChannel($appId, string $channel, string $socketId)
     {
-        $this->publishClient->__call('hdel', [$this->getTopicName($appId, $channel), $socketId]);
+        $this->redis->hdel($this->getTopicName($appId, $channel), $socketId);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_LEFT_CHANNEL, [
             'channel' => $channel,
