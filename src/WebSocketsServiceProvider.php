@@ -74,9 +74,10 @@ class WebSocketsServiceProvider extends ServiceProvider
             $driver = config('websockets.statistics.driver');
 
             return $this->app->make(
-                config('websockets.statistics')[$driver]['driver']
-                ??
-                \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
+                config(
+                    "websockets.statistics.{$driver}.driver",
+                    \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
+                )
             );
         });
     }
