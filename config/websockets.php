@@ -189,6 +189,8 @@ return [
 
             'client' => \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class,
 
+            'statistics_logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
+
         ],
 
         /*
@@ -209,6 +211,8 @@ return [
             'connection' => env('LARAVEL_WEBSOCKETS_REPLICATION_CONNECTION', 'default'),
 
             'client' => \BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient::class,
+
+            'statistics_logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger::class,
 
         ],
 
@@ -237,24 +241,6 @@ return [
             'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
 
         ],
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics Logger Handler
-        |--------------------------------------------------------------------------
-        |
-        | The Statistics Logger will, by default, handle the incoming statistics,
-        | store them into an array and then store them into the database
-        | on each interval.
-        |
-        | You can opt-in to avoid any statistics storage by setting the logger
-        | to the built-in NullLogger.
-        |
-        */
-
-        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
-        // 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class,
-        // 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger::class,
 
         /*
         |--------------------------------------------------------------------------

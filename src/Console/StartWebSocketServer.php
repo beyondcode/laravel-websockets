@@ -97,7 +97,9 @@ class StartWebSocketServer extends Command
     protected function configureStatisticsLogger()
     {
         $this->laravel->singleton(StatisticsLoggerInterface::class, function () {
-            $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class);
+            $replicationDriver = config('websockets.replication.driver', 'local');
+
+            $class = config("websockets.replication.{$replicationDriver}.statistics_logger", \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class);
 
             return new $class(
                 $this->laravel->make(ChannelManager::class),

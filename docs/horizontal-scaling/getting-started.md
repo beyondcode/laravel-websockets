@@ -32,23 +32,3 @@ Now, when your app broadcasts the message, it will make sure the connection reac
 The available drivers for replication are:
 
 - [Redis](redis)
-
-## Configure the Statistics driver
-
-If you work with multi-node environments, beside replication, you shall take a look at the statistics logger. Each time your user connects, disconnects or send a message, you can track the statistics. However, these are centralized in one place before they are dumped in the database.
-
-Unfortunately, you might end up with multiple rows when multiple servers run in parallel.
-
-To fix this, just change the `statistics.logger` class with a logger that is able to centralize the statistics in one place. For example, you might want to store them into a Redis instance:
-
-```php
-'statistics' => [
-
-    'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger::class,
-
-    ...
-
-],
-```
-
-Check the `websockets.php` config file for more details.
