@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\OriginNotAllowed;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
+use Illuminate\Support\Facades\Cache;
 
 class ConnectionTest extends TestCase
 {
@@ -31,6 +32,25 @@ class ConnectionTest extends TestCase
     /** @test */
     public function app_can_not_exceed_maximum_capacity()
     {
+        $this->runOnlyOnLocalReplication();
+
+        $this->app['config']->set('websockets.apps.0.capacity', 2);
+
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->expectException(ConnectionsOverCapacity::class);
+        $this->getConnectedWebSocketConnection(['test-channel']);
+    }
+
+    /** @test */
+    public function app_can_not_exceed_maximum_capacity_on_redis_replication()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $redis = Cache::getRedis();
+
+        $redis->hdel('laravel_database_1234', 'connections');
+
         $this->app['config']->set('websockets.apps.0.capacity', 2);
 
         $this->getConnectedWebSocketConnection(['test-channel']);

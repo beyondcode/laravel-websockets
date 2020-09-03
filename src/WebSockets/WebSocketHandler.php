@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
@@ -27,6 +28,13 @@ class WebSocketHandler implements MessageComponentInterface
     protected $channelManager;
 
     /**
+     * The replicator client.
+     *
+     * @var ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * Initialize a new handler.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
@@ -35,6 +43,7 @@ class WebSocketHandler implements MessageComponentInterface
     public function __construct(ChannelManager $channelManager)
     {
         $this->channelManager = $channelManager;
+        $this->replicator = app(ReplicationInterface::class);
     }
 
     /**
@@ -83,6 +92,8 @@ class WebSocketHandler implements MessageComponentInterface
         ]);
 
         StatisticsLogger::disconnection($connection->app->id);
+
+        $this->replicator->unsubscribeFromApp($connection->app->id);
     }
 
     /**
@@ -99,6 +110,8 @@ class WebSocketHandler implements MessageComponentInterface
                 $exception->getPayload()
             ));
         }
+
+        $this->replicator->unsubscribeFromApp($connection->app->id);
     }
 
     /**
@@ -202,6 +215,8 @@ class WebSocketHandler implements MessageComponentInterface
         ]);
 
         StatisticsLogger::connection($connection->app->id);
+
+        $this->replicator->subscribeToApp($connection->app->id);
 
         return $this;
     }

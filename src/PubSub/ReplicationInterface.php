@@ -46,6 +46,22 @@ interface ReplicationInterface
     public function unsubscribe($appId, string $channel): bool;
 
     /**
+     * Subscribe to the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function subscribeToApp($appId): bool;
+
+    /**
+     * Unsubscribe from the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function unsubscribeFromApp($appId): bool;
+
+    /**
      * Add a member to a channel. To be called when they have
      * subscribed to the channel.
      *
@@ -85,4 +101,12 @@ interface ReplicationInterface
      * @return PromiseInterface
      */
     public function channelMemberCounts($appId, array $channelNames): PromiseInterface;
+
+    /**
+     * Get the amount of unique connections.
+     *
+     * @param  mixed  $appId
+     * @return null|int|\React\Promise\PromiseInterface
+     */
+    public function appConnectionsCount($appId);
 }

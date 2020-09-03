@@ -5,10 +5,18 @@ namespace BeyondCode\LaravelWebSockets\Tests\PubSub;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\RedisFactory;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 
 class RedisDriverTest extends TestCase
 {
+    /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
     /**
      * {@inheritdoc}
      */
@@ -17,6 +25,10 @@ class RedisDriverTest extends TestCase
         parent::setUp();
 
         $this->runOnlyOnRedisReplication();
+
+        $this->redis = Cache::getRedis();
+
+        $this->redis->hdel('laravel_database_1234', 'connections');
     }
 
     /** @test */
@@ -79,5 +91,45 @@ class RedisDriverTest extends TestCase
 
         $client->getSubscribeClient()
             ->assertEventDispatched('message');
+    }
+
+    /** @test */
+    public function redis_tracks_app_connections_count()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', ['laravel_database_1234']);
+
+        $this->getPublishClient()
+            ->assertNothingCalled();
+
+        $this->assertEquals(1, $this->redis->hget('laravel_database_1234', 'connections'));
+    }
+
+    /** @test */
+    public function redis_tracks_app_connections_count_on_disconnect()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', ['laravel_database_1234'])
+            ->assertNotCalledWithArgs('unsubscribe', ['laravel_database_1234']);
+
+        $this->getPublishClient()
+            ->assertNothingCalled();
+
+        $this->assertEquals(1, $this->redis->hget('laravel_database_1234', 'connections'));
+
+        $this->pusherServer->onClose($connection);
+
+        $this->getPublishClient()
+            ->assertNothingCalled();
+
+        $this->assertEquals(0, $this->redis->hget('laravel_database_1234', 'connections'));
     }
 }
