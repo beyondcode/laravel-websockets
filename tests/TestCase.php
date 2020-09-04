@@ -11,6 +11,7 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeRedisStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Redis;
 use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
@@ -39,11 +40,27 @@ abstract class TestCase extends BaseTestCase
     protected $statisticsDriver;
 
     /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
+    /**
+     * Get the loop instance.
+     *
+     * @var \React\EventLoop\LoopInterface
+     */
+    protected $loop;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->loop = LoopFactory::create();
 
         $this->resetDatabase();
 
@@ -62,6 +79,8 @@ abstract class TestCase extends BaseTestCase
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
+
+        $this->redis = Redis::connection();
     }
 
     /**
@@ -264,7 +283,7 @@ abstract class TestCase extends BaseTestCase
             );
 
             return (new $client)->boot(
-                LoopFactory::create(), Mocks\RedisFactory::class
+                $this->loop, Mocks\RedisFactory::class
             );
         });
     }

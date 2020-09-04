@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
 use Clue\React\Redis\Factory;
 use Clue\React\Redis\LazyClient as BaseLazyClient;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use PHPUnit\Framework\Assert as PHPUnit;
 use React\EventLoop\LoopInterface;
 
@@ -38,7 +38,7 @@ class LazyClient extends BaseLazyClient
     {
         parent::__construct($target, $factory, $loop);
 
-        $this->redis = Cache::getRedis();
+        $this->redis = Redis::connection();
     }
 
     /**
