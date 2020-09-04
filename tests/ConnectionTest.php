@@ -47,7 +47,7 @@ class ConnectionTest extends TestCase
     {
         $this->runOnlyOnRedisReplication();
 
-        Redis::hdel('laravel_database_1234', 'connections');
+        $this->redis->hdel('laravel_database_1234', 'connections');
 
         $this->app['config']->set('websockets.apps.0.capacity', 2);
 

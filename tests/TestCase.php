@@ -79,8 +79,6 @@ abstract class TestCase extends BaseTestCase
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
-
-        $this->redis = Redis::connection();
     }
 
     /**
@@ -272,11 +270,11 @@ abstract class TestCase extends BaseTestCase
      */
     protected function configurePubSub()
     {
+        $replicationDriver = config('websockets.replication.driver', 'local');
+
         // Replace the publish and subscribe clients with a Mocked
         // factory lazy instance on boot.
-        $this->app->singleton(ReplicationInterface::class, function () {
-            $driver = config('websockets.replication.driver', 'local');
-
+        $this->app->singleton(ReplicationInterface::class, function () use ($replicationDriver) {
             $client = config(
                 "websockets.replication.{$driver}.client",
                 \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class
@@ -286,6 +284,10 @@ abstract class TestCase extends BaseTestCase
                 $this->loop, Mocks\RedisFactory::class
             );
         });
+
+        if ($replicationDriver === 'redis') {
+            $this->redis = Redis::connection();
+        }
     }
 
     /**

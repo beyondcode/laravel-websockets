@@ -55,7 +55,7 @@ class PresenceChannelReplicationTest extends TestCase
             ->assertCalled('publish');
 
         $this->assertNotNull(
-            Redis::hget('laravel_database_1234:presence-channel', $connection->socketId)
+            $this->redis->hget('laravel_database_1234:presence-channel', $connection->socketId)
         );
     }
 
