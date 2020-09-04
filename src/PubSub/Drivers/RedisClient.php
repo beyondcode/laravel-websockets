@@ -289,17 +289,6 @@ class RedisClient extends LocalClient
     }
 
     /**
-     * Get the amount of unique connections.
-     *
-     * @param  mixed  $appId
-     * @return null|int
-     */
-    public function getLocalConnectionsCount($appId)
-    {
-        return null;
-    }
-
-    /**
      * Get the amount of connections aggregated on multiple instances.
      *
      * @param  mixed  $appId
