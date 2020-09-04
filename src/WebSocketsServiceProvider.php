@@ -71,7 +71,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(StatisticsDriver::class, function () {
-            $driver = config('websockets.statistics.driver');
+            $driver = config('websockets.statistics.driver', 'local');
 
             return $this->app->make(
                 config(
