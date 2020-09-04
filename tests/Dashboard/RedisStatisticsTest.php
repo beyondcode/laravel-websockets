@@ -2,11 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
+use BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Tests\Models\User;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
-class StatisticsTest extends TestCase
+class RedisStatisticsTest extends TestCase
 {
     /**
      * {@inheritdoc}
@@ -15,7 +16,7 @@ class StatisticsTest extends TestCase
     {
         parent::setUp();
 
-        $this->runOnlyOnLocalReplication();
+        $this->runOnlyOnRedisReplication();
     }
 
     /** @test */
@@ -23,7 +24,7 @@ class StatisticsTest extends TestCase
     {
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger = new MemoryStatisticsLogger(
+        $logger = new RedisStatisticsLogger(
             $this->channelManager,
             $this->statisticsDriver
         );
@@ -50,7 +51,7 @@ class StatisticsTest extends TestCase
     {
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger = new MemoryStatisticsLogger(
+        $logger = new RedisStatisticsLogger(
             $this->channelManager,
             $this->statisticsDriver
         );

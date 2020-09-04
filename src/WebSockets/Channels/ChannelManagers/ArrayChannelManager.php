@@ -71,7 +71,7 @@ class ArrayChannelManager implements ChannelManager
      * Get the connections count on the app.
      *
      * @param  mixed  $appId
-     * @return int
+     * @return int|\React\Promise\PromiseInterface
      */
     public function getLocalConnectionsCount($appId): int
     {
@@ -87,9 +87,9 @@ class ArrayChannelManager implements ChannelManager
      * Get the connections count across multiple servers.
      *
      * @param  mixed  $appId
-     * @return int
+     * @return int|\React\Promise\PromiseInterface
      */
-    public function getGlobalConnectionsCount($appId): int
+    public function getGlobalConnectionsCount($appId)
     {
         return $this->getLocalConnectionsCount($appId);
     }

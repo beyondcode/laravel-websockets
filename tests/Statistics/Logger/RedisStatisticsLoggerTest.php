@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger;
@@ -10,7 +11,7 @@ use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 use Illuminate\Support\Facades\Redis;
 
-class StatisticsLoggerTest extends TestCase
+class RedisStatisticsLoggerTest extends TestCase
 {
     /**
      * {@inheritdoc}
@@ -19,11 +20,11 @@ class StatisticsLoggerTest extends TestCase
     {
         parent::setUp();
 
-        $this->runOnlyOnLocalReplication();
+        $this->runOnlyOnRedisReplication();
     }
 
     /** @test */
-    public function it_counts_connections()
+    public function it_counts_connections_on_redis_replication()
     {
         $connections = [];
 
@@ -41,8 +42,10 @@ class StatisticsLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_counts_unique_connections_no_channel_subscriptions()
+    public function it_counts_unique_connections_no_channel_subscriptions_on_redis()
     {
+        Redis::hdel('laravel_database_1234', 'connections');
+
         $connections = [];
 
         $connections[] = $this->getConnectedWebSocketConnection(['channel-1', 'channel-2']);
@@ -60,14 +63,18 @@ class StatisticsLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_counts_connections_with_memory_logger()
+    public function it_counts_connections_with_redis_logger_with_no_data()
     {
+        config(['cache.default' => 'redis']);
+
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger = new MemoryStatisticsLogger(
+        $logger = new RedisStatisticsLogger(
             $this->channelManager,
             $this->statisticsDriver
         );
+
+        $logger->resetAppTraces('1234');
 
         $logger->webSocketMessage($connection->app->id);
         $logger->apiMessage($connection->app->id);
@@ -86,14 +93,18 @@ class StatisticsLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_counts_connections_with_null_logger()
+    public function it_counts_connections_with_redis_logger_with_existing_data()
     {
+        config(['cache.default' => 'redis']);
+
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger = new NullStatisticsLogger(
+        $logger = new RedisStatisticsLogger(
             $this->channelManager,
             $this->statisticsDriver
         );
+
+        $logger->resetStatistics('1234', 0);
 
         $logger->webSocketMessage($connection->app->id);
         $logger->apiMessage($connection->app->id);
@@ -102,6 +113,12 @@ class StatisticsLoggerTest extends TestCase
 
         $logger->save();
 
-        $this->assertCount(0, WebSocketsStatisticsEntry::all());
+        $this->assertCount(1, WebSocketsStatisticsEntry::all());
+
+        $entry = WebSocketsStatisticsEntry::first();
+
+        $this->assertEquals(1, $entry->peak_connection_count);
+        $this->assertEquals(1, $entry->websocket_message_count);
+        $this->assertEquals(1, $entry->api_message_count);
     }
 }

@@ -27,9 +27,9 @@ class RedisChannelManager extends ArrayChannelManager
      * Get the connections count across multiple servers.
      *
      * @param  mixed  $appId
-     * @return int
+     * @return int|\React\Promise\PromiseInterface
      */
-    public function getGlobalConnectionsCount($appId): int
+    public function getGlobalConnectionsCount($appId)
     {
         return $this->replicator->getGlobalConnectionsCount($appId);
     }

@@ -17,6 +17,7 @@ use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use React\Promise\PromiseInterface;
 
 class WebSocketHandler implements MessageComponentInterface
 {
@@ -167,8 +168,12 @@ class WebSocketHandler implements MessageComponentInterface
         if (! is_null($capacity = $connection->app->capacity)) {
             $connectionsCount = $this->channelManager->getGlobalConnectionsCount($connection->app->id);
 
-            if ($connectionsCount >= $capacity) {
-                throw new ConnectionsOverCapacity();
+            if ($connectionsCount instanceof PromiseInterface) {
+                $connectionsCount->then(function ($connectionsCount) use ($capacity, $connection) {
+                    $this->sendExceptionIfOverCapacity($connectionsCount, $capacity, $connection);
+                });
+            } else {
+                $this->throwExceptionIfOverCapacity($connectionsCount, $capacity);
             }
         }
 
@@ -219,5 +224,38 @@ class WebSocketHandler implements MessageComponentInterface
         $this->replicator->subscribeToApp($connection->app->id);
 
         return $this;
+    }
+
+    /**
+     * Throw a ConnectionsOverCapacity exception.
+     *
+     * @param  int  $connectionsCount
+     * @param  int  $capacity
+     * @return void
+     * @throws ConnectionsOverCapacity
+     */
+    protected function throwExceptionIfOverCapacity(int $connectionsCount, int $capacity)
+    {
+        if ($connectionsCount >= $capacity) {
+            throw new ConnectionsOverCapacity;
+        }
+    }
+
+    /**
+     * Send the ConnectionsOverCapacity exception through
+     * the connection and close the channel.
+     *
+     * @param  int  $connectionsCount
+     * @param  int  $capacity
+     * @param  ConnectionInterface  $connection
+     * @return void
+     */
+    protected function sendExceptionIfOverCapacity(int $connectionsCount, int $capacity, ConnectionInterface $connection)
+    {
+        if ($connectionsCount >= $capacity) {
+            $payload = json_encode((new ConnectionsOverCapacity)->getPayload());
+
+            tap($connection)->send($payload)->close();
+        }
     }
 }

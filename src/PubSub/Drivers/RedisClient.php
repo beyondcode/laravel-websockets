@@ -362,8 +362,8 @@ class RedisClient extends LocalClient
      */
     protected function getConnectionUri()
     {
-        $name = config('websockets.replication.redis.connection') ?: 'default';
-        $config = config('database.redis')[$name];
+        $name = config('websockets.replication.redis.connection', 'default');
+        $config = config("database.redis.{$name}");
 
         $host = $config['host'];
         $port = $config['port'] ?: 6379;

@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeMemoryStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeRedisStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
@@ -56,10 +57,7 @@ abstract class TestCase extends BaseTestCase
 
         $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
 
-        StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
-            $this->channelManager,
-            app(StatisticsDriver::class)
-        ));
+        $this->configureStatisticsLogger();
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
@@ -269,6 +267,31 @@ abstract class TestCase extends BaseTestCase
                 LoopFactory::create(), Mocks\RedisFactory::class
             );
         });
+    }
+
+    /**
+     * Configure the statistics logger for the right driver.
+     *
+     * @return void
+     */
+    protected function configureStatisticsLogger()
+    {
+        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
+
+        if ($replicationDriver === 'local') {
+            StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
+                $this->channelManager,
+                app(StatisticsDriver::class)
+            ));
+        }
+
+        if ($replicationDriver === 'redis') {
+            StatisticsLogger::swap(new FakeRedisStatisticsLogger(
+                $this->channelManager,
+                app(StatisticsDriver::class),
+                $this->app->make(ReplicationInterface::class)
+            ));
+        }
     }
 
     protected function runOnlyOnRedisReplication()
