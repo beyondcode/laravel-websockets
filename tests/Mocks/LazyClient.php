@@ -3,7 +3,10 @@
 namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
 use Clue\React\Redis\LazyClient as BaseLazyClient;
+use Clue\React\Redis\Factory;
+use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Assert as PHPUnit;
+use React\EventLoop\LoopInterface;
 
 class LazyClient extends BaseLazyClient
 {
@@ -22,11 +25,32 @@ class LazyClient extends BaseLazyClient
     protected $events = [];
 
     /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($target, Factory $factory, LoopInterface $loop)
+    {
+        parent::__construct($target, $factory, $loop);
+
+        $this->redis = Cache::getRedis();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function __call($name, $args)
     {
         $this->calls[] = [$name, $args];
+
+        if (! in_array($name, ['subscribe', 'psubscribe', 'unsubscribe', 'punsubscribe', 'onMessage'])) {
+            $this->redis->__call($name, $args);
+        }
 
         return parent::__call($name, $args);
     }
@@ -89,6 +113,26 @@ class LazyClient extends BaseLazyClient
     }
 
     /**
+     * Check if the method with args got called an amount of times.
+     *
+     * @param  string  $name
+     * @param  array  $args
+     * @return $this
+     */
+    public function assertCalledWithArgsCount($times = 1, $name, array $args)
+    {
+        $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name, $args) {
+            [$calledName, $calledArgs] = $function;
+
+            return $calledName === $name && $calledArgs === $args;
+        });
+
+        PHPUnit::assertCount($times, $total);
+
+        return $this;
+    }
+
+    /**
      * Check if the method didn't call.
      *
      * @param  string  $name
@@ -131,6 +175,26 @@ class LazyClient extends BaseLazyClient
         }
 
         PHPUnit::assertTrue(true);
+
+        return $this;
+    }
+
+    /**
+     * Check if the method with args got called an amount of times.
+     *
+     * @param  string  $name
+     * @param  array  $args
+     * @return $this
+     */
+    public function assertNotCalledWithArgsCount($times = 1, $name, array $args)
+    {
+        $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name, $args) {
+            [$calledName, $calledArgs] = $function;
+
+            return $calledName === $name && $calledArgs === $args;
+        });
+
+        PHPUnit::assertNotCount($times, $total);
 
         return $this;
     }

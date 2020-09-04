@@ -48,7 +48,7 @@ class FetchChannelsReplicationTest extends TestCase
             ->assertEventDispatched('message');
 
         $this->getPublishClient()
-            ->assertNotCalled('hset')
+            ->assertCalled('hset')
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
             ->assertCalled('publish')
             ->assertCalled('multi')
@@ -88,7 +88,7 @@ class FetchChannelsReplicationTest extends TestCase
             ->assertEventDispatched('message');
 
         $this->getPublishClient()
-            ->assertNotCalled('hset')
+            ->assertCalled('hset')
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])
@@ -133,7 +133,7 @@ class FetchChannelsReplicationTest extends TestCase
             ->assertEventDispatched('message');
 
         $this->getPublishClient()
-            ->assertNotCalled('hset')
+            ->assertCalled('hset')
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
             ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])

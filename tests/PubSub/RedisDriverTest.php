@@ -5,18 +5,11 @@ namespace BeyondCode\LaravelWebSockets\Tests\PubSub;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\RedisFactory;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 use React\EventLoop\Factory as LoopFactory;
 
 class RedisDriverTest extends TestCase
 {
-    /**
-     * The Redis manager instance.
-     *
-     * @var \Illuminate\Redis\RedisManager
-     */
-    protected $redis;
-
     /**
      * {@inheritdoc}
      */
@@ -26,9 +19,7 @@ class RedisDriverTest extends TestCase
 
         $this->runOnlyOnRedisReplication();
 
-        $this->redis = Cache::getRedis();
-
-        $this->redis->hdel('laravel_database_1234', 'connections');
+        Redis::hdel('laravel_database_1234', 'connections');
     }
 
     /** @test */
@@ -104,9 +95,7 @@ class RedisDriverTest extends TestCase
             ->assertCalledWithArgs('subscribe', ['laravel_database_1234']);
 
         $this->getPublishClient()
-            ->assertNothingCalled();
-
-        $this->assertEquals(1, $this->redis->hget('laravel_database_1234', 'connections'));
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
     }
 
     /** @test */
@@ -121,15 +110,13 @@ class RedisDriverTest extends TestCase
             ->assertNotCalledWithArgs('unsubscribe', ['laravel_database_1234']);
 
         $this->getPublishClient()
-            ->assertNothingCalled();
-
-        $this->assertEquals(1, $this->redis->hget('laravel_database_1234', 'connections'));
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
 
         $this->pusherServer->onClose($connection);
 
         $this->getPublishClient()
-            ->assertNothingCalled();
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', -1]);
 
-        $this->assertEquals(0, $this->redis->hget('laravel_database_1234', 'connections'));
+        $this->assertEquals(0, Redis::hget('laravel_database_1234', 'connections'));
     }
 }

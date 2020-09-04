@@ -194,7 +194,7 @@ class RedisClient extends LocalClient
     {
         $this->subscribeClient->__call('subscribe', [$this->getTopicName($appId)]);
 
-        $this->redis->hincrby($this->getTopicName($appId), 'connections', 1);
+        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', 1]);
 
         return true;
     }
@@ -209,7 +209,7 @@ class RedisClient extends LocalClient
     {
         $this->subscribeClient->__call('unsubscribe', [$this->getTopicName($appId)]);
 
-        $this->redis->hincrby($this->getTopicName($appId), 'connections', -1);
+        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', -1]);
 
         return true;
     }
@@ -226,7 +226,7 @@ class RedisClient extends LocalClient
      */
     public function joinChannel($appId, string $channel, string $socketId, string $data)
     {
-        $this->redis->hset($this->getTopicName($appId, $channel), $socketId, $data);
+        $this->publishClient->__call('hset', [$this->getTopicName($appId, $channel), $socketId, $data]);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
             'channel' => $channel,
@@ -248,7 +248,7 @@ class RedisClient extends LocalClient
      */
     public function leaveChannel($appId, string $channel, string $socketId)
     {
-        $this->redis->hdel($this->getTopicName($appId, $channel), $socketId);
+        $this->publishClient->__call('hdel', [$this->getTopicName($appId, $channel), $socketId]);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_LEFT_CHANNEL, [
             'channel' => $channel,
@@ -307,7 +307,7 @@ class RedisClient extends LocalClient
     {
         // Use the in-built Redis manager to avoid async run.
 
-        return $this->redis->hget($this->getTopicName($appId), 'connections') ?: 0;
+        return $this->publishClient->hget($this->getTopicName($appId), 'connections') ?: 0;
     }
 
     /**
