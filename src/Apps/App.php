@@ -6,7 +6,7 @@ use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
 
 class App
 {
-    /** @var int */
+    /** @var string|int */
     public $id;
 
     /** @var string */
@@ -39,7 +39,7 @@ class App
     /**
      * Find the app by id.
      *
-     * @param  int  $appId
+     * @param  string|int  $appId
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public static function findById($appId)
@@ -72,9 +72,9 @@ class App
     /**
      * Initialize the Web Socket app instance.
      *
-     * @param  int     $appId
-     * @param  string  $key
-     * @param  string  $secret
+     * @param  string|int  $appId
+     * @param  string      $key
+     * @param  string      $secret
      * @return void
      * @throws \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
      */
