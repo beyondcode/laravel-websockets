@@ -276,7 +276,7 @@ abstract class TestCase extends BaseTestCase
         // factory lazy instance on boot.
         $this->app->singleton(ReplicationInterface::class, function () use ($replicationDriver) {
             $client = config(
-                "websockets.replication.{$driver}.client",
+                "websockets.replication.{$replicationDriver}.client",
                 \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class
             );
 
