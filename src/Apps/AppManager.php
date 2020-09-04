@@ -14,7 +14,7 @@ interface AppManager
     /**
      * Get app by id.
      *
-     * @param  int  $appId
+     * @param  string|int  $appId
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public function findById($appId): ?App;
