@@ -38,7 +38,15 @@ interface ChannelManager
      * @param  mixed  $appId
      * @return int
      */
-    public function getConnectionCount($appId): int;
+    public function getLocalConnectionsCount($appId): int;
+
+    /**
+     * Get the connections count across multiple servers.
+     *
+     * @param  mixed  $appId
+     * @return int
+     */
+    public function getGlobalConnectionsCount($appId): int;
 
     /**
      * Remove connection from all channels.

@@ -292,13 +292,22 @@ class RedisClient extends LocalClient
      * Get the amount of unique connections.
      *
      * @param  mixed  $appId
+     * @return null|int
+     */
+    public function getLocalConnectionsCount($appId)
+    {
+        return null;
+    }
+
+    /**
+     * Get the amount of connections aggregated on multiple instances.
+     *
+     * @param  mixed  $appId
      * @return null|int|\React\Promise\PromiseInterface
      */
-    public function appConnectionsCount($appId)
+    public function getGlobalConnectionsCount($appId)
     {
-        // Use the in-built Redis manager to avoid async run.
-
-        return $this->publishClient->hget($this->getTopicName($appId), 'connections') ?: 0;
+        return $this->publishClient->hget($this->getTopicName($appId), 'connections');
     }
 
     /**

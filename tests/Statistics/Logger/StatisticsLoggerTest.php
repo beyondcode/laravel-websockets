@@ -49,7 +49,7 @@ class StatisticsLoggerTest extends TestCase
 
         StatisticsLogger::save();
 
-        $this->assertEquals(3, StatisticsLogger::getForAppId(1234)['peak_connection_count']);
+        $this->assertEquals(2, StatisticsLogger::getForAppId(1234)['peak_connection_count']);
     }
 
     /** @test */
@@ -93,7 +93,7 @@ class StatisticsLoggerTest extends TestCase
 
         StatisticsLogger::save();
 
-        $this->assertEquals(3, StatisticsLogger::getForAppId(1234)['peak_connection_count']);
+        $this->assertEquals(1, StatisticsLogger::getForAppId(1234)['peak_connection_count']);
     }
 
     /** @test */

@@ -165,7 +165,7 @@ class WebSocketHandler implements MessageComponentInterface
     protected function limitConcurrentConnections(ConnectionInterface $connection)
     {
         if (! is_null($capacity = $connection->app->capacity)) {
-            $connectionsCount = $this->channelManager->getConnectionCount($connection->app->id);
+            $connectionsCount = $this->channelManager->getGlobalConnectionsCount($connection->app->id);
 
             if ($connectionsCount >= $capacity) {
                 throw new ConnectionsOverCapacity();

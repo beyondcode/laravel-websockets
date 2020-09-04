@@ -24,13 +24,13 @@ class RedisChannelManager extends ArrayChannelManager
     }
 
     /**
-     * Get the connections count on the app.
+     * Get the connections count across multiple servers.
      *
      * @param  mixed  $appId
      * @return int
      */
-    public function getConnectionCount($appId): int
+    public function getGlobalConnectionsCount($appId): int
     {
-        return $this->replicator->appConnectionsCount($appId);
+        return $this->replicator->getGlobalConnectionsCount($appId);
     }
 }

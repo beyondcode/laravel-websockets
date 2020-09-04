@@ -106,7 +106,15 @@ interface ReplicationInterface
      * Get the amount of unique connections.
      *
      * @param  mixed  $appId
+     * @return null|int
+     */
+    public function getLocalConnectionsCount($appId);
+
+    /**
+     * Get the amount of connections aggregated on multiple instances.
+     *
+     * @param  mixed  $appId
      * @return null|int|\React\Promise\PromiseInterface
      */
-    public function appConnectionsCount($appId);
+    public function getGlobalConnectionsCount($appId);
 }
