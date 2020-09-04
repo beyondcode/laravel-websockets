@@ -73,8 +73,8 @@ class App
      * Initialize the Web Socket app instance.
      *
      * @param  string|int  $appId
-     * @param  string      $key
-     * @param  string      $secret
+     * @param  string  $key
+     * @param  string  $secret
      * @return void
      * @throws \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
      */
