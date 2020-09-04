@@ -7,7 +7,6 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
@@ -44,13 +43,6 @@ class RedisClient extends LocalClient
     protected $subscribeClient;
 
     /**
-     * The Redis manager instance.
-     *
-     * @var \Illuminate\Redis\RedisManager
-     */
-    protected $redis;
-
-    /**
      * Mapping of subscribed channels, where the key is the channel name,
      * and the value is the amount of connections which are subscribed to
      * that channel. Used to keep track of whether we still need to stay
@@ -68,7 +60,6 @@ class RedisClient extends LocalClient
     public function __construct()
     {
         $this->serverId = Str::uuid()->toString();
-        $this->redis = Cache::getRedis();
     }
 
     /**
