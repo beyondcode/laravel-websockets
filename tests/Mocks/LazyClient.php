@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
 
-use Clue\React\Redis\LazyClient as BaseLazyClient;
 use Clue\React\Redis\Factory;
+use Clue\React\Redis\LazyClient as BaseLazyClient;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Assert as PHPUnit;
 use React\EventLoop\LoopInterface;
