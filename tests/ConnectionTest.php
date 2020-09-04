@@ -7,7 +7,6 @@ use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\OriginNotAllowed;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\UnknownAppKey;
-use Illuminate\Support\Facades\Redis;
 
 class ConnectionTest extends TestCase
 {

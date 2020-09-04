@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Tests\Channels;
 
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
-use Illuminate\Support\Facades\Redis;
 
 class PresenceChannelReplicationTest extends TestCase
 {
