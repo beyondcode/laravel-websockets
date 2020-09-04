@@ -270,28 +270,20 @@ You know you've reached this limit of your Nginx error logs contain similar mess
 
 Remember to restart your Nginx after you've modified the `worker_connections`.
 
-### Example using Caddy
+### Example using Caddy v2
 
-[Caddy](https://caddyserver.com) can also be used to automatically obtain a TLS certificate from Let's Encrypt and terminate TLS before proxying to your echo server.
+[Caddy](https://caddyserver.com) can also be used to automatically obtain a TLS certificate from Let's Encrypt and terminate TLS before proxying to your websocket server.
 
 An example configuration would look like this:
 
 ```
 socket.yourapp.tld {
-    rewrite / {
-        if {>Connection} has Upgrade
-        if {>Upgrade} is websocket
-        to /websocket-proxy/{path}?{query}
+    @ws {
+        header Connection *Upgrade*
+        header Upgrade    websocket
     }
-
-    proxy /websocket-proxy 127.0.0.1:6001 {
-        without /special-websocket-url
-        transparent
-        websocket
-    }
-
-    tls youremail.com
+    reverse_proxy @ws 127.0.0.1:6001
 }
 ```
 
-Note the `to /websocket-proxy`, this is a dummy path to allow the `proxy` directive to only proxy on websocket connections. This should be a path that will never be used by your application's routing. Also, note that you should change `127.0.0.1` to the hostname of your websocket server. For example, if you're running in a Docker environment, this might be the container name of your websocket server.
+Note that you should change `127.0.0.1` to the hostname of your websocket server. For example, if you're running in a Docker environment, this might be the container name of your websocket server.
