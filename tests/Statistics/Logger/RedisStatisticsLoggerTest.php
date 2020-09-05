@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger;
-use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class RedisStatisticsLoggerTest extends TestCase
