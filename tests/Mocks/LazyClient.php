@@ -32,12 +32,20 @@ class LazyClient extends BaseLazyClient
     protected $redis;
 
     /**
+     * The loop.
+     *
+     * @var \React\EventLoop\LoopInterface
+     */
+    protected $loop;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($target, Factory $factory, LoopInterface $loop)
     {
         parent::__construct($target, $factory, $loop);
 
+        $this->loop = $loop;
         $this->redis = Redis::connection();
     }
 
@@ -52,7 +60,9 @@ class LazyClient extends BaseLazyClient
             $this->redis->__call($name, $args);
         }
 
-        return parent::__call($name, $args);
+        return new PromiseResolver(
+            parent::__call($name, $args), $this->loop
+        );
     }
 
     /**

@@ -63,7 +63,7 @@ class Connection implements ConnectionInterface
      *
      * @param  string  $name
      * @param  array  $additionalParameters
-     * @return void
+     * @return $this
      */
     public function assertSentEvent(string $name, array $additionalParameters = [])
     {
@@ -76,13 +76,15 @@ class Connection implements ConnectionInterface
         foreach ($additionalParameters as $parameter => $value) {
             PHPUnit::assertSame($event[$parameter], $value);
         }
+
+        return $this;
     }
 
     /**
      * Assert that an event got not sent.
      *
      * @param  string  $name
-     * @return void
+     * @return $this
      */
     public function assertNotSentEvent(string $name)
     {
@@ -91,15 +93,19 @@ class Connection implements ConnectionInterface
         PHPUnit::assertTrue(
             is_null($event)
         );
+
+        return $this;
     }
 
     /**
      * Assert the connection is closed.
      *
-     * @return void
+     * @return $this
      */
     public function assertClosed()
     {
         PHPUnit::assertTrue($this->closed);
+
+        return $this;
     }
 }

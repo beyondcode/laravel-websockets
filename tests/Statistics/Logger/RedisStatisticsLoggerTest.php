@@ -93,16 +93,8 @@ class RedisStatisticsLoggerTest extends TestCase
 
         $logger->save();
 
-        /* $this->assertCount(1, WebSocketsStatisticsEntry::all());
-
-        $entry = WebSocketsStatisticsEntry::first();
-
-        $this->assertEquals(1, $entry->peak_connection_count);
-        $this->assertEquals(1, $entry->websocket_message_count);
-        $this->assertEquals(1, $entry->api_message_count); */
-
         $this->markTestIncomplete(
-            'The nested callbacks seem to not be working well in tests.'
+            'The numbers does not seem to match well.'
         );
     }
 
@@ -127,16 +119,8 @@ class RedisStatisticsLoggerTest extends TestCase
 
         $logger->save();
 
-        /* $this->assertCount(1, WebSocketsStatisticsEntry::all());
-
-        $entry = WebSocketsStatisticsEntry::first();
-
-        $this->assertEquals(1, $entry->peak_connection_count);
-        $this->assertEquals(1, $entry->websocket_message_count);
-        $this->assertEquals(1, $entry->api_message_count); */
-
         $this->markTestIncomplete(
-            'The nested callbacks seem to not be working well in tests.'
+            'The numbers does not seem to match well.'
         );
     }
 }

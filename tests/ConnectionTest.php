@@ -58,9 +58,9 @@ class ConnectionTest extends TestCase
 
         $failedConnection = $this->getConnectedWebSocketConnection(['test-channel']);
 
-        $this->markTestIncomplete(
-            'The $failedConnection should somehow detect the tap($connection)->send($payload)->close() message.'
-        );
+        $failedConnection
+            ->assertSentEvent('pusher:error', ['data' => ['message' => 'Over capacity', 'code' => 4100]])
+            ->assertClosed();
     }
 
     /** @test */
