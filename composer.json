@@ -36,7 +36,7 @@
         "illuminate/routing": "^6.0|^7.0",
         "illuminate/support": "^6.0|^7.0",
         "pusher/pusher-php-server": "^3.0|^4.0",
-        "react/dns": "^1.1",
+        "react/promise": "^2.0",
         "symfony/http-kernel": "^4.0|^5.0",
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
     },
