@@ -14,7 +14,7 @@ interface AppManager
     /**
      * Get app by id.
      *
-     * @param  mixed  $appId
+     * @param  string|int  $appId
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public function findById($appId): ?App;
@@ -22,7 +22,7 @@ interface AppManager
     /**
      * Get app by app key.
      *
-     * @param  mixed  $appKey
+     * @param  string  $appKey
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public function findByKey($appKey): ?App;
@@ -30,7 +30,7 @@ interface AppManager
     /**
      * Get app by secret.
      *
-     * @param  mixed  $appSecret
+     * @param  string  $appSecret
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public function findBySecret($appSecret): ?App;
