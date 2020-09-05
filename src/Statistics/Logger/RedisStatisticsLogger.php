@@ -86,13 +86,13 @@ class RedisStatisticsLogger implements StatisticsLogger
         $incremented = $this->ensureAppIsSet($appId)
             ->__call('hincrby', [$this->getHash($appId), 'current_connection_count', 1]);
 
-        $incremented->then(function ($currentConnectionCount) {
+        $incremented->then(function ($currentConnectionCount) use ($appId) {
             // Get the peak connections count from Redis.
             $peakConnectionCount = $this->replicator
                 ->getPublishClient()
                 ->__call('hget', [$this->getHash($appId), 'peak_connection_count']);
 
-            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount) {
+            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount, $appId) {
                 // Extract the greatest number between the current peak connection count
                 // and the current connection number.
 
@@ -120,13 +120,13 @@ class RedisStatisticsLogger implements StatisticsLogger
         $decremented = $this->ensureAppIsSet($appId)
             ->__call('hincrby', [$this->getHash($appId), 'current_connection_count', -1]);
 
-        $decremented->then(function ($currentConnectionCount) {
+        $decremented->then(function ($currentConnectionCount) use ($appId) {
             // Get the peak connections count from Redis.
             $peakConnectionCount = $this->replicator
                 ->getPublishClient()
                 ->__call('hget', [$this->getHash($appId), 'peak_connection_count']);
 
-            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount) {
+            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount, $appId) {
                 // Extract the greatest number between the current peak connection count
                 // and the current connection number.
 
