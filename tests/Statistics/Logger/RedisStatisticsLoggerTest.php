@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Tests\Statistics\Controllers;
 
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Statistics\Logger\RedisStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
 
 class RedisStatisticsLoggerTest extends TestCase
@@ -76,50 +77,26 @@ class RedisStatisticsLoggerTest extends TestCase
     {
         config(['cache.default' => 'redis']);
 
-        $connection = $this->getConnectedWebSocketConnection(['channel-1']);
-
         $logger = new RedisStatisticsLogger(
             $this->channelManager,
             $this->statisticsDriver
         );
 
+        $logger->resetAppTraces('1');
         $logger->resetAppTraces('1234');
 
-        $logger->webSocketMessage($connection->app->id);
-        $logger->apiMessage($connection->app->id);
-        $logger->connection($connection->app->id);
-        $logger->disconnection($connection->app->id);
-
-        $logger->save();
-
-        $this->markTestIncomplete(
-            'The numbers does not seem to match well.'
-        );
-    }
-
-    /** @test */
-    public function it_counts_connections_with_redis_logger_with_existing_data()
-    {
-        config(['cache.default' => 'redis']);
-
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger = new RedisStatisticsLogger(
-            $this->channelManager,
-            $this->statisticsDriver
-        );
-
-        $logger->resetStatistics('1234', 0);
-
-        $logger->webSocketMessage($connection->app->id);
         $logger->apiMessage($connection->app->id);
-        $logger->connection($connection->app->id);
-        $logger->disconnection($connection->app->id);
 
         $logger->save();
 
-        $this->markTestIncomplete(
-            'The numbers does not seem to match well.'
-        );
+        $this->assertCount(1, WebSocketsStatisticsEntry::all());
+
+        $entry = WebSocketsStatisticsEntry::first();
+
+        $this->assertEquals(1, $entry->peak_connection_count);
+        $this->assertEquals(1, $entry->websocket_message_count);
+        $this->assertEquals(1, $entry->api_message_count);
     }
 }

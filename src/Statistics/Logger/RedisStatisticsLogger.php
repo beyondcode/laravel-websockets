@@ -165,6 +165,17 @@ class RedisStatisticsLogger implements StatisticsLogger
                             return;
                         }
 
+                        // Statistics come into a list where the keys are on even indexes
+                        // and the values are on odd indexes. This way, we know which
+                        // ones are keys and which ones are values and their get combined
+                        // later to form the key => value array
+
+                        [$keys, $values] = collect($statistic)->partition(function ($value, $key) {
+                            return $key % 2 === 0;
+                        });
+
+                        $statistic = array_combine($keys->all(), $values->all());
+
                         $this->createRecord($statistic, $appId);
 
                         $this->channelManager
