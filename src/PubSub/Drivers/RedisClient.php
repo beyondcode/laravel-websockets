@@ -104,7 +104,7 @@ class RedisClient extends LocalClient
 
         $payload = json_encode($payload);
 
-        $this->publishClient->__call('publish', [$this->getTopicName($appId, $channel), $payload]);
+        $this->publishClient->publish($this->getTopicName($appId, $channel), $payload);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_PUBLISHED, [
             'channel' => $channel,
@@ -127,7 +127,7 @@ class RedisClient extends LocalClient
     {
         if (! isset($this->subscribedChannels["{$appId}:{$channel}"])) {
             // We're not subscribed to the channel yet, subscribe and set the count to 1
-            $this->subscribeClient->__call('subscribe', [$this->getTopicName($appId, $channel)]);
+            $this->subscribeClient->subscribe($this->getTopicName($appId, $channel));
             $this->subscribedChannels["{$appId}:{$channel}"] = 1;
         } else {
             // Increment the subscribe count if we've already subscribed
@@ -161,7 +161,7 @@ class RedisClient extends LocalClient
 
         // If we no longer have subscriptions to that channel, unsubscribe
         if ($this->subscribedChannels["{$appId}:{$channel}"] < 1) {
-            $this->subscribeClient->__call('unsubscribe', [$this->getTopicName($appId, $channel)]);
+            $this->subscribeClient->unsubscribe($this->getTopicName($appId, $channel));
 
             unset($this->subscribedChannels["{$appId}:{$channel}"]);
         }
@@ -183,9 +183,9 @@ class RedisClient extends LocalClient
      */
     public function subscribeToApp($appId): bool
     {
-        $this->subscribeClient->__call('subscribe', [$this->getTopicName($appId)]);
+        $this->subscribeClient->subscribe($this->getTopicName($appId));
 
-        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', 1]);
+        $this->publishClient->hincrby($this->getTopicName($appId), 'connections', 1);
 
         return true;
     }
@@ -198,9 +198,9 @@ class RedisClient extends LocalClient
      */
     public function unsubscribeFromApp($appId): bool
     {
-        $this->subscribeClient->__call('unsubscribe', [$this->getTopicName($appId)]);
+        $this->subscribeClient->unsubscribe($this->getTopicName($appId));
 
-        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', -1]);
+        $this->publishClient->hincrby($this->getTopicName($appId), 'connections', -1);
 
         return true;
     }
@@ -217,7 +217,7 @@ class RedisClient extends LocalClient
      */
     public function joinChannel($appId, string $channel, string $socketId, string $data)
     {
-        $this->publishClient->__call('hset', [$this->getTopicName($appId, $channel), $socketId, $data]);
+        $this->publishClient->hset($this->getTopicName($appId, $channel), $socketId, $data);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_JOINED_CHANNEL, [
             'channel' => $channel,
@@ -239,7 +239,7 @@ class RedisClient extends LocalClient
      */
     public function leaveChannel($appId, string $channel, string $socketId)
     {
-        $this->publishClient->__call('hdel', [$this->getTopicName($appId, $channel), $socketId]);
+        $this->publishClient->hdel($this->getTopicName($appId, $channel), $socketId);
 
         DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_LEFT_CHANNEL, [
             'channel' => $channel,
@@ -258,7 +258,7 @@ class RedisClient extends LocalClient
      */
     public function channelMembers($appId, string $channel): PromiseInterface
     {
-        return $this->publishClient->__call('hgetall', [$this->getTopicName($appId, $channel)])
+        return $this->publishClient->hgetall($this->getTopicName($appId, $channel))
             ->then(function ($members) {
                 // The data is expected as objects, so we need to JSON decode
                 return array_map(function ($user) {
@@ -279,7 +279,7 @@ class RedisClient extends LocalClient
         $this->publishClient->__call('multi', []);
 
         foreach ($channelNames as $channel) {
-            $this->publishClient->__call('hlen', [$this->getTopicName($appId, $channel)]);
+            $this->publishClient->hlen($this->getTopicName($appId, $channel));
         }
 
         return $this->publishClient->__call('exec', [])
