@@ -176,6 +176,36 @@ class RedisClient extends LocalClient
     }
 
     /**
+     * Subscribe to the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function subscribeToApp($appId): bool
+    {
+        $this->subscribeClient->__call('subscribe', [$this->getTopicName($appId)]);
+
+        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', 1]);
+
+        return true;
+    }
+
+    /**
+     * Unsubscribe from the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function unsubscribeFromApp($appId): bool
+    {
+        $this->subscribeClient->__call('unsubscribe', [$this->getTopicName($appId)]);
+
+        $this->publishClient->__call('hincrby', [$this->getTopicName($appId), 'connections', -1]);
+
+        return true;
+    }
+
+    /**
      * Add a member to a channel. To be called when they have
      * subscribed to the channel.
      *
@@ -259,6 +289,17 @@ class RedisClient extends LocalClient
     }
 
     /**
+     * Get the amount of connections aggregated on multiple instances.
+     *
+     * @param  mixed  $appId
+     * @return null|int|\React\Promise\PromiseInterface
+     */
+    public function getGlobalConnectionsCount($appId)
+    {
+        return $this->publishClient->hget($this->getTopicName($appId), 'connections');
+    }
+
+    /**
      * Handle a message received from Redis on a specific channel.
      *
      * @param  string  $redisChannel
@@ -321,8 +362,8 @@ class RedisClient extends LocalClient
      */
     protected function getConnectionUri()
     {
-        $name = config('websockets.replication.redis.connection') ?: 'default';
-        $config = config('database.redis')[$name];
+        $name = config('websockets.replication.redis.connection', 'default');
+        $config = config("database.redis.{$name}");
 
         $host = $config['host'];
         $port = $config['port'] ?: 6379;
@@ -377,13 +418,19 @@ class RedisClient extends LocalClient
      * app ID and channel name.
      *
      * @param  mixed  $appId
-     * @param  string  $channel
+     * @param  string|null  $channel
      * @return string
      */
-    protected function getTopicName($appId, string $channel): string
+    protected function getTopicName($appId, string $channel = null): string
     {
         $prefix = config('database.redis.options.prefix', null);
 
-        return "{$prefix}{$appId}:{$channel}";
+        $hash = "{$prefix}{$appId}";
+
+        if ($channel) {
+            $hash .= ":{$channel}";
+        }
+
+        return $hash;
     }
 }

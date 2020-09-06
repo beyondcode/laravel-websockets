@@ -59,9 +59,11 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ChannelManager::class, function () {
-            $channelManager = config('websockets.managers.channel', ArrayChannelManager::class);
+            $replicationDriver = config('websockets.replication.driver', 'local');
 
-            return new $channelManager;
+            $class = config("websockets.replication.{$replicationDriver}.channel_manager", ArrayChannelManager::class);
+
+            return new $class;
         });
 
         $this->app->singleton(AppManager::class, function () {
@@ -69,12 +71,13 @@ class WebSocketsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(StatisticsDriver::class, function () {
-            $driver = config('websockets.statistics.driver');
+            $driver = config('websockets.statistics.driver', 'local');
 
             return $this->app->make(
-                config('websockets.statistics')[$driver]['driver']
-                ??
-                \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
+                config(
+                    "websockets.statistics.{$driver}.driver",
+                    \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class
+                )
             );
         });
     }

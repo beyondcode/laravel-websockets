@@ -36,9 +36,17 @@ interface ChannelManager
      * Get the connections count on the app.
      *
      * @param  mixed  $appId
-     * @return int
+     * @return int|\React\Promise\PromiseInterface
      */
-    public function getConnectionCount($appId): int;
+    public function getLocalConnectionsCount($appId): int;
+
+    /**
+     * Get the connections count across multiple servers.
+     *
+     * @param  mixed  $appId
+     * @return int|\React\Promise\PromiseInterface
+     */
+    public function getGlobalConnectionsCount($appId);
 
     /**
      * Remove connection from all channels.

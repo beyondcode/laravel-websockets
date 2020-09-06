@@ -12,7 +12,8 @@ class FakeMemoryStatisticsLogger extends MemoryStatisticsLogger
     public function save()
     {
         foreach ($this->statistics as $appId => $statistic) {
-            $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
+            $currentConnectionCount = $this->channelManager->getGlobalConnectionsCount($appId);
+
             $statistic->reset($currentConnectionCount);
         }
     }

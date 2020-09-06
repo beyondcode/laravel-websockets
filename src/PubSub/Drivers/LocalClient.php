@@ -67,6 +67,28 @@ class LocalClient implements ReplicationInterface
     }
 
     /**
+     * Subscribe to the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function subscribeToApp($appId): bool
+    {
+        return true;
+    }
+
+    /**
+     * Unsubscribe from the app's pubsub keyspace.
+     *
+     * @param  mixed  $appId
+     * @return bool
+     */
+    public function unsubscribeFromApp($appId): bool
+    {
+        return true;
+    }
+
+    /**
      * Add a member to a channel. To be called when they have
      * subscribed to the channel.
      *
@@ -136,5 +158,27 @@ class LocalClient implements ReplicationInterface
         }
 
         return new FulfilledPromise($results);
+    }
+
+    /**
+     * Get the amount of unique connections.
+     *
+     * @param  mixed  $appId
+     * @return null|int
+     */
+    public function getLocalConnectionsCount($appId)
+    {
+        return null;
+    }
+
+    /**
+     * Get the amount of connections aggregated on multiple instances.
+     *
+     * @param  mixed  $appId
+     * @return null|int|\React\Promise\PromiseInterface
+     */
+    public function getGlobalConnectionsCount($appId)
+    {
+        return null;
     }
 }

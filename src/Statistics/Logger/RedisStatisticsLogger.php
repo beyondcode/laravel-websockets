@@ -3,10 +3,11 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Logger;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use Illuminate\Cache\RedisLock;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class RedisStatisticsLogger implements StatisticsLogger
 {
@@ -42,7 +43,11 @@ class RedisStatisticsLogger implements StatisticsLogger
     {
         $this->channelManager = $channelManager;
         $this->driver = $driver;
-        $this->redis = Cache::getRedis();
+        $this->replicator = app(ReplicationInterface::class);
+
+        $this->redis = Redis::connection(
+            config('websockets.replication.redis.connection', 'default')
+        );
     }
 
     /**
@@ -54,7 +59,7 @@ class RedisStatisticsLogger implements StatisticsLogger
     public function webSocketMessage($appId)
     {
         $this->ensureAppIsSet($appId)
-            ->hincrby($this->getHash($appId), 'websocket_message_count', 1);
+            ->__call('hincrby', [$this->getHash($appId), 'websocket_message_count', 1]);
     }
 
     /**
@@ -66,7 +71,7 @@ class RedisStatisticsLogger implements StatisticsLogger
     public function apiMessage($appId)
     {
         $this->ensureAppIsSet($appId)
-            ->hincrby($this->getHash($appId), 'api_message_count', 1);
+            ->__call('hincrby', [$this->getHash($appId), 'api_message_count', 1]);
     }
 
     /**
@@ -77,16 +82,30 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     public function connection($appId)
     {
-        $currentConnectionCount = $this->ensureAppIsSet($appId)
-            ->hincrby($this->getHash($appId), 'current_connection_count', 1);
+        // Increment the current connections count by 1.
+        $incremented = $this->ensureAppIsSet($appId)
+            ->__call('hincrby', [$this->getHash($appId), 'current_connection_count', 1]);
 
-        $currentPeakConnectionCount = $this->redis->hget($this->getHash($appId), 'peak_connection_count');
+        $incremented->then(function ($currentConnectionCount) use ($appId) {
+            // Get the peak connections count from Redis.
+            $peakConnectionCount = $this->replicator
+                ->getPublishClient()
+                ->__call('hget', [$this->getHash($appId), 'peak_connection_count']);
 
-        $peakConnectionCount = is_null($currentPeakConnectionCount)
-            ? $currentConnectionCount
-            : max($currentPeakConnectionCount, $currentConnectionCount);
+            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount, $appId) {
+                // Extract the greatest number between the current peak connection count
+                // and the current connection number.
 
-        $this->redis->hset($this->getHash($appId), 'peak_connection_count', $peakConnectionCount);
+                $peakConnectionCount = is_null($currentPeakConnectionCount)
+                    ? $currentConnectionCount
+                    : max($currentPeakConnectionCount, $currentConnectionCount);
+
+                // Then set it to the database.
+                $this->replicator
+                    ->getPublishClient()
+                    ->__call('hset', [$this->getHash($appId), 'peak_connection_count', $peakConnectionCount]);
+            });
+        });
     }
 
     /**
@@ -97,16 +116,30 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     public function disconnection($appId)
     {
-        $currentConnectionCount = $this->ensureAppIsSet($appId)
-            ->hincrby($this->getHash($appId), 'current_connection_count', -1);
+        // Decrement the current connections count by 1.
+        $decremented = $this->ensureAppIsSet($appId)
+            ->__call('hincrby', [$this->getHash($appId), 'current_connection_count', -1]);
 
-        $currentPeakConnectionCount = $this->redis->hget($this->getHash($appId), 'peak_connection_count');
+        $decremented->then(function ($currentConnectionCount) use ($appId) {
+            // Get the peak connections count from Redis.
+            $peakConnectionCount = $this->replicator
+                ->getPublishClient()
+                ->__call('hget', [$this->getHash($appId), 'peak_connection_count']);
 
-        $peakConnectionCount = is_null($currentPeakConnectionCount)
-            ? $currentConnectionCount
-            : max($currentPeakConnectionCount, $currentConnectionCount);
+            $peakConnectionCount->then(function ($currentPeakConnectionCount) use ($currentConnectionCount, $appId) {
+                // Extract the greatest number between the current peak connection count
+                // and the current connection number.
 
-        $this->redis->hset($this->getHash($appId), 'peak_connection_count', $peakConnectionCount);
+                $peakConnectionCount = is_null($currentPeakConnectionCount)
+                    ? $currentConnectionCount
+                    : max($currentPeakConnectionCount, $currentConnectionCount);
+
+                // Then set it to the database.
+                $this->replicator
+                    ->getPublishClient()
+                    ->__call('hset', [$this->getHash($appId), 'peak_connection_count', $peakConnectionCount]);
+            });
+        });
     }
 
     /**
@@ -117,19 +150,44 @@ class RedisStatisticsLogger implements StatisticsLogger
     public function save()
     {
         $this->lock()->get(function () {
-            foreach ($this->redis->smembers('laravel-websockets:apps') as $appId) {
-                if (! $statistic = $this->redis->hgetall($this->getHash($appId))) {
-                    continue;
+            $setMembers = $this->replicator
+                ->getPublishClient()
+                ->__call('smembers', ['laravel-websockets:apps']);
+
+            $setMembers->then(function ($members) {
+                foreach ($members as $appId) {
+                    $member = $this->replicator
+                        ->getPublishClient()
+                        ->__call('hgetall', [$this->getHash($appId)]);
+
+                    $member->then(function ($statistic) use ($appId) {
+                        if (! $statistic) {
+                            return;
+                        }
+
+                        // Statistics come into a list where the keys are on even indexes
+                        // and the values are on odd indexes. This way, we know which
+                        // ones are keys and which ones are values and their get combined
+                        // later to form the key => value array
+
+                        [$keys, $values] = collect($statistic)->partition(function ($value, $key) {
+                            return $key % 2 === 0;
+                        });
+
+                        $statistic = array_combine($keys->all(), $values->all());
+
+                        $this->createRecord($statistic, $appId);
+
+                        $this->channelManager
+                            ->getGlobalConnectionsCount($appId)
+                            ->then(function ($currentConnectionCount) use ($appId) {
+                                $currentConnectionCount === 0
+                                    ? $this->resetAppTraces($appId)
+                                    : $this->resetStatistics($appId, $currentConnectionCount);
+                            });
+                    });
                 }
-
-                $this->createRecord($statistic, $appId);
-
-                $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
-
-                $currentConnectionCount === 0
-                    ? $this->resetAppTraces($appId)
-                    : $this->resetStatistics($appId, $currentConnectionCount);
-            }
+            });
         });
     }
 
@@ -141,9 +199,11 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     protected function ensureAppIsSet($appId)
     {
-        $this->redis->sadd('laravel-websockets:apps', $appId);
+        $this->replicator
+            ->getPublishClient()
+            ->__call('sadd', ['laravel-websockets:apps', $appId]);
 
-        return $this->redis;
+        return $this->replicator->getPublishClient();
     }
 
     /**
@@ -155,10 +215,21 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     public function resetStatistics($appId, int $currentConnectionCount)
     {
-        $this->redis->hset($this->getHash($appId), 'current_connection_count', $currentConnectionCount);
-        $this->redis->hset($this->getHash($appId), 'peak_connection_count', $currentConnectionCount);
-        $this->redis->hset($this->getHash($appId), 'websocket_message_count', 0);
-        $this->redis->hset($this->getHash($appId), 'api_message_count', 0);
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hset', [$this->getHash($appId), 'current_connection_count', $currentConnectionCount]);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hset', [$this->getHash($appId), 'peak_connection_count', $currentConnectionCount]);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hset', [$this->getHash($appId), 'websocket_message_count', 0]);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hset', [$this->getHash($appId), 'api_message_count', 0]);
     }
 
     /**
@@ -170,12 +241,25 @@ class RedisStatisticsLogger implements StatisticsLogger
      */
     public function resetAppTraces($appId)
     {
-        $this->redis->hdel($this->getHash($appId), 'current_connection_count');
-        $this->redis->hdel($this->getHash($appId), 'peak_connection_count');
-        $this->redis->hdel($this->getHash($appId), 'websocket_message_count');
-        $this->redis->hdel($this->getHash($appId), 'api_message_count');
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hdel', [$this->getHash($appId), 'current_connection_count']);
 
-        $this->redis->srem('laravel-websockets:apps', $appId);
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hdel', [$this->getHash($appId), 'peak_connection_count']);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hdel', [$this->getHash($appId), 'websocket_message_count']);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('hdel', [$this->getHash($appId), 'api_message_count']);
+
+        $this->replicator
+            ->getPublishClient()
+            ->__call('srem', ['laravel-websockets:apps', $appId]);
     }
 
     /**

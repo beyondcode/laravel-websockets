@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\WebSockets;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
+use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\QueryParameters;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\Exceptions\ConnectionsOverCapacity;
@@ -16,6 +17,7 @@ use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use React\Promise\PromiseInterface;
 
 class WebSocketHandler implements MessageComponentInterface
 {
@@ -27,6 +29,13 @@ class WebSocketHandler implements MessageComponentInterface
     protected $channelManager;
 
     /**
+     * The replicator client.
+     *
+     * @var ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * Initialize a new handler.
      *
      * @param  \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager  $channelManager
@@ -35,6 +44,7 @@ class WebSocketHandler implements MessageComponentInterface
     public function __construct(ChannelManager $channelManager)
     {
         $this->channelManager = $channelManager;
+        $this->replicator = app(ReplicationInterface::class);
     }
 
     /**
@@ -83,6 +93,8 @@ class WebSocketHandler implements MessageComponentInterface
         ]);
 
         StatisticsLogger::disconnection($connection->app->id);
+
+        $this->replicator->unsubscribeFromApp($connection->app->id);
     }
 
     /**
@@ -99,6 +111,8 @@ class WebSocketHandler implements MessageComponentInterface
                 $exception->getPayload()
             ));
         }
+
+        $this->replicator->unsubscribeFromApp($connection->app->id);
     }
 
     /**
@@ -152,10 +166,14 @@ class WebSocketHandler implements MessageComponentInterface
     protected function limitConcurrentConnections(ConnectionInterface $connection)
     {
         if (! is_null($capacity = $connection->app->capacity)) {
-            $connectionsCount = $this->channelManager->getConnectionCount($connection->app->id);
+            $connectionsCount = $this->channelManager->getGlobalConnectionsCount($connection->app->id);
 
-            if ($connectionsCount >= $capacity) {
-                throw new ConnectionsOverCapacity();
+            if ($connectionsCount instanceof PromiseInterface) {
+                $connectionsCount->then(function ($connectionsCount) use ($capacity, $connection) {
+                    $this->sendExceptionIfOverCapacity($connectionsCount, $capacity, $connection);
+                });
+            } else {
+                $this->throwExceptionIfOverCapacity($connectionsCount, $capacity);
             }
         }
 
@@ -203,6 +221,41 @@ class WebSocketHandler implements MessageComponentInterface
 
         StatisticsLogger::connection($connection->app->id);
 
+        $this->replicator->subscribeToApp($connection->app->id);
+
         return $this;
+    }
+
+    /**
+     * Throw a ConnectionsOverCapacity exception.
+     *
+     * @param  int  $connectionsCount
+     * @param  int  $capacity
+     * @return void
+     * @throws ConnectionsOverCapacity
+     */
+    protected function throwExceptionIfOverCapacity(int $connectionsCount, int $capacity)
+    {
+        if ($connectionsCount >= $capacity) {
+            throw new ConnectionsOverCapacity;
+        }
+    }
+
+    /**
+     * Send the ConnectionsOverCapacity exception through
+     * the connection and close the channel.
+     *
+     * @param  int  $connectionsCount
+     * @param  int  $capacity
+     * @param  ConnectionInterface  $connection
+     * @return void
+     */
+    protected function sendExceptionIfOverCapacity(int $connectionsCount, int $capacity, ConnectionInterface $connection)
+    {
+        if ($connectionsCount >= $capacity) {
+            $payload = json_encode((new ConnectionsOverCapacity)->getPayload());
+
+            tap($connection)->send($payload)->close();
+        }
     }
 }

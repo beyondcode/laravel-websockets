@@ -7,9 +7,11 @@ use BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface;
 use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Connection;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeMemoryStatisticsLogger;
+use BeyondCode\LaravelWebSockets\Tests\Mocks\FakeRedisStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Redis;
 use Orchestra\Testbench\BrowserKit\TestCase as BaseTestCase;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\Factory as LoopFactory;
@@ -38,11 +40,27 @@ abstract class TestCase extends BaseTestCase
     protected $statisticsDriver;
 
     /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
+    /**
+     * Get the loop instance.
+     *
+     * @var \React\EventLoop\LoopInterface
+     */
+    protected $loop;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->loop = LoopFactory::create();
 
         $this->resetDatabase();
 
@@ -50,20 +68,17 @@ abstract class TestCase extends BaseTestCase
 
         $this->withFactories(__DIR__.'/database/factories');
 
-        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
+        $this->configurePubSub();
 
         $this->channelManager = $this->app->make(ChannelManager::class);
 
         $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
 
-        StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
-            $this->channelManager,
-            app(StatisticsDriver::class)
-        ));
+        $this->configureStatisticsLogger();
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        $this->configurePubSub();
+        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
     }
 
     /**
@@ -151,6 +166,7 @@ abstract class TestCase extends BaseTestCase
 
         if (in_array($replicationDriver, ['redis'])) {
             $app['config']->set('broadcasting.default', 'pusher');
+            $app['config']->set('cache.default', 'redis');
         }
     }
 
@@ -254,20 +270,49 @@ abstract class TestCase extends BaseTestCase
      */
     protected function configurePubSub()
     {
+        $replicationDriver = config('websockets.replication.driver', 'local');
+
         // Replace the publish and subscribe clients with a Mocked
         // factory lazy instance on boot.
-        $this->app->singleton(ReplicationInterface::class, function () {
-            $driver = config('websockets.replication.driver', 'local');
-
+        $this->app->singleton(ReplicationInterface::class, function () use ($replicationDriver) {
             $client = config(
-                "websockets.replication.{$driver}.client",
+                "websockets.replication.{$replicationDriver}.client",
                 \BeyondCode\LaravelWebSockets\PubSub\Drivers\LocalClient::class
             );
 
             return (new $client)->boot(
-                LoopFactory::create(), Mocks\RedisFactory::class
+                $this->loop, Mocks\RedisFactory::class
             );
         });
+
+        if ($replicationDriver === 'redis') {
+            $this->redis = Redis::connection();
+        }
+    }
+
+    /**
+     * Configure the statistics logger for the right driver.
+     *
+     * @return void
+     */
+    protected function configureStatisticsLogger()
+    {
+        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
+
+        if ($replicationDriver === 'local') {
+            StatisticsLogger::swap(new FakeMemoryStatisticsLogger(
+                $this->channelManager,
+                app(StatisticsDriver::class)
+            ));
+        }
+
+        if ($replicationDriver === 'redis') {
+            StatisticsLogger::swap(new FakeRedisStatisticsLogger(
+                $this->channelManager,
+                app(StatisticsDriver::class),
+                $this->app->make(ReplicationInterface::class)
+            ));
+        }
     }
 
     protected function runOnlyOnRedisReplication()

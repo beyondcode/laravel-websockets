@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Tests\PubSub;
 use BeyondCode\LaravelWebSockets\PubSub\Drivers\RedisClient;
 use BeyondCode\LaravelWebSockets\Tests\Mocks\RedisFactory;
 use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use Illuminate\Support\Facades\Redis;
 use React\EventLoop\Factory as LoopFactory;
 
 class RedisDriverTest extends TestCase
@@ -17,6 +18,8 @@ class RedisDriverTest extends TestCase
         parent::setUp();
 
         $this->runOnlyOnRedisReplication();
+
+        Redis::hdel('laravel_database_1234', 'connections');
     }
 
     /** @test */
@@ -79,5 +82,41 @@ class RedisDriverTest extends TestCase
 
         $client->getSubscribeClient()
             ->assertEventDispatched('message');
+    }
+
+    /** @test */
+    public function redis_tracks_app_connections_count()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', ['laravel_database_1234']);
+
+        $this->getPublishClient()
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
+    }
+
+    /** @test */
+    public function redis_tracks_app_connections_count_on_disconnect()
+    {
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', ['laravel_database_1234'])
+            ->assertNotCalledWithArgs('unsubscribe', ['laravel_database_1234']);
+
+        $this->getPublishClient()
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
+
+        $this->pusherServer->onClose($connection);
+
+        $this->getPublishClient()
+            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', -1]);
+
+        $this->assertEquals(0, Redis::hget('laravel_database_1234', 'connections'));
     }
 }

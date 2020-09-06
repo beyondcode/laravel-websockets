@@ -105,7 +105,7 @@ class MemoryStatisticsLogger implements StatisticsLogger
 
             $this->createRecord($statistic, $appId);
 
-            $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
+            $currentConnectionCount = $this->channelManager->getGlobalConnectionsCount($appId);
 
             $statistic->reset($currentConnectionCount);
         }
