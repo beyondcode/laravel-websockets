@@ -26,6 +26,13 @@ class RedisStatisticsLogger implements StatisticsLogger
     protected $driver;
 
     /**
+     * The replicator client.
+     *
+     * @var ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * The Redis manager instance.
      *
      * @var \Illuminate\Redis\RedisManager
