@@ -170,6 +170,8 @@ class WebSocketHandler implements MessageComponentInterface
 
             if ($connectionsCount instanceof PromiseInterface) {
                 $connectionsCount->then(function ($connectionsCount) use ($capacity, $connection) {
+                    $connectionsCount = $connectionsCount ?: 0;
+
                     $this->sendExceptionIfOverCapacity($connectionsCount, $capacity, $connection);
                 });
             } else {
