@@ -188,7 +188,7 @@ class RedisStatisticsLogger implements StatisticsLogger
                         $this->channelManager
                             ->getGlobalConnectionsCount($appId)
                             ->then(function ($currentConnectionCount) use ($appId) {
-                                $currentConnectionCount === 0
+                                $currentConnectionCount === 0 || is_null($currentConnectionCount)
                                     ? $this->resetAppTraces($appId)
                                     : $this->resetStatistics($appId, $currentConnectionCount);
                             });
