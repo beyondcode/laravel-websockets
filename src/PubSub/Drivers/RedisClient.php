@@ -276,13 +276,14 @@ class RedisClient extends LocalClient
      */
     public function channelMemberCounts($appId, array $channelNames): PromiseInterface
     {
-        $this->publishClient->__call('multi', []);
+        $this->publishClient->multi();
 
         foreach ($channelNames as $channel) {
             $this->publishClient->hlen($this->getTopicName($appId, $channel));
         }
 
-        return $this->publishClient->__call('exec', [])
+        return $this->publishClient
+            ->exec()
             ->then(function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
             });
