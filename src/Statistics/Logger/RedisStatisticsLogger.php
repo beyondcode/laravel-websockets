@@ -275,9 +275,11 @@ class RedisStatisticsLogger implements StatisticsLogger
      * @param  mixed  $appId
      * @return string
      */
-    protected function getHash($appId): string
+    public function getHash($appId): string
     {
-        return "laravel-websockets:app:{$appId}";
+        $prefix = config('database.redis.options.prefix', null);
+
+        return "{$prefix}laravel-websockets:app:{$appId}";
     }
 
     /**

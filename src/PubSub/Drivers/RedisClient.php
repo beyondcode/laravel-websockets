@@ -422,11 +422,11 @@ class RedisClient extends LocalClient
      * @param  string|null  $channel
      * @return string
      */
-    protected function getTopicName($appId, string $channel = null): string
+    public function getTopicName($appId, string $channel = null): string
     {
         $prefix = config('database.redis.options.prefix', null);
 
-        $hash = "{$prefix}{$appId}";
+        $hash = "{$prefix}laravel-websockets:app:{$appId}";
 
         if ($channel) {
             $hash .= ":{$channel}";
