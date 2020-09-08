@@ -79,12 +79,10 @@ class FetchChannelReplicationTest extends TestCase
     /** @test */
     public function replication_it_returns_presence_channel_information()
     {
-        $this->skipOnRedisReplication();
-
         $this->joinPresenceChannel('presence-channel');
         $this->joinPresenceChannel('presence-channel');
 
-        $connection = new Connection();
+        $connection = new Connection;
 
         $requestPath = '/apps/1234/channel/my-channel';
         $routeParams = [
@@ -102,14 +100,6 @@ class FetchChannelReplicationTest extends TestCase
 
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
-
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
-
-        $this->getPublishClient()
-            ->assertCalled('hset')
-            ->assertCalled('hgetall')
-            ->assertCalled('publish');
 
         $this->assertSame([
             'occupied' => true,

@@ -46,8 +46,8 @@ class RedisDriverTest extends TestCase
         $this->getSubscribeClient()->onMessage('1234:test-channel', $payload);
 
         $this->getSubscribeClient()
-            ->assertEventDispatched('message')
-            ->assertCalledWithArgs('subscribe', ['laravel_database_1234:test-channel'])
+            ->assertCalledWithArgs('subscribe', [$this->replicator->getTopicName('1234')])
+            ->assertCalledWithArgs('subscribe', [$this->replicator->getTopicName('1234', 'test-channel')])
             ->assertCalledWithArgs('onMessage', [
                 '1234:test-channel', $payload,
             ]);
@@ -82,41 +82,5 @@ class RedisDriverTest extends TestCase
 
         $client->getSubscribeClient()
             ->assertEventDispatched('message');
-    }
-
-    /** @test */
-    public function redis_tracks_app_connections_count()
-    {
-        $connection = $this->getWebSocketConnection();
-
-        $this->pusherServer->onOpen($connection);
-
-        $this->getSubscribeClient()
-            ->assertCalledWithArgs('subscribe', ['laravel_database_1234']);
-
-        $this->getPublishClient()
-            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
-    }
-
-    /** @test */
-    public function redis_tracks_app_connections_count_on_disconnect()
-    {
-        $connection = $this->getWebSocketConnection();
-
-        $this->pusherServer->onOpen($connection);
-
-        $this->getSubscribeClient()
-            ->assertCalledWithArgs('subscribe', ['laravel_database_1234'])
-            ->assertNotCalledWithArgs('unsubscribe', ['laravel_database_1234']);
-
-        $this->getPublishClient()
-            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', 1]);
-
-        $this->pusherServer->onClose($connection);
-
-        $this->getPublishClient()
-            ->assertCalledWithArgs('hincrby', ['laravel_database_1234', 'connections', -1]);
-
-        $this->assertEquals(0, Redis::hget('laravel_database_1234', 'connections'));
     }
 }

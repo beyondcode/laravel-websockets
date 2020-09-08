@@ -26,7 +26,7 @@ class FetchChannelsReplicationTest extends TestCase
     {
         $this->joinPresenceChannel('presence-channel');
 
-        $connection = new Connection();
+        $connection = new Connection;
 
         $requestPath = '/apps/1234/channels';
         $routeParams = [
@@ -44,16 +44,9 @@ class FetchChannelsReplicationTest extends TestCase
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
 
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
-
-        $this->getPublishClient()
-            ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
-            ->assertCalled('publish')
-            ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-channel'])
-            ->assertCalled('exec');
+        $this->assertSame(json_encode([
+            'channels' => ['presence-channel' => (object) []],
+        ]), $response->getContent());
     }
 
     /** @test */
@@ -84,20 +77,9 @@ class FetchChannelsReplicationTest extends TestCase
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
 
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
-
-        $this->getPublishClient()
-            ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])
-            ->assertCalled('publish')
-            ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.1'])
-            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.2'])
-            ->assertNotCalledWithArgs('hlen', ['laravel_database_1234:presence-notglobal.2'])
-            ->assertCalled('exec');
+        $this->assertSame(json_encode([
+            'channels' => ['presence-global.1' => (object) [], 'presence-global.2' => (object) []],
+        ]), $response->getContent());
     }
 
     /** @test */
@@ -108,7 +90,7 @@ class FetchChannelsReplicationTest extends TestCase
         $this->joinPresenceChannel('presence-global.2');
         $this->joinPresenceChannel('presence-notglobal.2');
 
-        $connection = new Connection();
+        $connection = new Connection;
 
         $requestPath = '/apps/1234/channels';
         $routeParams = [
@@ -129,19 +111,16 @@ class FetchChannelsReplicationTest extends TestCase
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
 
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
-
         $this->getPublishClient()
             ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.1'])
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-global.2'])
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hgetall', [$this->replicator->getTopicName('1234', 'presence-global.1')])
+            ->assertCalledWithArgs('hgetall', [$this->replicator->getTopicName('1234', 'presence-global.2')])
+            ->assertCalledWithArgs('hgetall', [$this->replicator->getTopicName('1234', 'presence-notglobal.2')])
             ->assertCalled('publish')
             ->assertCalled('multi')
-            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.1'])
-            ->assertCalledWithArgs('hlen', ['laravel_database_1234:presence-global.2'])
-            ->assertNotCalledWithArgs('hlen', ['laravel_database_1234:presence-notglobal.2'])
+            ->assertCalledWithArgs('hlen', [$this->replicator->getTopicName('1234', 'presence-global.1')])
+            ->assertCalledWithArgs('hlen', [$this->replicator->getTopicName('1234', 'presence-global.2')])
+            ->assertNotCalledWithArgs('hlen', [$this->replicator->getTopicName('1234', 'presence-notglobal.2')])
             ->assertCalled('exec');
     }
 
@@ -165,9 +144,6 @@ class FetchChannelsReplicationTest extends TestCase
 
         /** @var JsonResponse $response */
         $response = array_pop($connection->sentRawData);
-
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
 
         $this->getPublishClient()
             ->assertNotCalled('hset')

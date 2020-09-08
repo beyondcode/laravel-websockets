@@ -29,20 +29,7 @@ class ConnectionTest extends TestCase
     }
 
     /** @test */
-    public function app_can_not_exceed_maximum_capacity()
-    {
-        $this->runOnlyOnLocalReplication();
-
-        $this->app['config']->set('websockets.apps.0.capacity', 2);
-
-        $this->getConnectedWebSocketConnection(['test-channel']);
-        $this->getConnectedWebSocketConnection(['test-channel']);
-        $this->expectException(ConnectionsOverCapacity::class);
-        $this->getConnectedWebSocketConnection(['test-channel']);
-    }
-
-    /** @test */
-    public function app_can_not_exceed_maximum_capacity_on_redis_replication()
+    public function known_app_keys_can_connect_on_redis_replication()
     {
         $this->runOnlyOnRedisReplication();
 
@@ -52,6 +39,10 @@ class ConnectionTest extends TestCase
 
         $this->getConnectedWebSocketConnection(['test-channel']);
         $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', [$this->replicator->getTopicName('1234')])
+            ->assertCalledWithArgs('subscribe', [$this->replicator->getTopicName('1234', 'test-channel')]);
 
         $this->getPublishClient()
             ->hget($this->replicator->getTopicName('1234'), 'connections')
@@ -76,6 +67,86 @@ class ConnectionTest extends TestCase
             ->then(function ($members) {
                 $this->assertEquals(['1234'], $members);
             });
+
+        $failedConnection = $this->getConnectedWebSocketConnection(['test-channel']);
+
+        $failedConnection
+            ->assertSentEvent('pusher:error', ['data' => ['message' => 'Over capacity', 'code' => 4100]])
+            ->assertClosed();
+    }
+
+    /** @test */
+    public function redis_tracks_app_connections_count_on_disconnect()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $connection = $this->getWebSocketConnection();
+
+        $this->pusherServer->onOpen($connection);
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'connections')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'peak_connection_count')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'websocket_message_count')
+            ->then(function ($count) {
+                $this->assertEquals(null, $count);
+            });
+
+        $this->pusherServer->onClose($connection);
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'connections')
+            ->then(function ($count) {
+                $this->assertEquals(0, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'peak_connection_count')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'websocket_message_count')
+            ->then(function ($count) {
+                $this->assertEquals(null, $count);
+            });
+    }
+
+    /** @test */
+    public function app_can_not_exceed_maximum_capacity()
+    {
+        $this->runOnlyOnLocalReplication();
+
+        $this->app['config']->set('websockets.apps.0.capacity', 2);
+
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->expectException(ConnectionsOverCapacity::class);
+        $this->getConnectedWebSocketConnection(['test-channel']);
+    }
+
+    /** @test */
+    public function app_can_not_exceed_maximum_capacity_on_redis_replication()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $this->redis->hdel('laravel_database_1234', 'connections');
+
+        $this->app['config']->set('websockets.apps.0.capacity', 2);
+
+        $this->getConnectedWebSocketConnection(['test-channel']);
+        $this->getConnectedWebSocketConnection(['test-channel']);
 
         $failedConnection = $this->getConnectedWebSocketConnection(['test-channel']);
 
