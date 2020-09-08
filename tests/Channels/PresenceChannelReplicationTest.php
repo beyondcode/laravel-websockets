@@ -45,17 +45,13 @@ class PresenceChannelReplicationTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->getPublishClient()
-            ->assertCalledWithArgs('hset', [
-                'laravel_database_1234:presence-channel',
-                $connection->socketId,
-                json_encode($channelData),
-            ])
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
-            ->assertCalled('publish');
-
-        $this->assertNotNull(
-            $this->redis->hget('laravel_database_1234:presence-channel', $connection->socketId)
-        );
+            ->hgetall($this->replicator->getTopicName('1234', 'presence-channel'))
+            ->then(function ($joinedUsers) use ($connection, $channelData) {
+                $this->assertEquals([
+                    $connection->socketId,
+                    json_encode($channelData),
+                ], $joinedUsers);
+            });
     }
 
     /** @test */
@@ -64,6 +60,11 @@ class PresenceChannelReplicationTest extends TestCase
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
+
+        // Initiate a second connection that is going to receive the presence channel updates.
+        $anotherConnection = $this->joinPresenceChannel('presence-channel', $anotherChannelData = [
+            'user_id' => 2,
+        ]);
 
         $channelData = [
             'user_id' => 1,
@@ -82,16 +83,23 @@ class PresenceChannelReplicationTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
-        $this->getSubscribeClient()
-            ->assertEventDispatched('message');
-
+        // Both of the connections should be stored into Redis.
         $this->getPublishClient()
-            ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
-            ->assertCalled('publish');
+            ->hgetall($this->replicator->getTopicName('1234', 'presence-channel'))
+            ->then(function ($joinedUsers) use ($connection, $anotherConnection, $channelData, $anotherChannelData) {
+                $this->assertEquals([
+                    $anotherConnection->socketId,
+                    json_encode($anotherChannelData),
+                    $connection->socketId,
+                    json_encode($channelData),
+                ], $joinedUsers);
+            });
 
-        $this->getPublishClient()
-            ->resetAssertions();
+        // The already-connected member should receive member_added.
+        $anotherConnection->assertSentEvent('pusher_internal:member_added', [
+            'data' => json_encode(['user_id' => 1]),
+            'channel' => 'presence-channel',
+        ]);
 
         $message = new Message([
             'event' => 'pusher:unsubscribe',
@@ -103,38 +111,20 @@ class PresenceChannelReplicationTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
+        // In the list of the existing members, only one user should remain active.
         $this->getPublishClient()
-            ->assertCalled('hdel')
-            ->assertCalled('publish');
-    }
+            ->hgetall($this->replicator->getTopicName('1234', 'presence-channel'))
+            ->then(function ($joinedUsers) use ($anotherConnection, $anotherChannelData) {
+                $this->assertEquals([
+                    $anotherConnection->socketId,
+                    json_encode($anotherChannelData),
+                ], $joinedUsers);
+            });
 
-    /** @test */
-    public function clients_with_no_user_info_can_join_presence_channels()
-    {
-        $connection = $this->getWebSocketConnection();
-
-        $this->pusherServer->onOpen($connection);
-
-        $channelData = [
-            'user_id' => 1,
-        ];
-
-        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
-
-        $message = new Message([
-            'event' => 'pusher:subscribe',
-            'data' => [
-                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
-                'channel' => 'presence-channel',
-                'channel_data' => json_encode($channelData),
-            ],
+        // If the user leaves, the existing members should get member_removed
+        $anotherConnection->assertSentEvent('pusher_internal:member_removed', [
+            'data' => json_encode(['user_id' => 1]),
+            'channel' => 'presence-channel',
         ]);
-
-        $this->pusherServer->onMessage($connection, $message);
-
-        $this->getPublishClient()
-            ->assertCalled('hset')
-            ->assertCalledWithArgs('hgetall', ['laravel_database_1234:presence-channel'])
-            ->assertCalled('publish');
     }
 }

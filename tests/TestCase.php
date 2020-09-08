@@ -47,6 +47,13 @@ abstract class TestCase extends BaseTestCase
     protected $redis;
 
     /**
+     * The replicator driver.
+     *
+     * @var \BeyondCode\LaravelWebSockets\PubSub\ReplicationInterface
+     */
+    protected $replicator;
+
+    /**
      * Get the loop instance.
      *
      * @var \React\EventLoop\LoopInterface
@@ -64,21 +71,20 @@ abstract class TestCase extends BaseTestCase
 
         $this->resetDatabase();
 
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadLaravelMigrations(['--database' => 'sqlite']);
-
         $this->withFactories(__DIR__.'/database/factories');
 
         $this->configurePubSub();
 
         $this->channelManager = $this->app->make(ChannelManager::class);
-
         $this->statisticsDriver = $this->app->make(StatisticsDriver::class);
+        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
+        $this->replicator = $this->app->make(ReplicationInterface::class);
 
         $this->configureStatisticsLogger();
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-
-        $this->pusherServer = $this->app->make(config('websockets.handlers.websocket'));
+        $this->resetRedis();
     }
 
     /**
@@ -97,9 +103,27 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getEnvironmentSetUp($app)
     {
+        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
+
         $app['config']->set('app.key', 'wslxrEFGWY6GfGhvN9L3wH3KSRJQQpBD');
 
         $app['config']->set('auth.providers.users.model', Models\User::class);
+
+        $app['config']->set(
+            'broadcasting.connections.websockets', [
+                'driver' => 'pusher',
+                'key' => 'TestKey',
+                'secret' => 'TestSecret',
+                'app_id' => '1234',
+                'options' => [
+                    'cluster' => 'mt1',
+                    'encrypted' => true,
+                    'host' => '127.0.0.1',
+                    'port' => 6001,
+                    'scheme' => 'http',
+                ],
+            ]
+        );
 
         $app['config']->set('database.default', 'sqlite');
 
@@ -107,6 +131,13 @@ abstract class TestCase extends BaseTestCase
             'driver'   => 'sqlite',
             'database' => __DIR__.'/database.sqlite',
             'prefix'   => '',
+        ]);
+
+        $app['config']->set('database.redis.default', [
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6379'),
+            'database' => env('REDIS_DB', '0'),
         ]);
 
         $app['config']->set('websockets.apps', [
@@ -135,33 +166,8 @@ abstract class TestCase extends BaseTestCase
             ],
         ]);
 
-        $app['config']->set('database.redis.default', [
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
-        ]);
-
-        $replicationDriver = getenv('REPLICATION_DRIVER') ?: 'local';
-
         $app['config']->set(
             'websockets.replication.driver', $replicationDriver
-        );
-
-        $app['config']->set(
-            'broadcasting.connections.websockets', [
-                'driver' => 'pusher',
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
-                'app_id' => '1234',
-                'options' => [
-                    'cluster' => 'mt1',
-                    'encrypted' => true,
-                    'host' => '127.0.0.1',
-                    'port' => 6001,
-                    'scheme' => 'http',
-                ],
-            ]
         );
 
         if (in_array($replicationDriver, ['redis'])) {
@@ -220,15 +226,16 @@ abstract class TestCase extends BaseTestCase
      * Join a presence channel.
      *
      * @param  string  $channel
+     * @param  array  $channelData
      * @return \BeyondCode\LaravelWebSockets\Tests\Mocks\Connection
      */
-    protected function joinPresenceChannel($channel): Connection
+    protected function joinPresenceChannel($channel, array $channelData = []): Connection
     {
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
 
-        $channelData = [
+        $channelData = $channelData ?: [
             'user_id' => 1,
             'user_info' => [
                 'name' => 'Marcel',
@@ -375,5 +382,17 @@ abstract class TestCase extends BaseTestCase
     protected function resetDatabase()
     {
         file_put_contents(__DIR__.'/database.sqlite', null);
+    }
+
+    /**
+     * Reset the Redis database.
+     *
+     * @return void
+     */
+    protected function resetRedis()
+    {
+        if ($this->redis) {
+            $this->redis->flushdb();
+        }
     }
 }

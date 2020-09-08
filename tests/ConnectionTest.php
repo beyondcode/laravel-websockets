@@ -54,7 +54,28 @@ class ConnectionTest extends TestCase
         $this->getConnectedWebSocketConnection(['test-channel']);
 
         $this->getPublishClient()
-            ->assertCalledWithArgsCount(2, 'hincrby', ['laravel_database_1234', 'connections', 1]);
+            ->hget($this->replicator->getTopicName('1234'), 'connections')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'peak_connection_count')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->getPublishClient()
+            ->hget($this->replicator->getTopicName('1234'), 'websocket_message_count')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->getPublishClient()
+            ->smembers('laravel-websockets:apps')
+            ->then(function ($members) {
+                $this->assertEquals(['1234'], $members);
+            });
 
         $failedConnection = $this->getConnectedWebSocketConnection(['test-channel']);
 
