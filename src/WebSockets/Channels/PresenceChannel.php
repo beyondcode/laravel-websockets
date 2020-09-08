@@ -85,8 +85,6 @@ class PresenceChannel extends Channel
      */
     public function unsubscribe(ConnectionInterface $connection)
     {
-        parent::unsubscribe($connection);
-
         if (! isset($this->users[$connection->socketId])) {
             return;
         }
@@ -108,6 +106,8 @@ class PresenceChannel extends Channel
         ]);
 
         unset($this->users[$connection->socketId]);
+
+        parent::unsubscribe($connection);
     }
 
     /**
