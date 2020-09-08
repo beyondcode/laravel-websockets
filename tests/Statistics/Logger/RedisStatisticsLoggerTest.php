@@ -24,7 +24,10 @@ class RedisStatisticsLoggerTest extends TestCase
         $this->redis->hdel('laravel_database_1234', 'connections');
 
         $this->getPublishClient()->resetAssertions();
-    }ublic function it_counts_connections_with_redis_logger_with_no_data()
+    }
+
+    /** @test */
+    public function it_counts_connections_with_redis_logger_with_no_data()
     {
         config(['cache.default' => 'redis']);
 
@@ -33,14 +36,11 @@ class RedisStatisticsLoggerTest extends TestCase
             $this->statisticsDriver
         );
 
-        $logger->resetAppTraces('1');
-        $logger->resetAppTraces('1234');
-
         $connection = $this->getConnectedWebSocketConnection(['channel-1']);
 
-        $logger->apiMessage($connection->app->id);
-
-        $logger->save();
+        tap($logger)
+            ->apiMessage($connection->app->id)
+            ->save();
 
         $this->assertCount(1, WebSocketsStatisticsEntry::all());
 
