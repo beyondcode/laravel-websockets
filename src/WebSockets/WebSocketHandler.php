@@ -112,7 +112,9 @@ class WebSocketHandler implements MessageComponentInterface
             ));
         }
 
-        $this->replicator->unsubscribeFromApp($connection->app->id);
+        if (property_exists($connection, 'app')) {
+            $this->replicator->unsubscribeFromApp($connection->app->id);
+        }
     }
 
     /**
