@@ -15,10 +15,6 @@ jobs:
                 include:
                     -   laravel: 8.*
                         testbench: 6.*
-                        php: 7.3
-                    -   laravel: 8.*
-                        testbench: 6.*
-                        php: 7.4
                     -   laravel: 7.*
                         testbench: 5.*
                     -   laravel: 6.*
@@ -45,8 +41,8 @@ jobs:
 
             -   name: Install dependencies
                 run: |
-                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-                    composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+                    composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --ignore-platform-reqs
+                    composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest --ignore-platform-reqs
 
             -   name: Execute tests
                 run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
