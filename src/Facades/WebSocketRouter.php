@@ -4,7 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class WebSocketsRouter extends Facade
+class WebSocketRouter extends Facade
 {
     /**
      * Get the registered name of the component.

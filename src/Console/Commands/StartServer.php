@@ -5,7 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Console\Commands;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector as StatisticsCollectorFacade;
-use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
 use BeyondCode\LaravelWebSockets\Server\Loggers\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
@@ -236,7 +236,7 @@ class StartServer extends Command
 
         $this->server = $this->server
             ->setLoop($this->loop)
-            ->withRoutes(WebSocketsRouter::getRoutes())
+            ->withRoutes(WebSocketRouter::getRoutes())
             ->setConsoleOutput($this->output)
             ->createServer();
     }

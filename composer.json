@@ -1,7 +1,12 @@
 {
     "name": "beyondcode/laravel-websockets",
-    "description": ":package_description",
-    "keywords": ["laravel", "php"],
+    "description": "An easy to launch a Pusher-compatible WebSockets server for Laravel.",
+    "keywords": [
+        "beyondcode",
+        "laravel-websockets",
+        "laravel",
+        "php"
+    ],
     "license": "MIT",
     "homepage": "https://github.com/beyondcode/laravel-websockets",
     "authors": [
@@ -30,6 +35,7 @@
         "clue/buzz-react": "^2.5",
         "clue/redis-react": "^2.3",
         "evenement/evenement": "^2.0|^3.0",
+        "facade/ignition-contracts": "^1.0",
         "guzzlehttp/psr7": "^1.5",
         "illuminate/broadcasting": "^6.0|^7.0|^8.0",
         "illuminate/console": "^6.0|^7.0|^8.0",
@@ -40,6 +46,14 @@
         "react/promise": "^2.0",
         "symfony/http-kernel": "^4.0|^5.0",
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
+    },
+    "require-dev": {
+        "clue/block-react": "^1.4",
+        "laravel/legacy-factories": "^1.0.4",
+        "mockery/mockery": "^1.3",
+        "orchestra/testbench-browser-kit": "^4.0|^5.0|^6.0",
+        "orchestra/database": "^4.0|^5.0|^6.0",
+        "phpunit/phpunit": "^8.0|^9.0"
     },
     "autoload": {
         "psr-4": {
@@ -54,14 +68,6 @@
     "scripts": {
         "test": "vendor/bin/phpunit"
     },
-    "require-dev": {
-        "clue/block-react": "^1.4",
-        "laravel/legacy-factories": "^1.0.4",
-        "mockery/mockery": "^1.3",
-        "orchestra/testbench-browser-kit": "^4.0|^5.0|^6.0",
-        "orchestra/database": "^4.0|^5.0|^6.0",
-        "phpunit/phpunit": "^8.0|^9.0"
-    },
     "config": {
         "sort-packages": true
     },
@@ -70,7 +76,10 @@
         "laravel": {
             "providers": [
                 "BeyondCode\\LaravelWebSockets\\WebSocketsServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "WebSocketRouter": "BeyondCode\\LaravelWebSockets\\Facades\\WebSocketRouter"
+            }
         }
     }
 }
