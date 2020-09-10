@@ -2,18 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use Illuminate\Support\Str;
 use BeyondCode\LaravelWebSockets\Channels\Channel;
-use BeyondCode\LaravelWebSockets\Channels\PresenceChannel;
-use BeyondCode\LaravelWebSockets\Channels\PrivateChannel;
-use React\Promise\FulfilledPromise;
-use React\Promise\PromiseInterface;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
-use stdClass;
+use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use React\Promise\PromiseInterface;
+use stdClass;
 
 class RedisChannelManager extends LocalChannelManager
 {

@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\API;
 
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannel extends Controller

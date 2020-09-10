@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use BeyondCode\LaravelWebSockets\Server\HttpServer;
+use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use Ratchet\Http\Router;
 use Ratchet\Server\IoServer;
 use React\EventLoop\Factory as LoopFactory;
@@ -12,8 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
-use BeyondCode\LaravelWebSockets\Server\HttpServer;
-use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 
 class ServerFactory
 {

@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use Ratchet\Http\HttpServerInterface;
 use Ratchet\Http\HttpServer as BaseHttpServer;
+use Ratchet\Http\HttpServerInterface;
 
 class HttpServer extends BaseHttpServer
 {

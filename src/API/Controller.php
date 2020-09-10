@@ -2,8 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\API;
 
+use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Server\QueryParameters;
-use Ratchet\Http\HttpServerInterface;
 use Exception;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -14,11 +15,10 @@ use Illuminate\Support\Collection;
 use Psr\Http\Message\RequestInterface;
 use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
+use Ratchet\Http\HttpServerInterface;
 use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use BeyondCode\LaravelWebSockets\Apps\App;
 
 abstract class Controller implements HttpServerInterface
 {

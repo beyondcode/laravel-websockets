@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
 use BeyondCode\LaravelWebSockets\Test\Models\User;
 use BeyondCode\LaravelWebSockets\Test\TestCase;
 

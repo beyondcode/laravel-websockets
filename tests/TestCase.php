@@ -2,13 +2,13 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
-use React\EventLoop\Factory as LoopFactory;
-use GuzzleHttp\Psr7\Request;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
+use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
+use React\EventLoop\Factory as LoopFactory;
 
 abstract class TestCase extends Orchestra
 {

@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Rules\AppId;
-use Exception;
 use Illuminate\Http\Request;
 
 class SendMessage

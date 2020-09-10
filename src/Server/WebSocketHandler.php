@@ -2,14 +2,14 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Apps\App;
+use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
 use Exception;
-use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
+use Ratchet\WebSocket\MessageComponentInterface;
 
 class WebSocketHandler implements MessageComponentInterface
 {

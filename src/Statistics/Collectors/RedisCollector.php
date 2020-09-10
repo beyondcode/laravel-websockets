@@ -2,14 +2,10 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Collectors;
 
-use React\Promise\FulfilledPromise;
-use React\Promise\PromiseInterface;
-use BeyondCode\LaravelWebSockets\Facades\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
-use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use Illuminate\Cache\RedisLock;
 use Illuminate\Support\Facades\Redis;
+use React\Promise\PromiseInterface;
 
 class RedisCollector extends MemoryCollector
 {
@@ -117,7 +113,7 @@ class RedisCollector extends MemoryCollector
                                 'peak_connections_count', $peakConnectionsCount
                             );
                     });
-        });
+            });
     }
 
     /**
@@ -157,7 +153,7 @@ class RedisCollector extends MemoryCollector
                                 'peak_connections_count', $peakConnectionsCount
                             );
                     });
-        });
+            });
     }
 
     /**

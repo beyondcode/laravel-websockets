@@ -3,8 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Test\Mocks;
 
 use Clue\React\Block;
-use React\Promise\PromiseInterface;
 use React\Promise\FulfilledPromise;
+use React\Promise\PromiseInterface;
 
 class PromiseResolver implements PromiseInterface
 {

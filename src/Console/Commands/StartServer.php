@@ -2,17 +2,17 @@
 
 namespace BeyondCode\LaravelWebSockets\Console\Commands;
 
+use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector as StatisticsCollectorFacade;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Loggers\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
 use Illuminate\Console\Command;
-use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
-use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector as StatisticsCollectorFacade;
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
-use React\EventLoop\Factory as LoopFactory;
 use Illuminate\Support\Facades\Cache;
+use React\EventLoop\Factory as LoopFactory;
 
 class StartServer extends Command
 {

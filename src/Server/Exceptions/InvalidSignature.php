@@ -12,6 +12,6 @@ class InvalidSignature extends WebSocketException
      */
     public function __construct()
     {
-        $this->trigger("Invalid Signature", 4009);
+        $this->trigger('Invalid Signature', 4009);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\Test\TestCase;
-
 class StatisticsCleanTest extends TestCase
 {
     public function test_clean_statistics_for_app_id()
@@ -17,7 +15,7 @@ class StatisticsCleanTest extends TestCase
 
         foreach ($this->statisticsStore->getRawRecords() as $record) {
             $record->update(['created_at' => now()->subDays(10)]);
-        };
+        }
 
         $this->artisan('websockets:clean', [
             'appId' => '12345',
@@ -38,7 +36,7 @@ class StatisticsCleanTest extends TestCase
 
         foreach ($this->statisticsStore->getRawRecords() as $record) {
             $record->update(['created_at' => now()->subDays(10)]);
-        };
+        }
 
         $this->artisan('websockets:clean', ['--days' => 1]);
 
