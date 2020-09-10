@@ -1,21 +1,19 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
+namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Tests\Models\User;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Test\Models\User;
+use BeyondCode\LaravelWebSockets\Test\TestCase;
 
 class DashboardTest extends TestCase
 {
-    /** @test */
-    public function cant_see_dashboard_without_authorization()
+    public function test_cant_see_dashboard_without_authorization()
     {
         $this->get(route('laravel-websockets.dashboard'))
             ->assertResponseStatus(403);
     }
 
-    /** @test */
-    public function can_see_dashboard()
+    public function test_can_see_dashboard()
     {
         $this->actingAs(factory(User::class)->create())
             ->get(route('laravel-websockets.dashboard'))

@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests;
+namespace BeyondCode\LaravelWebSockets\Test;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;

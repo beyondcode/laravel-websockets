@@ -1,9 +1,10 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
+namespace BeyondCode\LaravelWebSockets\Test\Mocks;
 
 use Clue\React\Block;
 use React\Promise\PromiseInterface;
+use React\Promise\FulfilledPromise;
 
 class PromiseResolver implements PromiseInterface
 {
@@ -48,9 +49,11 @@ class PromiseResolver implements PromiseInterface
             $this->promise, $this->loop
         );
 
-        $onFulfilled($result);
+        $result = call_user_func($onFulfilled, $result);
 
-        return $this->promise;
+        return $result instanceof PromiseInterface
+            ? $result
+            : new FulfilledPromise($result);
     }
 
     /**

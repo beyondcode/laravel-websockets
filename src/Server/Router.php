@@ -2,13 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Server;
 
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidWebSocketController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchChannelsController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\FetchUsersController;
-use BeyondCode\LaravelWebSockets\HttpApi\Controllers\TriggerEventController;
-use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
-use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
+use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use Illuminate\Support\Collection;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
@@ -21,15 +15,8 @@ class Router
      * The implemented routes.
      *
      * @var \Symfony\Component\Routing\RouteCollection
-     */
+    */
     protected $routes;
-
-    /**
-     * The custom routes defined by the user.
-     *
-     * @var \Symfony\Component\Routing\RouteCollection
-     */
-    protected $customRoutes;
 
     /**
      * Initialize the class.
@@ -39,7 +26,6 @@ class Router
     public function __construct()
     {
         $this->routes = new RouteCollection;
-        $this->customRoutes = new Collection();
     }
 
     /**
@@ -53,22 +39,17 @@ class Router
     }
 
     /**
-     * Register the routes.
+     * Register the default routes.
      *
      * @return void
      */
     public function routes()
     {
-        $this->get('/app/{appKey}', config('websockets.handlers.websocket', WebSocketHandler::class));
-
-        $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event', TriggerEventController::class));
-        $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels', FetchChannelsController::class));
-        $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel', FetchChannelController::class));
-        $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users', FetchUsersController::class));
-
-        $this->customRoutes->each(function ($action, $uri) {
-            $this->get($uri, $action);
-        });
+        $this->get('/app/{appKey}', config('websockets.handlers.websocket'));
+        $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event'));
+        $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels'));
+        $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
+        $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users'));
     }
 
     /**
@@ -132,23 +113,6 @@ class Router
     }
 
     /**
-     * Add a WebSocket GET route that should
-     * comply with the MessageComponentInterface interface.
-     *
-     * @param  string  $uri
-     * @param  string  $action
-     * @return void
-     */
-    public function webSocket(string $uri, $action)
-    {
-        if (! is_subclass_of($action, MessageComponentInterface::class)) {
-            throw InvalidWebSocketController::withController($action);
-        }
-
-        $this->customRoutes->put($uri, $action);
-    }
-
-    /**
      * Add a new route to the list.
      *
      * @param  string  $method
@@ -171,12 +135,6 @@ class Router
      */
     protected function getRoute(string $method, string $uri, $action): Route
     {
-        /**
-         * If the given action is a class that handles WebSockets, then it's not a regular
-         * controller but a WebSocketHandler that needs to converted to a WsServer.
-         *
-         * If the given action is a regular controller we'll just instantiate it.
-         */
         $action = is_subclass_of($action, MessageComponentInterface::class)
             ? $this->createWebSocketsServer($action)
             : app($action);

@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Apps;
 
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
+use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 
 class App
 {
@@ -76,18 +76,9 @@ class App
      * @param  string  $key
      * @param  string  $secret
      * @return void
-     * @throws \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
      */
     public function __construct($appId, $appKey, $appSecret)
     {
-        if ($appKey === '') {
-            throw InvalidApp::valueIsRequired('appKey', $appId);
-        }
-
-        if ($appSecret === '') {
-            throw InvalidApp::valueIsRequired('appSecret', $appId);
-        }
-
         $this->id = $appId;
         $this->key = $appKey;
         $this->secret = $appSecret;

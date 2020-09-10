@@ -21,7 +21,7 @@ class AuthenticateDashboard
      */
     public function __invoke(Request $request)
     {
-        $app = App::findById($request->header('x-app-id'));
+        $app = App::findById($request->header('X-App-Id'));
 
         $broadcaster = $this->getPusherBroadcaster([
             'key' => $app->key,

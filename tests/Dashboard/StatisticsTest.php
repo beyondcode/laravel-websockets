@@ -1,73 +1,43 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
+namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
 use BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger;
-use BeyondCode\LaravelWebSockets\Tests\Models\User;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Test\Models\User;
+use BeyondCode\LaravelWebSockets\Test\TestCase;
 
 class StatisticsTest extends TestCase
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp(): void
+    public function test_can_get_statistics()
     {
-        parent::setUp();
+        $rick = $this->newActiveConnection(['public-channel']);
+        $morty = $this->newActiveConnection(['public-channel']);
 
-        $this->runOnlyOnLocalReplication();
-    }
+        $this->statisticsCollector->save();
 
-    /** @test */
-    public function can_get_statistics()
-    {
-        $connection = $this->getConnectedWebSocketConnection(['channel-1']);
-
-        $logger = new MemoryStatisticsLogger(
-            $this->channelManager,
-            $this->statisticsDriver
-        );
-
-        $logger->webSocketMessage($connection->app->id);
-        $logger->apiMessage($connection->app->id);
-        $logger->connection($connection->app->id);
-        $logger->disconnection($connection->app->id);
-
-        $logger->save();
-
-        $this->actingAs(factory(User::class)->create())
+        $response = $this->actingAs(factory(User::class)->create())
             ->json('GET', route('laravel-websockets.statistics', ['appId' => '1234']))
             ->assertResponseOk()
             ->seeJsonStructure([
                 'peak_connections' => ['x', 'y'],
-                'websocket_message_count' => ['x', 'y'],
-                'api_message_count' => ['x', 'y'],
+                'websocket_messages_count' => ['x', 'y'],
+                'api_messages_count' => ['x', 'y'],
             ]);
     }
 
-    /** @test */
-    public function cant_get_statistics_for_invalid_app_id()
+    public function test_cant_get_statistics_for_invalid_app_id()
     {
-        $connection = $this->getConnectedWebSocketConnection(['channel-1']);
+        $rick = $this->newActiveConnection(['public-channel']);
+        $morty = $this->newActiveConnection(['public-channel']);
 
-        $logger = new MemoryStatisticsLogger(
-            $this->channelManager,
-            $this->statisticsDriver
-        );
-
-        $logger->webSocketMessage($connection->app->id);
-        $logger->apiMessage($connection->app->id);
-        $logger->connection($connection->app->id);
-        $logger->disconnection($connection->app->id);
-
-        $logger->save();
+        $this->statisticsCollector->save();
 
         $this->actingAs(factory(User::class)->create())
             ->json('GET', route('laravel-websockets.statistics', ['appId' => 'not_found']))
             ->seeJson([
                 'peak_connections' => ['x' => [], 'y' => []],
-                'websocket_message_count' => ['x' => [], 'y' => []],
-                'api_message_count' => ['x' => [], 'y' => []],
+                'websocket_messages_count' => ['x' => [], 'y' => []],
+                'api_messages_count' => ['x' => [], 'y' => []],
             ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Mocks;
+namespace BeyondCode\LaravelWebSockets\Test\Mocks;
 
 use Ratchet\RFC6455\Messaging\Message as BaseMessage;
 

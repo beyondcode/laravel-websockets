@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Models;
+namespace BeyondCode\LaravelWebSockets\Test\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
