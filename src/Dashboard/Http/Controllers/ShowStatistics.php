@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver;
+use BeyondCode\LaravelWebSockets\Facades\StatisticsStore;
 use Illuminate\Http\Request;
 
 class ShowStatistics
@@ -11,12 +11,23 @@ class ShowStatistics
      * Get statistics for an app ID.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver  $driver
      * @param  mixed  $appId
      * @return \Illuminate\Http\Response
      */
-    public function __invoke(Request $request, StatisticsDriver $driver, $appId)
+    public function __invoke(Request $request, $appId)
     {
-        return $driver::get($appId, $request);
+        $processQuery = function ($query) use ($appId) {
+            return $query->whereAppId($appId)
+                ->latest()
+                ->limit(120);
+        };
+
+        $processCollection = function ($collection) {
+            return $collection->reverse();
+        };
+
+        return StatisticsStore::getForGraph(
+            $processQuery, $processCollection
+        );
     }
 }

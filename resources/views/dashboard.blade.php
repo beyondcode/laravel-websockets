@@ -395,8 +395,6 @@
 
           let payload = {
             _token: '{{ csrf_token() }}',
-            key: this.app.key,
-            secret: this.app.secret,
             appId: this.app.id,
             channel: this.form.channel,
             event: this.form.event,
@@ -422,10 +420,6 @@
 
         if (['replicator-subscribed', 'replicator-joined'].includes(log.type)) {
           return 'bg-green-700 text-white';
-        }
-
-        if (log.type === 'vacated') {
-          return 'bg-orange-500 text-white';
         }
 
         if (['disconnection', 'occupied', 'replicator-unsubscribed', 'replicator-left'].includes(log.type)) {

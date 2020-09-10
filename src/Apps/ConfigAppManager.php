@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Apps;
 
+use BeyondCode\LaravelWebSockets\Contracts\AppManager;
+
 class ConfigAppManager implements AppManager
 {
     /**
@@ -30,7 +32,7 @@ class ConfigAppManager implements AppManager
     {
         return $this->apps
             ->map(function (array $appAttributes) {
-                return $this->instantiate($appAttributes);
+                return $this->convertIntoApp($appAttributes);
             })
             ->toArray();
     }
@@ -43,11 +45,9 @@ class ConfigAppManager implements AppManager
      */
     public function findById($appId): ?App
     {
-        $appAttributes = $this
-            ->apps
-            ->firstWhere('id', $appId);
-
-        return $this->instantiate($appAttributes);
+        return $this->convertIntoApp(
+            $this->apps->firstWhere('id', $appId)
+        );
     }
 
     /**
@@ -58,11 +58,9 @@ class ConfigAppManager implements AppManager
      */
     public function findByKey($appKey): ?App
     {
-        $appAttributes = $this
-            ->apps
-            ->firstWhere('key', $appKey);
-
-        return $this->instantiate($appAttributes);
+        return $this->convertIntoApp(
+            $this->apps->firstWhere('key', $appKey)
+        );
     }
 
     /**
@@ -73,11 +71,9 @@ class ConfigAppManager implements AppManager
      */
     public function findBySecret($appSecret): ?App
     {
-        $appAttributes = $this
-            ->apps
-            ->firstWhere('secret', $appSecret);
-
-        return $this->instantiate($appAttributes);
+        return $this->convertIntoApp(
+            $this->apps->firstWhere('secret', $appSecret)
+        );
     }
 
     /**
@@ -86,7 +82,7 @@ class ConfigAppManager implements AppManager
      * @param  array|null  $app
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
-    protected function instantiate(?array $appAttributes): ?App
+    protected function convertIntoApp(?array $appAttributes): ?App
     {
         if (! $appAttributes) {
             return null;

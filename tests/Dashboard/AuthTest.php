@@ -1,17 +1,16 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
+namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Tests\Mocks\Message;
-use BeyondCode\LaravelWebSockets\Tests\Models\User;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Test\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Test\Models\User;
+use BeyondCode\LaravelWebSockets\Test\TestCase;
 
 class AuthTest extends TestCase
 {
-    /** @test */
-    public function can_authenticate_dashboard_over_channel()
+    public function test_can_authenticate_dashboard_over_channel()
     {
-        $connection = $this->getConnectedWebSocketConnection(['test-channel']);
+        $connection = $this->newActiveConnection(['test-channel']);
 
         $this->pusherServer->onOpen($connection);
 
@@ -26,10 +25,9 @@ class AuthTest extends TestCase
             ]);
     }
 
-    /** @test */
-    public function can_authenticate_dashboard_over_private_channel()
+    public function test_can_authenticate_dashboard_over_private_channel()
     {
-        $connection = $this->getWebSocketConnection();
+        $connection = $this->newConnection();
 
         $this->pusherServer->onOpen($connection);
 
@@ -61,17 +59,16 @@ class AuthTest extends TestCase
             ]);
     }
 
-    /** @test */
-    public function can_authenticate_dashboard_over_presence_channel()
+    public function test_can_authenticate_dashboard_over_presence_channel()
     {
-        $connection = $this->getWebSocketConnection();
+        $connection = $this->newConnection();
 
         $this->pusherServer->onOpen($connection);
 
         $channelData = [
             'user_id' => 1,
             'user_info' => [
-                'name' => 'Marcel',
+                'name' => 'Rick',
             ],
         ];
 

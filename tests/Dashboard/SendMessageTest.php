@@ -1,69 +1,46 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\Tests\Dashboard;
+namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Tests\Models\User;
-use BeyondCode\LaravelWebSockets\Tests\TestCase;
+use BeyondCode\LaravelWebSockets\Test\Models\User;
+use BeyondCode\LaravelWebSockets\Test\TestCase;
 
 class SendMessageTest extends TestCase
 {
-    /** @test */
-    public function can_send_message()
+    public function test_can_send_message()
     {
-        $this->skipOnRedisReplication();
-
-        // Because the Pusher server is not active,
-        // we expect it to turn out ok: false.
-
         $this->actingAs(factory(User::class)->create())
             ->json('POST', route('laravel-websockets.event'), [
                 'appId' => '1234',
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
                 'channel' => 'test-channel',
                 'event' => 'some-event',
                 'data' => json_encode(['data' => 'yes']),
             ])
             ->seeJson([
-                'ok' => false,
+                'ok' => true,
             ]);
+
+        if (method_exists($this->channelManager, 'getPublishClient')) {
+            $this->channelManager
+                ->getPublishClient()
+                ->assertCalledWithArgs('publish', [
+                    $this->channelManager->getRedisKey('1234', 'test-channel'),
+                    json_encode([
+                        'channel' => 'test-channel',
+                        'event' => 'some-event',
+                        'data' => ['data' => 'yes'],
+                        'appId' => '1234',
+                        'serverId' => $this->channelManager->getServerId(),
+                    ]),
+                ]);
+        }
     }
 
-    /** @test */
-    public function can_send_message_on_redis_replication()
+    public function test_cant_send_message_for_invalid_app()
     {
-        $this->skipOnLocalReplication();
-
-        // Because the Pusher server is not active,
-        // we expect it to turn out ok: false.
-        // However, the driver is set to redis,
-        // so Redis would take care of this
-        // and stream the message to all active servers instead.
-
-        $this->actingAs(factory(User::class)->create())
-            ->json('POST', route('laravel-websockets.event'), [
-                'appId' => '1234',
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
-                'channel' => 'test-channel',
-                'event' => 'some-event',
-                'data' => json_encode(['data' => 'yes']),
-            ]);
-    }
-
-    /** @test */
-    public function cant_send_message_for_invalid_app()
-    {
-        $this->skipOnRedisReplication();
-
-        // Because the Pusher server is not active,
-        // we expect it to turn out ok: false.
-
         $this->actingAs(factory(User::class)->create())
             ->json('POST', route('laravel-websockets.event'), [
                 'appId' => '9999',
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
                 'channel' => 'test-channel',
                 'event' => 'some-event',
                 'data' => json_encode(['data' => 'yes']),
