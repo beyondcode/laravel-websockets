@@ -10,15 +10,15 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest]
                 php: [7.4, 7.3, 7.2]
-                laravel: [5.8.*, 6.*, 7.*]
+                laravel: [6.*, 7.*, 8.*]
                 dependency-version: [prefer-lowest, prefer-stable]
                 include:
+                    -   laravel: 8.*
+                        testbench: 6.*
                     -   laravel: 7.*
                         testbench: 5.*
                     -   laravel: 6.*
                         testbench: 4.*
-                    -   laravel: 5.8.*
-                        testbench: 3.8.*
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
