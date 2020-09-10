@@ -15,6 +15,10 @@ jobs:
                 include:
                     -   laravel: 8.*
                         testbench: 6.*
+                        php: 7.3
+                    -   laravel: 8.*
+                        testbench: 6.*
+                        php: 7.4
                     -   laravel: 7.*
                         testbench: 5.*
                     -   laravel: 6.*
