@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Server\Messages;
 
-use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\Contracts\PusherMessage;
+use BeyondCode\LaravelWebSockets\DashboardLogger;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
-use BeyondCode\LaravelWebSockets\Contracts\PusherMessage;
 
 class PusherClientMessage implements PusherMessage
 {
@@ -75,6 +75,5 @@ class PusherClientMessage implements PusherMessage
             'event' => $this->payload->event,
             'data' => $this->payload,
         ]);
-
     }
 }

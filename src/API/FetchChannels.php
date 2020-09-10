@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\API;
 
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use stdClass;
 use Symfony\Component\HttpKernel\Exception\HttpException;

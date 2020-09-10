@@ -3,9 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
 use Ratchet\ConnectionInterface;
+use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;
-use React\EventLoop\LoopInterface;
 
 interface ChannelManager
 {

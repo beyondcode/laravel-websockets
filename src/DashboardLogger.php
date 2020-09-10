@@ -12,7 +12,6 @@ class DashboardLogger
 
     const TYPE_CONNECTED = 'connected';
 
-
     const TYPE_OCCUPIED = 'occupied';
 
     const TYPE_SUBSCRIBED = 'subscribed';

@@ -2,16 +2,16 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
-use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use Illuminate\Support\Str;
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\Channels\PresenceChannel;
 use BeyondCode\LaravelWebSockets\Channels\PrivateChannel;
+use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use Illuminate\Support\Str;
+use Ratchet\ConnectionInterface;
+use React\EventLoop\LoopInterface;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 use stdClass;
-use Ratchet\ConnectionInterface;
-use React\EventLoop\LoopInterface;
 
 class LocalChannelManager implements ChannelManager
 {

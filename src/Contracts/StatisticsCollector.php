@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
 interface StatisticsCollector

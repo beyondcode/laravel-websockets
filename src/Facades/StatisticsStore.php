@@ -2,8 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore as StatisticsStoreInterface;
+use Illuminate\Support\Facades\Facade;
 
 class StatisticsStore extends Facade
 {

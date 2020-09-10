@@ -2,7 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\Server\Exceptions\{ OriginNotAllowed, UnknownAppKey, ConnectionsOverCapacity };
+use BeyondCode\LaravelWebSockets\Server\Exceptions\OriginNotAllowed;
+use BeyondCode\LaravelWebSockets\Server\Exceptions\UnknownAppKey;
 
 class ConnectionTest extends TestCase
 {

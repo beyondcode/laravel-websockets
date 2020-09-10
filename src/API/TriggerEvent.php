@@ -3,12 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\API;
 
 use BeyondCode\LaravelWebSockets\DashboardLogger;
-use BeyondCode\LaravelWebSockets\WebSockets\Channels\PresenceChannel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
+use Illuminate\Http\Request;
 
 class TriggerEvent extends Controller
 {

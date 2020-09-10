@@ -12,6 +12,6 @@ class ConnectionsOverCapacity extends WebSocketException
      */
     public function __construct()
     {
-        $this->trigger("Over capacity", 4100);
+        $this->trigger('Over capacity', 4100);
     }
 }
