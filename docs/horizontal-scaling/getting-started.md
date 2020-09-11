@@ -15,12 +15,12 @@ For example, Redis does a great job by encapsulating the both the way of notifyi
 
 ## Configure the replication
 
-To enable the replication, simply change the `replication.driver` name in the `websockets.php` file:
+To enable the replication, simply change the `replication.mode` name in the `websockets.php` file:
 
 ```php
 'replication' => [
 
-    'driver' => 'redis',
+    'mode' => 'redis',
 
     ...
 

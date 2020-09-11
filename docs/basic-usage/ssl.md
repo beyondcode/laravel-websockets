@@ -10,6 +10,7 @@ Since most of the web's traffic is going through HTTPS, it's also crucial to sec
 ## Configuration
 
 The SSL configuration takes place in your `config/websockets.php` file.
+
 The default configuration has a SSL section that looks like this:
 
 ```php
@@ -31,6 +32,7 @@ The default configuration has a SSL section that looks like this:
 ```
 
 But this is only a subset of all the available configuration options.
+
 This packages makes use of the official PHP [SSL context options](http://php.net/manual/en/context.ssl.php).
 
 So if you find yourself in the need of adding additional configuration settings, take a look at the PHP documentation and simply add the configuration parameters that you need.
