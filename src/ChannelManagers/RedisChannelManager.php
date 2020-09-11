@@ -130,9 +130,8 @@ class RedisChannelManager extends LocalChannelManager
                 }
             });
 
-        $this->getPublishClient()->sadd(
-            $this->getRedisKey($connection->app->id, null, ['channels']),
-            $channelName
+        $this->addChannelToSet(
+            $connection->app->id, $channelName
         );
 
         $this->incrementSubscriptionsCount(
@@ -157,25 +156,19 @@ class RedisChannelManager extends LocalChannelManager
                 if ($count === 0) {
                     $this->unsubscribeFromTopic($connection->app->id, $channelName);
 
-                    $this->getPublishClient()->srem(
-                        $this->getRedisKey($connection->app->id, null, ['channels']),
-                        $channelName
-                    );
+                    $this->removeChannelFromSet($connection->app->id, $channelName);
 
                     return;
                 }
 
-                $increment = $this->incrementSubscriptionsCount(
-                    $connection->app->id, $channelName, -1
+                $this->decrementSubscriptionsCount(
+                    $connection->app->id, $channelName,
                 )
                 ->then(function ($count) use ($connection, $channelName) {
                     if ($count < 1) {
                         $this->unsubscribeFromTopic($connection->app->id, $channelName);
 
-                        $this->getPublishClient()->srem(
-                            $this->getRedisKey($connection->app->id, null, ['channels']),
-                            $channelName
-                        );
+                        $this->removeChannelFromSet($connection->app->id, $channelName);
                     }
                 });
             });
@@ -453,6 +446,49 @@ class RedisChannelManager extends LocalChannelManager
     {
         return $this->publishClient->hincrby(
             $this->getRedisKey($appId, $channel, ['stats']), 'connections', $increment
+        );
+    }
+
+    /**
+     * Decrement the subscribed count number.
+     *
+     * @param  string|int  $appId
+     * @param  string|null  $channel
+     * @param  int  $decrement
+     * @return PromiseInterface
+     */
+    public function decrementSubscriptionsCount($appId, string $channel = null, int $increment = 1)
+    {
+        return $this->incrementSubscriptionsCount($appId, $channel, $increment * -1);
+    }
+
+    /**
+     * Add a channel to the set list.
+     *
+     * @param  string|int  $appId
+     * @param  string $channel
+     * @return PromiseInterface
+     */
+    public function addChannelToSet($appId, string $channel)
+    {
+        return $this->getPublishClient()->sadd(
+            $this->getRedisKey($appId, null, ['channels']),
+            $channel
+        );
+    }
+
+    /**
+     * Remove a channel from the set list.
+     *
+     * @param  string|int  $appId
+     * @param  string  $channel
+     * @return PromiseInterface
+     */
+    public function removeChannelFromSet($appId, string $channel)
+    {
+        return $this->getPublishClient()->srem(
+            $this->getRedisKey($appId, null, ['channels']),
+            $channel
         );
     }
 
