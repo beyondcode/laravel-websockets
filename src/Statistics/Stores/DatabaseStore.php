@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Stores;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class DatabaseStore implements StatisticsStore
 {
@@ -75,12 +76,7 @@ class DatabaseStore implements StatisticsStore
                 return call_user_func($processCollection, $collection);
             })
             ->map(function (Model $statistic) {
-                return [
-                    'timestamp' => (string) $statistic->created_at,
-                    'peak_connections_count' => $statistic->peak_connections_count,
-                    'websocket_messages_count' => $statistic->websocket_messages_count,
-                    'api_messages_count' => $statistic->api_messages_count,
-                ];
+                return $this->statisticToArray($statistic);
             })
             ->toArray();
     }
@@ -98,6 +94,33 @@ class DatabaseStore implements StatisticsStore
             $this->getRecords($processQuery)
         );
 
+        return $this->statisticsToGraph($statistics);
+    }
+
+    /**
+     * Turn the statistic model to an array.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $statistic
+     * @return array
+     */
+    protected function statisticToArray(Model $statistic): array
+    {
+        return [
+            'timestamp' => (string) $statistic->created_at,
+            'peak_connections_count' => $statistic->peak_connections_count,
+            'websocket_messages_count' => $statistic->websocket_messages_count,
+            'api_messages_count' => $statistic->api_messages_count,
+        ];
+    }
+
+    /**
+     * Turn the statistics collection to an array used for graph.
+     *
+     * @param  \Illuminate\Support\Collection  $statistics
+     * @return array
+     */
+    protected function statisticsToGraph(Collection $statistics): array
+    {
         return [
             'peak_connections' => [
                 'x' => $statistics->pluck('timestamp')->toArray(),
