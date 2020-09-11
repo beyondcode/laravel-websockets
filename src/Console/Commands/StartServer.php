@@ -78,6 +78,8 @@ class StartServer extends Command
 
         $this->configureRestartTimer();
 
+        $this->configureRoutes();
+
         $this->startServer();
     }
 
@@ -157,6 +159,16 @@ class StartServer extends Command
                 $this->loop->stop();
             }
         });
+    }
+
+    /**
+     * Register the routes for the server.
+     *
+     * @return void
+     */
+    protected function configureRoutes()
+    {
+        WebSocketRouter::routes();
     }
 
     /**
