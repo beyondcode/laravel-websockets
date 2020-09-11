@@ -222,24 +222,15 @@ abstract class TestCase extends Orchestra
     }
 
     /**
-     * Register the statistics collectors that are
-     * not resolved by the package service provider.
+     * Register the statistics collectors.
      *
      * @return void
      */
     protected function registerStatisticsCollectors()
     {
-        $this->app->singleton(StatisticsCollector::class, function () {
-            $mode = config('websockets.replication.mode', $this->replicationMode);
-
-            $class = config("websockets.replication.modes.{$mode}.collector");
-
-            return new $class;
-        });
-
         $this->statisticsCollector = $this->app->make(StatisticsCollector::class);
 
-        $this->statisticsCollector->flush();
+        $this->artisan('websockets:flush');
     }
 
     /**

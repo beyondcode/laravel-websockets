@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
@@ -65,6 +66,14 @@ class WebSocketsServiceProvider extends ServiceProvider
 
             return new $class;
         });
+
+        $this->app->singleton(StatisticsCollector::class, function () {
+            $replicationMode = config('websockets.replication.mode', 'local');
+
+            $class = config("websockets.replication.modes.{$replicationMode}.collector");
+
+            return new $class;
+        });
     }
 
     /**
@@ -91,6 +100,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             Console\Commands\StartServer::class,
             Console\Commands\RestartServer::class,
             Console\Commands\CleanStatistics::class,
+            Console\Commands\FlushCollectedStatistics::class,
         ]);
     }
 

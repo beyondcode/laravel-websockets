@@ -3,7 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\Console\Commands;
 
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
-use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector as StatisticsCollectorFacade;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
 use BeyondCode\LaravelWebSockets\Server\Loggers\ConnectionLogger;
@@ -120,14 +119,6 @@ class StartServer extends Command
      */
     protected function configureStatistics()
     {
-        $this->laravel->singleton(StatisticsCollector::class, function () {
-            $replicationMode = config('websockets.replication.mode', 'local');
-
-            $class = config("websockets.replication.modes.{$replicationMode}.collector");
-
-            return new $class;
-        });
-
         if (! $this->option('disable-statistics')) {
             $intervalInSeconds = $this->option('statistics-interval') ?: config('websockets.statistics.interval_in_seconds', 3600);
 
