@@ -220,7 +220,7 @@ class RedisCollector extends MemoryCollector
         return $this->channelManager
             ->getPublishClient()
             ->smembers(static::$redisSetName)
-            ->then(function ($members) use (&$statistics) {
+            ->then(function ($members) {
                 $appsWithStatistics = [];
 
                 foreach ($members as $appId) {
@@ -249,9 +249,7 @@ class RedisCollector extends MemoryCollector
         return $this->channelManager
             ->getPublishClient()
             ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
-            ->then(function ($list) use ($appId, &$appStatistics) {
-                return $this->listToStatisticInstance(
-                    $appId, $list
+            ->then(function ($list) use ($appId) {
                 );
             });
     }
