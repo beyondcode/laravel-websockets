@@ -13,7 +13,7 @@ class DatabaseStore implements StatisticsStore
      *
      * @var string
      */
-    protected static $model = \BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry::class;
+    public static $model = \BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry::class;
 
     /**
      * Store a new record in the database and return
