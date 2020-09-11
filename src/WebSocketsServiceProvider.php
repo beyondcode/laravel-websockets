@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
@@ -34,6 +35,8 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/0000_00_00_000000_rename_statistics_counters.php' => database_path('migrations/0000_00_00_000000_rename_statistics_counters.php'),
         ], 'migrations');
 
+        $this->registerStatistics();
+
         $this->registerDashboard();
 
         $this->registerCommands();
@@ -48,6 +51,20 @@ class WebSocketsServiceProvider extends ServiceProvider
     {
         $this->registerRouter();
         $this->registerManagers();
+    }
+
+    /**
+     * Register the statistics-related contracts.
+     *
+     * @return void
+     */
+    protected function registerStatistics()
+    {
+        $this->app->singleton(StatisticsStore::class, function () {
+            $class = config('websockets.statistics.store');
+
+            return new $class;
+        });
     }
 
     /**

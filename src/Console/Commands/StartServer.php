@@ -128,12 +128,6 @@ class StartServer extends Command
             return new $class;
         });
 
-        $this->laravel->singleton(StatisticsStore::class, function () {
-            $class = config('websockets.statistics.store');
-
-            return new $class;
-        });
-
         if (! $this->option('disable-statistics')) {
             $intervalInSeconds = $this->option('statistics-interval') ?: config('websockets.statistics.interval_in_seconds', 3600);
 

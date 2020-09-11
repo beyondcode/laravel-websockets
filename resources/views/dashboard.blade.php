@@ -347,14 +347,14 @@
                 name: '# Peak Connections'
               },
               {
-                x: data.websocket_message_count.x,
-                y: data.websocket_message_count.y,
+                x: data.websocket_messages_count.x,
+                y: data.websocket_messages_count.y,
                 type: 'bar',
                 name: '# Websocket Messages'
               },
               {
-                x: data.api_message_count.x,
-                y: data.api_message_count.y,
+                x: data.api_messages_count.x,
+                y: data.api_messages_count.y,
                 type: 'bar',
                 name: '# API Messages'
               },
