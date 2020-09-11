@@ -320,11 +320,13 @@ abstract class TestCase extends Orchestra
      *
      * @param  string  $channel
      * @param  array  $user
+     * @param  string  $appKey
+     * @param  array  $headers
      * @return Mocks\Connection
      */
-    protected function newPresenceConnection($channel, array $user = [])
+    protected function newPresenceConnection($channel, array $user = [], string $appKey = 'TestKey', array $headers = [])
     {
-        $connection = $this->newConnection();
+        $connection = $this->newConnection($appKey, $headers);
 
         $this->pusherServer->onOpen($connection);
 
@@ -355,11 +357,13 @@ abstract class TestCase extends Orchestra
      * Join a private channel.
      *
      * @param  string  $channel
+     * @param  string  $appKey
+     * @param  array  $headers
      * @return Mocks\Connection
      */
-    protected function newPrivateConnection($channel)
+    protected function newPrivateConnection($channel, string $appKey = 'TestKey', array $headers = [])
     {
-        $connection = $this->newConnection();
+        $connection = $this->newConnection($appKey, $headers);
 
         $this->pusherServer->onOpen($connection);
 
