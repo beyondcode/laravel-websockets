@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Channels;
 
+use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -19,7 +20,9 @@ class PresenceChannel extends PrivateChannel
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload)
     {
-        parent::subscribe($connection, $payload);
+        $this->verifySignature($connection, $payload);
+
+        $this->saveConnection($connection);
 
         $this->channelManager->userJoinedPresenceChannel(
             $connection,
@@ -48,6 +51,11 @@ class PresenceChannel extends PrivateChannel
             (object) $memberAddedPayload, $connection->socketId,
             $connection->app->id
         );
+
+        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
+            'socketId' => $connection->socketId,
+            'channel' => $this->getName(),
+        ]);
     }
 
     /**
