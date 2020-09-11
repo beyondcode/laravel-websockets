@@ -34,10 +34,24 @@ class PresenceChannel extends PrivateChannel
         $this->channelManager
             ->getChannelMembers($connection->app->id, $this->getName())
             ->then(function ($users) use ($connection) {
+                $hash = [];
+
+                foreach ($users as $socketId => $user) {
+                    $hash[$user->user_id] = $user->user_info ?? [];
+                }
+
                 $connection->send(json_encode([
                     'event' => 'pusher_internal:subscription_succeeded',
                     'channel' => $this->getName(),
-                    'data' => json_encode($this->getChannelData($users)),
+                    'data' => json_encode([
+                        'presence' => [
+                            'ids' => collect($users)->map(function ($user) {
+                                return (string) $user->user_id;
+                            })->values(),
+                            'hash' => $hash,
+                            'count' => count($users),
+                        ],
+                    ]),
                 ]));
             });
 
@@ -94,54 +108,5 @@ class PresenceChannel extends PrivateChannel
                     $connection->app->id
                 );
             });
-    }
-
-    /**
-     * Get the Presence channel data.
-     *
-     * @param  array  $users
-     * @return array
-     */
-    protected function getChannelData(array $users): array
-    {
-        return [
-            'presence' => [
-                'ids' => $this->getUserIds($users),
-                'hash' => $this->getHash($users),
-                'count' => count($users),
-            ],
-        ];
-    }
-
-    /**
-     * Get the Presence Channel's users.
-     *
-     * @param  array  $users
-     * @return array
-     */
-    protected function getUserIds(array $users): array
-    {
-        return collect($users)
-            ->map(function ($user) {
-                return (string) $user->user_id;
-            })
-            ->values();
-    }
-
-    /**
-     * Compute the hash for the presence channel integrity.
-     *
-     * @param  array  $users
-     * @return array
-     */
-    protected function getHash(array $users): array
-    {
-        $hash = [];
-
-        foreach ($users as $socketId => $user) {
-            $hash[$user->user_id] = $user->user_info ?? [];
-        }
-
-        return $hash;
     }
 }
