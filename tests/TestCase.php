@@ -230,7 +230,9 @@ abstract class TestCase extends Orchestra
     protected function registerStatisticsCollectors()
     {
         $this->app->singleton(StatisticsCollector::class, function () {
-            $class = config("websockets.replication.modes.{$this->replicationMode}.collector");
+            $mode = config('websockets.replication.mode', $this->replicationMode);
+
+            $class = config("websockets.replication.modes.{$mode}.collector");
 
             return new $class;
         });
