@@ -151,7 +151,7 @@ class MemoryCollector implements StatisticsCollector
     protected function findOrMake($appId): Statistic
     {
         if (! isset($this->statistics[$appId])) {
-            $this->statistics[$appId] = new Statistic($appId);
+            $this->statistics[$appId] = Statistic::new($appId);
         }
 
         return $this->statistics[$appId];

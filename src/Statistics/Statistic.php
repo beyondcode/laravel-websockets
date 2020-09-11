@@ -53,6 +53,17 @@ class Statistic
     }
 
     /**
+     * Create a new statistic instance.
+     *
+     * @param  string|int  $appId
+     * @return \BeyondCode\LaravelWebSockets\Statistics\Statistic
+     */
+    public static function new($appId)
+    {
+        return new static($appId);
+    }
+
+    /**
      * Set the current connections count.
      *
      * @param  int  $currentConnectionsCount

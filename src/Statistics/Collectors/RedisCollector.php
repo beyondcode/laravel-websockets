@@ -177,8 +177,8 @@ class RedisCollector extends MemoryCollector
                                     return;
                                 }
 
-                                $statistic = $this->listToStatisticInstance(
-                                    $appId, $list
+                                $statistic = $this->arrayToStatisticInstance(
+                                    $appId, $this->redisListToArray($list)
                                 );
 
                                 $this->createRecord($statistic, $appId);
@@ -228,8 +228,8 @@ class RedisCollector extends MemoryCollector
                         ->getPublishClient()
                         ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
                         ->then(function ($list) use ($appId, &$appsWithStatistics) {
-                            $appsWithStatistics[$appId] = $this->listToStatisticInstance(
-                                $appId, $list
+                            $appsWithStatistics[$appId] = $this->arrayToStatisticInstance(
+                                $appId, $this->redisListToArray($list)
                             );
                         });
                 }
@@ -250,6 +250,8 @@ class RedisCollector extends MemoryCollector
             ->getPublishClient()
             ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
             ->then(function ($list) use ($appId) {
+                return $this->arrayToStatisticInstance(
+                    $appId, $this->redisListToArray($list)
                 );
             });
     }
@@ -366,13 +368,12 @@ class RedisCollector extends MemoryCollector
      * @param  array  $list
      * @return array
      */
-    protected function listToKeyValue(array $list)
+    protected function redisListToArray(array $list)
     {
         // Redis lists come into a format where the keys are on even indexes
         // and the values are on odd indexes. This way, we know which
         // ones are keys and which ones are values and their get combined
         // later to form the key => value array.
-
         [$keys, $values] = collect($list)->partition(function ($value, $key) {
             return $key % 2 === 0;
         });
@@ -381,21 +382,18 @@ class RedisCollector extends MemoryCollector
     }
 
     /**
-     * Transform a list coming from a Redis list
-     * to a Statistic instance.
+     * Transform a key-value pair to a Statistic instance.
      *
      * @param  string|int  $appId
-     * @param  array  $list
+     * @param  array  $stats
      * @return \BeyondCode\LaravelWebSockets\Statistics\Statistic
      */
-    protected function listToStatisticInstance($appId, array $list)
+    protected function arrayToStatisticInstance($appId, array $stats)
     {
-        $list = $this->listToKeyValue($list);
-
-        return (new Statistic($appId))
-            ->setCurrentConnectionsCount($list['current_connections_count'] ?? 0)
-            ->setPeakConnectionsCount($list['peak_connections_count'] ?? 0)
-            ->setWebSocketMessagesCount($list['websocket_messages_count'] ?? 0)
-            ->setApiMessagesCount($list['api_messages_count'] ?? 0);
+        return Statistic::new($appId)
+            ->setCurrentConnectionsCount($stats['current_connections_count'] ?? 0)
+            ->setPeakConnectionsCount($stats['peak_connections_count'] ?? 0)
+            ->setWebSocketMessagesCount($stats['websocket_messages_count'] ?? 0)
+            ->setApiMessagesCount($stats['api_messages_count'] ?? 0);
     }
 }
