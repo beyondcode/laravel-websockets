@@ -288,7 +288,7 @@ class StartServer extends Command
         // Get all local connections and close them. They will
         // be automatically be unsubscribed from all channels.
         $channelManager->getLocalConnections()
-            ->then(function ($connections) use ($channelManager) {
+            ->then(function ($connections) {
                 foreach ($connections as $connection) {
                     $connection->close();
                 }
