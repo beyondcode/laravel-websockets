@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
+use Ratchet\ConnectionInterface;
 
 class PrivateChannelTest extends TestCase
 {
@@ -136,6 +137,24 @@ class PrivateChannelTest extends TestCase
                     'api_messages_count' => 0,
                     'app_id' => '1234',
                 ], $statistic->toArray());
+            });
+    }
+
+    public function test_local_connections_for_private_channels()
+    {
+        $this->newPrivateConnection('private-channel');
+        $this->newPrivateConnection('private-channel-2');
+
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) {
+                $this->assertCount(2, $connections);
+
+                foreach ($connections as $connection) {
+                    $this->assertInstanceOf(
+                        ConnectionInterface::class, $connection
+                    );
+                }
             });
     }
 }

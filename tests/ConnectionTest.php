@@ -108,4 +108,22 @@ class ConnectionTest extends TestCase
             ->assertSentEvent('pusher:error', ['data' => ['message' => 'Over capacity', 'code' => 4100]])
             ->assertClosed();
     }
+
+    public function test_close_all_new_connections_after_stating_the_server_does_not_accept_new_connections()
+    {
+        $allowedConnection = $this->newActiveConnection(['test-channel']);
+
+        $allowedConnection->assertSentEvent('pusher:connection_established')
+            ->assertSentEvent('pusher_internal:subscription_succeeded');
+
+        $this->channelManager->declineNewConnections();
+
+        $this->assertFalse(
+            $this->channelManager->acceptsNewConnections()
+        );
+
+        $this->newActiveConnection(['test-channel'])
+            ->assertNothingSent()
+            ->assertClosed();
+    }
 }

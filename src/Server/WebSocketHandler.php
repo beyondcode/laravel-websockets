@@ -39,6 +39,10 @@ class WebSocketHandler implements MessageComponentInterface
      */
     public function onOpen(ConnectionInterface $connection)
     {
+        if (! $this->connectionCanBeMade($connection)) {
+            return $connection->close();
+        }
+
         $this->verifyAppKey($connection)
             ->verifyOrigin($connection)
             ->limitConcurrentConnections($connection)
@@ -69,6 +73,10 @@ class WebSocketHandler implements MessageComponentInterface
      */
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
+        if (! isset($connection->app)) {
+            return;
+        }
+
         Messages\PusherMessageFactory::createForMessage(
             $message, $connection, $this->channelManager
         )->respond();
@@ -111,6 +119,18 @@ class WebSocketHandler implements MessageComponentInterface
                 $exception->getPayload()
             ));
         }
+    }
+
+    /**
+     * Check if the connection can be made for the
+     * current server instance.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return bool
+     */
+    protected function connectionCanBeMade(ConnectionInterface $connection): bool
+    {
+        return $this->channelManager->acceptsNewConnections();
     }
 
     /**

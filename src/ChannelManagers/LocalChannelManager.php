@@ -30,6 +30,13 @@ class LocalChannelManager implements ChannelManager
     protected $users = [];
 
     /**
+     * Wether the current instance accepts new connections.
+     *
+     * @var bool
+     */
+    protected $acceptsNewConnections = true;
+
+    /**
      * Create a new channel manager instance.
      *
      * @param  LoopInterface  $loop
@@ -69,6 +76,28 @@ class LocalChannelManager implements ChannelManager
         }
 
         return $this->channels[$appId][$channel];
+    }
+
+    /**
+     * Get the local connections, regardless of the channel
+     * they are connected to.
+     *
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getLocalConnections(): PromiseInterface
+    {
+        $connections = collect($this->channels)
+            ->map(function ($channelsWithConnections, $appId) {
+                return collect($channelsWithConnections)->values();
+            })
+            ->values()->collapse()
+            ->map(function ($channel) {
+                return collect($channel->getConnections());
+            })
+            ->values()->collapse()
+            ->toArray();
+
+        return new FulfilledPromise($connections);
     }
 
     /**
@@ -311,6 +340,29 @@ class LocalChannelManager implements ChannelManager
             }, []);
 
         return new FulfilledPromise($results);
+    }
+
+    /**
+     * Mark the current instance as unable to accept new connections.
+     *
+     * @return $this
+     */
+    public function declineNewConnections()
+    {
+        $this->acceptsNewConnections = false;
+
+        return $this;
+    }
+
+    /**
+     * Check if the current server instance
+     * accepts new connections.
+     *
+     * @return bool
+     */
+    public function acceptsNewConnections(): bool
+    {
+        return $this->acceptsNewConnections;
     }
 
     /**

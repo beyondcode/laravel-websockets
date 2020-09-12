@@ -98,6 +98,18 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Assert that no events occured within the connection.
+     *
+     * @return $this
+     */
+    public function assertNothingSent()
+    {
+        PHPUnit::assertEquals([], $this->sentData);
+
+        return $this;
+    }
+
+    /**
      * Assert the connection is closed.
      *
      * @return $this

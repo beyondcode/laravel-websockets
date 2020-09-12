@@ -37,6 +37,14 @@ interface ChannelManager
     public function findOrCreate($appId, string $channel);
 
     /**
+     * Get the local connections, regardless of the channel
+     * they are connected to.
+     *
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getLocalConnections(): PromiseInterface;
+
+    /**
      * Get all channels for a specific app
      * for the current instance.
      *

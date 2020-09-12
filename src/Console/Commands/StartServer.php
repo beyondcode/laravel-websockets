@@ -26,7 +26,7 @@ class StartServer extends Command
         {--disable-statistics : Disable the statistics tracking.}
         {--statistics-interval= : The amount of seconds to tick between statistics saving.}
         {--debug : Forces the loggers to be enabled and thereby overriding the APP_DEBUG setting.}
-        {--test : Prepare the server, but do not start it.}
+        {--loop : Programatically inject the loop.}
     ';
 
     /**
@@ -78,6 +78,8 @@ class StartServer extends Command
         $this->configureRestartTimer();
 
         $this->configureRoutes();
+
+        $this->configurePcntlSignal();
 
         $this->startServer();
     }
@@ -157,6 +159,31 @@ class StartServer extends Command
     }
 
     /**
+     * Configure the PCNTL signals for soft shutdown.
+     *
+     * @return void
+     */
+    protected function configurePcntlSignal()
+    {
+        // When the process receives a SIGTERM or a SIGINT
+        // signal, it should mark the server as unavailable
+        // to receive new connections, close the current connections,
+        // then stopping the loop.
+
+        $this->loop->addSignal(SIGTERM, function () {
+            $this->line('Closing existing connections...');
+
+            $this->triggerSoftShutdown();
+        });
+
+        $this->loop->addSignal(SIGINT, function () {
+            $this->line('Closing existing connections...');
+
+            $this->triggerSoftShutdown();
+        });
+    }
+
+    /**
      * Configure the HTTP logger class.
      *
      * @return void
@@ -209,14 +236,6 @@ class StartServer extends Command
 
         $this->buildServer();
 
-        // For testing, just boot up the server, run it
-        // but exit after the next tick.
-        if ($this->option('test')) {
-            $this->loop->futureTick(function () {
-                $this->loop->stop();
-            });
-        }
-
         $this->server->run();
     }
 
@@ -230,6 +249,10 @@ class StartServer extends Command
         $this->server = new ServerFactory(
             $this->option('host'), $this->option('port')
         );
+
+        if ($loop = $this->option('loop')) {
+            $this->loop = $loop;
+        }
 
         $this->server = $this->server
             ->setLoop($this->loop)
@@ -248,5 +271,30 @@ class StartServer extends Command
         return Cache::get(
             'beyondcode:websockets:restart', 0
         );
+    }
+
+    /**
+     * Trigger a soft shutdown for the process.
+     *
+     * @return void
+     */
+    protected function triggerSoftShutdown()
+    {
+        $channelManager = $this->laravel->make(ChannelManager::class);
+
+        // Close the new connections allowance on this server.
+        $channelManager->declineNewConnections();
+
+        // Get all local connections and close them. They will
+        // be automatically be unsubscribed from all channels.
+        $channelManager->getLocalConnections()
+            ->then(function ($connections) use ($channelManager) {
+                foreach ($connections as $connection) {
+                    $connection->close();
+                }
+            })
+            ->then(function () {
+                $this->loop->stop();
+            });
     }
 }
