@@ -49,6 +49,7 @@ class Router
         $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels'));
         $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
         $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users'));
+        $this->get('/health', config('websockets.handlers.health'));
     }
 
     /**
