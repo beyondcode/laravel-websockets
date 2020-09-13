@@ -143,7 +143,7 @@ class StartServer extends Command
 
         $this->loop->addPeriodicTimer(10, function () {
             if ($this->getLastRestart() !== $this->lastRestart) {
-                $this->loop->stop();
+                $this->triggerSoftShutdown();
             }
         });
     }
