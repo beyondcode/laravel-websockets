@@ -111,9 +111,8 @@ class ConnectionTest extends TestCase
 
     public function test_close_all_new_connections_after_stating_the_server_does_not_accept_new_connections()
     {
-        $allowedConnection = $this->newActiveConnection(['test-channel']);
-
-        $allowedConnection->assertSentEvent('pusher:connection_established')
+        $this->newActiveConnection(['test-channel'])
+            ->assertSentEvent('pusher:connection_established')
             ->assertSentEvent('pusher_internal:subscription_succeeded');
 
         $this->channelManager->declineNewConnections();
