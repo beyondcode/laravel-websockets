@@ -187,7 +187,7 @@ class StartServer extends Command
 
     /**
      * Configure the tracker that will delete
-     * from the store the connections that
+     * from the store the connections that.
      *
      * @return void
      */
