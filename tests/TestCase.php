@@ -89,14 +89,14 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $connection;
     }
 
-    protected function joinPresenceChannel($channel): Connection
+    protected function joinPresenceChannel($channel, $userId = null): Connection
     {
         $connection = $this->getWebSocketConnection();
 
         $this->pusherServer->onOpen($connection);
 
         $channelData = [
-            'user_id' => 1,
+            'user_id' => $userId ?? 1,
             'user_info' => [
                 'name' => 'Marcel',
             ],
