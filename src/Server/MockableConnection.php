@@ -24,6 +24,7 @@ class MockableConnection implements ConnectionInterface
 
     /**
      * Send data to the connection.
+     *
      * @param  string  $data
      * @return \Ratchet\ConnectionInterface
      */
