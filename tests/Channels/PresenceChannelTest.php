@@ -90,9 +90,9 @@ class PresenceChannelTest extends TestCase
             'channel' => $channelName,
             'data' => json_encode([
                 'presence' => [
-                    'ids' => [(string)$userId],
+                    'ids' => [(string) $userId],
                     'hash' => [
-                        (string)$userId => [],
+                        (string) $userId => [],
                     ],
                     'count' => 1,
                 ],
@@ -102,12 +102,12 @@ class PresenceChannelTest extends TestCase
 
     private function getSignedMessage(Connection $connection, string $channelName, array $channelData): Message
     {
-        $signature = "{$connection->socketId}:{$channelName}:" . json_encode($channelData);
+        $signature = "{$connection->socketId}:{$channelName}:".json_encode($channelData);
 
         return new Message(json_encode([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => $connection->app->key . ':' . hash_hmac('sha256', $signature, $connection->app->secret),
+                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => $channelName,
                 'channel_data' => json_encode($channelData),
             ],
