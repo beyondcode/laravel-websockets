@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
+use Ratchet\ConnectionInterface;
+
 class PublicChannelTest extends TestCase
 {
     public function test_connect_to_public_channel()
@@ -112,6 +114,24 @@ class PublicChannelTest extends TestCase
                     'api_messages_count' => 0,
                     'app_id' => '1234',
                 ], $statistic->toArray());
+            });
+    }
+
+    public function test_local_connections_for_public_channels()
+    {
+        $this->newActiveConnection(['public-channel']);
+        $this->newActiveConnection(['public-channel-2']);
+
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) {
+                $this->assertCount(2, $connections);
+
+                foreach ($connections as $connection) {
+                    $this->assertInstanceOf(
+                        ConnectionInterface::class, $connection
+                    );
+                }
             });
     }
 }

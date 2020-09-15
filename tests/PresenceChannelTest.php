@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
+use Ratchet\ConnectionInterface;
 
 class PresenceChannelTest extends TestCase
 {
@@ -183,6 +184,24 @@ class PresenceChannelTest extends TestCase
                     'api_messages_count' => 0,
                     'app_id' => '1234',
                 ], $statistic->toArray());
+            });
+    }
+
+    public function test_local_connections_for_private_channels()
+    {
+        $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+        $this->newPresenceConnection('presence-channel-2', ['user_id' => 2]);
+
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) {
+                $this->assertCount(2, $connections);
+
+                foreach ($connections as $connection) {
+                    $this->assertInstanceOf(
+                        ConnectionInterface::class, $connection
+                    );
+                }
             });
     }
 }

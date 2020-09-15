@@ -37,6 +37,14 @@ interface ChannelManager
     public function findOrCreate($appId, string $channel);
 
     /**
+     * Get the local connections, regardless of the channel
+     * they are connected to.
+     *
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getLocalConnections(): PromiseInterface;
+
+    /**
      * Get all channels for a specific app
      * for the current instance.
      *
@@ -177,4 +185,19 @@ interface ChannelManager
      * @return \React\Promise\PromiseInterface
      */
     public function getChannelsMembersCount($appId, array $channelNames): PromiseInterface;
+
+    /**
+     * Keep tracking the connections availability when they pong.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return bool
+     */
+    public function connectionPonged(ConnectionInterface $connection): bool;
+
+    /**
+     * Remove the obsolete connections that didn't ponged in a while.
+     *
+     * @return bool
+     */
+    public function removeObsoleteConnections(): bool;
 }
