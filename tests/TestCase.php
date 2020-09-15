@@ -88,6 +88,11 @@ abstract class TestCase extends Orchestra
         if ($this->replicationMode === 'redis') {
             $this->registerRedis();
         }
+
+        if (method_exists($this->channelManager, 'getPublishClient')) {
+            $this->getPublishClient()->resetAssertions();
+            $this->getSubscribeClient()->resetAssertions();
+        }
     }
 
     /**
