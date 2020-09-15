@@ -4,15 +4,32 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 class ReplicationTest extends TestCase
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->runOnlyOnRedisReplication();
+    }
+
+    public function test_publishing_client_gets_subscribed()
+    {
+        $this->newActiveConnection(['public-channel']);
+
+        $this->getSubscribeClient()
+            ->assertCalledWithArgs('subscribe', [$this->channelManager->getRedisKey('1234')])
+            ->assertCalledWithArgs('subscribe', [$this->channelManager->getRedisKey('1234', 'public-channel')]);
+    }
+
     public function test_events_get_replicated_across_connections()
     {
-        $this->runOnlyOnRedisReplication();
-
         $connection = $this->newActiveConnection(['public-channel']);
 
         $message = [
             'appId' => '1234',
-            'serverId' => 0,
+            'serverId' => $this->channelManager->getServerId(),
             'event' => 'some-event',
             'data' => [
                 'channel' => 'public-channel',
@@ -31,12 +48,19 @@ class ReplicationTest extends TestCase
             'serverId' => $this->channelManager->getServerId(),
             'data' => ['channel' => 'public-channel', 'test' => 'yes'],
         ]);
+
+        $this->getSubscribeClient()
+            ->assertNothingDispatched();
+
+        $this->getPublishClient()
+            ->assertCalledWithArgs('publish', [
+                $this->channelManager->getRedisKey('1234', 'public-channel'),
+                json_encode($message),
+            ]);
     }
 
     public function test_not_ponged_connections_do_get_removed_for_public_channels()
     {
-        $this->runOnlyOnRedisReplication();
-
         $connection = $this->newActiveConnection(['public-channel']);
 
         // Make the connection look like it was lost 1 day ago.
@@ -65,8 +89,6 @@ class ReplicationTest extends TestCase
 
     public function test_not_ponged_connections_do_get_removed_for_private_channels()
     {
-        $this->runOnlyOnRedisReplication();
-
         $connection = $this->newPrivateConnection('private-channel');
 
         // Make the connection look like it was lost 1 day ago.
@@ -95,8 +117,6 @@ class ReplicationTest extends TestCase
 
     public function test_not_ponged_connections_do_get_removed_for_presence_channels()
     {
-        $this->runOnlyOnRedisReplication();
-
         $connection = $this->newPresenceConnection('presence-channel');
 
         // Make the connection look like it was lost 1 day ago.

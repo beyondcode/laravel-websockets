@@ -40,17 +40,13 @@ class PresenceChannelTest extends TestCase
 
         $encodedUser = json_encode($user);
 
-        $signature = "{$connection->socketId}:presence-channel:".$encodedUser;
-        $hashedAppSecret = hash_hmac('sha256', $signature, $connection->app->secret);
-
-        $message = new Mocks\Message([
+        $message = new Mocks\SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->app->key}:{$hashedAppSecret}",
                 'channel' => 'presence-channel',
-                'channel_data' => json_encode($user),
+                'channel_data' => $encodedUser,
             ],
-        ]);
+        ], $connection, 'presence-channel', $encodedUser);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -187,7 +183,7 @@ class PresenceChannelTest extends TestCase
             });
     }
 
-    public function test_local_connections_for_private_channels()
+    public function test_local_connections_for_presence_channels()
     {
         $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
         $this->newPresenceConnection('presence-channel-2', ['user_id' => 2]);

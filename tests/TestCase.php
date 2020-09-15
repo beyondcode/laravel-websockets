@@ -331,18 +331,15 @@ abstract class TestCase extends Orchestra
             'user_info' => ['name' => 'Rick'],
         ];
 
-        $signature = "{$connection->socketId}:{$channel}:".json_encode($user);
+        $encodedUser = json_encode($user);
 
-        $hash = hash_hmac('sha256', $signature, $connection->app->secret);
-
-        $message = new Mocks\Message([
+        $message = new Mocks\SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->app->key}:{$hash}",
                 'channel' => $channel,
-                'channel_data' => json_encode($user),
+                'channel_data' => $encodedUser,
             ],
-        ]);
+        ], $connection, $channel, $encodedUser);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -363,17 +360,12 @@ abstract class TestCase extends Orchestra
 
         $this->pusherServer->onOpen($connection);
 
-        $signature = "{$connection->socketId}:{$channel}";
-
-        $hash = hash_hmac('sha256', $signature, $connection->app->secret);
-
-        $message = new Mocks\Message([
+        $message = new Mocks\SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->app->key}:{$hash}",
                 'channel' => $channel,
             ],
-        ]);
+        ], $connection, $channel);
 
         $this->pusherServer->onMessage($connection, $message);
 
