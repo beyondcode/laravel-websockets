@@ -123,7 +123,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function getGlobalChannels($appId): PromiseInterface
     {
-        return $this->getPublishClient()->smembers(
+        return $this->publishClient->smembers(
             $this->getRedisKey($appId, null, ['channels'])
         );
     }
@@ -382,8 +382,7 @@ class RedisChannelManager extends LocalChannelManager
             );
         }
 
-        return $this->publishClient
-            ->exec()
+        return $this->publishClient->exec()
             ->then(function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
             });
@@ -553,11 +552,10 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function addConnectionToSet(ConnectionInterface $connection, $moment = null)
     {
-        $this->getPublishClient()
-            ->zadd(
-                $this->getRedisKey(null, null, ['sockets']),
-                Carbon::parse($moment)->format('U'), "{$connection->app->id}:{$connection->socketId}"
-            );
+        $this->publishClient->zadd(
+            $this->getRedisKey(null, null, ['sockets']),
+            Carbon::parse($moment)->format('U'), "{$connection->app->id}:{$connection->socketId}"
+        );
     }
 
     /**
@@ -568,11 +566,10 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function removeConnectionFromSet(ConnectionInterface $connection)
     {
-        $this->getPublishClient()
-            ->zrem(
-                $this->getRedisKey(null, null, ['sockets']),
-                "{$connection->app->id}:{$connection->socketId}"
-            );
+        $this->publishClient->zrem(
+            $this->getRedisKey(null, null, ['sockets']),
+            "{$connection->app->id}:{$connection->socketId}"
+        );
     }
 
     /**
@@ -585,14 +582,13 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function getConnectionsFromSet(int $start = 0, int $stop = 0)
     {
-        return $this->getPublishClient()
-            ->zrange(
-                $this->getRedisKey(null, null, ['sockets']),
-                $start, $stop, 'withscores'
-            )
-            ->then(function ($list) {
-                return Helpers::redisListToArray($list);
-            });
+        return $this->publishClient->zrange(
+            $this->getRedisKey(null, null, ['sockets']),
+            $start, $stop, 'withscores'
+        )
+        ->then(function ($list) {
+            return Helpers::redisListToArray($list);
+        });
     }
 
     /**
@@ -604,7 +600,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function addChannelToSet($appId, string $channel)
     {
-        return $this->getPublishClient()->sadd(
+        return $this->publishClient->sadd(
             $this->getRedisKey($appId, null, ['channels']),
             $channel
         );
@@ -619,7 +615,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function removeChannelFromSet($appId, string $channel)
     {
-        return $this->getPublishClient()->srem(
+        return $this->publishClient->srem(
             $this->getRedisKey($appId, null, ['channels']),
             $channel
         );
