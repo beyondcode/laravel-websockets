@@ -19,6 +19,9 @@ jobs:
                         testbench: 5.*
                     -   laravel: 6.*
                         testbench: 4.*
+                exclude:
+                    -   php: 7.2
+                        laravel: 8.*
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
@@ -36,7 +39,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
-                    extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+                    extensions: curl, dom, libxml, mbstring, pdo, sqlite, pdo_sqlite, zip
                     coverage: pcov
 
             -   name: Install dependencies
