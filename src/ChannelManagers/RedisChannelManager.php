@@ -143,9 +143,9 @@ class RedisChannelManager extends LocalChannelManager
                         $connection, $channel, new stdClass
                     );
                 }
-            })->then(function () use ($connection) {
-                parent::unsubscribeFromAllChannels($connection);
             });
+
+        parent::unsubscribeFromAllChannels($connection);
     }
 
     /**
