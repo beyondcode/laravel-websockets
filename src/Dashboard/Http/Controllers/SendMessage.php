@@ -45,9 +45,6 @@ class SendMessage
                 $request->appId
             );
         } else {
-            // Add 'appId' to the payload.
-            $payload['appId'] = $request->appId;
-
             $channelManager->broadcastAcrossServers(
                 $request->appId, $request->channel, (object) $payload
             );
