@@ -12,7 +12,6 @@ use Illuminate\Cache\RedisLock;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
-use Ratchet\WebSocket\WsConnection;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;

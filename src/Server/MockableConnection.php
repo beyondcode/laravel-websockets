@@ -23,21 +23,21 @@ class MockableConnection implements ConnectionInterface
     }
 
     /**
-     * Send data to the connection
+     * Send data to the connection.
      * @param  string  $data
      * @return \Ratchet\ConnectionInterface
      */
-    function send($data)
+    public function send($data)
     {
         //
     }
 
     /**
-     * Close the connection
+     * Close the connection.
      *
      * @return void
      */
-    function close()
+    public function close()
     {
         //
     }
