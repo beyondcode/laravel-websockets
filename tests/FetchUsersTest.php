@@ -116,4 +116,34 @@ class FetchUsersTest extends TestCase
             'users' => [['id' => 1]],
         ], json_decode($response->getContent(), true));
     }
+
+    public function test_multiple_clients_with_same_id_gets_counted_once()
+    {
+        $rick = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+        $morty = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+
+        $connection = new Mocks\Connection;
+
+        $requestPath = '/apps/1234/channel/presence-channel/users';
+
+        $routeParams = [
+            'appId' => '1234',
+            'channelName' => 'presence-channel',
+        ];
+
+        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+
+        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(FetchUsers::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var \Illuminate\Http\JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame([
+            'users' => [['id' => 1]],
+        ], json_decode($response->getContent(), true));
+    }
 }

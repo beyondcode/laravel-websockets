@@ -347,6 +347,7 @@ class RedisChannelManager extends LocalChannelManager
                     ->map(function ($user) {
                         return json_decode($user);
                     })
+                    ->unique('id')
                     ->toArray();
             });
     }
