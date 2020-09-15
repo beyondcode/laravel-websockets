@@ -81,6 +81,8 @@ class StartServer extends Command
 
         $this->configurePcntlSignal();
 
+        $this->configurePongTracker();
+
         $this->startServer();
     }
 
@@ -180,6 +182,21 @@ class StartServer extends Command
             $this->line('Closing existing connections...');
 
             $this->triggerSoftShutdown();
+        });
+    }
+
+    /**
+     * Configure the tracker that will delete
+     * from the store the connections that
+     *
+     * @return void
+     */
+    protected function configurePongTracker()
+    {
+        $this->loop->addPeriodicTimer(10, function () {
+            $this->laravel
+                ->make(ChannelManager::class)
+                ->removeObsoleteConnections();
         });
     }
 

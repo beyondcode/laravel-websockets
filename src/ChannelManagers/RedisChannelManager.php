@@ -3,10 +3,16 @@
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
 use BeyondCode\LaravelWebSockets\Channels\Channel;
+use BeyondCode\LaravelWebSockets\Helpers;
+use BeyondCode\LaravelWebSockets\Server\MockableConnection;
+use Carbon\Carbon;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
+use Illuminate\Cache\RedisLock;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
+use Ratchet\WebSocket\WsConnection;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;
@@ -42,6 +48,21 @@ class RedisChannelManager extends LocalChannelManager
     protected $subscribeClient;
 
     /**
+     * The Redis manager instance.
+     *
+     * @var \Illuminate\Redis\RedisManager
+     */
+    protected $redis;
+
+    /**
+     * The lock name to use on Redis to avoid multiple
+     * actions that might lead to multiple processings.
+     *
+     * @var string
+     */
+    protected static $redisLockName = 'laravel-websockets:channel-manager:lock';
+
+    /**
      * Create a new channel manager instance.
      *
      * @param  LoopInterface  $loop
@@ -51,6 +72,10 @@ class RedisChannelManager extends LocalChannelManager
     public function __construct(LoopInterface $loop, $factoryClass = null)
     {
         $this->loop = $loop;
+
+        $this->redis = Redis::connection(
+            config('websockets.replication.modes.redis.connection', 'default')
+        );
 
         $connectionUri = $this->getConnectionUri();
 
@@ -141,6 +166,8 @@ class RedisChannelManager extends LocalChannelManager
                 }
             });
 
+        $this->addConnectionToSet($connection);
+
         $this->addChannelToSet(
             $connection->app->id, $channelName
         );
@@ -167,7 +194,13 @@ class RedisChannelManager extends LocalChannelManager
                 if ($count === 0) {
                     $this->unsubscribeFromTopic($connection->app->id, $channelName);
 
+                    $this->removeUserData(
+                        $connection->app->id, $channelName, $connection->socketId
+                    );
+
                     $this->removeChannelFromSet($connection->app->id, $channelName);
+
+                    $this->removeConnectionFromSet($connection);
 
                     return;
                 }
@@ -179,7 +212,13 @@ class RedisChannelManager extends LocalChannelManager
                     if ($count < 1) {
                         $this->unsubscribeFromTopic($connection->app->id, $channelName);
 
+                        $this->removeUserData(
+                            $connection->app->id, $channelName, $connection->socketId
+                        );
+
                         $this->removeChannelFromSet($connection->app->id, $channelName);
+
+                        $this->removeConnectionFromSet($connection);
                     }
                 });
             });
@@ -304,12 +343,8 @@ class RedisChannelManager extends LocalChannelManager
     {
         return $this->publishClient
             ->hgetall($this->getRedisKey($appId, $channel, ['users']))
-            ->then(function ($members) {
-                [$keys, $values] = collect($members)->partition(function ($value, $key) {
-                    return $key % 2 === 0;
-                });
-
-                return collect(array_combine($keys->all(), $values->all()))
+            ->then(function ($list) {
+                return collect(Helpers::redisListToArray($list))
                     ->map(function ($user) {
                         return json_decode($user);
                     })
@@ -353,6 +388,43 @@ class RedisChannelManager extends LocalChannelManager
             ->then(function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
             });
+    }
+
+    /**
+     * Keep tracking the connections availability when they pong.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return bool
+     */
+    public function connectionPonged(ConnectionInterface $connection): bool
+    {
+        // This will update the score with the current timestamp.
+        $this->addConnectionToSet($connection);
+
+        return parent::connectionPonged($connection);
+    }
+
+    /**
+     * Remove the obsolete connections that didn't ponged in a while.
+     *
+     * @return bool
+     */
+    public function removeObsoleteConnections(): bool
+    {
+        $this->lock()->get(function () {
+            $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+                ->then(function ($connections) {
+                    foreach ($connections as $connection => $score) {
+                        [$appId, $socketId] = explode(':', $connection);
+
+                        $this->unsubscribeFromAllChannels(
+                            $this->fakeConnectionForApp($appId, $socketId)
+                        );
+                    }
+                });
+        });
+
+        return parent::removeObsoleteConnections();
     }
 
     /**
@@ -474,6 +546,57 @@ class RedisChannelManager extends LocalChannelManager
     }
 
     /**
+     * Add the connection to the sorted list.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \DateTime|string|null  $moment
+     * @return void
+     */
+    public function addConnectionToSet(ConnectionInterface $connection, $moment = null)
+    {
+        $this->getPublishClient()
+            ->zadd(
+                $this->getRedisKey(null, null, ['sockets']),
+                Carbon::parse($moment)->format('U'), "{$connection->app->id}:{$connection->socketId}"
+            );
+    }
+
+    /**
+     * Remove the connection from the sorted list.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return void
+     */
+    public function removeConnectionFromSet(ConnectionInterface $connection)
+    {
+        $this->getPublishClient()
+            ->zrem(
+                $this->getRedisKey(null, null, ['sockets']),
+                "{$connection->app->id}:{$connection->socketId}"
+            );
+    }
+
+    /**
+     * Get the connections from the sorted list, with last
+     * connection between certain timestamps.
+     *
+     * @param  int  $start
+     * @param  int  $stop
+     * @return PromiseInterface
+     */
+    public function getConnectionsFromSet(int $start = 0, int $stop = 0)
+    {
+        return $this->getPublishClient()
+            ->zrange(
+                $this->getRedisKey(null, null, ['sockets']),
+                $start, $stop, 'withscores'
+            )
+            ->then(function ($list) {
+                return Helpers::redisListToArray($list);
+            });
+    }
+
+    /**
      * Add a channel to the set list.
      *
      * @param  string|int  $appId
@@ -566,11 +689,11 @@ class RedisChannelManager extends LocalChannelManager
      * Get the Redis Keyspace name to handle subscriptions
      * and other key-value sets.
      *
-     * @param  mixed  $appId
+     * @param  string|int|null  $appId
      * @param  string|null  $channel
      * @return string
      */
-    public function getRedisKey($appId, string $channel = null, array $suffixes = []): string
+    public function getRedisKey($appId = null, string $channel = null, array $suffixes = []): string
     {
         $prefix = config('database.redis.options.prefix', null);
 
@@ -587,5 +710,29 @@ class RedisChannelManager extends LocalChannelManager
         }
 
         return $hash;
+    }
+
+    /**
+     * Get a new RedisLock instance to avoid race conditions.
+     *
+     * @return \Illuminate\Cache\CacheLock
+     */
+    protected function lock()
+    {
+        return new RedisLock($this->redis, static::$redisLockName, 0);
+    }
+
+    /**
+     * Create a fake connection for app that will mimick a connection
+     * by app ID and Socket ID to be able to be passed to the methods
+     * that accepts a connection class.
+     *
+     * @param  string|int  $appId
+     * @param  string  $socketId
+     * @return ConnectionInterface
+     */
+    public function fakeConnectionForApp($appId, string $socketId)
+    {
+        return new MockableConnection($appId, $socketId);
     }
 }

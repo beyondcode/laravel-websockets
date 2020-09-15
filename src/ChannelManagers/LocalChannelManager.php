@@ -343,6 +343,27 @@ class LocalChannelManager implements ChannelManager
     }
 
     /**
+     * Keep tracking the connections availability when they pong.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return bool
+     */
+    public function connectionPonged(ConnectionInterface $connection): bool
+    {
+        return true;
+    }
+
+    /**
+     * Remove the obsolete connections that didn't ponged in a while.
+     *
+     * @return bool
+     */
+    public function removeObsoleteConnections(): bool
+    {
+        return true;
+    }
+
+    /**
      * Mark the current instance as unable to accept new connections.
      *
      * @return $this
