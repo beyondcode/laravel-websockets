@@ -252,7 +252,7 @@
       form: {
         channel: null,
         event: null,
-        data: null,
+        data: {},
       },
       logs: [],
     },
@@ -396,6 +396,8 @@
           let payload = {
             _token: '{{ csrf_token() }}',
             appId: this.app.id,
+            key: this.app.key,
+            secret: this.app.secret,
             channel: this.form.channel,
             event: this.form.event,
             data: JSON.stringify(this.form.data),
