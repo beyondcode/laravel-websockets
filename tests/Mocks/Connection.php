@@ -28,6 +28,12 @@ class Connection implements ConnectionInterface
         $this->closed = true;
     }
 
+    public function resetEvents()
+    {
+        $this->sentData = [];
+        $this->sentRawData = [];
+    }
+
     public function assertSentEvent(string $name, array $additionalParameters = [])
     {
         $event = collect($this->sentData)->firstWhere('event', '=', $name);

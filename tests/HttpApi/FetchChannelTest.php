@@ -75,7 +75,7 @@ class FetchChannelTest extends TestCase
 
         $connection = new Connection();
 
-        $requestPath = "/apps/1234/channel/presence-global";
+        $requestPath = '/apps/1234/channel/presence-global';
         $routeParams = [
             'appId' => '1234',
             'channelName' => 'presence-global',

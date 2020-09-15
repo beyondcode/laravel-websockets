@@ -22,8 +22,8 @@ class FetchUsersController extends Controller
         }
 
         return [
-            'users' => Collection::make($channel->getUsers())->map(function ($user) {
-                return ['id' => $user->user_id];
+            'users' => Collection::make($channel->getUsers())->keys()->map(function ($userId) {
+                return ['id' => $userId];
             })->values(),
         ];
     }
