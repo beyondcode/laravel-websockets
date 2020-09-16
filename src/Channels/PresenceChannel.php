@@ -74,13 +74,13 @@ class PresenceChannel extends PrivateChannel
                         $connection->app->id
                     );
                 }
-            });
 
-        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
-            'socketId' => $connection->socketId,
-            'channel' => $this->getName(),
-            'multi-device' => isset($connection->duplicate),
-        ]);
+                DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
+                    'socketId' => $connection->socketId,
+                    'channel' => $this->getName(),
+                    'duplicate-connection' => count($sockets) > 1,
+                ]);
+            });
     }
 
     /**
