@@ -30,6 +30,13 @@ class LocalChannelManager implements ChannelManager
     protected $users = [];
 
     /**
+     * The list of users by socket and their attached id.
+     *
+     * @var array
+     */
+    protected $userSockets = [];
+
+    /**
      * Wether the current instance accepts new connections.
      *
      * @var bool
@@ -273,6 +280,7 @@ class LocalChannelManager implements ChannelManager
     public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload)
     {
         $this->users["{$connection->app->id}:{$channel}"][$connection->socketId] = json_encode($user);
+        $this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"][] = $connection->socketId;
     }
 
     /**
@@ -287,6 +295,19 @@ class LocalChannelManager implements ChannelManager
     public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel)
     {
         unset($this->users["{$connection->app->id}:{$channel}"][$connection->socketId]);
+
+        $deletableSocketKey = array_search(
+            $connection->socketId,
+            $this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"]
+        );
+
+        if ($deletableSocketKey !== false) {
+            unset($this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"][$deletableSocketKey]);
+
+            if (count($this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"]) === 0) {
+                unset($this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"]);
+            }
+        }
     }
 
     /**
@@ -340,6 +361,21 @@ class LocalChannelManager implements ChannelManager
             }, []);
 
         return new FulfilledPromise($results);
+    }
+
+    /**
+     * Get the socket IDs for a presence channel member.
+     *
+     * @param  string|int  $userId
+     * @param  string|int  $appId
+     * @param  string  $channelName
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getMemberSockets($userId, $appId, $channelName): PromiseInterface
+    {
+        return new FulfilledPromise(
+            $this->userSockets["{$appId}:{$channelName}:{$userId}"] ?? []
+        );
     }
 
     /**
