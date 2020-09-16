@@ -261,15 +261,15 @@
     },
     destroyed () {
       if (this.refreshTicker) {
-        this.clearRefreshInterval();
+        this.stopRefreshInterval();
       }
     },
     watch: {
       connected (newVal) {
-        newVal ? this.startRefreshInterval() : this.clearRefreshInterval();
+        newVal ? this.startRefreshInterval() : this.stopRefreshInterval();
       },
       autoRefresh (newVal) {
-        newVal ? this.startRefreshInterval() : this.clearRefreshInterval();
+        newVal ? this.startRefreshInterval() : this.stopRefreshInterval();
       },
     },
     methods: {
