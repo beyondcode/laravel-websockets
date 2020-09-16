@@ -59,6 +59,32 @@ class Connection implements ConnectionInterface
     }
 
     /**
+     * Reset the events for assertions.
+     *
+     * @return $this
+     */
+    public function resetEvents()
+    {
+        $this->sentData = [];
+        $this->sentRawData = [];
+
+        return $this;
+    }
+
+    /**
+     * Dump & stop execution.
+     *
+     * @return void
+     */
+    public function dd()
+    {
+        dd([
+            'sentData' => $this->sentData,
+            'sentRawData' => $this->sentRawData,
+        ]);
+    }
+
+    /**
      * Assert that an event got sent.
      *
      * @param  string  $name

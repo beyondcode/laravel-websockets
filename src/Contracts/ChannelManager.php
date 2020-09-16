@@ -187,6 +187,16 @@ interface ChannelManager
     public function getChannelsMembersCount($appId, array $channelNames): PromiseInterface;
 
     /**
+     * Get the socket IDs for a presence channel member.
+     *
+     * @param  string|int  $userId
+     * @param  string|int  $appId
+     * @param  string  $channelName
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getMemberSockets($userId, $appId, $channelName): PromiseInterface;
+
+    /**
      * Keep tracking the connections availability when they pong.
      *
      * @param  \Ratchet\ConnectionInterface  $connection

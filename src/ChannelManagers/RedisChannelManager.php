@@ -313,6 +313,10 @@ class RedisChannelManager extends LocalChannelManager
         $this->storeUserData(
             $connection->app->id, $channel, $connection->socketId, json_encode($user)
         );
+
+        $this->addUserSocket(
+            $connection->app->id, $channel, $user, $connection->socketId
+        );
     }
 
     /**
@@ -328,6 +332,10 @@ class RedisChannelManager extends LocalChannelManager
     {
         $this->removeUserData(
             $connection->app->id, $channel, $connection->socketId
+        );
+
+        $this->removeUserSocket(
+            $connection->app->id, $channel, $user, $connection->socketId
         );
     }
 
@@ -387,6 +395,21 @@ class RedisChannelManager extends LocalChannelManager
             ->then(function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
             });
+    }
+
+    /**
+     * Get the socket IDs for a presence channel member.
+     *
+     * @param  string|int  $userId
+     * @param  string|int  $appId
+     * @param  string  $channelName
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getMemberSockets($userId, $appId, $channelName): PromiseInterface
+    {
+        return $this->publishClient->smembers(
+            $this->getRedisKey($appId, $channelName, [$userId, 'userSockets'])
+        );
     }
 
     /**
@@ -628,7 +651,7 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $appId
      * @param  string|null  $channel
      * @param  string  $key
-     * @param  mixed  $data
+     * @param  string  $data
      * @return PromiseInterface
      */
     public function storeUserData($appId, string $channel = null, string $key, $data)
@@ -678,6 +701,40 @@ class RedisChannelManager extends LocalChannelManager
     {
         $this->subscribeClient->unsubscribe(
             $this->getRedisKey($appId, $channel)
+        );
+    }
+
+    /**
+     * Add the Presence Channel's User's Socket ID to a list.
+     *
+     * @param  string|int  $appId
+     * @param  string  $channel
+     * @param  stdClass  $user
+     * @param  string  $socketId
+     * @return void
+     */
+    protected function addUserSocket($appId, string $channel, stdClass $user, string $socketId)
+    {
+        $this->publishClient->sadd(
+            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']),
+            $socketId
+        );
+    }
+
+    /**
+     * Remove the Presence Channel's User's Socket ID from the list.
+     *
+     * @param  string|int  $appId
+     * @param  string  $channel
+     * @param  stdClass  $user
+     * @param  string  $socketId
+     * @return void
+     */
+    protected function removeUserSocket($appId, string $channel, stdClass $user, string $socketId)
+    {
+        $this->publishClient->srem(
+            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']),
+            $socketId
         );
     }
 
