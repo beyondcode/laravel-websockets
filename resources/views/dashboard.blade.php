@@ -314,7 +314,7 @@
         });
 
         this.pusher.connection.bind('error', event => {
-          if (event.error.data.code === 4100) {
+          if (event.data.code === 4100) {
             this.connected = false;
             this.logs = [];
             this.chart = null;
