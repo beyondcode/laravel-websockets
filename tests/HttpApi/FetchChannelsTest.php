@@ -103,10 +103,10 @@ class FetchChannelsTest extends TestCase
     /** @test */
     public function it_returns_the_channel_information_for_prefix_with_user_count()
     {
-        $this->joinPresenceChannel('presence-global.1');
-        $this->joinPresenceChannel('presence-global.1');
-        $this->joinPresenceChannel('presence-global.2');
-        $this->joinPresenceChannel('presence-notglobal.2');
+        $this->joinPresenceChannel('presence-global.1', 'user:1');
+        $this->joinPresenceChannel('presence-global.1', 'user:2');
+        $this->joinPresenceChannel('presence-global.2', 'user:3');
+        $this->joinPresenceChannel('presence-notglobal.2', 'user:4');
 
         $connection = new Connection();
 

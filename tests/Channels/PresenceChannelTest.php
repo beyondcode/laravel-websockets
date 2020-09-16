@@ -43,7 +43,7 @@ class PresenceChannelTest extends TestCase
             ],
         ];
 
-        $message = $this->getSignedMessage($connection, 'presence-channel', $channelData);
+        $message = $this->getSignedSubscribeMessage($connection, 'presence-channel', $channelData);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -63,7 +63,7 @@ class PresenceChannelTest extends TestCase
             'user_id' => 1,
         ];
 
-        $message = $this->getSignedMessage($connection, 'presence-channel', $channelData);
+        $message = $this->getSignedSubscribeMessage($connection, 'presence-channel', $channelData);
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -80,19 +80,19 @@ class PresenceChannelTest extends TestCase
 
         $channelName = 'presence-channel';
         $channelData = [
-            'user_id' => $userId = 1,
+            'user_id' => $userId = 'user:1',
         ];
 
-        $this->pusherServer->onMessage($connection, $this->getSignedMessage($connection, $channelName, $channelData));
-        $this->pusherServer->onMessage($connection2, $this->getSignedMessage($connection2, $channelName, $channelData));
+        $this->pusherServer->onMessage($connection, $this->getSignedSubscribeMessage($connection, $channelName, $channelData));
+        $this->pusherServer->onMessage($connection2, $this->getSignedSubscribeMessage($connection2, $channelName, $channelData));
 
         $connection2->assertSentEvent('pusher_internal:subscription_succeeded', [
             'channel' => $channelName,
             'data' => json_encode([
                 'presence' => [
-                    'ids' => [(string) $userId],
+                    'ids' => [$userId],
                     'hash' => [
-                        (string) $userId => [],
+                        $userId => [],
                     ],
                     'count' => 1,
                 ],
@@ -100,7 +100,44 @@ class PresenceChannelTest extends TestCase
         ]);
     }
 
-    private function getSignedMessage(Connection $connection, string $channelName, array $channelData): Message
+    /** @test */
+    public function multiple_clients_with_same_user_id_trigger_member_added_and_removed_event_only_on_first_and_last_socket_connection()
+    {
+        $channelName = 'presence-channel';
+
+        // Connect the `observer` user to the server
+        $this->pusherServer->onOpen($observerConnection = $this->getWebSocketConnection());
+        $this->pusherServer->onMessage($observerConnection, $this->getSignedSubscribeMessage($observerConnection, $channelName, ['user_id' => 'observer']));
+
+        // Connect the first socket for user `user:1` to the server
+        $this->pusherServer->onOpen($firstConnection = $this->getWebSocketConnection());
+        $this->pusherServer->onMessage($firstConnection, $this->getSignedSubscribeMessage($firstConnection, $channelName, ['user_id' => 'user:1']));
+
+        // Make sure the observer sees a `member_added` event for `user:1`
+        $observerConnection->assertSentEvent('pusher_internal:member_added');
+        $observerConnection->resetEvents();
+
+        // Connect the second socket for user `user:1` to the server
+        $this->pusherServer->onOpen($secondConnection = $this->getWebSocketConnection());
+        $this->pusherServer->onMessage($secondConnection, $this->getSignedSubscribeMessage($secondConnection, $channelName, ['user_id' => 'user:1']));
+
+        // Make sure the observer was not notified of a `member_added` event (user was already connected)
+        $observerConnection->assertNotSentEvent('pusher_internal:member_added');
+
+        // Disconnect the first socket for user `user:1` on the server
+        $this->pusherServer->onClose($firstConnection);
+
+        // Make sure the observer was not notified of a `member_removed` event (user still connected on another socket)
+        $observerConnection->assertNotSentEvent('pusher_internal:member_removed');
+
+        // Disconnect the second (and last) socket for user `user:1` on the server
+        $this->pusherServer->onClose($secondConnection);
+
+        // Make sure the observer was notified of a `member_removed` event (last socket for user was disconnected)
+        $observerConnection->assertSentEvent('pusher_internal:member_removed');
+    }
+
+    private function getSignedSubscribeMessage(Connection $connection, string $channelName, array $channelData): Message
     {
         $signature = "{$connection->socketId}:{$channelName}:".json_encode($channelData);
 
