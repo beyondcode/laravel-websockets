@@ -127,7 +127,7 @@ class PresenceChannel extends PrivateChannel
                                 $connection->app->id
                             );
                         }
-                     });
+                    });
             });
     }
 }
