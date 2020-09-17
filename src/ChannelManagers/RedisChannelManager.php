@@ -186,35 +186,32 @@ class RedisChannelManager extends LocalChannelManager
         $this->getGlobalConnectionsCount($connection->app->id, $channelName)
             ->then(function ($count) use ($connection, $channelName) {
                 if ($count === 0) {
+                    // Make sure to not stay subscribed to the PubSub topic
+                    // if there are no connections.
                     $this->unsubscribeFromTopic($connection->app->id, $channelName);
-
-                    $this->removeUserData(
-                        $connection->app->id, $channelName, $connection->socketId
-                    );
-
-                    $this->removeChannelFromSet($connection->app->id, $channelName);
-
-                    $this->removeConnectionFromSet($connection);
-
-                    return;
                 }
 
-                $this->decrementSubscriptionsCount(
-                    $connection->app->id, $channelName,
-                )
-                ->then(function ($count) use ($connection, $channelName) {
-                    if ($count < 1) {
-                        $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                $this->decrementSubscriptionsCount($connection->app->id, $channelName)
+                    ->then(function ($count) use ($connection, $channelName) {
+                        // If the total connections count gets to 0 after unsubscribe,
+                        // try again to check & unsubscribe from the PubSub topic if needed.
+                        if ($count < 1) {
+                            $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                        }
+                    });
 
-                        $this->removeUserData(
-                            $connection->app->id, $channelName, $connection->socketId
-                        );
+                $this->getChannelMember($connection, $channelName)
+                    ->then(function ($member) use ($connection, $channelName) {
+                        if ($member) {
+                            $this->userLeftPresenceChannel(
+                                $connection, json_decode($member), $channelName,
+                            );
+                        }
+                    });
 
-                        $this->removeChannelFromSet($connection->app->id, $channelName);
+                $this->removeChannelFromSet($connection->app->id, $channelName);
 
-                        $this->removeConnectionFromSet($connection);
-                    }
-                });
+                $this->removeConnectionFromSet($connection);
             });
 
         parent::unsubscribeFromChannel($connection, $channelName, $payload);
@@ -677,7 +674,7 @@ class RedisChannelManager extends LocalChannelManager
     public function removeUserData($appId, string $channel = null, string $key)
     {
         return $this->publishClient->hdel(
-            $this->getRedisKey($appId, $channel), $key
+            $this->getRedisKey($appId, $channel, ['users']), $key
         );
     }
 
