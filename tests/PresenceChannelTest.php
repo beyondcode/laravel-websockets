@@ -73,6 +73,41 @@ class PresenceChannelTest extends TestCase
             ]);
         }
 
+        $rick->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+            'data' => json_encode([
+                'presence' => [
+                    'ids' => ['1'],
+                    'hash' => ['1' => []],
+                    'count' => 1,
+                ],
+            ]),
+        ]);
+
+        $morty->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+            'data' => json_encode([
+                'presence' => [
+                    'ids' => ['1', '2'],
+                    'hash' => ['1' => [], '2' => []],
+                    'count' => 2,
+                ],
+            ]),
+        ]);
+
+        // The duplicated-user_id connection should get basically the list of ids
+        // without dealing with duplicate user ids.
+        $pickleRick->assertSentEvent('pusher_internal:subscription_succeeded', [
+            'channel' => 'presence-channel',
+            'data' => json_encode([
+                'presence' => [
+                    'ids' => ['1', '2'],
+                    'hash' => ['1' => [], '2' => []],
+                    'count' => 2,
+                ],
+            ]),
+        ]);
+
         $this->channelManager
             ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {

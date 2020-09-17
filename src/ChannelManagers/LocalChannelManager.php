@@ -323,7 +323,7 @@ class LocalChannelManager implements ChannelManager
 
         $members = collect($members)->map(function ($user) {
             return json_decode($user);
-        })->unique('id')->toArray();
+        })->unique('user_id')->toArray();
 
         return new FulfilledPromise($members);
     }
