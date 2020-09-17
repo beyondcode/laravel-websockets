@@ -67,8 +67,8 @@ class FetchChannelTest extends TestCase
 
     public function test_it_returns_presence_channel_information()
     {
-        $this->newPresenceConnection('presence-channel');
-        $this->newPresenceConnection('presence-channel');
+        $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+        $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
 
         $connection = new Mocks\Connection;
 

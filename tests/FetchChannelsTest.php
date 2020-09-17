@@ -104,10 +104,10 @@ class FetchChannelsTest extends TestCase
 
     public function test_it_returns_the_channel_information_for_prefix_with_user_count()
     {
-        $this->newPresenceConnection('presence-global.1');
-        $this->newPresenceConnection('presence-global.1');
-        $this->newPresenceConnection('presence-global.2');
-        $this->newPresenceConnection('presence-notglobal.2');
+        $this->newPresenceConnection('presence-global.1', ['user_id' => 1]);
+        $this->newPresenceConnection('presence-global.1', ['user_id' => 2]);
+        $this->newPresenceConnection('presence-global.2', ['user_id' => 3]);
+        $this->newPresenceConnection('presence-notglobal.2', ['user_id' => 4]);
 
         $connection = new Mocks\Connection;
 
