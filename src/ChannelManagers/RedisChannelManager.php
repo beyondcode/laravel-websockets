@@ -200,15 +200,6 @@ class RedisChannelManager extends LocalChannelManager
                         }
                     });
 
-                $this->getChannelMember($connection, $channelName)
-                    ->then(function ($member) use ($connection, $channelName) {
-                        if ($member) {
-                            $this->userLeftPresenceChannel(
-                                $connection, json_decode($member), $channelName,
-                            );
-                        }
-                    });
-
                 $this->removeChannelFromSet($connection->app->id, $channelName);
 
                 $this->removeConnectionFromSet($connection);
