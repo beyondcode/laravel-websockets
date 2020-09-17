@@ -65,7 +65,7 @@ class TriggerEventTest extends TestCase
 
         $this->statisticsCollector
             ->getAppStatistics('1234')
-            ->then(function ($statistics) {
+            ->then(function ($statistic) {
                 $this->assertEquals([
                     'peak_connections_count' => 1,
                     'websocket_messages_count' => 1,
@@ -106,7 +106,7 @@ class TriggerEventTest extends TestCase
 
         $this->statisticsCollector
             ->getAppStatistics('1234')
-            ->then(function ($statistics) {
+            ->then(function ($statistic) {
                 $this->assertEquals([
                     'peak_connections_count' => 1,
                     'websocket_messages_count' => 1,
@@ -147,7 +147,7 @@ class TriggerEventTest extends TestCase
 
         $this->statisticsCollector
             ->getAppStatistics('1234')
-            ->then(function ($statistics) {
+            ->then(function ($statistic) {
                 $this->assertEquals([
                     'peak_connections_count' => 1,
                     'websocket_messages_count' => 1,

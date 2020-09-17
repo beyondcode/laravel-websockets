@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
+use Carbon\Carbon;
+
 class ReplicationTest extends TestCase
 {
     /**
@@ -61,13 +63,23 @@ class ReplicationTest extends TestCase
 
     public function test_not_ponged_connections_do_get_removed_for_public_channels()
     {
-        $connection = $this->newActiveConnection(['public-channel']);
+        $activeConnection = $this->newActiveConnection(['public-channel']);
+        $obsoleteConnection = $this->newActiveConnection(['public-channel']);
+
+        // The active connection just pinged, it should not be closed.
+        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
 
         // Make the connection look like it was lost 1 day ago.
-        $this->channelManager->addConnectionToSet($connection, now()->subDays(1));
+        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getGlobalConnectionsCount('1234', 'public-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->channelManager
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(1, $expiredConnections);
             });
@@ -77,11 +89,11 @@ class ReplicationTest extends TestCase
         $this->channelManager
             ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($count) {
-                $this->assertEquals(0, $count);
+                $this->assertEquals(1, $count);
             });
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(0, $expiredConnections);
             });
@@ -89,13 +101,23 @@ class ReplicationTest extends TestCase
 
     public function test_not_ponged_connections_do_get_removed_for_private_channels()
     {
-        $connection = $this->newPrivateConnection('private-channel');
+        $activeConnection = $this->newPrivateConnection('private-channel');
+        $obsoleteConnection = $this->newPrivateConnection('private-channel');
+
+        // The active connection just pinged, it should not be closed.
+        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
 
         // Make the connection look like it was lost 1 day ago.
-        $this->channelManager->addConnectionToSet($connection, now()->subDays(1));
+        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->channelManager
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(1, $expiredConnections);
             });
@@ -105,11 +127,11 @@ class ReplicationTest extends TestCase
         $this->channelManager
             ->getGlobalConnectionsCount('1234', 'private-channel')
             ->then(function ($count) {
-                $this->assertEquals(0, $count);
+                $this->assertEquals(1, $count);
             });
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(0, $expiredConnections);
             });
@@ -117,13 +139,23 @@ class ReplicationTest extends TestCase
 
     public function test_not_ponged_connections_do_get_removed_for_presence_channels()
     {
-        $connection = $this->newPresenceConnection('presence-channel');
+        $activeConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+        $obsoleteConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
+
+        // The active connection just pinged, it should not be closed.
+        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
 
         // Make the connection look like it was lost 1 day ago.
-        $this->channelManager->addConnectionToSet($connection, now()->subDays(1));
+        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->channelManager
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(1, $expiredConnections);
             });
@@ -131,19 +163,19 @@ class ReplicationTest extends TestCase
         $this->channelManager
             ->getChannelMembers('1234', 'presence-channel')
             ->then(function ($members) {
-                $this->assertCount(1, $members);
+                $this->assertCount(2, $members);
             });
 
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($count) {
-                $this->assertEquals(0, $count);
+                $this->assertEquals(1, $count);
             });
 
         $this->channelManager
-            ->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
             ->then(function ($expiredConnections) {
                 $this->assertCount(0, $expiredConnections);
             });
@@ -151,7 +183,7 @@ class ReplicationTest extends TestCase
         $this->channelManager
             ->getChannelMembers('1234', 'presence-channel')
             ->then(function ($members) {
-                $this->assertCount(0, $members);
+                $this->assertCount(1, $members);
             });
     }
 }

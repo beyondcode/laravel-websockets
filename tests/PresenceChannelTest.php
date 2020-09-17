@@ -152,9 +152,9 @@ class PresenceChannelTest extends TestCase
 
         $this->channelManager
             ->getChannelMembers('1234', 'presence-channel')
-            ->then(function ($members) {
+            ->then(function ($members) use ($rick) {
                 $this->assertCount(1, $members);
-                $this->assertEquals(1, $members[0]->user_id);
+                $this->assertEquals(1, $members[$rick->socketId]->user_id);
             });
     }
 
