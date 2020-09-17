@@ -158,12 +158,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload)
     {
-        $this->getGlobalConnectionsCount($connection->app->id, $channelName)
-            ->then(function ($count) use ($connection, $channelName) {
-                if ($count === 0) {
-                    $this->subscribeToTopic($connection->app->id, $channelName);
-                }
-            });
+        $this->subscribeToTopic($connection->app->id, $channelName);
 
         $this->addConnectionToSet($connection);
 
@@ -753,13 +748,13 @@ class RedisChannelManager extends LocalChannelManager
         $hash = "{$prefix}{$appId}";
 
         if ($channel) {
-            $hash .= ":{$channel}";
+            $suffixes = array_merge([$channel], $suffixes);
         }
 
-        $suffixes = join(':', $suffixes);
+        $suffixes = implode(':', $suffixes);
 
         if ($suffixes) {
-            $hash .= $suffixes;
+            $hash .= ":{$suffixes}";
         }
 
         return $hash;
