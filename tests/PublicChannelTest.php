@@ -2,7 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
+use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Request;
+use Illuminate\Http\JsonResponse;
+use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 
 class PublicChannelTest extends TestCase
@@ -243,5 +247,147 @@ class PublicChannelTest extends TestCase
                 $this->channelManager->getRedisKey('1234', 'public-channel'),
                 $message->getPayload(),
             ]);
+    }
+
+    public function test_it_fires_the_event_to_public_channel()
+    {
+        $this->newActiveConnection(['public-channel']);
+
+        $connection = new Mocks\Connection;
+
+        $requestPath = '/apps/1234/events';
+
+        $routeParams = [
+            'appId' => '1234',
+        ];
+
+        $queryString = Pusher::build_auth_query_string(
+            'TestKey', 'TestSecret', 'POST', $requestPath, [
+                'name' => 'some-event',
+                'channels' => ['public-channel'],
+                'data' => json_encode(['some-data' => 'yes']),
+            ],
+        );
+
+        $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(TriggerEvent::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame([], json_decode($response->getContent(), true));
+
+        $this->statisticsCollector
+            ->getAppStatistics('1234')
+            ->then(function ($statistic) {
+                $this->assertEquals([
+                    'peak_connections_count' => 1,
+                    'websocket_messages_count' => 1,
+                    'api_messages_count' => 1,
+                    'app_id' => '1234',
+                ], $statistic->toArray());
+            });
+    }
+
+    public function test_it_fires_event_across_servers_when_there_are_not_users_locally_for_public_channel()
+    {
+        $connection = new Mocks\Connection;
+
+        $requestPath = '/apps/1234/events';
+
+        $routeParams = [
+            'appId' => '1234',
+        ];
+
+        $queryString = Pusher::build_auth_query_string(
+            'TestKey', 'TestSecret', 'POST', $requestPath, [
+                'name' => 'some-event',
+                'channels' => ['public-channel'],
+                'data' => json_encode(['some-data' => 'yes']),
+            ],
+        );
+
+        $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(TriggerEvent::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame([], json_decode($response->getContent(), true));
+
+        if (method_exists($this->channelManager, 'getPublishClient')) {
+            $this->channelManager
+                ->getPublishClient()
+                ->assertCalledWithArgsCount(1, 'publish', [
+                    $this->channelManager->getRedisKey('1234', 'public-channel'),
+                    json_encode([
+                        'event' => 'some-event',
+                        'channel' => 'public-channel',
+                        'data' => json_encode(['some-data' => 'yes']),
+                        'appId' => '1234',
+                        'socketId' => null,
+                        'serverId' => $this->channelManager->getServerId(),
+                    ]),
+                ]);
+        }
+    }
+
+    public function test_it_fires_event_across_servers_when_there_are_users_locally_for_public_channel()
+    {
+        $wsConnection = $this->newActiveConnection(['public-channel']);
+
+        $connection = new Mocks\Connection;
+
+        $requestPath = '/apps/1234/events';
+
+        $routeParams = [
+            'appId' => '1234',
+        ];
+
+        $queryString = Pusher::build_auth_query_string(
+            'TestKey', 'TestSecret', 'POST', $requestPath, [
+                'name' => 'some-event',
+                'channels' => ['public-channel'],
+                'data' => json_encode(['some-data' => 'yes']),
+            ],
+        );
+
+        $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+
+        $controller = app(TriggerEvent::class);
+
+        $controller->onOpen($connection, $request);
+
+        /** @var JsonResponse $response */
+        $response = array_pop($connection->sentRawData);
+
+        $this->assertSame([], json_decode($response->getContent(), true));
+
+        if (method_exists($this->channelManager, 'getPublishClient')) {
+            $this->channelManager
+                ->getPublishClient()
+                ->assertCalledWithArgsCount(1, 'publish', [
+                    $this->channelManager->getRedisKey('1234', 'public-channel'),
+                    json_encode([
+                        'event' => 'some-event',
+                        'channel' => 'public-channel',
+                        'data' => json_encode(['some-data' => 'yes']),
+                        'appId' => '1234',
+                        'socketId' => null,
+                        'serverId' => $this->channelManager->getServerId(),
+                    ]),
+                ]);
+        }
+
+        $wsConnection->assertSentEvent('some-event', [
+            'channel' => 'public-channel',
+            'data' => json_encode(['some-data' => 'yes']),
+        ]);
     }
 }
