@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test\Dashboard;
 
-use BeyondCode\LaravelWebSockets\Test\Mocks\Message;
+use BeyondCode\LaravelWebSockets\Test\Mocks\SignedMessage;
 use BeyondCode\LaravelWebSockets\Test\Models\User;
 use BeyondCode\LaravelWebSockets\Test\TestCase;
 
@@ -31,17 +31,12 @@ class AuthTest extends TestCase
 
         $this->pusherServer->onOpen($connection);
 
-        $signature = "{$connection->socketId}:private-channel";
-
-        $hashedAppSecret = hash_hmac('sha256', $signature, $connection->app->secret);
-
-        $message = new Message([
+        $message = new SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->app->key}:{$hashedAppSecret}",
                 'channel' => 'private-channel',
             ],
-        ]);
+        ], $connection, 'private-channel');
 
         $this->pusherServer->onMessage($connection, $message);
 
@@ -65,23 +60,20 @@ class AuthTest extends TestCase
 
         $this->pusherServer->onOpen($connection);
 
-        $channelData = [
+        $user = json_encode([
             'user_id' => 1,
             'user_info' => [
                 'name' => 'Rick',
             ],
-        ];
+        ]);
 
-        $signature = "{$connection->socketId}:presence-channel:".json_encode($channelData);
-
-        $message = new Message([
+        $message = new SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => $connection->app->key.':'.hash_hmac('sha256', $signature, $connection->app->secret),
                 'channel' => 'presence-channel',
-                'channel_data' => json_encode($channelData),
+                'channel_data' => $user,
             ],
-        ]);
+        ], $connection, 'presence-channel', $user);
 
         $this->pusherServer->onMessage($connection, $message);
 

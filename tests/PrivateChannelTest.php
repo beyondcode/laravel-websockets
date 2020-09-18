@@ -31,16 +31,12 @@ class PrivateChannelTest extends TestCase
 
         $this->pusherServer->onOpen($connection);
 
-        $signature = "{$connection->socketId}:private-channel";
-        $hashedAppSecret = hash_hmac('sha256', $signature, $connection->app->secret);
-
-        $message = new Mocks\Message([
+        $message = new Mocks\SignedMessage([
             'event' => 'pusher:subscribe',
             'data' => [
-                'auth' => "{$connection->app->key}:{$hashedAppSecret}",
                 'channel' => 'private-channel',
             ],
-        ]);
+        ], $connection, 'private-channel');
 
         $this->pusherServer->onMessage($connection, $message);
 

@@ -33,4 +33,24 @@ class Message extends BaseMessage
     {
         return json_encode($this->payload);
     }
+
+    /**
+     * Get the payload as object.
+     *
+     * @return stdClass
+     */
+    public function getPayloadAsObject()
+    {
+        return json_decode($this->getPayload());
+    }
+
+    /**
+     * Get the payload as array.
+     *
+     * @return stdClass
+     */
+    public function getPayloadAsArray(): array
+    {
+        return $this->payload;
+    }
 }

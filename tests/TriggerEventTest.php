@@ -190,10 +190,11 @@ class TriggerEventTest extends TestCase
                 ->assertCalledWithArgs('publish', [
                     $this->channelManager->getRedisKey('1234', 'public-channel'),
                     json_encode([
-                        'channel' => 'public-channel',
                         'event' => null,
+                        'channel' => 'public-channel',
                         'data' => null,
                         'appId' => '1234',
+                        'socketId' => null,
                         'serverId' => $this->channelManager->getServerId(),
                     ]),
                 ]);
