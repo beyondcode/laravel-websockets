@@ -55,7 +55,7 @@ class ReplicationTest extends TestCase
         $this->getPublishClient()
             ->assertCalledWithArgs('publish', [
                 $this->channelManager->getRedisKey('1234', 'public-channel'),
-                $message->getPayload()
+                $message->getPayload(),
             ]);
     }
 
@@ -89,7 +89,7 @@ class ReplicationTest extends TestCase
         $this->getPublishClient()
             ->assertCalledWithArgs('publish', [
                 $this->channelManager->getRedisKey('1234', 'private-channel'),
-                $message->getPayload()
+                $message->getPayload(),
             ]);
     }
 
@@ -133,7 +133,7 @@ class ReplicationTest extends TestCase
         $this->getPublishClient()
             ->assertCalledWithArgs('publish', [
                 $this->channelManager->getRedisKey('1234', 'presence-channel'),
-                $message->getPayload()
+                $message->getPayload(),
             ]);
     }
 
