@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
+use Carbon\Carbon;
 use Ratchet\ConnectionInterface;
 
 class PresenceChannelTest extends TestCase
@@ -311,5 +312,147 @@ class PresenceChannelTest extends TestCase
             ->then(function ($sockets) {
                 $this->assertCount(1, $sockets);
             });
+    }
+
+    public function test_not_ponged_connections_do_get_removed_for_presence_channels()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $activeConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
+        $obsoleteConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
+
+        // The active connection just pinged, it should not be closed.
+        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
+
+        // Make the connection look like it was lost 1 day ago.
+        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
+
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
+
+        $this->channelManager
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
+            ->then(function ($expiredConnections) {
+                $this->assertCount(1, $expiredConnections);
+            });
+
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(2, $members);
+            });
+
+        $this->channelManager->removeObsoleteConnections();
+
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
+
+        $this->channelManager
+            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
+            ->then(function ($expiredConnections) {
+                $this->assertCount(0, $expiredConnections);
+            });
+
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(1, $members);
+            });
+    }
+
+    public function test_events_are_processed_by_on_message_on_presence_channels()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $user = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Rick',
+            ],
+        ];
+
+        $connection = $this->newPresenceConnection('presence-channel', $user);
+
+        $encodedUser = json_encode($user);
+
+        $message = new Mocks\SignedMessage([
+            'appId' => '1234',
+            'serverId' => 'different_server_id',
+            'event' => 'some-event',
+            'data' => [
+                'channel' => 'presence-channel',
+                'channel_data' => $encodedUser,
+                'test' => 'yes',
+            ],
+        ], $connection, 'presence-channel', $encodedUser);
+
+        $this->channelManager->onMessage(
+            $this->channelManager->getRedisKey('1234', 'presence-channel'),
+            $message->getPayload()
+        );
+
+        // The message does not contain appId and serverId anymore.
+        $message = new Mocks\SignedMessage([
+            'event' => 'some-event',
+            'data' => [
+                'channel' => 'presence-channel',
+                'channel_data' => $encodedUser,
+                'test' => 'yes',
+            ],
+        ], $connection, 'presence-channel', $encodedUser);
+
+        $connection->assertSentEvent('some-event', $message->getPayloadAsArray());
+    }
+
+    public function test_events_get_replicated_across_connections_for_presence_channels()
+    {
+        $this->runOnlyOnRedisReplication();
+
+        $connection = $this->newPresenceConnection('presence-channel');
+        $receiver = $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
+
+        $user = [
+            'user_id' => 1,
+            'user_info' => [
+                'name' => 'Rick',
+            ],
+        ];
+
+        $encodedUser = json_encode($user);
+
+        $message = new Mocks\SignedMessage([
+            'appId' => '1234',
+            'serverId' => $this->channelManager->getServerId(),
+            'event' => 'some-event',
+            'data' => [
+                'channel' => 'presence-channel',
+                'channel_data' => $encodedUser,
+                'test' => 'yes',
+            ],
+            'socketId' => $connection->socketId,
+        ], $connection, 'presence-channel', $encodedUser);
+
+        $channel = $this->channelManager->find('1234', 'presence-channel');
+
+        $channel->broadcastToEveryoneExcept(
+            $message->getPayloadAsObject(), $connection->socketId, '1234', true
+        );
+
+        $receiver->assertSentEvent('some-event', $message->getPayloadAsArray());
+
+        $this->getSubscribeClient()
+            ->assertNothingDispatched();
+
+        $this->getPublishClient()
+            ->assertCalledWithArgs('publish', [
+                $this->channelManager->getRedisKey('1234', 'presence-channel'),
+                $message->getPayload(),
+            ]);
     }
 }

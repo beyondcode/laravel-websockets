@@ -598,17 +598,15 @@ class RedisChannelManager extends LocalChannelManager
             $stop = "({$stop}";
         }
 
-        return $this->publishClient->zrangebyscore(
-            $this->getRedisKey(null, null, ['sockets']),
-            $start, $stop
-        )
-        ->then(function ($list) {
-            return collect($list)->mapWithKeys(function ($appWithSocket) {
-                [$appId, $socketId] = explode(':', $appWithSocket);
+        return $this->publishClient
+            ->zrangebyscore($this->getRedisKey(null, null, ['sockets']), $start, $stop)
+            ->then(function ($list) {
+                return collect($list)->mapWithKeys(function ($appWithSocket) {
+                    [$appId, $socketId] = explode(':', $appWithSocket);
 
-                return [$socketId => $appId];
-            })->toArray();
-        });
+                    return [$socketId => $appId];
+                })->toArray();
+            });
     }
 
     /**
@@ -621,8 +619,7 @@ class RedisChannelManager extends LocalChannelManager
     public function addChannelToSet($appId, string $channel)
     {
         return $this->publishClient->sadd(
-            $this->getRedisKey($appId, null, ['channels']),
-            $channel
+            $this->getRedisKey($appId, null, ['channels']), $channel
         );
     }
 
@@ -636,8 +633,7 @@ class RedisChannelManager extends LocalChannelManager
     public function removeChannelFromSet($appId, string $channel)
     {
         return $this->publishClient->srem(
-            $this->getRedisKey($appId, null, ['channels']),
-            $channel
+            $this->getRedisKey($appId, null, ['channels']), $channel
         );
     }
 
@@ -712,8 +708,7 @@ class RedisChannelManager extends LocalChannelManager
     protected function addUserSocket($appId, string $channel, stdClass $user, string $socketId)
     {
         $this->publishClient->sadd(
-            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']),
-            $socketId
+            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']), $socketId
         );
     }
 
@@ -729,8 +724,7 @@ class RedisChannelManager extends LocalChannelManager
     protected function removeUserSocket($appId, string $channel, stdClass $user, string $socketId)
     {
         $this->publishClient->srem(
-            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']),
-            $socketId
+            $this->getRedisKey($appId, $channel, [$user->user_id, 'userSockets']), $socketId
         );
     }
 
