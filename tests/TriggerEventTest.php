@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use GuzzleHttp\Psr7\Request;
-use Illuminate\Http\JsonResponse;
 use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
