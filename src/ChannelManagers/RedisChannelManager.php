@@ -422,7 +422,7 @@ class RedisChannelManager extends LocalChannelManager
         $this->lock()->get(function () {
             $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
                 ->then(function ($connections) {
-                    foreach ($connections as $appId => $socketId) {
+                    foreach ($connections as $socketId => $appId) {
                         $this->unsubscribeFromAllChannels(
                             $this->fakeConnectionForApp($appId, $socketId)
                         );
@@ -606,7 +606,7 @@ class RedisChannelManager extends LocalChannelManager
             return collect($list)->mapWithKeys(function ($appWithSocket) {
                 [$appId, $socketId] = explode(':', $appWithSocket);
 
-                return [$appId => $socketId];
+                return [$socketId => $appId];
             })->toArray();
         });
     }
