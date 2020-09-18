@@ -56,10 +56,7 @@ class RedisCollector extends MemoryCollector
     public function webSocketMessage($appId)
     {
         $this->ensureAppIsInSet($appId)
-            ->hincrby(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
-                'websocket_messages_count', 1
-            );
+            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'websocket_messages_count', 1);
     }
 
     /**
@@ -71,10 +68,7 @@ class RedisCollector extends MemoryCollector
     public function apiMessage($appId)
     {
         $this->ensureAppIsInSet($appId)
-            ->hincrby(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
-                'api_messages_count', 1
-            );
+            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'api_messages_count', 1);
     }
 
     /**
@@ -127,18 +121,12 @@ class RedisCollector extends MemoryCollector
     {
         // Decrement the current connections count by 1.
         $this->ensureAppIsInSet($appId)
-            ->hincrby(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
-                'current_connections_count', -1
-            )
+            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'current_connections_count', -1)
             ->then(function ($currentConnectionsCount) use ($appId) {
                 // Get the peak connections count from Redis.
                 $this->channelManager
                     ->getPublishClient()
-                    ->hget(
-                        $this->channelManager->getRedisKey($appId, null, ['stats']),
-                        'peak_connections_count'
-                    )
+                    ->hget($this->channelManager->getRedisKey($appId, null, ['stats']), 'peak_connections_count')
                     ->then(function ($currentPeakConnectionCount) use ($currentConnectionsCount, $appId) {
                         // Extract the greatest number between the current peak connection count
                         // and the current connection number.

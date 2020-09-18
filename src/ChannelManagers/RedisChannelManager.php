@@ -162,13 +162,9 @@ class RedisChannelManager extends LocalChannelManager
 
         $this->addConnectionToSet($connection, Carbon::now());
 
-        $this->addChannelToSet(
-            $connection->app->id, $channelName
-        );
+        $this->addChannelToSet($connection->app->id, $channelName);
 
-        $this->incrementSubscriptionsCount(
-            $connection->app->id, $channelName, 1
-        );
+        $this->incrementSubscriptionsCount($connection->app->id, $channelName, 1);
 
         parent::subscribeToChannel($connection, $channelName, $payload);
     }
