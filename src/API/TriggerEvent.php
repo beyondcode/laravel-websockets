@@ -45,7 +45,7 @@ class TriggerEvent extends Controller
                 );
             } else {
                 $this->channelManager->broadcastAcrossServers(
-                    $request->appId, $channelName, (object) $payload
+                    $request->appId, $request->socket_id, $channelName, (object) $payload
                 );
             }
 

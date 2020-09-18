@@ -90,7 +90,7 @@ class DashboardLogger
             );
         } else {
             $channelManager->broadcastAcrossServers(
-                $appId, $channelName, (object) $payload
+                $appId, null, $channelName, (object) $payload
             );
         }
     }

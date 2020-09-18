@@ -259,11 +259,13 @@ class LocalChannelManager implements ChannelManager
      * Broadcast the message across multiple servers.
      *
      * @param  string|int  $appId
+     * @param  string|null  $socketId
      * @param  string  $channel
      * @param  stdClass  $payload
+     * @param  string|null  $serverId
      * @return bool
      */
-    public function broadcastAcrossServers($appId, string $channel, stdClass $payload)
+    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null)
     {
         return true;
     }

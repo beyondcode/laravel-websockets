@@ -130,7 +130,7 @@ class Channel
             ->each->send(json_encode($payload));
 
         if ($replicate) {
-            $this->channelManager->broadcastAcrossServers($appId, $this->getName(), $payload);
+            $this->channelManager->broadcastAcrossServers($appId, null, $this->getName(), $payload);
         }
 
         return true;
@@ -148,7 +148,7 @@ class Channel
     public function broadcastToEveryoneExcept(stdClass $payload, ?string $socketId, $appId, bool $replicate = true)
     {
         if ($replicate) {
-            $this->channelManager->broadcastAcrossServers($appId, $this->getName(), $payload);
+            $this->channelManager->broadcastAcrossServers($appId, $socketId, $this->getName(), $payload);
         }
 
         if (is_null($socketId)) {
