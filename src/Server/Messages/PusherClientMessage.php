@@ -71,8 +71,8 @@ class PusherClientMessage implements PusherMessage
 
         DashboardLogger::log($this->connection->app->id, DashboardLogger::TYPE_WS_MESSAGE, [
             'socketId' => $this->connection->socketId,
-            'channel' => $this->payload->channel,
             'event' => $this->payload->event,
+            'channel' => $this->payload->channel,
             'data' => $this->payload,
         ]);
     }

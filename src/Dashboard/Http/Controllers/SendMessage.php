@@ -23,8 +23,8 @@ class SendMessage
             'appId' => ['required', new AppId],
             'key' => 'required|string',
             'secret' => 'required|string',
-            'channel' => 'required|string',
             'event' => 'required|string',
+            'channel' => 'required|string',
             'data' => 'required|json',
         ]);
 

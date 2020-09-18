@@ -67,8 +67,8 @@ class DashboardLogger
         $channelName = static::LOG_CHANNEL_PREFIX.$type;
 
         $payload = [
-            'channel' => $channelName,
             'event' => 'log-message',
+            'channel' => $channelName,
             'data' => [
                 'type' => $type,
                 'time' => strftime('%H:%M:%S'),

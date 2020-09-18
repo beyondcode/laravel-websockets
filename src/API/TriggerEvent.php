@@ -32,8 +32,8 @@ class TriggerEvent extends Controller
             );
 
             $payload = [
-                'channel' => $channelName,
                 'event' => $request->name,
+                'channel' => $channelName,
                 'data' => $request->data,
             ];
 
@@ -52,8 +52,8 @@ class TriggerEvent extends Controller
             StatisticsCollector::apiMessage($request->appId);
 
             DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
-                'channel' => $channelName,
                 'event' => $request->name,
+                'channel' => $channelName,
                 'payload' => $request->data,
             ]);
         }
