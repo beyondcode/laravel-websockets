@@ -83,15 +83,13 @@ class DashboardLogger
         $channel = $channelManager->find($appId, $channelName);
 
         if ($channel) {
-            $channel->broadcastToEveryoneExcept(
-                (object) $payload,
-                null,
-                $appId
-            );
-        } else {
-            $channelManager->broadcastAcrossServers(
-                $appId, null, $channelName, (object) $payload
+            $channel->broadcastLocally(
+                $appId, (object) $payload, true
             );
         }
+
+        $channelManager->broadcastAcrossServers(
+            $appId, null, $channelName, (object) $payload
+        );
     }
 }

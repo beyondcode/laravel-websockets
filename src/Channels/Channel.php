@@ -137,6 +137,18 @@ class Channel
     }
 
     /**
+     * Broadcast a payload to the locally-subscribed connections.
+     *
+     * @param  string|int  $appId
+     * @param  \stdClass  $payload
+     * @return bool
+     */
+    public function broadcastLocally($appId, stdClass $payload): bool
+    {
+        return $this->broadcast($appId, $payload, false);
+    }
+
+    /**
      * Broadcast the payload, but exclude a specific socket id.
      *
      * @param  \stdClass  $payload
