@@ -462,7 +462,7 @@ class RedisChannelManager extends LocalChannelManager
         unset($payload->serverId);
         unset($payload->appId);
 
-        $channel->broadcastToEveryoneExcept($payload, $socketId, $appId, false);
+        $channel->broadcastLocallyToEveryoneExcept($payload, $socketId, $appId);
     }
 
     /**

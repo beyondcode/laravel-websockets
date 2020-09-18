@@ -165,6 +165,21 @@ class Channel
     }
 
     /**
+     * Broadcast the payload, but exclude a specific socket id.
+     *
+     * @param  \stdClass  $payload
+     * @param  string|null  $socketId
+     * @param  string|int  $appId
+     * @return bool
+     */
+    public function broadcastLocallyToEveryoneExcept(stdClass $payload, ?string $socketId, $appId)
+    {
+        return $this->broadcastToEveryoneExcept(
+            $payload, $socketId, $appId, false
+        );
+    }
+
+    /**
      * Check if the signature for the payload is valid.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
