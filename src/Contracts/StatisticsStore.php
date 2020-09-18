@@ -48,7 +48,8 @@ interface StatisticsStore
      * format that is easily to read for graphs.
      *
      * @param  callable  $processQuery
+     * @param  callable  $processCollection
      * @return array
      */
-    public function getForGraph(callable $processQuery = null): array;
+    public function getForGraph(callable $processQuery = null, callable $processCollection = null): array;
 }
