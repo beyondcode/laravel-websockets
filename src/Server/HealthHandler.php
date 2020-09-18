@@ -6,15 +6,15 @@ use Exception;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 use Ratchet\ConnectionInterface;
-use Ratchet\RFC6455\Messaging\MessageInterface;
-use Ratchet\WebSocket\MessageComponentInterface;
+use Ratchet\Http\HttpServerInterface;
 
-class HealthHandler implements MessageComponentInterface
+class HealthHandler implements HttpServerInterface
 {
     /**
      * Handle the socket opening.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \Psr\Http\Message\RequestInterface  $request
      * @return void
      */
     public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
@@ -32,10 +32,10 @@ class HealthHandler implements MessageComponentInterface
      * Handle the incoming message.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  \Ratchet\RFC6455\Messaging\MessageInterface  $message
+     * @param  string  $message
      * @return void
      */
-    public function onMessage(ConnectionInterface $connection, MessageInterface $message)
+    public function onMessage(ConnectionInterface $connection, $message)
     {
         //
     }
