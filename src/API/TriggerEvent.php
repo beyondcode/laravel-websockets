@@ -38,16 +38,16 @@ class TriggerEvent extends Controller
             ];
 
             if ($channel) {
-                $channel->broadcastToEveryoneExcept(
+                $channel->broadcastLocallyToEveryoneExcept(
                     (object) $payload,
                     $request->socket_id,
                     $request->appId
                 );
-            } else {
-                $this->channelManager->broadcastAcrossServers(
-                    $request->appId, $request->socket_id, $channelName, (object) $payload
-                );
             }
+
+            $this->channelManager->broadcastAcrossServers(
+                $request->appId, $request->socket_id, $channelName, (object) $payload
+            );
 
             StatisticsCollector::apiMessage($request->appId);
 
