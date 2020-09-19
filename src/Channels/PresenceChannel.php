@@ -28,7 +28,7 @@ class PresenceChannel extends PrivateChannel
 
         $this->channelManager
             ->userJoinedPresenceChannel($connection, $user, $this->getName(), $payload)
-            ->then(function () use ($connection, $user) {
+            ->then(function () use ($connection) {
                 $this->channelManager
                     ->getChannelMembers($connection->app->id, $this->getName())
                     ->then(function ($users) use ($connection) {
