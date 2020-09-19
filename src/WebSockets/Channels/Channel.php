@@ -21,6 +21,11 @@ class Channel
         $this->channelName = $channelName;
     }
 
+    public function getName(): string
+    {
+        return $this->channelName;
+    }
+
     public function hasConnections(): bool
     {
         return count($this->subscribedConnections) > 0;
