@@ -47,6 +47,13 @@ class LocalChannelManager implements ChannelManager
     protected $acceptsNewConnections = true;
 
     /**
+     * The ArrayStore instance of locks.
+     *
+     * @var \Illuminate\Cache\ArrayStore
+     */
+    protected $store;
+
+    /**
      * The lock name to use on Array to avoid multiple
      * actions that might lead to multiple processings.
      *
@@ -63,7 +70,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function __construct(LoopInterface $loop, $factoryClass = null)
     {
-        //
+        $this->store = new ArrayStore;
     }
 
     /**
@@ -509,6 +516,6 @@ class LocalChannelManager implements ChannelManager
      */
     protected function lock()
     {
-        return new ArrayLock(new ArrayStore, static::$lockName, 0);
+        return new ArrayLock($this->store, static::$lockName, 0);
     }
 }
