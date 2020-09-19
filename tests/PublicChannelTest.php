@@ -140,46 +140,6 @@ class PublicChannelTest extends TestCase
             });
     }
 
-    public function test_not_ponged_connections_do_get_removed_for_public_channels()
-    {
-        $this->runOnlyOnRedisReplication();
-
-        $activeConnection = $this->newActiveConnection(['public-channel']);
-        $obsoleteConnection = $this->newActiveConnection(['public-channel']);
-
-        // The active connection just pinged, it should not be closed.
-        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
-
-        // Make the connection look like it was lost 1 day ago.
-        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
-
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'public-channel')
-            ->then(function ($count) {
-                $this->assertEquals(2, $count);
-            });
-
-        $this->channelManager
-            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
-            ->then(function ($expiredConnections) {
-                $this->assertCount(1, $expiredConnections);
-            });
-
-        $this->channelManager->removeObsoleteConnections();
-
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'public-channel')
-            ->then(function ($count) {
-                $this->assertEquals(1, $count);
-            });
-
-        $this->channelManager
-            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
-            ->then(function ($expiredConnections) {
-                $this->assertCount(0, $expiredConnections);
-            });
-    }
-
     public function test_events_are_processed_by_on_message_on_public_channels()
     {
         $this->runOnlyOnRedisReplication();
