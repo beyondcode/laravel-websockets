@@ -100,7 +100,7 @@ class Channel
      */
     public function unsubscribe(ConnectionInterface $connection): bool
     {
-        if (! isset($this->connections[$connection->socketId])) {
+        if (! $this->hasConnection($connection)) {
             return false;
         }
 
@@ -110,12 +110,23 @@ class Channel
     }
 
     /**
+     * Check if the given connection exists.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @return bool
+     */
+    public function hasConnection(ConnectionInterface $connection): bool
+    {
+        return isset($this->connections[$connection->socketId]);
+    }
+
+    /**
      * Store the connection to the subscribers list.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
      * @return void
      */
-    protected function saveConnection(ConnectionInterface $connection)
+    public function saveConnection(ConnectionInterface $connection)
     {
         $this->connections[$connection->socketId] = $connection;
     }
