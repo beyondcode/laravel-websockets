@@ -59,7 +59,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @var string
      */
-    protected static $redisLockName = 'laravel-websockets:channel-manager:lock';
+    protected static $lockName = 'laravel-websockets:channel-manager:lock';
 
     /**
      * Create a new channel manager instance.
@@ -768,7 +768,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     protected function lock()
     {
-        return new RedisLock($this->redis, static::$redisLockName, 0);
+        return new RedisLock($this->redis, static::$lockName, 0);
     }
 
     /**

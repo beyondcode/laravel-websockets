@@ -7,6 +7,9 @@ use BeyondCode\LaravelWebSockets\Channels\PresenceChannel;
 use BeyondCode\LaravelWebSockets\Channels\PrivateChannel;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Helpers;
+use Carbon\Carbon;
+use Illuminate\Cache\ArrayLock;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
@@ -44,6 +47,21 @@ class LocalChannelManager implements ChannelManager
     protected $acceptsNewConnections = true;
 
     /**
+     * The ArrayStore instance of locks.
+     *
+     * @var \Illuminate\Cache\ArrayStore
+     */
+    protected $store;
+
+    /**
+     * The lock name to use on Array to avoid multiple
+     * actions that might lead to multiple processings.
+     *
+     * @var string
+     */
+    protected static $lockName = 'laravel-websockets:channel-manager:lock';
+
+    /**
      * Create a new channel manager instance.
      *
      * @param  LoopInterface  $loop
@@ -52,7 +70,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function __construct(LoopInterface $loop, $factoryClass = null)
     {
-        //
+        $this->store = new ArrayStore;
     }
 
     /**
@@ -398,7 +416,9 @@ class LocalChannelManager implements ChannelManager
      */
     public function connectionPonged(ConnectionInterface $connection): PromiseInterface
     {
-        return Helpers::createFulfilledPromise(true);
+        $connection->lastPongedAt = Carbon::now();
+
+        return $this->updateConnectionInChannels($connection);
     }
 
     /**
@@ -408,7 +428,43 @@ class LocalChannelManager implements ChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        return Helpers::createFulfilledPromise(true);
+        if (! $this->lock()->acquire()) {
+            return Helpers::createFulfilledPromise(false);
+        }
+
+        $this->getLocalConnections()->then(function ($connections) {
+            foreach ($connections as $connection) {
+                $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
+
+                if ($differenceInSeconds > 120) {
+                    $this->unsubscribeFromAllChannels($connection);
+                }
+            }
+        });
+
+        return Helpers::createFulfilledPromise(
+            $this->lock()->release()
+        );
+    }
+
+    /**
+     * Update the connection in all channels.
+     *
+     * @param  ConnectionInterface  $connection
+     * @return PromiseInterface[bool]
+     */
+    public function updateConnectionInChannels($connection): PromiseInterface
+    {
+        return $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                foreach ($channels as $channel) {
+                    if ($channel->hasConnection($connection)) {
+                        $channel->saveConnection($connection);
+                    }
+                }
+
+                return true;
+            });
     }
 
     /**
@@ -451,5 +507,15 @@ class LocalChannelManager implements ChannelManager
         }
 
         return Channel::class;
+    }
+
+    /**
+     * Get a new ArrayLock instance to avoid race conditions.
+     *
+     * @return \Illuminate\Cache\CacheLock
+     */
+    protected function lock()
+    {
+        return new ArrayLock($this->store, static::$lockName, 0);
     }
 }

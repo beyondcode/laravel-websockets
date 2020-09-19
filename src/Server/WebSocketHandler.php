@@ -57,6 +57,8 @@ class WebSocketHandler implements MessageComponentInterface
 
             $this->channelManager->subscribeToApp($connection->app->id);
 
+            $this->channelManager->connectionPonged($connection);
+
             DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
                 'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
                 'socketId' => $connection->socketId,

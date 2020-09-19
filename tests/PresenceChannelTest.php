@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
-use Carbon\Carbon;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use Pusher\Pusher;
@@ -315,58 +314,6 @@ class PresenceChannelTest extends TestCase
             ->getMemberSockets('observer', '1234', 'presence-channel')
             ->then(function ($sockets) {
                 $this->assertCount(1, $sockets);
-            });
-    }
-
-    public function test_not_ponged_connections_do_get_removed_for_presence_channels()
-    {
-        $this->runOnlyOnRedisReplication();
-
-        $activeConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
-        $obsoleteConnection = $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
-
-        // The active connection just pinged, it should not be closed.
-        $this->channelManager->addConnectionToSet($activeConnection, Carbon::now());
-
-        // Make the connection look like it was lost 1 day ago.
-        $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
-
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
-            ->then(function ($count) {
-                $this->assertEquals(2, $count);
-            });
-
-        $this->channelManager
-            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
-            ->then(function ($expiredConnections) {
-                $this->assertCount(1, $expiredConnections);
-            });
-
-        $this->channelManager
-            ->getChannelMembers('1234', 'presence-channel')
-            ->then(function ($members) {
-                $this->assertCount(2, $members);
-            });
-
-        $this->channelManager->removeObsoleteConnections();
-
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
-            ->then(function ($count) {
-                $this->assertEquals(1, $count);
-            });
-
-        $this->channelManager
-            ->getConnectionsFromSet(0, Carbon::now()->subMinutes(2)->format('U'))
-            ->then(function ($expiredConnections) {
-                $this->assertCount(0, $expiredConnections);
-            });
-
-        $this->channelManager
-            ->getChannelMembers('1234', 'presence-channel')
-            ->then(function ($members) {
-                $this->assertCount(1, $members);
             });
     }
 
