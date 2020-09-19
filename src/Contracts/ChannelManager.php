@@ -66,9 +66,9 @@ interface ChannelManager
      * Remove connection from all channels.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function unsubscribeFromAllChannels(ConnectionInterface $connection);
+    public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface;
 
     /**
      * Subscribe the connection to a specific channel.
@@ -76,9 +76,9 @@ interface ChannelManager
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  string  $channelName
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload);
+    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface;
 
     /**
      * Unsubscribe the connection from the channel.
@@ -86,26 +86,27 @@ interface ChannelManager
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  string  $channelName
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload);
+    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface;
 
     /**
-     * Subscribe the connection to a specific channel.
+     * Subscribe the connection to a specific channel, returning
+     * a promise containing the amount of connections.
      *
      * @param  string|int  $appId
-     * @return void
+     * @return PromiseInterface[int]
      */
-    public function subscribeToApp($appId);
+    public function subscribeToApp($appId): PromiseInterface;
 
     /**
-     * Unsubscribe the connection from the channel.
+     * Unsubscribe the connection from the channel, returning
+     * a promise containing the amount of connections after decrement.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
      * @param  string|int  $appId
-     * @return void
+     * @return PromiseInterface[int]
      */
-    public function unsubscribeFromApp($appId);
+    public function unsubscribeFromApp($appId): PromiseInterface;
 
     /**
      * Get the connections count on the app
@@ -113,7 +114,7 @@ interface ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface[int]
      */
     public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface;
 
@@ -123,7 +124,7 @@ interface ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface[int]
      */
     public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface;
 
@@ -135,9 +136,9 @@ interface ChannelManager
      * @param  string  $channel
      * @param  stdClass  $payload
      * @param  string|null  $serverId
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null);
+    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null): PromiseInterface;
 
     /**
      * Handle the user when it joined a presence channel.
@@ -146,9 +147,9 @@ interface ChannelManager
      * @param  stdClass  $user
      * @param  string  $channel
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload);
+    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload): PromiseInterface;
 
     /**
      * Handle the user when it left a presence channel.
@@ -157,9 +158,9 @@ interface ChannelManager
      * @param  stdClass  $user
      * @param  string  $channel
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel);
+    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel): PromiseInterface;
 
     /**
      * Get the presence channel members.
@@ -202,14 +203,14 @@ interface ChannelManager
      * Keep tracking the connections availability when they pong.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function connectionPonged(ConnectionInterface $connection): bool;
+    public function connectionPonged(ConnectionInterface $connection): PromiseInterface;
 
     /**
      * Remove the obsolete connections that didn't ponged in a while.
      *
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function removeObsoleteConnections(): bool;
+    public function removeObsoleteConnections(): PromiseInterface;
 }

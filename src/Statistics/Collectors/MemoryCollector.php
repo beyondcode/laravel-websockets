@@ -5,8 +5,8 @@ namespace BeyondCode\LaravelWebSockets\Statistics\Collectors;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsStore;
+use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
 class MemoryCollector implements StatisticsCollector
@@ -126,7 +126,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function getStatistics(): PromiseInterface
     {
-        return new FulfilledPromise($this->statistics);
+        return Helpers::createFulfilledPromise($this->statistics);
     }
 
     /**
@@ -137,7 +137,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function getAppStatistics($appId): PromiseInterface
     {
-        return new FulfilledPromise(
+        return Helpers::createFulfilledPromise(
             $this->statistics[$appId] ?? null
         );
     }

@@ -2,8 +2,17 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
+use React\Promise\PromiseInterface;
+
 class Helpers
 {
+    /**
+     * The loop used to create the Fulfilled Promise.
+     *
+     * @var null|\React\EventLoop\LoopInterface
+     */
+    public static $loop = null;
+
     /**
      * Transform the Redis' list of key after value
      * to key-value pairs.
@@ -22,5 +31,20 @@ class Helpers
         });
 
         return array_combine($keys->all(), $values->all());
+    }
+
+    /**
+     * Create a new fulfilled promise with a value.
+     *
+     * @param  mixed  $value
+     * @return \React\Promise\PromiseInterface
+     */
+    public static function createFulfilledPromise($value): PromiseInterface
+    {
+        $resolver = config(
+            'websockets.promise_resolver', \React\Promise\FulfilledPromise::class
+        );
+
+        return new $resolver($value, static::$loop);
     }
 }

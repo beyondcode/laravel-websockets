@@ -73,9 +73,9 @@ class Channel
      * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  \stdClass  $payload
-     * @return void
+     * @return bool
      */
-    public function subscribe(ConnectionInterface $connection, stdClass $payload)
+    public function subscribe(ConnectionInterface $connection, stdClass $payload): bool
     {
         $this->saveConnection($connection);
 
@@ -88,21 +88,25 @@ class Channel
             'socketId' => $connection->socketId,
             'channel' => $this->getName(),
         ]);
+
+        return true;
     }
 
     /**
      * Unsubscribe connection from the channel.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return void
+     * @return bool
      */
-    public function unsubscribe(ConnectionInterface $connection)
+    public function unsubscribe(ConnectionInterface $connection): bool
     {
         if (! isset($this->connections[$connection->socketId])) {
-            return;
+            return false;
         }
 
         unset($this->connections[$connection->socketId]);
+
+        return true;
     }
 
     /**

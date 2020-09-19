@@ -2,7 +2,9 @@
 
 namespace BeyondCode\LaravelWebSockets\Test\Mocks;
 
+use BeyondCode\LaravelWebSockets\Helpers;
 use Clue\React\Block;
+use React\EventLoop\LoopInterface;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
@@ -25,13 +27,13 @@ class PromiseResolver implements PromiseInterface
     /**
      * Initialize the promise resolver.
      *
-     * @param  PromiseInterface  $promise
+     * @param  mixed  $promise
      * @param  LoopInterface  $loop
      * @return void
      */
-    public function __construct($promise, $loop)
+    public function __construct($promise, LoopInterface $loop)
     {
-        $this->promise = $promise;
+        $this->promise = $promise instanceof PromiseInterface ? $promise : new FulfilledPromise($promise);
         $this->loop = $loop;
     }
 
@@ -53,7 +55,7 @@ class PromiseResolver implements PromiseInterface
 
         return $result instanceof PromiseInterface
             ? new self($result, $this->loop)
-            : new self(new FulfilledPromise($result), $this->loop);
+            : new self(Helpers::createFulfilledPromise($result), $this->loop);
     }
 
     /**

@@ -6,10 +6,10 @@ use BeyondCode\LaravelWebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\Channels\PresenceChannel;
 use BeyondCode\LaravelWebSockets\Channels\PrivateChannel;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\Helpers;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 use stdClass;
 
@@ -104,7 +104,7 @@ class LocalChannelManager implements ChannelManager
             ->values()->collapse()
             ->toArray();
 
-        return new FulfilledPromise($connections);
+        return Helpers::createFulfilledPromise($connections);
     }
 
     /**
@@ -116,7 +116,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function getLocalChannels($appId): PromiseInterface
     {
-        return new FulfilledPromise(
+        return Helpers::createFulfilledPromise(
             $this->channels[$appId] ?? []
         );
     }
@@ -137,12 +137,12 @@ class LocalChannelManager implements ChannelManager
      * Remove connection from all channels.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function unsubscribeFromAllChannels(ConnectionInterface $connection)
+    public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface
     {
         if (! isset($connection->app)) {
-            return;
+            return new FuilfilledPromise(false);
         }
 
         $this->getLocalChannels($connection->app->id)
@@ -162,6 +162,8 @@ class LocalChannelManager implements ChannelManager
                     unset($this->channels[$connection->app->id]);
                 }
             });
+
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
@@ -170,13 +172,15 @@ class LocalChannelManager implements ChannelManager
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  string  $channelName
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload)
+    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
         $channel = $this->findOrCreate($connection->app->id, $channelName);
 
-        $channel->subscribe($connection, $payload);
+        return Helpers::createFulfilledPromise(
+            $channel->subscribe($connection, $payload)
+        );
     }
 
     /**
@@ -185,35 +189,39 @@ class LocalChannelManager implements ChannelManager
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  string  $channelName
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload)
+    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
         $channel = $this->findOrCreate($connection->app->id, $channelName);
 
-        $channel->unsubscribe($connection, $payload);
+        return Helpers::createFulfilledPromise(
+            $channel->unsubscribe($connection, $payload)
+        );
     }
 
     /**
-     * Subscribe the connection to a specific channel.
+     * Subscribe the connection to a specific channel, returning
+     * a promise containing the amount of connections.
      *
      * @param  string|int  $appId
-     * @return void
+     * @return PromiseInterface[int]
      */
-    public function subscribeToApp($appId)
+    public function subscribeToApp($appId): PromiseInterface
     {
-        //
+        return Helpers::createFulfilledPromise(0);
     }
 
     /**
-     * Unsubscribe the connection from the channel.
+     * Unsubscribe the connection from the channel, returning
+     * a promise containing the amount of connections after decrement.
      *
      * @param  string|int  $appId
-     * @return void
+     * @return PromiseInterface[int]
      */
-    public function unsubscribeFromApp($appId)
+    public function unsubscribeFromApp($appId): PromiseInterface
     {
-        //
+        return Helpers::createFulfilledPromise(0);
     }
 
     /**
@@ -222,23 +230,21 @@ class LocalChannelManager implements ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface[int]
      */
     public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
         return $this->getLocalChannels($appId)
             ->then(function ($channels) use ($channelName) {
-                return collect($channels)
-                    ->when(! is_null($channelName), function ($collection) use ($channelName) {
-                        return $collection->filter(function (Channel $channel) use ($channelName) {
-                            return $channel->getName() === $channelName;
-                        });
-                    })
-                    ->flatMap(function (Channel $channel) {
-                        return collect($channel->getConnections())->pluck('socketId');
-                    })
-                    ->unique()
-                    ->count();
+                return collect($channels)->when(! is_null($channelName), function ($collection) use ($channelName) {
+                    return $collection->filter(function (Channel $channel) use ($channelName) {
+                        return $channel->getName() === $channelName;
+                    });
+                })
+                ->flatMap(function (Channel $channel) {
+                    return collect($channel->getConnections())->pluck('socketId');
+                })
+                ->unique()->count();
             });
     }
 
@@ -248,7 +254,7 @@ class LocalChannelManager implements ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return \React\Promise\PromiseInterface
+     * @return PromiseInterface[int]
      */
     public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
@@ -263,11 +269,11 @@ class LocalChannelManager implements ChannelManager
      * @param  string  $channel
      * @param  stdClass  $payload
      * @param  string|null  $serverId
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null)
+    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null): PromiseInterface
     {
-        return true;
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
@@ -277,12 +283,14 @@ class LocalChannelManager implements ChannelManager
      * @param  stdClass  $user
      * @param  string  $channel
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload)
+    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload): PromiseInterface
     {
         $this->users["{$connection->app->id}:{$channel}"][$connection->socketId] = json_encode($user);
         $this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"][] = $connection->socketId;
+
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
@@ -292,9 +300,9 @@ class LocalChannelManager implements ChannelManager
      * @param  stdClass  $user
      * @param  string  $channel
      * @param  stdClass  $payload
-     * @return void
+     * @return PromiseInterface[bool]
      */
-    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel)
+    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel): PromiseInterface
     {
         unset($this->users["{$connection->app->id}:{$channel}"][$connection->socketId]);
 
@@ -310,6 +318,8 @@ class LocalChannelManager implements ChannelManager
                 unset($this->userSockets["{$connection->app->id}:{$channel}:{$user->user_id}"]);
             }
         }
+
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
@@ -327,7 +337,7 @@ class LocalChannelManager implements ChannelManager
             return json_decode($user);
         })->unique('user_id')->toArray();
 
-        return new FulfilledPromise($members);
+        return Helpers::createFulfilledPromise($members);
     }
 
     /**
@@ -341,7 +351,7 @@ class LocalChannelManager implements ChannelManager
     {
         $member = $this->users["{$connection->app->id}:{$channel}"][$connection->socketId] ?? null;
 
-        return new FulfilledPromise($member);
+        return Helpers::createFulfilledPromise($member);
     }
 
     /**
@@ -362,7 +372,7 @@ class LocalChannelManager implements ChannelManager
                 return $results;
             }, []);
 
-        return new FulfilledPromise($results);
+        return Helpers::createFulfilledPromise($results);
     }
 
     /**
@@ -375,7 +385,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function getMemberSockets($userId, $appId, $channelName): PromiseInterface
     {
-        return new FulfilledPromise(
+        return Helpers::createFulfilledPromise(
             $this->userSockets["{$appId}:{$channelName}:{$userId}"] ?? []
         );
     }
@@ -384,21 +394,21 @@ class LocalChannelManager implements ChannelManager
      * Keep tracking the connections availability when they pong.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function connectionPonged(ConnectionInterface $connection): bool
+    public function connectionPonged(ConnectionInterface $connection): PromiseInterface
     {
-        return true;
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
      * Remove the obsolete connections that didn't ponged in a while.
      *
-     * @return bool
+     * @return PromiseInterface[bool]
      */
-    public function removeObsoleteConnections(): bool
+    public function removeObsoleteConnections(): PromiseInterface
     {
-        return true;
+        return Helpers::createFulfilledPromise(true);
     }
 
     /**
