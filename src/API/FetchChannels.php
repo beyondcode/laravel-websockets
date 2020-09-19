@@ -64,11 +64,9 @@ class FetchChannels extends Controller
                             }
 
                             return $info;
-                        })
-                        ->sortBy(function ($content, $name) {
+                        })->sortBy(function ($content, $name) {
                             return $name;
-                        })
-                        ->all();
+                        })->all();
 
                         return [
                             'channels' => $channels ?: new stdClass,

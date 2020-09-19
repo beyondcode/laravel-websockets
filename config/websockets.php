@@ -279,4 +279,19 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Promise Resolver
+    |--------------------------------------------------------------------------
+    |
+    | The promise resolver is a class that takes a input value and is
+    | able to make sure the PHP code runs async by using ->then(). You can
+    | use your own Promise Resolver. This is usually changed when you want to
+    | intercept values by the promises throughout the app, like in testing
+    | to switch from async to sync.
+    |
+    */
+
+    'promise_resolver' => \React\Promise\FulfilledPromise::class,
+
 ];

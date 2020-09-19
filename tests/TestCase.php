@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
+use BeyondCode\LaravelWebSockets\Helpers;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
 use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
@@ -76,6 +77,8 @@ abstract class TestCase extends Orchestra
         $this->loadLaravelMigrations(['--database' => 'sqlite']);
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->withFactories(__DIR__.'/database/factories');
+
+        $this->registerPromiseResolver();
 
         $this->registerManagers();
 
@@ -205,6 +208,21 @@ abstract class TestCase extends Orchestra
                 'collector' => \BeyondCode\LaravelWebSockets\Statistics\Collectors\RedisCollector::class,
             ],
         ]);
+    }
+
+    /**
+     * Register the test promise resolver.
+     *
+     * @return void
+     */
+    protected function registerPromiseResolver()
+    {
+        Helpers::$loop = $this->loop;
+
+        $this->app['config']->set(
+            'websockets.promise_resolver',
+            \BeyondCode\LaravelWebSockets\Test\Mocks\PromiseResolver::class
+        );
     }
 
     /**

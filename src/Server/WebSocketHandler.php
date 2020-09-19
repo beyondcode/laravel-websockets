@@ -92,17 +92,19 @@ class WebSocketHandler implements MessageComponentInterface
      */
     public function onClose(ConnectionInterface $connection)
     {
-        $this->channelManager->unsubscribeFromAllChannels($connection);
+        $this->channelManager
+            ->unsubscribeFromAllChannels($connection)
+            ->then(function (bool $unsubscribed) use ($connection) {
+                if (isset($connection->app)) {
+                    StatisticsCollector::disconnection($connection->app->id);
 
-        if (isset($connection->app)) {
-            StatisticsCollector::disconnection($connection->app->id);
+                    $this->channelManager->unsubscribeFromApp($connection->app->id);
 
-            $this->channelManager->unsubscribeFromApp($connection->app->id);
-
-            DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
-                'socketId' => $connection->socketId,
-            ]);
-        }
+                    DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
+                        'socketId' => $connection->socketId,
+                    ]);
+                }
+            });
     }
 
     /**

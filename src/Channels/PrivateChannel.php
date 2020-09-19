@@ -14,13 +14,13 @@ class PrivateChannel extends Channel
      * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  \stdClass  $payload
-     * @return void
+     * @return bool
      * @throws InvalidSignature
      */
-    public function subscribe(ConnectionInterface $connection, stdClass $payload)
+    public function subscribe(ConnectionInterface $connection, stdClass $payload): bool
     {
         $this->verifySignature($connection, $payload);
 
-        parent::subscribe($connection, $payload);
+        return parent::subscribe($connection, $payload);
     }
 }
