@@ -7,7 +7,6 @@ use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 
 class MemoryCollector implements StatisticsCollector

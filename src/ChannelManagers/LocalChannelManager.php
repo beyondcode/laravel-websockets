@@ -10,7 +10,6 @@ use BeyondCode\LaravelWebSockets\Helpers;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
-use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
 use stdClass;
 

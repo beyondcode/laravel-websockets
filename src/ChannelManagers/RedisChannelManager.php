@@ -202,7 +202,7 @@ class RedisChannelManager extends LocalChannelManager
             ->then(function () use ($connection, $channelName) {
                 return $this->removeChannelFromSet($connection->app->id, $channelName);
             })
-            ->then(function () use($connection) {
+            ->then(function () use ($connection) {
                 return $this->removeConnectionFromSet($connection);
             })
             ->then(function () use ($connection, $channelName, $payload) {
