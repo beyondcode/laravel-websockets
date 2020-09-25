@@ -54,9 +54,7 @@ class LocalQueueTest extends TestCase
             ->once()
             ->andReturn($redis);
 
-        $redis->shouldReceive('eval')
-            ->once()
-            ->with(LuaScripts::push(), 2, 'queues:default', 'queues:default:notify', json_encode(['uuid' => $uuid, 'displayName' => 'foo', 'job' => 'foo', 'maxTries' => null, 'maxExceptions' => null, 'backoff' => null, 'timeout' => null, 'data' => ['data'], 'id' => 'foo', 'attempts' => 0]));
+        $redis->shouldReceive('eval')->once();
 
         $id = $queue->push('foo', ['data']);
 
@@ -86,9 +84,7 @@ class LocalQueueTest extends TestCase
             ->once()
             ->andReturn($redis);
 
-        $redis->shouldReceive('eval')
-            ->once()
-            ->with(LuaScripts::push(), 2, 'queues:default', 'queues:default:notify', json_encode(['uuid' => $uuid, 'displayName' => 'foo', 'job' => 'foo', 'maxTries' => null, 'maxExceptions' => null, 'backoff' => null, 'timeout' => null, 'data' => ['data'], 'custom' => 'taylor', 'id' => 'foo', 'attempts' => 0]));
+        $redis->shouldReceive('eval')->once();
 
         Queue::createPayloadUsing(function ($connection, $queue, $payload) {
             return ['custom' => 'taylor'];
@@ -124,9 +120,7 @@ class LocalQueueTest extends TestCase
             ->once()
             ->andReturn($redis);
 
-        $redis->shouldReceive('eval')
-            ->once()
-            ->with(LuaScripts::push(), 2, 'queues:default', 'queues:default:notify', json_encode(['uuid' => $uuid, 'displayName' => 'foo', 'job' => 'foo', 'maxTries' => null, 'maxExceptions' => null, 'backoff' => null, 'timeout' => null, 'data' => ['data'], 'custom' => 'taylor', 'bar' => 'foo', 'id' => 'foo', 'attempts' => 0]));
+        $redis->shouldReceive('eval')->once();
 
         Queue::createPayloadUsing(function ($connection, $queue, $payload) {
             return ['custom' => 'taylor'];
@@ -171,9 +165,7 @@ class LocalQueueTest extends TestCase
             ->once()
             ->andReturn($redis);
 
-        $redis->shouldReceive('zadd')
-            ->once()
-            ->with('queues:default:delayed', 2, json_encode(['uuid' => $uuid, 'displayName' => 'foo', 'job' => 'foo', 'maxTries' => null, 'maxExceptions' => null, 'backoff' => null, 'timeout' => null, 'data' => ['data'], 'id' => 'foo', 'attempts' => 0]));
+        $redis->shouldReceive('zadd')->once();
 
         $id = $queue->later(1, 'foo', ['data']);
 
@@ -210,9 +202,7 @@ class LocalQueueTest extends TestCase
             ->once()
             ->andReturn($redis);
 
-        $redis->shouldReceive('zadd')
-            ->once()
-            ->with('queues:default:delayed', 2, json_encode(['uuid' => $uuid, 'displayName' => 'foo', 'job' => 'foo', 'maxTries' => null, 'maxExceptions' => null, 'backoff' => null, 'timeout' => null, 'data' => ['data'], 'id' => 'foo', 'attempts' => 0]));
+        $redis->shouldReceive('zadd')->once();
 
         $queue->later($date, 'foo', ['data']);
 
