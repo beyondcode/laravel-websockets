@@ -124,21 +124,29 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        $app['config']->set(
-            'broadcasting.connections.websockets', [
-                'driver' => 'pusher',
-                'key' => 'TestKey',
-                'secret' => 'TestSecret',
-                'app_id' => '1234',
-                'options' => [
-                    'cluster' => 'mt1',
-                    'encrypted' => true,
-                    'host' => '127.0.0.1',
-                    'port' => 6001,
-                    'scheme' => 'http',
-                ],
-            ]
-        );
+        $app['config']->set('broadcasting.connections.websockets', [
+            'driver' => 'pusher',
+            'key' => 'TestKey',
+            'secret' => 'TestSecret',
+            'app_id' => '1234',
+            'options' => [
+                'cluster' => 'mt1',
+                'encrypted' => true,
+                'host' => '127.0.0.1',
+                'port' => 6001,
+                'scheme' => 'http',
+            ],
+        ]);
+
+        $app['config']->set('queue.default', 'async-redis');
+
+        $app['config']->set('queue.connections.async-redis', [
+            'driver' => 'async-redis',
+            'connection' => env('WEBSOCKETS_REDIS_REPLICATION_CONNECTION', 'default'),
+            'queue' => env('REDIS_QUEUE', 'default'),
+            'retry_after' => 90,
+            'block_for' => null,
+        ]);
 
         $app['config']->set('auth.providers.users.model', Models\User::class);
 

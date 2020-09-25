@@ -137,7 +137,7 @@ return [
 
             'redis' => [
 
-                'connection' => 'default',
+                'connection' => env('WEBSOCKETS_REDIS_REPLICATION_CONNECTION', 'default'),
 
                 /*
                 |--------------------------------------------------------------------------

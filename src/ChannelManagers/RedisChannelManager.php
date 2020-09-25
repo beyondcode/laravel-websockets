@@ -520,6 +520,16 @@ class RedisChannelManager extends LocalChannelManager
     }
 
     /**
+     * Get the Redis client used by other classes.
+     *
+     * @return Client
+     */
+    public function getRedisClient()
+    {
+        return $this->getPublishClient();
+    }
+
+    /**
      * Get the unique identifier for the server.
      *
      * @return string
