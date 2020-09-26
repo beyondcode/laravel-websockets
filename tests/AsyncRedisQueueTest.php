@@ -138,6 +138,10 @@ class AsyncRedisQueueTest extends TestCase
 
     public function test_clear_job()
     {
+        if (! method_exists($this->queue, 'clear')) {
+            $this->markTestSkipped('The Queue has no clear() method to test.');
+        }
+
         $job1 = new RedisQueueIntegrationTestJob(30);
         $job2 = new RedisQueueIntegrationTestJob(40);
 
