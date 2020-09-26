@@ -4,6 +4,8 @@ namespace BeyondCode\LaravelWebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
+use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
@@ -89,6 +91,12 @@ class Channel
             'channel' => $this->getName(),
         ]);
 
+        SubscribedToChannel::dispatch(
+            $connection->app->id,
+            $connection->socketId,
+            $this->getName(),
+        );
+
         return true;
     }
 
@@ -105,6 +113,12 @@ class Channel
         }
 
         unset($this->connections[$connection->socketId]);
+
+        UnsubscribedFromChannel::dispatch(
+            $connection->app->id,
+            $connection->socketId,
+            $this->getName()
+        );
 
         return true;
     }
