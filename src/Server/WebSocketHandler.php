@@ -5,6 +5,9 @@ namespace BeyondCode\LaravelWebSockets\Server;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\ConnectionClosed;
+use BeyondCode\LaravelWebSockets\Events\NewConnection;
+use BeyondCode\LaravelWebSockets\Events\WebSocketMessageReceived;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
 use Exception;
 use Ratchet\ConnectionInterface;
@@ -63,6 +66,8 @@ class WebSocketHandler implements MessageComponentInterface
                 'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
                 'socketId' => $connection->socketId,
             ]);
+
+            NewConnection::dispatch($connection->app->id, $connection->socketId);
         }
     }
 
@@ -84,6 +89,12 @@ class WebSocketHandler implements MessageComponentInterface
         )->respond();
 
         StatisticsCollector::webSocketMessage($connection->app->id);
+
+        WebSocketMessageReceived::dispatch(
+            $connection->app->id,
+            $connection->socketId,
+            $message
+        );
     }
 
     /**
@@ -105,6 +116,8 @@ class WebSocketHandler implements MessageComponentInterface
                     DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
                         'socketId' => $connection->socketId,
                     ]);
+
+                    ConnectionClosed::dispatch($connection->app->id, $connection->socketId);
                 }
             });
     }

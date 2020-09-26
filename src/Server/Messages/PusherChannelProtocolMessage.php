@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Server\Messages;
 
+use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -35,6 +36,8 @@ class PusherChannelProtocolMessage extends PusherClientMessage
             ->connectionPonged($connection)
             ->then(function () use ($connection) {
                 $connection->send(json_encode(['event' => 'pusher:pong']));
+
+                ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
             });
     }
 

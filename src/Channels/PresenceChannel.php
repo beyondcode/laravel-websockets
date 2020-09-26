@@ -3,6 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
+use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -60,7 +62,7 @@ class PresenceChannel extends PrivateChannel
                 // and in this case the events will only be triggered when the first tab is opened.
                 $this->channelManager
                     ->getMemberSockets($user->user_id, $connection->app->id, $this->getName())
-                    ->then(function ($sockets) use ($payload, $connection) {
+                    ->then(function ($sockets) use ($payload, $connection, $user) {
                         if (count($sockets) === 1) {
                             $memberAddedPayload = [
                                 'event' => 'pusher_internal:member_added',
@@ -71,6 +73,13 @@ class PresenceChannel extends PrivateChannel
                             $this->broadcastToEveryoneExcept(
                                 (object) $memberAddedPayload, $connection->socketId,
                                 $connection->app->id
+                            );
+
+                            SubscribedToChannel::dispatch(
+                                $connection->app->id,
+                                $connection->socketId,
+                                $this->getName(),
+                                $user
                             );
                         }
 
@@ -127,6 +136,13 @@ class PresenceChannel extends PrivateChannel
                                     $this->broadcastToEveryoneExcept(
                                         (object) $memberRemovedPayload, $connection->socketId,
                                         $connection->app->id
+                                    );
+
+                                    UnsubscribedFromChannel::dispatch(
+                                        $connection->app->id,
+                                        $connection->socketId,
+                                        $this->getName(),
+                                        $user
                                     );
                                 }
                             });
