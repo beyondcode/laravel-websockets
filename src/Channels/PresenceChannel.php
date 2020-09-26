@@ -62,7 +62,7 @@ class PresenceChannel extends PrivateChannel
                 // and in this case the events will only be triggered when the first tab is opened.
                 $this->channelManager
                     ->getMemberSockets($user->user_id, $connection->app->id, $this->getName())
-                    ->then(function ($sockets) use ($payload, $connection) {
+                    ->then(function ($sockets) use ($payload, $connection, $user) {
                         if (count($sockets) === 1) {
                             $memberAddedPayload = [
                                 'event' => 'pusher_internal:member_added',
