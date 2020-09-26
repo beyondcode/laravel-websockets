@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\Queue\AsyncRedisQueue;
+use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
 use Illuminate\Queue\Queue;
 use Illuminate\Support\InteractsWithTime;
 use Mockery as m;
@@ -27,9 +27,13 @@ class AsyncRedisQueueTest extends TestCase
 
         $this->runOnlyOnRedisReplication();
 
-        $this->queue = new AsyncRedisQueue(
-            $this->app['redis'], 'default', null, 60, null
-        );
+        $connector = new AsyncRedisConnector($this->app['redis'], 'default');
+
+        $this->queue = $connector->connect([
+            'queue' => 'default',
+            'retry_after' => 60,
+            'block_for' => null,
+        ]);
 
         $this->queue->setContainer($this->app);
     }
@@ -44,7 +48,7 @@ class AsyncRedisQueueTest extends TestCase
         m::close();
     }
 
-    public function test_expired_jobs_are_popped()
+    public function test_expired_jobs_are_pushed_with_async_and_popped_with_sync()
     {
         $jobs = [
             new RedisQueueIntegrationTestJob(0),
@@ -75,7 +79,7 @@ class AsyncRedisQueueTest extends TestCase
         $this->assertEquals(3, $this->app['redis']->connection()->zcard('queues:default:reserved'));
     }
 
-    public function test_release_job()
+    public function test_jobs_are_pushed_with_async_and_released_with_sync()
     {
         $this->queue->push(
             $job = new RedisQueueIntegrationTestJob(30)
@@ -114,7 +118,7 @@ class AsyncRedisQueueTest extends TestCase
         $this->assertNull($this->queue->pop());
     }
 
-    public function test_delete_job()
+    public function test_jobs_are_pushed_with_async_and_deleted_with_sync()
     {
         $this->queue->push(
             $job = new RedisQueueIntegrationTestJob(30)
@@ -136,7 +140,7 @@ class AsyncRedisQueueTest extends TestCase
         $this->assertNull($this->queue->pop());
     }
 
-    public function test_clear_job()
+    public function test_jobs_are_pushed_with_async_and_cleared_with_sync()
     {
         if (! method_exists($this->queue, 'clear')) {
             $this->markTestSkipped('The Queue has no clear() method to test.');
@@ -157,7 +161,7 @@ class AsyncRedisQueueTest extends TestCase
         $this->assertEquals(0, $this->queue->size());
     }
 
-    public function test_size_job()
+    public function test_jobs_are_pushed_with_async_and_size_reflects_in_async_size()
     {
         $this->queue->size()->then(function ($count) {
             $this->assertEquals(0, $count);
