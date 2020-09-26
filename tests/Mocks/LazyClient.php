@@ -57,7 +57,11 @@ class LazyClient extends BaseLazyClient
         $this->calls[] = [$name, $args];
 
         if (! in_array($name, ['subscribe', 'psubscribe', 'unsubscribe', 'punsubscribe', 'onMessage'])) {
-            $this->redis->__call($name, $args);
+            if ($name === 'eval') {
+                $this->redis->{$name}(...$args);
+            } else {
+                $this->redis->__call($name, $args);
+            }
         }
 
         return new PromiseResolver(
@@ -99,13 +103,33 @@ class LazyClient extends BaseLazyClient
     }
 
     /**
+     * Check if the method got called.
+     *
+     * @param  int  $times
+     * @param  string  $name
+     * @return $this
+     */
+    public function assertCalledCount(int $times, string $name)
+    {
+        $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name) {
+            [$calledName, ] = $function;
+
+            return $calledName === $name;
+        });
+
+        PHPUnit::assertCount($times, $total);
+
+        return $this;
+    }
+
+    /**
      * Check if the method with args got called.
      *
      * @param  string  $name
      * @param  array  $args
      * @return $this
      */
-    public function assertCalledWithArgs($name, array $args)
+    public function assertCalledWithArgs(string $name, array $args)
     {
         foreach ($this->getCalledFunctions() as $function) {
             [$calledName, $calledArgs] = $function;
@@ -125,11 +149,12 @@ class LazyClient extends BaseLazyClient
     /**
      * Check if the method with args got called an amount of times.
      *
+     * @param  int  $times
      * @param  string  $name
      * @param  array  $args
      * @return $this
      */
-    public function assertCalledWithArgsCount($times = 1, $name, array $args)
+    public function assertCalledWithArgsCount(int $times, string $name, array $args)
     {
         $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name, $args) {
             [$calledName, $calledArgs] = $function;
@@ -148,7 +173,7 @@ class LazyClient extends BaseLazyClient
      * @param  string  $name
      * @return $this
      */
-    public function assertNotCalled($name)
+    public function assertNotCalled(string $name)
     {
         foreach ($this->getCalledFunctions() as $function) {
             [$calledName, ] = $function;
@@ -172,7 +197,7 @@ class LazyClient extends BaseLazyClient
      * @param  array  $args
      * @return $this
      */
-    public function assertNotCalledWithArgs($name, array $args)
+    public function assertNotCalledWithArgs(string $name, array $args)
     {
         foreach ($this->getCalledFunctions() as $function) {
             [$calledName, $calledArgs] = $function;
@@ -192,11 +217,12 @@ class LazyClient extends BaseLazyClient
     /**
      * Check if the method with args got called an amount of times.
      *
+     * @param  int  $times
      * @param  string  $name
      * @param  array  $args
      * @return $this
      */
-    public function assertNotCalledWithArgsCount($times = 1, $name, array $args)
+    public function assertNotCalledWithArgsCount(int $times, string $name, array $args)
     {
         $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name, $args) {
             [$calledName, $calledArgs] = $function;

@@ -253,6 +253,16 @@ abstract class TestCase extends Orchestra
     }
 
     /**
+     * Unregister the managers for testing purposes.
+     *
+     * @return void
+     */
+    protected function unregisterManagers()
+    {
+        $this->app->offsetUnset(ChannelManager::class);
+    }
+
+    /**
      * Register the statistics collectors.
      *
      * @return void
