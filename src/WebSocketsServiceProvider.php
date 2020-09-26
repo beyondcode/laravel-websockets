@@ -11,6 +11,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -36,6 +37,12 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/0000_00_00_000000_rename_statistics_counters.php' => database_path('migrations/0000_00_00_000000_rename_statistics_counters.php'),
         ], 'migrations');
 
+        $this->registerAsyncRedisQueueDriver();
+
+        $this->registerRouter();
+
+        $this->registerManagers();
+
         $this->registerStatistics();
 
         $this->registerDashboard();
@@ -50,8 +57,19 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerRouter();
-        $this->registerManagers();
+        //
+    }
+
+    /**
+     * Register the async, non-blocking Redis queue driver.
+     *
+     * @return void
+     */
+    protected function registerAsyncRedisQueueDriver()
+    {
+        Queue::extend('async-redis', function () {
+            return new Queue\AsyncRedisConnector($this->app['redis']);
+        });
     }
 
     /**
