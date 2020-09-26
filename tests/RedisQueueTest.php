@@ -3,15 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\Queue\AsyncRedisQueue;
-use Illuminate\Container\Container;
-use Illuminate\Contracts\Redis\Factory;
-use Illuminate\Queue\Jobs\RedisJob;
 use Illuminate\Queue\Queue;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\InteractsWithTime;
-use Illuminate\Support\Str;
 use Mockery as m;
-use stdClass;
 
 class RedisQueueTest extends TestCase
 {
