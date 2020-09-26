@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 use Mockery as m;
 use stdClass;
 
-class RedisQueueTest extends TestCase
+class AsyncRedisQueueTest extends TestCase
 {
     use InteractsWithTime;
 
