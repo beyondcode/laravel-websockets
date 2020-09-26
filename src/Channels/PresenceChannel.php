@@ -75,7 +75,7 @@ class PresenceChannel extends PrivateChannel
                                 $connection->app->id
                             );
 
-                            SubscribedToPresenceChannel::dispatch(
+                            SubscribedToChannel::dispatch(
                                 $connection->app->id,
                                 $connection->socketId,
                                 $this->getName(),
