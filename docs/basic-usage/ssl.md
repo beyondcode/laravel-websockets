@@ -108,7 +108,7 @@ Make sure that you replace `YOUR-USERNAME` with your Mac username and `VALET-SIT
 
     'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA', null),
 
-    'local_pk' => 'local_pk' => '/Users/YOUR-USERNAME/.config/valet/Certificates/VALET-SITE.TLD.key',
+    'local_pk' => '/Users/YOUR-USERNAME/.config/valet/Certificates/VALET-SITE.TLD.key',
 
     'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
 
