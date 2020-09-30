@@ -36,7 +36,7 @@ class WebSocketHandler extends BaseWebSocketHandler
         // Run code on close.
         // $connection->app contains the app details
         // $this->channelManager is accessible
-    }****
+    }
 }
 ```
 

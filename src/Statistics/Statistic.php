@@ -18,38 +18,101 @@ class Statistic
      *
      * @var int
      */
-    protected $currentConnectionCount = 0;
+    protected $currentConnectionsCount = 0;
 
     /**
      * The peak connections count ticker.
      *
      * @var int
      */
-    protected $peakConnectionCount = 0;
+    protected $peakConnectionsCount = 0;
 
     /**
      * The websockets connections count ticker.
      *
      * @var int
      */
-    protected $webSocketMessageCount = 0;
+    protected $webSocketMessagesCount = 0;
 
     /**
      * The api messages connections count ticker.
      *
      * @var int
      */
-    protected $apiMessageCount = 0;
+    protected $apiMessagesCount = 0;
 
     /**
      * Create a new statistic.
      *
-     * @param  mixed  $appId
+     * @param  string|int  $appId
      * @return  void
      */
     public function __construct($appId)
     {
         $this->appId = $appId;
+    }
+
+    /**
+     * Create a new statistic instance.
+     *
+     * @param  string|int  $appId
+     * @return \BeyondCode\LaravelWebSockets\Statistics\Statistic
+     */
+    public static function new($appId)
+    {
+        return new static($appId);
+    }
+
+    /**
+     * Set the current connections count.
+     *
+     * @param  int  $currentConnectionsCount
+     * @return $this
+     */
+    public function setCurrentConnectionsCount(int $currentConnectionsCount)
+    {
+        $this->currentConnectionsCount = $currentConnectionsCount;
+
+        return $this;
+    }
+
+    /**
+     * Set the peak connections count.
+     *
+     * @param  int  $peakConnectionsCount
+     * @return $this
+     */
+    public function setPeakConnectionsCount(int $peakConnectionsCount)
+    {
+        $this->peakConnectionsCount = $peakConnectionsCount;
+
+        return $this;
+    }
+
+    /**
+     * Set the peak connections count.
+     *
+     * @param  int  $webSocketMessagesCount
+     * @return $this
+     */
+    public function setWebSocketMessagesCount(int $webSocketMessagesCount)
+    {
+        $this->webSocketMessagesCount = $webSocketMessagesCount;
+
+        return $this;
+    }
+
+    /**
+     * Set the peak connections count.
+     *
+     * @param  int  $apiMessagesCount
+     * @return $this
+     */
+    public function setApiMessagesCount(int $apiMessagesCount)
+    {
+        $this->apiMessagesCount = $apiMessagesCount;
+
+        return $this;
     }
 
     /**
@@ -69,9 +132,9 @@ class Statistic
      */
     public function connection()
     {
-        $this->currentConnectionCount++;
+        $this->currentConnectionsCount++;
 
-        $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
+        $this->peakConnectionsCount = max($this->currentConnectionsCount, $this->peakConnectionsCount);
     }
 
     /**
@@ -81,9 +144,9 @@ class Statistic
      */
     public function disconnection()
     {
-        $this->currentConnectionCount--;
+        $this->currentConnectionsCount--;
 
-        $this->peakConnectionCount = max($this->currentConnectionCount, $this->peakConnectionCount);
+        $this->peakConnectionsCount = max($this->currentConnectionsCount, $this->peakConnectionsCount);
     }
 
     /**
@@ -93,7 +156,7 @@ class Statistic
      */
     public function webSocketMessage()
     {
-        $this->webSocketMessageCount++;
+        $this->webSocketMessagesCount++;
     }
 
     /**
@@ -103,21 +166,21 @@ class Statistic
      */
     public function apiMessage()
     {
-        $this->apiMessageCount++;
+        $this->apiMessagesCount++;
     }
 
     /**
      * Reset all the connections to a specific count.
      *
-     * @param  int  $currentConnectionCount
+     * @param  int  $currentConnectionsCount
      * @return void
      */
-    public function reset(int $currentConnectionCount)
+    public function reset(int $currentConnectionsCount)
     {
-        $this->currentConnectionCount = $currentConnectionCount;
-        $this->peakConnectionCount = $currentConnectionCount;
-        $this->webSocketMessageCount = 0;
-        $this->apiMessageCount = 0;
+        $this->currentConnectionsCount = $currentConnectionsCount;
+        $this->peakConnectionsCount = $currentConnectionsCount;
+        $this->webSocketMessagesCount = 0;
+        $this->apiMessagesCount = 0;
     }
 
     /**
@@ -129,9 +192,9 @@ class Statistic
     {
         return [
             'app_id' => $this->appId,
-            'peak_connection_count' => $this->peakConnectionCount,
-            'websocket_message_count' => $this->webSocketMessageCount,
-            'api_message_count' => $this->apiMessageCount,
+            'peak_connections_count' => $this->peakConnectionsCount,
+            'websocket_messages_count' => $this->webSocketMessagesCount,
+            'api_messages_count' => $this->apiMessagesCount,
         ];
     }
 }

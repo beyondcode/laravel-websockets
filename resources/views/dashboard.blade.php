@@ -252,7 +252,7 @@
       form: {
         channel: null,
         event: null,
-        data: null,
+        data: {},
       },
       logs: [],
     },
@@ -261,15 +261,15 @@
     },
     destroyed () {
       if (this.refreshTicker) {
-        this.clearRefreshInterval();
+        this.stopRefreshInterval();
       }
     },
     watch: {
       connected (newVal) {
-        newVal ? this.startRefreshInterval() : this.clearRefreshInterval();
+        newVal ? this.startRefreshInterval() : this.stopRefreshInterval();
       },
       autoRefresh (newVal) {
-        newVal ? this.startRefreshInterval() : this.clearRefreshInterval();
+        newVal ? this.startRefreshInterval() : this.stopRefreshInterval();
       },
     },
     methods: {
@@ -314,7 +314,7 @@
         });
 
         this.pusher.connection.bind('error', event => {
-          if (event.error.data.code === 4100) {
+          if (event.data.code === 4100) {
             this.connected = false;
             this.logs = [];
             this.chart = null;
@@ -347,14 +347,14 @@
                 name: '# Peak Connections'
               },
               {
-                x: data.websocket_message_count.x,
-                y: data.websocket_message_count.y,
+                x: data.websocket_messages_count.x,
+                y: data.websocket_messages_count.y,
                 type: 'bar',
                 name: '# Websocket Messages'
               },
               {
-                x: data.api_message_count.x,
-                y: data.api_message_count.y,
+                x: data.api_messages_count.x,
+                y: data.api_messages_count.y,
                 type: 'bar',
                 name: '# API Messages'
               },
@@ -395,9 +395,9 @@
 
           let payload = {
             _token: '{{ csrf_token() }}',
+            appId: this.app.id,
             key: this.app.key,
             secret: this.app.secret,
-            appId: this.app.id,
             channel: this.form.channel,
             event: this.form.event,
             data: JSON.stringify(this.form.data),
@@ -405,13 +405,7 @@
 
           axios
             .post('/event', payload)
-            .then(() => {
-              this.form = {
-                channel: null,
-                event: null,
-                data: null,
-              };
-            })
+            .then(() => {})
             .catch(err => {
               alert('Error sending event.');
             })
@@ -428,10 +422,6 @@
 
         if (['replicator-subscribed', 'replicator-joined'].includes(log.type)) {
           return 'bg-green-700 text-white';
-        }
-
-        if (log.type === 'vacated') {
-          return 'bg-orange-500 text-white';
         }
 
         if (['disconnection', 'occupied', 'replicator-unsubscribed', 'replicator-left'].includes(log.type)) {

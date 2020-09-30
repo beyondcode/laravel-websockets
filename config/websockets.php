@@ -42,21 +42,6 @@ return [
 
         'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Channel Manager
-        |--------------------------------------------------------------------------
-        |
-        | When users subscribe or unsubscribe from specific channels,
-        | the connections are stored to keep track of any interaction with the
-        | WebSocket server.
-        | You can however add your own implementation that will help the store
-        | of the channels alongside their connections.
-        |
-        */
-
-        'channel' => \BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManagers\ArrayChannelManager::class,
-
     ],
 
     /*
@@ -78,6 +63,7 @@ return [
         [
             'id' => env('PUSHER_APP_ID'),
             'name' => env('APP_NAME'),
+            'host' => env('PUSHER_APP_HOST'),
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
             'path' => env('PUSHER_APP_PATH'),
@@ -88,6 +74,141 @@ return [
                 //
             ],
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Broadcasting Replication PubSub
+    |--------------------------------------------------------------------------
+    |
+    | You can enable replication to publish and subscribe to
+    | messages across the driver.
+    |
+    | By default, it is set to 'local', but you can configure it to use drivers
+    | like Redis to ensure connection between multiple instances of
+    | WebSocket servers. Just set the driver to 'redis' to enable the PubSub using Redis.
+    |
+    */
+
+    'replication' => [
+
+        'mode' => env('WEBSOCKETS_REPLICATION_MODE', 'local'),
+
+        'modes' => [
+
+            /*
+            |--------------------------------------------------------------------------
+            | Local Replication
+            |--------------------------------------------------------------------------
+            |
+            | Local replication is actually a null replicator, meaning that it
+            | is the default behaviour of storing the connections into an array.
+            |
+            */
+
+            'local' => [
+
+                /*
+                |--------------------------------------------------------------------------
+                | Channel Manager
+                |--------------------------------------------------------------------------
+                |
+                | The channel manager is responsible for storing, tracking and retrieving
+                | the channels as long as their memebers and connections.
+                |
+                */
+
+                'channel_manager' => \BeyondCode\LaravelWebSockets\ChannelManagers\LocalChannelManager::class,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Statistics Collector
+                |--------------------------------------------------------------------------
+                |
+                | The Statistics Collector will, by default, handle the incoming statistics,
+                | storing them until they will become dumped into another database, usually
+                | a MySQL database or a time-series database.
+                |
+                */
+
+                'collector' => \BeyondCode\LaravelWebSockets\Statistics\Collectors\MemoryCollector::class,
+
+            ],
+
+            'redis' => [
+
+                'connection' => env('WEBSOCKETS_REDIS_REPLICATION_CONNECTION', 'default'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | Channel Manager
+                |--------------------------------------------------------------------------
+                |
+                | The channel manager is responsible for storing, tracking and retrieving
+                | the channels as long as their memebers and connections.
+                |
+                */
+
+                'channel_manager' => \BeyondCode\LaravelWebSockets\ChannelManagers\RedisChannelManager::class,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Statistics Collector
+                |--------------------------------------------------------------------------
+                |
+                | The Statistics Collector will, by default, handle the incoming statistics,
+                | storing them until they will become dumped into another database, usually
+                | a MySQL database or a time-series database.
+                |
+                */
+
+                'collector' => \BeyondCode\LaravelWebSockets\Statistics\Collectors\RedisCollector::class,
+
+            ],
+
+        ],
+
+    ],
+
+    'statistics' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics Store
+        |--------------------------------------------------------------------------
+        |
+        | The Statistics Store is the place where all the temporary stats will
+        | be dumped. This is a much reliable store and will be used to display
+        | graphs or handle it later on your app.
+        |
+        */
+
+        'store' => \BeyondCode\LaravelWebSockets\Statistics\Stores\DatabaseStore::class,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics Interval Period
+        |--------------------------------------------------------------------------
+        |
+        | Here you can specify the interval in seconds at which
+        | statistics should be logged.
+        |
+        */
+
+        'interval_in_seconds' => 60,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics Deletion Period
+        |--------------------------------------------------------------------------
+        |
+        | When the clean-command is executed, all recorded statistics older than
+        | the number of days specified here will be deleted.
+        |
+        */
+
+        'delete_statistics_older_than_days' => 60,
+
     ],
 
     /*
@@ -144,101 +265,33 @@ return [
 
     'handlers' => [
 
-        'websocket' => \BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler::class,
+        'websocket' => \BeyondCode\LaravelWebSockets\Server\WebSocketHandler::class,
+
+        'health' => \BeyondCode\LaravelWebSockets\Server\HealthHandler::class,
+
+        'trigger_event' => \BeyondCode\LaravelWebSockets\API\TriggerEvent::class,
+
+        'fetch_channels' => \BeyondCode\LaravelWebSockets\API\FetchChannels::class,
+
+        'fetch_channel' => \BeyondCode\LaravelWebSockets\API\FetchChannel::class,
+
+        'fetch_users' => \BeyondCode\LaravelWebSockets\API\FetchUsers::class,
 
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Broadcasting Replication PubSub
+    | Promise Resolver
     |--------------------------------------------------------------------------
     |
-    | You can enable replication to publish and subscribe to
-    | messages across the driver.
-    |
-    | By default, it is set to 'local', but you can configure it to use drivers
-    | like Redis to ensure connection between multiple instances of
-    | WebSocket servers. Just set the driver to 'redis' to enable the PubSub using Redis.
+    | The promise resolver is a class that takes a input value and is
+    | able to make sure the PHP code runs async by using ->then(). You can
+    | use your own Promise Resolver. This is usually changed when you want to
+    | intercept values by the promises throughout the app, like in testing
+    | to switch from async to sync.
     |
     */
 
-    'replication' => [
-
-        'driver' => env('LARAVEL_WEBSOCKETS_REPLICATION_DRIVER', 'local'),
-
-        'redis' => [
-
-            'connection' => env('LARAVEL_WEBSOCKETS_REPLICATION_CONNECTION', 'default'),
-
-        ],
-
-    ],
-
-    'statistics' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics Driver
-        |--------------------------------------------------------------------------
-        |
-        | Here you can specify which driver to use to store the statistics to.
-        | See down below for each driver's setting.
-        |
-        | Available: database
-        |
-        */
-
-        'driver' => env('LARAVEL_WEBSOCKETS_STATISTICS_DRIVER', 'database'),
-
-        'database' => [
-
-            'driver' => \BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver::class,
-
-            'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
-
-        ],
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics Logger Handler
-        |--------------------------------------------------------------------------
-        |
-        | The Statistics Logger will, by default, handle the incoming statistics,
-        | store them into an array and then store them into the database
-        | on each interval.
-        |
-        | You can opt-in to avoid any statistics storage by setting the logger
-        | to the built-in NullLogger.
-        |
-        */
-
-        'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
-        // 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics Interval Period
-        |--------------------------------------------------------------------------
-        |
-        | Here you can specify the interval in seconds at which
-        | statistics should be logged.
-        |
-        */
-
-        'interval_in_seconds' => 60,
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics Deletion Period
-        |--------------------------------------------------------------------------
-        |
-        | When the clean-command is executed, all recorded statistics older than
-        | the number of days specified here will be deleted.
-        |
-        */
-
-        'delete_statistics_older_than_days' => 60,
-
-    ],
+    'promise_resolver' => \React\Promise\FulfilledPromise::class,
 
 ];

@@ -2,11 +2,11 @@
 
 namespace BeyondCode\LaravelWebSockets\Apps;
 
-use BeyondCode\LaravelWebSockets\Exceptions\InvalidApp;
+use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 
 class App
 {
-    /** @var int */
+    /** @var string|int */
     public $id;
 
     /** @var string */
@@ -39,7 +39,7 @@ class App
     /**
      * Find the app by id.
      *
-     * @param  mixed  $appId
+     * @param  string|int  $appId
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public static function findById($appId)
@@ -50,7 +50,7 @@ class App
     /**
      * Find the app by app key.
      *
-     * @param  mixed  $appId
+     * @param  string  $appKey
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public static function findByKey($appKey): ?self
@@ -61,7 +61,7 @@ class App
     /**
      * Find the app by app secret.
      *
-     * @param  mixed  $appId
+     * @param  string  $appSecret
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     public static function findBySecret($appSecret): ?self
@@ -72,22 +72,13 @@ class App
     /**
      * Initialize the Web Socket app instance.
      *
-     * @param  mixed  $appId
-     * @param  mixed  $key
-     * @param  mixed  $secret
+     * @param  string|int  $appId
+     * @param  string  $key
+     * @param  string  $secret
      * @return void
-     * @throws \BeyondCode\LaravelWebSockets\Exceptions\InvalidApp
      */
     public function __construct($appId, $appKey, $appSecret)
     {
-        if ($appKey === '') {
-            throw InvalidApp::valueIsRequired('appKey', $appId);
-        }
-
-        if ($appSecret === '') {
-            throw InvalidApp::valueIsRequired('appSecret', $appId);
-        }
-
         $this->id = $appId;
         $this->key = $appKey;
         $this->secret = $appSecret;

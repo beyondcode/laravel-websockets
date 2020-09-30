@@ -11,7 +11,7 @@ Depending on your setup, you might have your app configuration stored elsewhere 
 
 > Make sure that you do **not** perform any IO blocking tasks in your `AppManager`, as they will interfere with the asynchronous WebSocket execution.
 
-In order to create your custom `AppManager`, create a class that implements the `BeyondCode\LaravelWebSockets\Apps\AppManager` interface.
+In order to create your custom `AppManager`, create a class that implements the `BeyondCode\LaravelWebSockets\Contracts\AppManager` interface.
 
 This is what it looks like:
 
@@ -34,11 +34,11 @@ interface AppManager
 
 The following is an example AppManager that utilizes an Eloquent model:
 ```php
-namespace App\Appmanagers;
+namespace App\Managers;
 
 use App\Application;
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Apps\AppManager;
+use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 
 class MyCustomAppManager implements AppManager
 {
@@ -51,22 +51,22 @@ class MyCustomAppManager implements AppManager
             ->toArray();
     }
 
-    public function findById($appId) : ? App
+    public function findById($appId) : ?App
     {
         return $this->normalize(Application::findById($appId)->toArray());
     }
 
-    public function findByKey($appKey) : ? App
+    public function findByKey($appKey) : ?App
     {
         return $this->normalize(Application::findByKey($appKey)->toArray());
     }
 
-    public function findBySecret($appSecret) : ? App
+    public function findBySecret($appSecret) : ?App
     {
         return $this->normalize(Application::findBySecret($appSecret)->toArray());
     }
 
-    protected function normalize(?array $appAttributes) : ? App
+    protected function normalize(?array $appAttributes) : ?App
     {
         if (! $appAttributes) {
             return null;
@@ -115,8 +115,6 @@ Once you have implemented your own AppManager, you need to set it in the `websoc
     */
 
     'app' => \App\Managers\MyCustomAppManager::class,
-
-    ...
 
 ],
 ```

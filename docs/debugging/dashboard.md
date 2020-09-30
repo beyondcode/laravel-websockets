@@ -71,34 +71,11 @@ protected function schedule(Schedule $schedule)
 
 Each app contains an `enable_statistics` that defines wether that app generates statistics or not. The statistics are being stored for the `interval_in_seconds` seconds and then they are inserted in the database.
 
-However, to disable it entirely and void any incoming statistic, you can uncomment the following line in the config:
+However, to disable it entirely and void any incoming statistic, you can call `--disable-statistics` when running the server command:
 
-```php
-/*
-|--------------------------------------------------------------------------
-| Statistics Logger Handler
-|--------------------------------------------------------------------------
-|
-| The Statistics Logger will, by default, handle the incoming statistics,
-| store them into an array and then store them into the database
-| on each interval.
-|
-| You can opt-in to avoid any statistics storage by setting the logger
-| to the built-in NullLogger.
-|
-*/
-
-// 'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\MemoryStatisticsLogger::class,
-'logger' => \BeyondCode\LaravelWebSockets\Statistics\Logger\NullStatisticsLogger::class, // use the `NullStatisticsLogger` instead
+```bash
+php artisan websockets:serve --disable-statistics
 ```
-
-## Custom Statistics Drivers
-
-By default, the package comes with a few drivers like the Database driver which stores the data into the database.
-
-You should add your custom drivers under the `statistics` key in `websockets.php` and create a driver class that implements the `\BeyondCode\LaravelWebSockets\Statistics\Drivers\StatisticsDriver` interface.
-
-Take a quick look at the `\BeyondCode\LaravelWebSockets\Statistics\Drivers\DatabaseDriver` driver to see how to perform your integration.
 
 ## Event Creator
 

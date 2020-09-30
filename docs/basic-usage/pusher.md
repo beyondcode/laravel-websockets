@@ -13,7 +13,7 @@ To make it clear, the package does not restrict connections numbers or depend on
 
 To make use of the Laravel WebSockets package in combination with Pusher, you first need to install the official Pusher PHP SDK.
 
-If you are not yet familiar with the concept of Broadcasting in Laravel, please take a look at the [Laravel documentation](https://laravel.com/docs/6.0/broadcasting).
+If you are not yet familiar with the concept of Broadcasting in Laravel, please take a look at the [Laravel documentation](https://laravel.com/docs/8.0/broadcasting).
 
 ```bash
 composer require pusher/pusher-php-server "~4.0"
@@ -40,9 +40,13 @@ To do this, you should add the `host` and `port` configuration key to your `conf
     'options' => [
         'cluster' => env('PUSHER_APP_CLUSTER'),
         'encrypted' => true,
-        'host' => '127.0.0.1',
-        'port' => 6001,
-        'scheme' => 'http',
+        'host' => env('PUSHER_APP_HOST', '127.0.0.1'),
+        'port' => env('PUSHER_APP_PORT', 6001),
+        'scheme' => env('PUSHER_APP_SCHEME', 'http'),
+        'curl_options' => [
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        ],
     ],
 ],
 ```
@@ -95,8 +99,8 @@ To enable or disable the statistics for one of your apps, you can modify the `en
 
 ## Usage with Laravel Echo
 
-The Laravel WebSockets package integrates nicely into [Laravel Echo](https://laravel.com/docs/6.0/broadcasting#receiving-broadcasts) to integrate into your frontend application and receive broadcasted events.
-If you are new to Laravel Echo, be sure to take a look at the [official documentation](https://laravel.com/docs/6.0/broadcasting#receiving-broadcasts).
+The Laravel WebSockets package integrates nicely into [Laravel Echo](https://laravel.com/docs/8.0/broadcasting#receiving-broadcasts) to integrate into your frontend application and receive broadcasted events.
+If you are new to Laravel Echo, be sure to take a look at the [official documentation](https://laravel.com/docs/8.0/broadcasting#receiving-broadcasts).
 
 To make Laravel Echo work with Laravel WebSockets, you need to make some minor configuration changes when working with Laravel Echo. Add the `wsHost` and `wsPort` parameters and point them to your Laravel WebSocket server host and port.
 
@@ -107,7 +111,7 @@ When using Laravel WebSockets in combination with a custom SSL certificate, be s
 :::
 
 ```js
-import Echo from "laravel-echo"
+import Echo from 'laravel-echo';
 
 window.Pusher = require('pusher-js');
 
@@ -122,4 +126,4 @@ window.Echo = new Echo({
 });
 ```
 
-Now you can use all Laravel Echo features in combination with Laravel WebSockets, such as [Presence Channels](https://laravel.com/docs/7.x/broadcasting#presence-channels), [Notifications](https://laravel.com/docs/7.x/broadcasting#notifications) and [Client Events](https://laravel.com/docs/7.x/broadcasting#client-events).
+Now you can use all Laravel Echo features in combination with Laravel WebSockets, such as [Presence Channels](https://laravel.com/docs/8.x/broadcasting#presence-channels), [Notifications](https://laravel.com/docs/8.x/broadcasting#notifications) and [Client Events](https://laravel.com/docs/8.x/broadcasting#client-events).

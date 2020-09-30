@@ -2,13 +2,15 @@
 
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
-use BeyondCode\LaravelWebSockets\Statistics\Rules\AppId;
-use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
+use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
+use BeyondCode\LaravelWebSockets\Rules\AppId;
+use Exception;
 use Illuminate\Http\Request;
-use Pusher\Pusher;
 
 class SendMessage
 {
+    use PushesToPusher;
+
     /**
      * Send the message to the requested channel.
      *
@@ -17,39 +19,38 @@ class SendMessage
      */
     public function __invoke(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'appId' => ['required', new AppId],
             'key' => 'required|string',
             'secret' => 'required|string',
-            'channel' => 'required|string',
             'event' => 'required|string',
+            'channel' => 'required|string',
             'data' => 'required|json',
         ]);
 
-        $this->getPusherBroadcaster($validated)->broadcast(
-            [$validated['channel']],
-            $validated['event'],
-            json_decode($validated['data'], true)
-        );
+        $broadcaster = $this->getPusherBroadcaster([
+            'key' => $request->key,
+            'secret' => $request->secret,
+            'id' => $request->appId,
+        ]);
 
-        return 'ok';
-    }
+        try {
+            $decodedData = json_decode($request->data, true);
 
-    /**
-     * Get the pusher broadcaster for the current request.
-     *
-     * @param  array  $validated
-     * @return \Illuminate\Broadcasting\Broadcasters\PusherBroadcaster
-     */
-    protected function getPusherBroadcaster(array $validated): PusherBroadcaster
-    {
-        $pusher = new Pusher(
-            $validated['key'],
-            $validated['secret'],
-            $validated['appId'],
-            config('broadcasting.connections.pusher.options', [])
-        );
+            $broadcaster->broadcast(
+                [$request->channel],
+                $request->event,
+                $decodedData ?: []
+            );
+        } catch (Exception $e) {
+            return response()->json([
+                'ok' => false,
+                'exception' => $e->getMessage(),
+            ]);
+        }
 
-        return new PusherBroadcaster($pusher);
+        return response()->json([
+            'ok' => true,
+        ]);
     }
 }

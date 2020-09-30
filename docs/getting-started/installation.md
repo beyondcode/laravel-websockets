@@ -21,7 +21,7 @@ php artisan vendor:publish --provider="BeyondCode\LaravelWebSockets\WebSocketsSe
 
 # Statistics
 
-This package comes with a migration to store statistic information while running your WebSocket server. For more info, check the [Debug Dashboard](../debugging/dashboard.md) section.
+This package comes with migrations to store statistic information while running your WebSocket server. For more info, check the [Debug Dashboard](../debugging/dashboard.md) section.
 
 You can publish the migration file using:
 
