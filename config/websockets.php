@@ -114,7 +114,7 @@ return [
                 |--------------------------------------------------------------------------
                 |
                 | The channel manager is responsible for storing, tracking and retrieving
-                | the channels as long as their memebers and connections.
+                | the channels as long as their members and connections.
                 |
                 */
 
