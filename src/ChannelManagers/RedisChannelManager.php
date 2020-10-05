@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
 use BeyondCode\LaravelWebSockets\Channels\Channel;
+use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\MockableConnection;
 use Carbon\Carbon;
@@ -286,6 +287,13 @@ class RedisChannelManager extends LocalChannelManager
         $payload->socketId = $socketId;
         $payload->serverId = $serverId ?: $this->getServerId();
 
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATION_MESSAGE_PUBLISHED, [
+            'fromServerId' => $serverId,
+            'fromSocketId' => $socketId,
+            'channel' => $channel,
+            'payload' => $payload,
+        ]);
+
         return $this->publishClient
             ->publish($this->getRedisKey($appId, $channel), json_encode($payload))
             ->then(function () use ($appId, $socketId, $channel, $payload, $serverId) {
@@ -463,6 +471,14 @@ class RedisChannelManager extends LocalChannelManager
         $appId = $payload->appId ?? null;
         $socketId = $payload->socketId ?? null;
         $serverId = $payload->serverId ?? null;
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
+            'fromServerId' => $serverId,
+            'fromSocketId' => $socketId,
+            'receiverServerId' => $this->getServerId(),
+            'channel' => $channel,
+            'payload' => $payload,
+        ]);
 
         unset($payload->socketId);
         unset($payload->serverId);
@@ -693,9 +709,14 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function subscribeToTopic($appId, string $channel = null): PromiseInterface
     {
-        return $this->subscribeClient->subscribe(
-            $this->getRedisKey($appId, $channel)
-        );
+        $topic = $this->getRedisKey($appId, $channel);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED, [
+            'serverId' => $this->getServerId(),
+            'pubsubTopic' => $topic,
+        ]);
+
+        return $this->subscribeClient->subscribe($topic);
     }
 
     /**
@@ -707,9 +728,14 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromTopic($appId, string $channel = null): PromiseInterface
     {
-        return $this->subscribeClient->unsubscribe(
-            $this->getRedisKey($appId, $channel)
-        );
+        $topic = $this->getRedisKey($appId, $channel);
+
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED, [
+            'serverId' => $this->getServerId(),
+            'pubsubTopic' => $topic,
+        ]);
+
+        return $this->subscribeClient->unsubscribe($topic);
     }
 
     /**

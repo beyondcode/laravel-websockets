@@ -420,11 +420,11 @@
           return 'bg-green-500 text-white';
         }
 
-        if (['replicator-subscribed', 'replicator-joined'].includes(log.type)) {
+        if (['replicator-subscribed'].includes(log.type)) {
           return 'bg-green-700 text-white';
         }
 
-        if (['disconnection', 'occupied', 'replicator-unsubscribed', 'replicator-left'].includes(log.type)) {
+        if (['disconnection', 'replicator-unsubscribed'].includes(log.type)) {
           return 'bg-red-700 text-white';
         }
 
