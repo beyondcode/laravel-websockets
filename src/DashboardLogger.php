@@ -22,8 +22,6 @@ class DashboardLogger
 
     const TYPE_REPLICATOR_UNSUBSCRIBED = 'replicator-unsubscribed';
 
-    const TYPE_REPLICATOR_MESSAGE_PUBLISHED = 'replicator-message-published';
-
     const TYPE_REPLICATOR_MESSAGE_RECEIVED = 'replicator-message-received';
 
     /**
@@ -39,7 +37,6 @@ class DashboardLogger
         self::TYPE_API_MESSAGE,
         self::TYPE_REPLICATOR_SUBSCRIBED,
         self::TYPE_REPLICATOR_UNSUBSCRIBED,
-        self::TYPE_REPLICATOR_MESSAGE_PUBLISHED,
         self::TYPE_REPLICATOR_MESSAGE_RECEIVED,
     ];
 

@@ -287,13 +287,6 @@ class RedisChannelManager extends LocalChannelManager
         $payload->socketId = $socketId;
         $payload->serverId = $serverId ?: $this->getServerId();
 
-        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_PUBLISHED, [
-            'fromServerId' => $serverId,
-            'fromSocketId' => $socketId,
-            'channel' => $channel,
-            'payload' => $payload,
-        ]);
-
         return $this->publishClient
             ->publish($this->getRedisKey($appId, $channel), json_encode($payload))
             ->then(function () use ($appId, $socketId, $channel, $payload, $serverId) {

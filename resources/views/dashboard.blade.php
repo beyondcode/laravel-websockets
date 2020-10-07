@@ -428,7 +428,7 @@
           return 'bg-red-700 text-white';
         }
 
-        if (['api_message', 'replicator-message-published', 'replicator-message-received'].includes(log.type)) {
+        if (['api_message', 'replicator-message-received'].includes(log.type)) {
           return 'bg-black text-white';
         }
 
