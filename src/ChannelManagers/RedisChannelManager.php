@@ -287,7 +287,7 @@ class RedisChannelManager extends LocalChannelManager
         $payload->socketId = $socketId;
         $payload->serverId = $serverId ?: $this->getServerId();
 
-        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATION_MESSAGE_PUBLISHED, [
+        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_PUBLISHED, [
             'fromServerId' => $serverId,
             'fromSocketId' => $socketId,
             'channel' => $channel,
