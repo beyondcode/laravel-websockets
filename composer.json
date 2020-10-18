@@ -25,7 +25,6 @@
         "php": "^7.2",
         "ext-json": "*",
         "cboden/ratchet": "^0.4.1",
-        "clue/buzz-react": "^2.5",
         "facade/ignition-contracts": "^1.0",
         "guzzlehttp/psr7": "^1.5",
         "illuminate/broadcasting": "^6.0|^7.0|^8.0",
@@ -35,6 +34,7 @@
         "illuminate/support": "^6.0|^7.0|^8.0",
         "pusher/pusher-php-server": "^3.0|^4.0",
         "react/dns": "^1.1",
+        "react/http": "^1.1",
         "symfony/http-kernel": "^4.0|^5.0",
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
     },
