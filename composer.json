@@ -32,7 +32,6 @@
         "php": "^7.2",
         "ext-json": "*",
         "cboden/ratchet": "^0.4.1",
-        "clue/buzz-react": "^2.5",
         "clue/redis-react": "^2.3",
         "doctrine/dbal": "^2.0",
         "evenement/evenement": "^2.0|^3.0",
