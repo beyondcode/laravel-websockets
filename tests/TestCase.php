@@ -9,10 +9,10 @@ use BeyondCode\LaravelWebSockets\Tests\Statistics\Logger\FakeStatisticsLogger;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
 use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
-use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Mockery;
 use Ratchet\ConnectionInterface;
+use React\Http\Browser;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
