@@ -171,18 +171,19 @@ class StartServer extends Command
         // signal, it should mark the server as unavailable
         // to receive new connections, close the current connections,
         // then stopping the loop.
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $this->loop->addSignal(SIGTERM, function () {
+                $this->line('Closing existing connections...');
 
-        $this->loop->addSignal(SIGTERM, function () {
-            $this->line('Closing existing connections...');
+                $this->triggerSoftShutdown();
+            });
 
-            $this->triggerSoftShutdown();
-        });
+            $this->loop->addSignal(SIGINT, function () {
+                $this->line('Closing existing connections...');
 
-        $this->loop->addSignal(SIGINT, function () {
-            $this->line('Closing existing connections...');
-
-            $this->triggerSoftShutdown();
-        });
+                $this->triggerSoftShutdown();
+            });
+        }
     }
 
     /**
