@@ -9,6 +9,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
+use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
@@ -68,7 +69,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerAsyncRedisQueueDriver()
     {
         Queue::extend('async-redis', function () {
-            return new Queue\AsyncRedisConnector($this->app['redis']);
+            return new AsyncRedisConnector($this->app['redis']);
         });
     }
 
