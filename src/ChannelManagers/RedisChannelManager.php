@@ -500,7 +500,7 @@ class RedisChannelManager extends LocalChannelManager
         }
 
         if ($config['database']) {
-            $query['database'] = $config['database'];
+            $query['db'] = $config['database'];
         }
 
         $query = http_build_query($query);
