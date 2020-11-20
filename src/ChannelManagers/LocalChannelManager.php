@@ -160,7 +160,7 @@ class LocalChannelManager implements ChannelManager
     public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface
     {
         if (! isset($connection->app)) {
-            return new FuilfilledPromise(false);
+            return Helpers::createFulfilledPromise(false);
         }
 
         $this->getLocalChannels($connection->app->id)
