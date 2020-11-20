@@ -42,7 +42,7 @@
         "illuminate/queue": "^6.3|^7.0|^8.0",
         "illuminate/routing": "^6.3|^7.0|^8.0",
         "illuminate/support": "^6.3|^7.0|^8.0",
-        "pusher/pusher-php-server": "^3.0|^4.0",
+        "pusher/pusher-php-server": "^4.0",
         "react/promise": "^2.0",
         "symfony/http-kernel": "^4.0|^5.0",
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
