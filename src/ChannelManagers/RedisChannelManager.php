@@ -487,7 +487,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     protected function getConnectionUri()
     {
-        $name = config('websockets.replication.redis.connection', 'default');
+        $name = config('websockets.replication.modes.redis.connection', 'default');
         $config = config("database.redis.{$name}");
 
         $host = $config['host'];
@@ -500,7 +500,7 @@ class RedisChannelManager extends LocalChannelManager
         }
 
         if ($config['database']) {
-            $query['database'] = $config['database'];
+            $query['db'] = $config['database'];
         }
 
         $query = http_build_query($query);
