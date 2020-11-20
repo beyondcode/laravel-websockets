@@ -29,11 +29,10 @@
         }
     ],
     "require": {
-        "php": "^7.2",
-        "ext-json": "*",
+        "php": "^7.2|^7.0",
         "cboden/ratchet": "^0.4.1",
         "clue/redis-react": "^2.3",
-        "doctrine/dbal": "^2.0",
+        "doctrine/dbal": "^2.9",
         "evenement/evenement": "^2.0|^3.0",
         "facade/ignition-contracts": "^1.0",
         "guzzlehttp/psr7": "^1.5",
@@ -51,7 +50,7 @@
     "require-dev": {
         "clue/block-react": "^1.4",
         "laravel/legacy-factories": "^1.0.4",
-        "mockery/mockery": "^1.3",
+        "mockery/mockery": "^1.4",
         "orchestra/testbench-browser-kit": "^4.0|^5.0|^6.0",
         "orchestra/database": "^4.0|^5.0|^6.0",
         "phpunit/phpunit": "^8.0|^9.0"
