@@ -43,8 +43,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function webSocketMessage($appId)
     {
-        $this->findOrMake($appId)
-            ->webSocketMessage();
+        $this->findOrMake($appId)->webSocketMessage();
     }
 
     /**
@@ -55,8 +54,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function apiMessage($appId)
     {
-        $this->findOrMake($appId)
-            ->apiMessage();
+        $this->findOrMake($appId)->apiMessage();
     }
 
     /**
@@ -67,8 +65,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function connection($appId)
     {
-        $this->findOrMake($appId)
-            ->connection();
+        $this->findOrMake($appId)->connection();
     }
 
     /**
@@ -79,8 +76,7 @@ class MemoryCollector implements StatisticsCollector
      */
     public function disconnection($appId)
     {
-        $this->findOrMake($appId)
-            ->disconnection();
+        $this->findOrMake($appId)->disconnection();
     }
 
     /**

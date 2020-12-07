@@ -176,8 +176,7 @@ abstract class Controller implements HttpServerInterface
 
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
-        $this
-            ->ensureValidAppId($laravelRequest->appId)
+        $this->ensureValidAppId($laravelRequest->appId)
             ->ensureValidSignature($laravelRequest);
 
         // Invoke the controller action

@@ -155,8 +155,7 @@ class Channel
      */
     public function broadcast($appId, stdClass $payload, bool $replicate = true): bool
     {
-        collect($this->getConnections())
-            ->each->send(json_encode($payload));
+        collect($this->getConnections())->each->send(json_encode($payload));
 
         if ($replicate) {
             $this->channelManager->broadcastAcrossServers($appId, null, $this->getName(), $payload);

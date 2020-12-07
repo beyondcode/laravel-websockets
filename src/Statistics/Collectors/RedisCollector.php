@@ -55,8 +55,9 @@ class RedisCollector extends MemoryCollector
      */
     public function webSocketMessage($appId)
     {
-        $this->ensureAppIsInSet($appId)
-            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'websocket_messages_count', 1);
+        $this->ensureAppIsInSet($appId)->hincrby(
+            $this->channelManager->getRedisKey($appId, null, ['stats']), 'websocket_messages_count', 1
+        );
     }
 
     /**
@@ -67,8 +68,9 @@ class RedisCollector extends MemoryCollector
      */
     public function apiMessage($appId)
     {
-        $this->ensureAppIsInSet($appId)
-            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'api_messages_count', 1);
+        $this->ensureAppIsInSet($appId)->hincrby(
+            $this->channelManager->getRedisKey($appId, null, ['stats']), 'api_messages_count', 1
+        );
     }
 
     /**

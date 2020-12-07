@@ -205,8 +205,7 @@ class PrivateChannelTest extends TestCase
 
         $receiver->assertSentEvent('some-event', $message->getPayloadAsArray());
 
-        $this->getSubscribeClient()
-            ->assertNothingDispatched();
+        $this->getSubscribeClient()->assertNothingDispatched();
 
         $this->getPublishClient()->assertCalledWithArgs('publish', [
             $this->channelManager->getRedisKey('1234', 'private-channel'),
