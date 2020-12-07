@@ -25,8 +25,6 @@ class StatisticsStoreTest extends TestCase
         $this->assertCount(2, $records = $this->statisticsStore->getRecords());
 
         $this->assertEquals('2', $records[1]['peak_connections_count']);
-        $this->assertEquals('0', $records[1]['websocket_messages_count']);
-        $this->assertEquals('0', $records[1]['api_messages_count']);
 
         $this->statisticsCollector->save();
 
@@ -56,8 +54,6 @@ class StatisticsStoreTest extends TestCase
         $this->assertCount(2, $records = $this->statisticsStore->getRecords());
 
         $this->assertEquals('2', $records[1]['peak_connections_count']);
-        $this->assertEquals('0', $records[1]['websocket_messages_count']);
-        $this->assertEquals('0', $records[1]['api_messages_count']);
 
         $this->statisticsCollector->save();
 
@@ -89,8 +85,6 @@ class StatisticsStoreTest extends TestCase
         $this->assertCount(2, $records = $this->statisticsStore->getRecords());
 
         $this->assertEquals('3', $records[1]['peak_connections_count']);
-        $this->assertEquals('0', $records[1]['websocket_messages_count']);
-        $this->assertEquals('0', $records[1]['api_messages_count']);
 
         $this->statisticsCollector->save();
 
