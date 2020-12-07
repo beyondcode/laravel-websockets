@@ -42,7 +42,8 @@ class DatabaseStore implements StatisticsStore
         return static::$model::where('created_at', '<', $moment->toDateTimeString())
             ->when(! is_null($appId), function ($query) use ($appId) {
                 return $query->whereAppId($appId);
-            })->delete();
+            })
+            ->delete();
     }
 
     /**
@@ -53,11 +54,12 @@ class DatabaseStore implements StatisticsStore
      */
     public function getRawRecords(callable $processQuery = null)
     {
-        return static::$model::query()->when(! is_null($processQuery), function ($query) use ($processQuery) {
-            return call_user_func($processQuery, $query);
-        }, function ($query) {
-            return $query->latest()->limit(120);
-        })->get();
+        return static::$model::query()
+            ->when(! is_null($processQuery), function ($query) use ($processQuery) {
+                return call_user_func($processQuery, $query);
+            }, function ($query) {
+                return $query->latest()->limit(120);
+            })->get();
     }
 
     /**
@@ -72,9 +74,11 @@ class DatabaseStore implements StatisticsStore
         return $this->getRawRecords($processQuery)
             ->when(! is_null($processCollection), function ($collection) use ($processCollection) {
                 return call_user_func($processCollection, $collection);
-            })->map(function (Model $statistic) {
+            })
+            ->map(function (Model $statistic) {
                 return $this->statisticToArray($statistic);
-            })->toArray();
+            })
+            ->toArray();
     }
 
     /**

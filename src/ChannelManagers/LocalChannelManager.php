@@ -111,12 +111,16 @@ class LocalChannelManager implements ChannelManager
      */
     public function getLocalConnections(): PromiseInterface
     {
-        $connections = collect($this->channels)->map(function ($channelsWithConnections, $appId) {
-            return collect($channelsWithConnections)->values();
-        })->values()->collapse()
-        ->map(function ($channel) {
-            return collect($channel->getConnections());
-        })->values()->collapse()->toArray();
+        $connections = collect($this->channels)
+            ->map(function ($channelsWithConnections, $appId) {
+                return collect($channelsWithConnections)->values();
+            })
+            ->values()->collapse()
+            ->map(function ($channel) {
+                return collect($channel->getConnections());
+            })
+            ->values()->collapse()
+            ->toArray();
 
         return Helpers::createFulfilledPromise($connections);
     }
@@ -159,19 +163,23 @@ class LocalChannelManager implements ChannelManager
             return Helpers::createFulfilledPromise(false);
         }
 
-        $this->getLocalChannels($connection->app->id)->then(function ($channels) use ($connection) {
-            collect($channels)->each->unsubscribe($connection);
+        $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                collect($channels)->each->unsubscribe($connection);
 
-            collect($channels)->reject->hasConnections()->each(function (Channel $channel, string $channelName) use ($connection) {
-                unset($this->channels[$connection->app->id][$channelName]);
+                collect($channels)
+                    ->reject->hasConnections()
+                    ->each(function (Channel $channel, string $channelName) use ($connection) {
+                        unset($this->channels[$connection->app->id][$channelName]);
+                    });
             });
-        });
 
-        $this->getLocalChannels($connection->app->id)->then(function ($channels) use ($connection) {
-            if (count($channels) === 0) {
-                unset($this->channels[$connection->app->id]);
-            }
-        });
+        $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                if (count($channels) === 0) {
+                    unset($this->channels[$connection->app->id]);
+                }
+            });
 
         return Helpers::createFulfilledPromise(true);
     }
@@ -244,15 +252,18 @@ class LocalChannelManager implements ChannelManager
      */
     public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
-        return $this->getLocalChannels($appId)->then(function ($channels) use ($channelName) {
-            return collect($channels)->when(! is_null($channelName), function ($collection) use ($channelName) {
-                return $collection->filter(function (Channel $channel) use ($channelName) {
-                    return $channel->getName() === $channelName;
-                });
-            })->flatMap(function (Channel $channel) {
-                return collect($channel->getConnections())->pluck('socketId');
-            })->unique()->count();
-        });
+        return $this->getLocalChannels($appId)
+            ->then(function ($channels) use ($channelName) {
+                return collect($channels)->when(! is_null($channelName), function ($collection) use ($channelName) {
+                    return $collection->filter(function (Channel $channel) use ($channelName) {
+                        return $channel->getName() === $channelName;
+                    });
+                })
+                ->flatMap(function (Channel $channel) {
+                    return collect($channel->getConnections())->pluck('socketId');
+                })
+                ->unique()->count();
+            });
     }
 
     /**
@@ -370,13 +381,14 @@ class LocalChannelManager implements ChannelManager
      */
     public function getChannelsMembersCount($appId, array $channelNames): PromiseInterface
     {
-        $results = collect($channelNames)->reduce(function ($results, $channel) use ($appId) {
-            $results[$channel] = isset($this->users["{$appId}:{$channel}"])
-                ? count($this->users["{$appId}:{$channel}"])
-                : 0;
+        $results = collect($channelNames)
+            ->reduce(function ($results, $channel) use ($appId) {
+                $results[$channel] = isset($this->users["{$appId}:{$channel}"])
+                    ? count($this->users["{$appId}:{$channel}"])
+                    : 0;
 
-            return $results;
-        }, []);
+                return $results;
+            }, []);
 
         return Helpers::createFulfilledPromise($results);
     }
@@ -443,15 +455,16 @@ class LocalChannelManager implements ChannelManager
      */
     public function updateConnectionInChannels($connection): PromiseInterface
     {
-        return $this->getLocalChannels($connection->app->id)->then(function ($channels) use ($connection) {
-            foreach ($channels as $channel) {
-                if ($channel->hasConnection($connection)) {
-                    $channel->saveConnection($connection);
+        return $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                foreach ($channels as $channel) {
+                    if ($channel->hasConnection($connection)) {
+                        $channel->saveConnection($connection);
+                    }
                 }
-            }
 
-            return true;
-        });
+                return true;
+            });
     }
 
     /**

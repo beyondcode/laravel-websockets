@@ -30,9 +30,11 @@ class ConfigAppManager implements AppManager
      */
     public function all(): array
     {
-        return $this->apps->map(function (array $appAttributes) {
-            return $this->convertIntoApp($appAttributes);
-        })->toArray();
+        return $this->apps
+            ->map(function (array $appAttributes) {
+                return $this->convertIntoApp($appAttributes);
+            })
+            ->toArray();
     }
 
     /**
@@ -104,7 +106,8 @@ class ConfigAppManager implements AppManager
             $app->setPath($appAttributes['path']);
         }
 
-        $app->enableClientMessages($appAttributes['enable_client_messages'])
+        $app
+            ->enableClientMessages($appAttributes['enable_client_messages'])
             ->enableStatistics($appAttributes['enable_statistics'])
             ->setCapacity($appAttributes['capacity'] ?? null)
             ->setAllowedOrigins($appAttributes['allowed_origins'] ?? []);

@@ -58,9 +58,11 @@ class PresenceChannelTest extends TestCase
             'channel' => 'presence-channel',
         ]);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
-            $this->assertEquals(1, $total);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($total) {
+                $this->assertEquals(1, $total);
+            });
     }
 
     public function test_connect_to_presence_channel_when_user_with_same_ids_is_already_joined()
@@ -110,13 +112,17 @@ class PresenceChannelTest extends TestCase
             ]),
         ]);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
-            $this->assertEquals(3, $total);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($total) {
+                $this->assertEquals(3, $total);
+            });
 
-        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
-            $this->assertCount(2, $members);
-        });
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(2, $members);
+            });
     }
 
     public function test_presence_channel_broadcast_member_events()
@@ -129,9 +135,11 @@ class PresenceChannelTest extends TestCase
             'data' => json_encode(['user_id' => 2]),
         ]);
 
-        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
-            $this->assertCount(2, $members);
-        });
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(2, $members);
+            });
 
         $this->pusherServer->onClose($morty);
 
@@ -140,23 +148,29 @@ class PresenceChannelTest extends TestCase
             'data' => json_encode(['user_id' => 2]),
         ]);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
-            $this->assertEquals(1, $total);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($total) {
+                $this->assertEquals(1, $total);
+            });
 
-        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) use ($rick) {
-            $this->assertCount(1, $members);
-            $this->assertEquals(1, $members[$rick->socketId]->user_id);
-        });
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) use ($rick) {
+                $this->assertCount(1, $members);
+                $this->assertEquals(1, $members[$rick->socketId]->user_id);
+            });
     }
 
     public function test_unsubscribe_from_presence_channel()
     {
         $connection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
-            $this->assertEquals(1, $total);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($total) {
+                $this->assertEquals(1, $total);
+            });
 
         $message = new Mocks\Message([
             'event' => 'pusher:unsubscribe',
@@ -167,9 +181,11 @@ class PresenceChannelTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
-            $this->assertEquals(0, $total);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($total) {
+                $this->assertEquals(0, $total);
+            });
     }
 
     public function test_can_whisper_to_private_channel()
@@ -213,18 +229,22 @@ class PresenceChannelTest extends TestCase
         $rick = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
         $morty = $this->newPresenceConnection('presence-channel', ['user_id' => 2]);
 
-        $this->statisticsCollector->getStatistics()->then(function ($statistics) {
-            $this->assertCount(1, $statistics);
-        });
+        $this->statisticsCollector
+            ->getStatistics()
+            ->then(function ($statistics) {
+                $this->assertCount(1, $statistics);
+            });
 
-        $this->statisticsCollector->getAppStatistics('1234')->then(function ($statistic) {
-            $this->assertEquals([
-                'peak_connections_count' => 2,
-                'websocket_messages_count' => 2,
-                'api_messages_count' => 0,
-                'app_id' => '1234',
-            ], $statistic->toArray());
-        });
+        $this->statisticsCollector
+            ->getAppStatistics('1234')
+            ->then(function ($statistic) {
+                $this->assertEquals([
+                    'peak_connections_count' => 2,
+                    'websocket_messages_count' => 2,
+                    'api_messages_count' => 0,
+                    'app_id' => '1234',
+                ], $statistic->toArray());
+            });
     }
 
     public function test_local_connections_for_presence_channels()
@@ -232,15 +252,17 @@ class PresenceChannelTest extends TestCase
         $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
         $this->newPresenceConnection('presence-channel-2', ['user_id' => 2]);
 
-        $this->channelManager->getLocalConnections()->then(function ($connections) {
-            $this->assertCount(2, $connections);
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) {
+                $this->assertCount(2, $connections);
 
-            foreach ($connections as $connection) {
-                $this->assertInstanceOf(
-                    ConnectionInterface::class, $connection
-                );
-            }
-        });
+                foreach ($connections as $connection) {
+                    $this->assertInstanceOf(
+                        ConnectionInterface::class, $connection
+                    );
+                }
+            });
     }
 
     public function test_multiple_clients_with_same_user_id_trigger_member_added_and_removed_event_only_on_first_and_last_socket_connection()
@@ -282,13 +304,17 @@ class PresenceChannelTest extends TestCase
                 $this->assertCount(0, $sockets);
             });
 
-        $this->channelManager->getMemberSockets('2', '1234', 'presence-channel')->then(function ($sockets) {
-            $this->assertCount(0, $sockets);
-        });
+        $this->channelManager
+            ->getMemberSockets('2', '1234', 'presence-channel')
+            ->then(function ($sockets) {
+                $this->assertCount(0, $sockets);
+            });
 
-        $this->channelManager->getMemberSockets('observer', '1234', 'presence-channel')->then(function ($sockets) {
-            $this->assertCount(1, $sockets);
-        });
+        $this->channelManager
+            ->getMemberSockets('observer', '1234', 'presence-channel')
+            ->then(function ($sockets) {
+                $this->assertCount(1, $sockets);
+            });
     }
 
     public function test_events_are_processed_by_on_message_on_presence_channels()
@@ -371,12 +397,14 @@ class PresenceChannelTest extends TestCase
 
         $receiver->assertSentEvent('some-event', $message->getPayloadAsArray());
 
-        $this->getSubscribeClient()->assertNothingDispatched();
+        $this->getSubscribeClient()
+            ->assertNothingDispatched();
 
-        $this->getPublishClient()->assertCalledWithArgs('publish', [
-            $this->channelManager->getRedisKey('1234', 'presence-channel'),
-            $message->getPayload(),
-        ]);
+        $this->getPublishClient()
+            ->assertCalledWithArgs('publish', [
+                $this->channelManager->getRedisKey('1234', 'presence-channel'),
+                $message->getPayload(),
+            ]);
     }
 
     public function test_it_fires_the_event_to_presence_channel()
@@ -410,14 +438,16 @@ class PresenceChannelTest extends TestCase
 
         $this->assertSame([], json_decode($response->getContent(), true));
 
-        $this->statisticsCollector->getAppStatistics('1234')->then(function ($statistic) {
-            $this->assertEquals([
-                'peak_connections_count' => 1,
-                'websocket_messages_count' => 1,
-                'api_messages_count' => 1,
-                'app_id' => '1234',
-            ], $statistic->toArray());
-        });
+        $this->statisticsCollector
+            ->getAppStatistics('1234')
+            ->then(function ($statistic) {
+                $this->assertEquals([
+                    'peak_connections_count' => 1,
+                    'websocket_messages_count' => 1,
+                    'api_messages_count' => 1,
+                    'app_id' => '1234',
+                ], $statistic->toArray());
+            });
     }
 
     public function test_it_fires_event_across_servers_when_there_are_not_users_locally_for_presence_channel()
@@ -450,17 +480,19 @@ class PresenceChannelTest extends TestCase
         $this->assertSame([], json_decode($response->getContent(), true));
 
         if (method_exists($this->channelManager, 'getPublishClient')) {
-            $this->channelManager->getPublishClient()->assertCalledWithArgsCount(1, 'publish', [
-                $this->channelManager->getRedisKey('1234', 'presence-channel'),
-                json_encode([
-                    'event' => 'some-event',
-                    'channel' => 'presence-channel',
-                    'data' => json_encode(['some-data' => 'yes']),
-                    'appId' => '1234',
-                    'socketId' => null,
-                    'serverId' => $this->channelManager->getServerId(),
-                ]),
-            ]);
+            $this->channelManager
+                ->getPublishClient()
+                ->assertCalledWithArgsCount(1, 'publish', [
+                    $this->channelManager->getRedisKey('1234', 'presence-channel'),
+                    json_encode([
+                        'event' => 'some-event',
+                        'channel' => 'presence-channel',
+                        'data' => json_encode(['some-data' => 'yes']),
+                        'appId' => '1234',
+                        'socketId' => null,
+                        'serverId' => $this->channelManager->getServerId(),
+                    ]),
+                ]);
         }
     }
 
@@ -496,17 +528,19 @@ class PresenceChannelTest extends TestCase
         $this->assertSame([], json_decode($response->getContent(), true));
 
         if (method_exists($this->channelManager, 'getPublishClient')) {
-            $this->channelManager->getPublishClient()->assertCalledWithArgsCount(1, 'publish', [
-                $this->channelManager->getRedisKey('1234', 'presence-channel'),
-                json_encode([
-                    'event' => 'some-event',
-                    'channel' => 'presence-channel',
-                    'data' => json_encode(['some-data' => 'yes']),
-                    'appId' => '1234',
-                    'socketId' => null,
-                    'serverId' => $this->channelManager->getServerId(),
-                ]),
-            ]);
+            $this->channelManager
+                ->getPublishClient()
+                ->assertCalledWithArgsCount(1, 'publish', [
+                    $this->channelManager->getRedisKey('1234', 'presence-channel'),
+                    json_encode([
+                        'event' => 'some-event',
+                        'channel' => 'presence-channel',
+                        'data' => json_encode(['some-data' => 'yes']),
+                        'appId' => '1234',
+                        'socketId' => null,
+                        'serverId' => $this->channelManager->getServerId(),
+                    ]),
+                ]);
         }
 
         $wsConnection->assertSentEvent('some-event', [

@@ -137,13 +137,15 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface
     {
-        return $this->getGlobalChannels($connection->app->id)->then(function ($channels) use ($connection) {
-            foreach ($channels as $channel) {
-                $this->unsubscribeFromChannel($connection, $channel, new stdClass);
-            }
-        })->then(function () use ($connection) {
-            return parent::unsubscribeFromAllChannels($connection);
-        });
+        return $this->getGlobalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                foreach ($channels as $channel) {
+                    $this->unsubscribeFromChannel($connection, $channel, new stdClass);
+                }
+            })
+            ->then(function () use ($connection) {
+                return parent::unsubscribeFromAllChannels($connection);
+            });
     }
 
     /**
@@ -156,15 +158,19 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
-        return $this->subscribeToTopic($connection->app->id, $channelName)->then(function () use ($connection) {
-            return $this->addConnectionToSet($connection, Carbon::now());
-        })->then(function () use ($connection, $channelName) {
-            return $this->addChannelToSet($connection->app->id, $channelName);
-        })->then(function () use ($connection, $channelName) {
-            return $this->incrementSubscriptionsCount($connection->app->id, $channelName, 1);
-        })->then(function () use ($connection, $channelName, $payload) {
-            return parent::subscribeToChannel($connection, $channelName, $payload);
-        });
+        return $this->subscribeToTopic($connection->app->id, $channelName)
+            ->then(function () use ($connection) {
+                return $this->addConnectionToSet($connection, Carbon::now());
+            })
+            ->then(function () use ($connection, $channelName) {
+                return $this->addChannelToSet($connection->app->id, $channelName);
+            })
+            ->then(function () use ($connection, $channelName) {
+                return $this->incrementSubscriptionsCount($connection->app->id, $channelName, 1);
+            })
+            ->then(function () use ($connection, $channelName, $payload) {
+                return parent::subscribeToChannel($connection, $channelName, $payload);
+            });
     }
 
     /**
@@ -193,11 +199,14 @@ class RedisChannelManager extends LocalChannelManager
                             $this->unsubscribeFromTopic($connection->app->id, $channelName);
                         }
                     });
-            })->then(function () use ($connection, $channelName) {
+            })
+            ->then(function () use ($connection, $channelName) {
                 return $this->removeChannelFromSet($connection->app->id, $channelName);
-            })->then(function () use ($connection) {
+            })
+            ->then(function () use ($connection) {
                 return $this->removeConnectionFromSet($connection);
-            })->then(function () use ($connection, $channelName, $payload) {
+            })
+            ->then(function () use ($connection, $channelName, $payload) {
                 return parent::unsubscribeFromChannel($connection, $channelName, $payload);
             });
     }
@@ -211,9 +220,10 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function subscribeToApp($appId): PromiseInterface
     {
-        return $this->subscribeToTopic($appId)->then(function () use ($appId) {
-            return $this->incrementSubscriptionsCount($appId);
-        });
+        return $this->subscribeToTopic($appId)
+            ->then(function () use ($appId) {
+                return $this->incrementSubscriptionsCount($appId);
+            });
     }
 
     /**
@@ -225,9 +235,10 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromApp($appId): PromiseInterface
     {
-        return $this->unsubscribeFromTopic($appId)->then(function () use ($appId) {
-            return $this->decrementSubscriptionsCount($appId);
-        });
+        return $this->unsubscribeFromTopic($appId)
+            ->then(function () use ($appId) {
+                return $this->decrementSubscriptionsCount($appId);
+            });
     }
 
     /**
@@ -297,7 +308,8 @@ class RedisChannelManager extends LocalChannelManager
         return $this->storeUserData($connection->app->id, $channel, $connection->socketId, json_encode($user))
             ->then(function () use ($connection, $channel, $user) {
                 return $this->addUserSocket($connection->app->id, $channel, $user, $connection->socketId);
-            })->then(function () use ($connection, $user, $channel, $payload) {
+            })
+            ->then(function () use ($connection, $user, $channel, $payload) {
                 return parent::userJoinedPresenceChannel($connection, $user, $channel, $payload);
             });
     }
@@ -316,7 +328,8 @@ class RedisChannelManager extends LocalChannelManager
         return $this->removeUserData($connection->app->id, $channel, $connection->socketId)
             ->then(function () use ($connection, $channel, $user) {
                 return $this->removeUserSocket($connection->app->id, $channel, $user, $connection->socketId);
-            })->then(function () use ($connection, $user, $channel) {
+            })
+            ->then(function () use ($connection, $user, $channel) {
                 return parent::userLeftPresenceChannel($connection, $user, $channel);
             });
     }
@@ -370,9 +383,10 @@ class RedisChannelManager extends LocalChannelManager
             );
         }
 
-        return $this->publishClient->exec()->then(function ($data) use ($channelNames) {
-            return array_combine($channelNames, $data);
-        });
+        return $this->publishClient->exec()
+            ->then(function ($data) use ($channelNames) {
+                return array_combine($channelNames, $data);
+            });
     }
 
     /**
@@ -399,9 +413,10 @@ class RedisChannelManager extends LocalChannelManager
     public function connectionPonged(ConnectionInterface $connection): PromiseInterface
     {
         // This will update the score with the current timestamp.
-        return $this->addConnectionToSet($connection, Carbon::now())->then(function () use ($connection) {
-            return parent::connectionPonged($connection);
-        });
+        return $this->addConnectionToSet($connection, Carbon::now())
+            ->then(function () use ($connection) {
+                return parent::connectionPonged($connection);
+            });
     }
 
     /**
@@ -412,13 +427,14 @@ class RedisChannelManager extends LocalChannelManager
     public function removeObsoleteConnections(): PromiseInterface
     {
         $this->lock()->get(function () {
-            $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))->then(function ($connections) {
-                foreach ($connections as $socketId => $appId) {
-                    $connection = $this->fakeConnectionForApp($appId, $socketId);
+            $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+                ->then(function ($connections) {
+                    foreach ($connections as $socketId => $appId) {
+                        $connection = $this->fakeConnectionForApp($appId, $socketId);
 
-                    $this->unsubscribeFromAllChannels($connection);
-                }
-            });
+                        $this->unsubscribeFromAllChannels($connection);
+                    }
+                });
         });
 
         return parent::removeObsoleteConnections();

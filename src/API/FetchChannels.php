@@ -28,48 +28,50 @@ class FetchChannels extends Controller
             }
         }
 
-        return $this->channelManager->getGlobalChannels($request->appId)->then(function ($channels) use ($request, $attributes) {
-            $channels = collect($channels)->keyBy(function ($channel) {
-                return $channel instanceof Channel
-                    ? $channel->getName()
-                    : $channel;
+        return $this->channelManager
+            ->getGlobalChannels($request->appId)
+            ->then(function ($channels) use ($request, $attributes) {
+                $channels = collect($channels)->keyBy(function ($channel) {
+                    return $channel instanceof Channel
+                        ? $channel->getName()
+                        : $channel;
+                });
+
+                if ($request->has('filter_by_prefix')) {
+                    $channels = $channels->filter(function ($channel, $channelName) use ($request) {
+                        return Str::startsWith($channelName, $request->filter_by_prefix);
+                    });
+                }
+
+                $channelNames = $channels->map(function ($channel) {
+                    return $channel instanceof Channel
+                        ? $channel->getName()
+                        : $channel;
+                })->toArray();
+
+                return $this->channelManager
+                    ->getChannelsMembersCount($request->appId, $channelNames)
+                    ->then(function ($counts) use ($channels, $attributes) {
+                        $channels = $channels->map(function ($channel) use ($counts, $attributes) {
+                            $info = new stdClass;
+
+                            $channelName = $channel instanceof Channel
+                                ? $channel->getName()
+                                : $channel;
+
+                            if (in_array('user_count', $attributes)) {
+                                $info->user_count = $counts[$channelName];
+                            }
+
+                            return $info;
+                        })->sortBy(function ($content, $name) {
+                            return $name;
+                        })->all();
+
+                        return [
+                            'channels' => $channels ?: new stdClass,
+                        ];
+                    });
             });
-
-            if ($request->has('filter_by_prefix')) {
-                $channels = $channels->filter(function ($channel, $channelName) use ($request) {
-                    return Str::startsWith($channelName, $request->filter_by_prefix);
-                });
-            }
-
-            $channelNames = $channels->map(function ($channel) {
-                return $channel instanceof Channel
-                    ? $channel->getName()
-                    : $channel;
-            })->toArray();
-
-            return $this->channelManager
-                ->getChannelsMembersCount($request->appId, $channelNames)
-                ->then(function ($counts) use ($channels, $attributes) {
-                    $channels = $channels->map(function ($channel) use ($counts, $attributes) {
-                        $info = new stdClass;
-
-                        $channelName = $channel instanceof Channel
-                            ? $channel->getName()
-                            : $channel;
-
-                        if (in_array('user_count', $attributes)) {
-                            $info->user_count = $counts[$channelName];
-                        }
-
-                        return $info;
-                    })->sortBy(function ($content, $name) {
-                        return $name;
-                    })->all();
-
-                    return [
-                        'channels' => $channels ?: new stdClass,
-                    ];
-                });
-        });
     }
 }

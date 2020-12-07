@@ -20,21 +20,27 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($activeConnection);
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'public-channel')->then(function ($count) {
-            $this->assertEquals(2, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'public-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
 
         $this->channelManager->removeObsoleteConnections();
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'public-channel')->then(function ($count) {
-            $this->assertEquals(1, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'public-channel')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
 
-        $this->channelManager->getLocalConnections()->then(function ($connections) use ($activeConnection) {
-            $connection = $connections[$activeConnection->socketId];
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) use ($activeConnection) {
+                $connection = $connections[$activeConnection->socketId];
 
-            $this->assertEquals($activeConnection->socketId, $connection->socketId);
-        });
+                $this->assertEquals($activeConnection->socketId, $connection->socketId);
+            });
     }
 
     public function test_not_ponged_connections_do_get_removed_on_local_for_private_channels()
@@ -51,21 +57,27 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($activeConnection);
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'private-channel')->then(function ($count) {
-            $this->assertEquals(2, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
 
         $this->channelManager->removeObsoleteConnections();
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'private-channel')->then(function ($count) {
-            $this->assertEquals(1, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
 
-        $this->channelManager->getLocalConnections()->then(function ($connections) use ($activeConnection) {
-            $connection = $connections[$activeConnection->socketId];
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) use ($activeConnection) {
+                $connection = $connections[$activeConnection->socketId];
 
-            $this->assertEquals($activeConnection->socketId, $connection->socketId);
-        });
+                $this->assertEquals($activeConnection->socketId, $connection->socketId);
+            });
     }
 
     public function test_not_ponged_connections_do_get_removed_on_local_for_presence_channels()
@@ -82,28 +94,38 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($activeConnection);
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($count) {
-            $this->assertEquals(2, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($count) {
+                $this->assertEquals(2, $count);
+            });
 
-        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
-            $this->assertCount(2, $members);
-        });
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(2, $members);
+            });
 
         $this->channelManager->removeObsoleteConnections();
 
-        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($count) {
-            $this->assertEquals(1, $count);
-        });
+        $this->channelManager
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->then(function ($count) {
+                $this->assertEquals(1, $count);
+            });
 
-        $this->channelManager->getLocalConnections()->then(function ($connections) use ($activeConnection) {
-            $connection = $connections[$activeConnection->socketId];
+        $this->channelManager
+            ->getLocalConnections()
+            ->then(function ($connections) use ($activeConnection) {
+                $connection = $connections[$activeConnection->socketId];
 
-            $this->assertEquals($activeConnection->socketId, $connection->socketId);
-        });
+                $this->assertEquals($activeConnection->socketId, $connection->socketId);
+            });
 
-        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
-            $this->assertCount(1, $members);
-        });
+        $this->channelManager
+            ->getChannelMembers('1234', 'presence-channel')
+            ->then(function ($members) {
+                $this->assertCount(1, $members);
+            });
     }
 }
