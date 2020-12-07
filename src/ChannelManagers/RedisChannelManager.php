@@ -265,7 +265,7 @@ class RedisChannelManager extends LocalChannelManager
     public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
         return $this->publishClient
-            ->hget($this->getRedisKey($appId, $channelName, ['stats']), 'current_connections_count')
+            ->hget($this->getRedisKey($appId, $channelName, ['stats']), 'connections')
             ->then(function ($count) {
                 return is_null($count) ? 0 : (int) $count;
             });
@@ -559,7 +559,7 @@ class RedisChannelManager extends LocalChannelManager
     public function incrementSubscriptionsCount($appId, string $channel = null, int $increment = 1): PromiseInterface
     {
         return $this->publishClient->hincrby(
-            $this->getRedisKey($appId, $channel, ['stats']), 'current_connections_count', $increment
+            $this->getRedisKey($appId, $channel, ['stats']), 'connections', $increment
         );
     }
 
