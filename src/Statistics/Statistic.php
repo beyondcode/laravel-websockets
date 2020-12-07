@@ -178,7 +178,7 @@ class Statistic
     public function reset(int $currentConnectionsCount)
     {
         $this->currentConnectionsCount = $currentConnectionsCount;
-        $this->peakConnectionsCount = $currentConnectionsCount;
+        $this->peakConnectionsCount = max(0, $currentConnectionsCount);
         $this->webSocketMessagesCount = 0;
         $this->apiMessagesCount = 0;
     }

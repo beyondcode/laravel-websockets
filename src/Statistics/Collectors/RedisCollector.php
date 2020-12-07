@@ -249,7 +249,7 @@ class RedisCollector extends MemoryCollector
 
         $this->channelManager->getPublishClient()->hset(
             $this->channelManager->getRedisKey($appId, null, ['stats']),
-            'peak_connections_count', $currentConnectionCount
+            'peak_connections_count', max(0, $currentConnectionCount)
         );
 
         $this->channelManager->getPublishClient()->hset(
