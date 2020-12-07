@@ -92,6 +92,12 @@ class MemoryCollector implements StatisticsCollector
                     continue;
                 }
 
+                if ($statistic->shouldHaveTracesRemoved()) {
+                    $this->resetAppTraces($appId);
+
+                    continue;
+                }
+
                 $this->createRecord($statistic, $appId);
 
                 $this->channelManager->getGlobalConnectionsCount($appId)->then(function ($connections) use ($statistic) {
@@ -134,6 +140,18 @@ class MemoryCollector implements StatisticsCollector
         return Helpers::createFulfilledPromise(
             $this->statistics[$appId] ?? null
         );
+    }
+
+    /**
+     * Remove all app traces from the database if no connections have been set
+     * in the meanwhile since last save.
+     *
+     * @param  string|int  $appId
+     * @return void
+     */
+    public function resetAppTraces($appId)
+    {
+        unset($this->statistics[$appId]);
     }
 
     /**

@@ -66,4 +66,13 @@ interface StatisticsCollector
      * @return PromiseInterface[\BeyondCode\LaravelWebSockets\Statistics\Statistic|null]
      */
     public function getAppStatistics($appId): PromiseInterface;
+
+    /**
+     * Remove all app traces from the database if no connections have been set
+     * in the meanwhile since last save.
+     *
+     * @param  string|int  $appId
+     * @return void
+     */
+    public function resetAppTraces($appId);
 }

@@ -184,6 +184,18 @@ class Statistic
     }
 
     /**
+     * Check if the current statistic entry is empty. This means
+     * that the statistic entry can be easily deleted if no activity
+     * occured for a while.
+     *
+     * @return bool
+     */
+    public function shouldHaveTracesRemoved(): bool
+    {
+        return $this->currentConnectionsCount === 0 && $this->peakConnectionsCount === 0;
+    }
+
+    /**
      * Transform the statistic to array.
      *
      * @return array
