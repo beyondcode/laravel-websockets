@@ -54,8 +54,7 @@ class PresenceChannel extends PrivateChannel
                             ]),
                         ]));
                     });
-            })
-            ->then(function () use ($connection, $user, $payload) {
+            })->then(function () use ($connection, $user, $payload) {
                 // The `pusher_internal:member_added` event is triggered when a user joins a channel.
                 // It's quite possible that a user can have multiple connections to the same channel
                 // (for example by having multiple browser tabs open)
@@ -104,50 +103,47 @@ class PresenceChannel extends PrivateChannel
     {
         $truth = parent::unsubscribe($connection);
 
-        $this->channelManager
-            ->getChannelMember($connection, $this->getName())
-            ->then(function ($user) {
-                return @json_decode($user);
-            })
-            ->then(function ($user) use ($connection) {
-                if (! $user) {
-                    return;
-                }
+        $this->channelManager->getChannelMember($connection, $this->getName())->then(function ($user) {
+            return @json_decode($user);
+        })->then(function ($user) use ($connection) {
+            if (! $user) {
+                return;
+            }
 
-                $this->channelManager
-                    ->userLeftPresenceChannel($connection, $user, $this->getName())
-                    ->then(function () use ($connection, $user) {
-                        // The `pusher_internal:member_removed` is triggered when a user leaves a channel.
-                        // It's quite possible that a user can have multiple connections to the same channel
-                        // (for example by having multiple browser tabs open)
-                        // and in this case the events will only be triggered when the last one is closed.
-                        $this->channelManager
-                            ->getMemberSockets($user->user_id, $connection->app->id, $this->getName())
-                            ->then(function ($sockets) use ($connection, $user) {
-                                if (count($sockets) === 0) {
-                                    $memberRemovedPayload = [
-                                        'event' => 'pusher_internal:member_removed',
-                                        'channel' => $this->getName(),
-                                        'data' => json_encode([
-                                            'user_id' => $user->user_id,
-                                        ]),
-                                    ];
+            $this->channelManager
+                ->userLeftPresenceChannel($connection, $user, $this->getName())
+                ->then(function () use ($connection, $user) {
+                    // The `pusher_internal:member_removed` is triggered when a user leaves a channel.
+                    // It's quite possible that a user can have multiple connections to the same channel
+                    // (for example by having multiple browser tabs open)
+                    // and in this case the events will only be triggered when the last one is closed.
+                    $this->channelManager
+                        ->getMemberSockets($user->user_id, $connection->app->id, $this->getName())
+                        ->then(function ($sockets) use ($connection, $user) {
+                            if (count($sockets) === 0) {
+                                $memberRemovedPayload = [
+                                    'event' => 'pusher_internal:member_removed',
+                                    'channel' => $this->getName(),
+                                    'data' => json_encode([
+                                        'user_id' => $user->user_id,
+                                    ]),
+                                ];
 
-                                    $this->broadcastToEveryoneExcept(
-                                        (object) $memberRemovedPayload, $connection->socketId,
-                                        $connection->app->id
-                                    );
+                                $this->broadcastToEveryoneExcept(
+                                    (object) $memberRemovedPayload, $connection->socketId,
+                                    $connection->app->id
+                                );
 
-                                    UnsubscribedFromChannel::dispatch(
-                                        $connection->app->id,
-                                        $connection->socketId,
-                                        $this->getName(),
-                                        $user
-                                    );
-                                }
-                            });
-                    });
-            });
+                                UnsubscribedFromChannel::dispatch(
+                                    $connection->app->id,
+                                    $connection->socketId,
+                                    $this->getName(),
+                                    $user
+                                );
+                            }
+                        });
+                });
+        });
 
         return $truth;
     }

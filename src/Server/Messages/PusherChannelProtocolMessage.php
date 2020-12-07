@@ -32,13 +32,11 @@ class PusherChannelProtocolMessage extends PusherClientMessage
      */
     protected function ping(ConnectionInterface $connection)
     {
-        $this->channelManager
-            ->connectionPonged($connection)
-            ->then(function () use ($connection) {
-                $connection->send(json_encode(['event' => 'pusher:pong']));
+        $this->channelManager->connectionPonged($connection)->then(function () use ($connection) {
+            $connection->send(json_encode(['event' => 'pusher:pong']));
 
-                ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
-            });
+            ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
+        });
     }
 
     /**

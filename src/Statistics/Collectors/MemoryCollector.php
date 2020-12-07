@@ -98,13 +98,11 @@ class MemoryCollector implements StatisticsCollector
 
                 $this->createRecord($statistic, $appId);
 
-                $this->channelManager
-                    ->getGlobalConnectionsCount($appId)
-                    ->then(function ($connections) use ($statistic) {
-                        $statistic->reset(
-                            is_null($connections) ? 0 : $connections
-                        );
-                    });
+                $this->channelManager->getGlobalConnectionsCount($appId)->then(function ($connections) use ($statistic) {
+                    $statistic->reset(
+                        is_null($connections) ? 0 : $connections
+                    );
+                });
             }
         });
     }

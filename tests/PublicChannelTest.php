@@ -14,11 +14,9 @@ class PublicChannelTest extends TestCase
     {
         $connection = $this->newActiveConnection(['public-channel']);
 
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'public-channel')
-            ->then(function ($total) {
-                $this->assertEquals(1, $total);
-            });
+        $this->channelManager->getGlobalConnectionsCount('1234', 'public-channel')->then(function ($total) {
+            $this->assertEquals(1, $total);
+        });
 
         $connection->assertSentEvent(
             'pusher:connection_established',
@@ -40,11 +38,9 @@ class PublicChannelTest extends TestCase
     {
         $connection = $this->newActiveConnection(['public-channel']);
 
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'public-channel')
-            ->then(function ($total) {
-                $this->assertEquals(1, $total);
-            });
+        $this->channelManager->getGlobalConnectionsCount('1234', 'public-channel')->then(function ($total) {
+            $this->assertEquals(1, $total);
+        });
 
         $message = new Mocks\Message([
             'event' => 'pusher:unsubscribe',
@@ -55,11 +51,9 @@ class PublicChannelTest extends TestCase
 
         $this->pusherServer->onMessage($connection, $message);
 
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'public-channel')
-            ->then(function ($total) {
-                $this->assertEquals(0, $total);
-            });
+        $this->channelManager->getGlobalConnectionsCount('1234', 'public-channel')->then(function ($total) {
+            $this->assertEquals(0, $total);
+        });
     }
 
     public function test_can_whisper_to_public_channel()
@@ -103,22 +97,18 @@ class PublicChannelTest extends TestCase
         $rick = $this->newActiveConnection(['public-channel']);
         $morty = $this->newActiveConnection(['public-channel']);
 
-        $this->statisticsCollector
-            ->getStatistics()
-            ->then(function ($statistics) {
-                $this->assertCount(1, $statistics);
-            });
+        $this->statisticsCollector->getStatistics()->then(function ($statistics) {
+            $this->assertCount(1, $statistics);
+        });
 
-        $this->statisticsCollector
-            ->getAppStatistics('1234')
-            ->then(function ($statistic) {
-                $this->assertEquals([
-                    'peak_connections_count' => 2,
-                    'websocket_messages_count' => 2,
-                    'api_messages_count' => 0,
-                    'app_id' => '1234',
-                ], $statistic->toArray());
-            });
+        $this->statisticsCollector->getAppStatistics('1234')->then(function ($statistic) {
+            $this->assertEquals([
+                'peak_connections_count' => 2,
+                'websocket_messages_count' => 2,
+                'api_messages_count' => 0,
+                'app_id' => '1234',
+            ], $statistic->toArray());
+        });
     }
 
     public function test_local_connections_for_public_channels()
@@ -126,17 +116,15 @@ class PublicChannelTest extends TestCase
         $this->newActiveConnection(['public-channel']);
         $this->newActiveConnection(['public-channel-2']);
 
-        $this->channelManager
-            ->getLocalConnections()
-            ->then(function ($connections) {
-                $this->assertCount(2, $connections);
+        $this->channelManager->getLocalConnections()->then(function ($connections) {
+            $this->assertCount(2, $connections);
 
-                foreach ($connections as $connection) {
-                    $this->assertInstanceOf(
-                        ConnectionInterface::class, $connection
-                    );
-                }
-            });
+            foreach ($connections as $connection) {
+                $this->assertInstanceOf(
+                    ConnectionInterface::class, $connection
+                );
+            }
+        });
     }
 
     public function test_events_are_processed_by_on_message_on_public_channels()
@@ -201,11 +189,10 @@ class PublicChannelTest extends TestCase
         $this->getSubscribeClient()
             ->assertNothingDispatched();
 
-        $this->getPublishClient()
-            ->assertCalledWithArgs('publish', [
-                $this->channelManager->getRedisKey('1234', 'public-channel'),
-                $message->getPayload(),
-            ]);
+        $this->getPublishClient()->assertCalledWithArgs('publish', [
+            $this->channelManager->getRedisKey('1234', 'public-channel'),
+            $message->getPayload(),
+        ]);
     }
 
     public function test_it_fires_the_event_to_public_channel()
@@ -239,16 +226,14 @@ class PublicChannelTest extends TestCase
 
         $this->assertSame([], json_decode($response->getContent(), true));
 
-        $this->statisticsCollector
-            ->getAppStatistics('1234')
-            ->then(function ($statistic) {
-                $this->assertEquals([
-                    'peak_connections_count' => 1,
-                    'websocket_messages_count' => 1,
-                    'api_messages_count' => 1,
-                    'app_id' => '1234',
-                ], $statistic->toArray());
-            });
+        $this->statisticsCollector->getAppStatistics('1234')->then(function ($statistic) {
+            $this->assertEquals([
+                'peak_connections_count' => 1,
+                'websocket_messages_count' => 1,
+                'api_messages_count' => 1,
+                'app_id' => '1234',
+            ], $statistic->toArray());
+        });
     }
 
     public function test_it_fires_event_across_servers_when_there_are_not_users_locally_for_public_channel()
@@ -281,19 +266,17 @@ class PublicChannelTest extends TestCase
         $this->assertSame([], json_decode($response->getContent(), true));
 
         if (method_exists($this->channelManager, 'getPublishClient')) {
-            $this->channelManager
-                ->getPublishClient()
-                ->assertCalledWithArgsCount(1, 'publish', [
-                    $this->channelManager->getRedisKey('1234', 'public-channel'),
-                    json_encode([
-                        'event' => 'some-event',
-                        'channel' => 'public-channel',
-                        'data' => json_encode(['some-data' => 'yes']),
-                        'appId' => '1234',
-                        'socketId' => null,
-                        'serverId' => $this->channelManager->getServerId(),
-                    ]),
-                ]);
+            $this->channelManager->getPublishClient()->assertCalledWithArgsCount(1, 'publish', [
+                $this->channelManager->getRedisKey('1234', 'public-channel'),
+                json_encode([
+                    'event' => 'some-event',
+                    'channel' => 'public-channel',
+                    'data' => json_encode(['some-data' => 'yes']),
+                    'appId' => '1234',
+                    'socketId' => null,
+                    'serverId' => $this->channelManager->getServerId(),
+                ]),
+            ]);
         }
     }
 
@@ -329,19 +312,17 @@ class PublicChannelTest extends TestCase
         $this->assertSame([], json_decode($response->getContent(), true));
 
         if (method_exists($this->channelManager, 'getPublishClient')) {
-            $this->channelManager
-                ->getPublishClient()
-                ->assertCalledWithArgsCount(1, 'publish', [
-                    $this->channelManager->getRedisKey('1234', 'public-channel'),
-                    json_encode([
-                        'event' => 'some-event',
-                        'channel' => 'public-channel',
-                        'data' => json_encode(['some-data' => 'yes']),
-                        'appId' => '1234',
-                        'socketId' => null,
-                        'serverId' => $this->channelManager->getServerId(),
-                    ]),
-                ]);
+            $this->channelManager->getPublishClient()->assertCalledWithArgsCount(1, 'publish', [
+                $this->channelManager->getRedisKey('1234', 'public-channel'),
+                json_encode([
+                    'event' => 'some-event',
+                    'channel' => 'public-channel',
+                    'data' => json_encode(['some-data' => 'yes']),
+                    'appId' => '1234',
+                    'socketId' => null,
+                    'serverId' => $this->channelManager->getServerId(),
+                ]),
+            ]);
         }
 
         $wsConnection->assertSentEvent('some-event', [

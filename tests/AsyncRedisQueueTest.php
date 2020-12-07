@@ -62,11 +62,9 @@ class AsyncRedisQueueTest extends TestCase
         $this->queue->later(-300, $jobs[2]);
         $this->queue->later(-100, $jobs[3]);
 
-        $this->getPublishClient()
-            ->zcard('queues:default:delayed')
-            ->then(function ($count) {
-                $this->assertEquals(4, $count);
-            });
+        $this->getPublishClient()->zcard('queues:default:delayed')->then(function ($count) {
+            $this->assertEquals(4, $count);
+        });
 
         $this->unregisterManagers();
 
@@ -87,8 +85,7 @@ class AsyncRedisQueueTest extends TestCase
 
         $this->unregisterManagers();
 
-        $this->getPublishClient()
-            ->assertCalledCount(1, 'eval');
+        $this->getPublishClient()->assertCalledCount(1, 'eval');
 
         $redisJob = $this->queue->pop();
 
@@ -126,8 +123,7 @@ class AsyncRedisQueueTest extends TestCase
 
         $this->unregisterManagers();
 
-        $this->getPublishClient()
-            ->assertCalledCount(1, 'eval');
+        $this->getPublishClient()->assertCalledCount(1, 'eval');
 
         $redisJob = $this->queue->pop();
 
@@ -152,8 +148,7 @@ class AsyncRedisQueueTest extends TestCase
         $this->queue->push($job1);
         $this->queue->push($job2);
 
-        $this->getPublishClient()
-            ->assertCalledCount(2, 'eval');
+        $this->getPublishClient()->assertCalledCount(2, 'eval');
 
         $this->unregisterManagers();
 

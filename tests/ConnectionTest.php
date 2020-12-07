@@ -54,31 +54,23 @@ class ConnectionTest extends TestCase
     {
         $connection = $this->newActiveConnection(['public-channel']);
 
-        $this->channelManager
-            ->getGlobalChannels('1234')
-            ->then(function ($channels) {
-                $this->assertCount(1, $channels);
-            });
+        $this->channelManager->getGlobalChannels('1234')->then(function ($channels) {
+            $this->assertCount(1, $channels);
+        });
 
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234')
-            ->then(function ($total) {
-                $this->assertEquals(1, $total);
-            });
+        $this->channelManager->getGlobalConnectionsCount('1234')->then(function ($total) {
+            $this->assertEquals(1, $total);
+        });
 
         $this->pusherServer->onClose($connection);
 
-        $this->channelManager
-            ->getGlobalConnectionsCount('1234')
-            ->then(function ($total) {
-                $this->assertEquals(0, $total);
-            });
+        $this->channelManager->getGlobalConnectionsCount('1234')->then(function ($total) {
+            $this->assertEquals(0, $total);
+        });
 
-        $this->channelManager
-            ->getGlobalChannels('1234')
-            ->then(function ($channels) {
-                $this->assertCount(0, $channels);
-            });
+        $this->channelManager->getGlobalChannels('1234')->then(function ($channels) {
+            $this->assertCount(0, $channels);
+        });
     }
 
     public function test_websocket_exceptions_are_sent()
