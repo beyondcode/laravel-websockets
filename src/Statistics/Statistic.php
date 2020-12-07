@@ -178,9 +178,21 @@ class Statistic
     public function reset(int $currentConnectionsCount)
     {
         $this->currentConnectionsCount = $currentConnectionsCount;
-        $this->peakConnectionsCount = $currentConnectionsCount;
+        $this->peakConnectionsCount = max(0, $currentConnectionsCount);
         $this->webSocketMessagesCount = 0;
         $this->apiMessagesCount = 0;
+    }
+
+    /**
+     * Check if the current statistic entry is empty. This means
+     * that the statistic entry can be easily deleted if no activity
+     * occured for a while.
+     *
+     * @return bool
+     */
+    public function shouldHaveTracesRemoved(): bool
+    {
+        return $this->currentConnectionsCount === 0 && $this->peakConnectionsCount === 0;
     }
 
     /**

@@ -170,6 +170,10 @@ class RedisCollector extends MemoryCollector
                                     $appId, Helpers::redisListToArray($list)
                                 );
 
+                                if ($statistic->shouldHaveTracesRemoved()) {
+                                    return $this->resetAppTraces($appId);
+                                }
+
                                 $this->createRecord($statistic, $appId);
 
                                 $this->channelManager
@@ -265,7 +269,7 @@ class RedisCollector extends MemoryCollector
             ->getPublishClient()
             ->hset(
                 $this->channelManager->getRedisKey($appId, null, ['stats']),
-                'peak_connections_count', $currentConnectionCount
+                'peak_connections_count', max(0, $currentConnectionCount)
             );
 
         $this->channelManager
@@ -292,6 +296,8 @@ class RedisCollector extends MemoryCollector
      */
     public function resetAppTraces($appId)
     {
+        parent::resetAppTraces($appId);
+
         $this->channelManager
             ->getPublishClient()
             ->hdel(
