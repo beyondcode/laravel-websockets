@@ -170,7 +170,7 @@ class PresenceChannelTest extends TestCase
         $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
             $this->assertEquals(0, $total);
         });
-}
+    }
 
     public function test_can_whisper_to_private_channel()
     {
