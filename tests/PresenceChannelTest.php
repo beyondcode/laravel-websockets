@@ -117,6 +117,18 @@ class PresenceChannelTest extends TestCase
         $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
             $this->assertCount(2, $members);
         });
+
+        $this->pusherServer->onClose($rick);
+        $this->pusherServer->onClose($morty);
+        $this->pusherServer->onClose($pickleRick);
+
+        $this->channelManager->getGlobalConnectionsCount('1234', 'presence-channel')->then(function ($total) {
+            $this->assertEquals(3, $total);
+        });
+
+        $this->channelManager->getChannelMembers('1234', 'presence-channel')->then(function ($members) {
+            $this->assertCount(2, $members);
+        });
     }
 
     public function test_presence_channel_broadcast_member_events()
