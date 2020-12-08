@@ -56,7 +56,9 @@ class WebSocketHandler implements MessageComponentInterface
             /** @var \GuzzleHttp\Psr7\Request $request */
             $request = $connection->httpRequest;
 
-            StatisticsCollector::connection($connection->app->id);
+            if ($connection->app->statisticsEnabled) {
+                StatisticsCollector::connection($connection->app->id);
+            }
 
             $this->channelManager->subscribeToApp($connection->app->id);
 
@@ -88,7 +90,9 @@ class WebSocketHandler implements MessageComponentInterface
             $message, $connection, $this->channelManager
         )->respond();
 
-        StatisticsCollector::webSocketMessage($connection->app->id);
+        if ($connection->app->statisticsEnabled) {
+            StatisticsCollector::webSocketMessage($connection->app->id);
+        }
 
         WebSocketMessageReceived::dispatch(
             $connection->app->id,
@@ -109,7 +113,9 @@ class WebSocketHandler implements MessageComponentInterface
             ->unsubscribeFromAllChannels($connection)
             ->then(function (bool $unsubscribed) use ($connection) {
                 if (isset($connection->app)) {
-                    StatisticsCollector::disconnection($connection->app->id);
+                    if ($connection->app->statisticsEnabled) {
+                        StatisticsCollector::disconnection($connection->app->id);
+                    }
 
                     $this->channelManager->unsubscribeFromApp($connection->app->id);
 

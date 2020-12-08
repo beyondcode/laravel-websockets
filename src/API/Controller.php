@@ -52,6 +52,13 @@ abstract class Controller implements HttpServerInterface
     protected $channelManager;
 
     /**
+     * The app attached with this request.
+     *
+     * @var \BeyondCode\LaravelWebSockets\Apps\App|null
+     */
+    protected $app;
+
+    /**
      * Initialize the request.
      *
      * @param  ChannelManager  $channelManager
@@ -176,8 +183,7 @@ abstract class Controller implements HttpServerInterface
 
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
-        $this
-            ->ensureValidAppId($laravelRequest->appId)
+        $this->ensureValidAppId($laravelRequest->get('appId'))
             ->ensureValidSignature($laravelRequest);
 
         // Invoke the controller action
@@ -220,7 +226,7 @@ abstract class Controller implements HttpServerInterface
      */
     public function ensureValidAppId($appId)
     {
-        if (! App::findById($appId)) {
+        if (! $appId || ! $this->app = App::findById($appId)) {
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
         }
 
@@ -252,9 +258,7 @@ abstract class Controller implements HttpServerInterface
 
         $signature = "{$request->getMethod()}\n/{$request->path()}\n".Pusher::array_implode('=', '&', $params);
 
-        $app = App::findById($request->get('appId'));
-
-        $authSignature = hash_hmac('sha256', $signature, $app->secret);
+        $authSignature = hash_hmac('sha256', $signature, $this->app->secret);
 
         if ($authSignature !== $request->get('auth_signature')) {
             throw new HttpException(401, 'Invalid auth signature provided.');
