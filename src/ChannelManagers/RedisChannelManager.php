@@ -48,14 +48,6 @@ class RedisChannelManager extends LocalChannelManager
     protected $redis;
 
     /**
-     * The lock name to use on Redis to avoid multiple
-     * actions that might lead to multiple processings.
-     *
-     * @var string
-     */
-    protected static $lockName = 'laravel-websockets:channel-manager:lock';
-
-    /**
      * Create a new channel manager instance.
      *
      * @param  LoopInterface  $loop
