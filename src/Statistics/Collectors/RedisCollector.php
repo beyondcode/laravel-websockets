@@ -56,7 +56,7 @@ class RedisCollector extends MemoryCollector
     public function webSocketMessage($appId)
     {
         $this->ensureAppIsInSet($appId)
-            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'websocket_messages_count', 1);
+            ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'websocket_messages_count', 1);
     }
 
     /**
@@ -68,7 +68,7 @@ class RedisCollector extends MemoryCollector
     public function apiMessage($appId)
     {
         $this->ensureAppIsInSet($appId)
-            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'api_messages_count', 1);
+            ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'api_messages_count', 1);
     }
 
     /**
@@ -82,7 +82,7 @@ class RedisCollector extends MemoryCollector
         // Increment the current connections count by 1.
         $this->ensureAppIsInSet($appId)
             ->hincrby(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'current_connections_count', 1
             )
             ->then(function ($currentConnectionsCount) use ($appId) {
@@ -90,7 +90,7 @@ class RedisCollector extends MemoryCollector
                 $this->channelManager
                     ->getPublishClient()
                     ->hget(
-                        $this->channelManager->getRedisKey($appId, null, ['stats']),
+                        $this->channelManager->getStatsRedisHash($appId, null),
                         'peak_connections_count'
                     )
                     ->then(function ($currentPeakConnectionCount) use ($currentConnectionsCount, $appId) {
@@ -104,7 +104,7 @@ class RedisCollector extends MemoryCollector
                         $this->channelManager
                             ->getPublishClient()
                             ->hset(
-                                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                                $this->channelManager->getStatsRedisHash($appId, null),
                                 'peak_connections_count', $peakConnectionsCount
                             );
                     });
@@ -121,12 +121,12 @@ class RedisCollector extends MemoryCollector
     {
         // Decrement the current connections count by 1.
         $this->ensureAppIsInSet($appId)
-            ->hincrby($this->channelManager->getRedisKey($appId, null, ['stats']), 'current_connections_count', -1)
+            ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'current_connections_count', -1)
             ->then(function ($currentConnectionsCount) use ($appId) {
                 // Get the peak connections count from Redis.
                 $this->channelManager
                     ->getPublishClient()
-                    ->hget($this->channelManager->getRedisKey($appId, null, ['stats']), 'peak_connections_count')
+                    ->hget($this->channelManager->getStatsRedisHash($appId, null), 'peak_connections_count')
                     ->then(function ($currentPeakConnectionCount) use ($currentConnectionsCount, $appId) {
                         // Extract the greatest number between the current peak connection count
                         // and the current connection number.
@@ -138,7 +138,7 @@ class RedisCollector extends MemoryCollector
                         $this->channelManager
                             ->getPublishClient()
                             ->hset(
-                                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                                $this->channelManager->getStatsRedisHash($appId, null),
                                 'peak_connections_count', $peakConnectionsCount
                             );
                     });
@@ -160,7 +160,7 @@ class RedisCollector extends MemoryCollector
                     foreach ($members as $appId) {
                         $this->channelManager
                             ->getPublishClient()
-                            ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
+                            ->hgetall($this->channelManager->getStatsRedisHash($appId, null))
                             ->then(function ($list) use ($appId) {
                                 if (! $list) {
                                     return;
@@ -219,7 +219,7 @@ class RedisCollector extends MemoryCollector
                 foreach ($members as $appId) {
                     $this->channelManager
                         ->getPublishClient()
-                        ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
+                        ->hgetall($this->channelManager->getStatsRedisHash($appId, null))
                         ->then(function ($list) use ($appId, &$appsWithStatistics) {
                             $appsWithStatistics[$appId] = $this->arrayToStatisticInstance(
                                 $appId, Helpers::redisListToArray($list)
@@ -241,7 +241,7 @@ class RedisCollector extends MemoryCollector
     {
         return $this->channelManager
             ->getPublishClient()
-            ->hgetall($this->channelManager->getRedisKey($appId, null, ['stats']))
+            ->hgetall($this->channelManager->getStatsRedisHash($appId, null))
             ->then(function ($list) use ($appId) {
                 return $this->arrayToStatisticInstance(
                     $appId, Helpers::redisListToArray($list)
@@ -261,28 +261,28 @@ class RedisCollector extends MemoryCollector
         $this->channelManager
             ->getPublishClient()
             ->hset(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'current_connections_count', $currentConnectionCount
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hset(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'peak_connections_count', max(0, $currentConnectionCount)
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hset(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'websocket_messages_count', 0
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hset(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'api_messages_count', 0
             );
     }
@@ -301,28 +301,28 @@ class RedisCollector extends MemoryCollector
         $this->channelManager
             ->getPublishClient()
             ->hdel(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'current_connections_count'
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hdel(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'peak_connections_count'
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hdel(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'websocket_messages_count'
             );
 
         $this->channelManager
             ->getPublishClient()
             ->hdel(
-                $this->channelManager->getRedisKey($appId, null, ['stats']),
+                $this->channelManager->getStatsRedisHash($appId, null),
                 'api_messages_count'
             );
 
