@@ -27,13 +27,6 @@ class RedisChannelManager extends LocalChannelManager
     protected $loop;
 
     /**
-     * The unique server identifier.
-     *
-     * @var string
-     */
-    protected $serverId;
-
-    /**
      * The pub client.
      *
      * @var Client
@@ -71,6 +64,8 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function __construct(LoopInterface $loop, $factoryClass = null)
     {
+        parent::construct($loop, $factoryClass);
+
         $this->loop = $loop;
 
         $this->redis = Redis::connection(
@@ -88,8 +83,6 @@ class RedisChannelManager extends LocalChannelManager
         $this->subscribeClient->on('message', function ($channel, $payload) {
             $this->onMessage($channel, $payload);
         });
-
-        $this->serverId = Str::uuid()->toString();
     }
 
     /**
@@ -536,16 +529,6 @@ class RedisChannelManager extends LocalChannelManager
     public function getRedisClient()
     {
         return $this->getPublishClient();
-    }
-
-    /**
-     * Get the unique identifier for the server.
-     *
-     * @return string
-     */
-    public function getServerId(): string
-    {
-        return $this->serverId;
     }
 
     /**

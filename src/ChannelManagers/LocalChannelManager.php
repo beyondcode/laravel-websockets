@@ -54,6 +54,13 @@ class LocalChannelManager implements ChannelManager
     protected $store;
 
     /**
+     * The unique server identifier.
+     *
+     * @var string
+     */
+    protected $serverId;
+
+    /**
      * The lock name to use on Array to avoid multiple
      * actions that might lead to multiple processings.
      *
@@ -71,6 +78,7 @@ class LocalChannelManager implements ChannelManager
     public function __construct(LoopInterface $loop, $factoryClass = null)
     {
         $this->store = new ArrayStore;
+        $this->serverId = Str::uuid()->toString();
     }
 
     /**
@@ -507,6 +515,16 @@ class LocalChannelManager implements ChannelManager
         }
 
         return Channel::class;
+    }
+
+    /**
+     * Get the unique identifier for the server.
+     *
+     * @return string
+     */
+    public function getServerId(): string
+    {
+        return $this->serverId;
     }
 
     /**
