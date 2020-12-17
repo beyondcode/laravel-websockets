@@ -5,10 +5,8 @@ namespace BeyondCode\LaravelWebSockets\Apps;
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use Clue\React\SQLite\DatabaseInterface;
 use Clue\React\SQLite\Result;
-use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
-use function Clue\React\Block\await;
 
 class SQLiteAppManager implements AppManager
 {
@@ -40,7 +38,7 @@ class SQLiteAppManager implements AppManager
 
         $this->database->query('SELECT * FROM `apps`')
             ->then(function (Result $result) use ($deferred) {
-               return $deferred->resolve($result->rows);
+                return $deferred->resolve($result->rows);
             });
 
         return $deferred->promise();
@@ -98,12 +96,14 @@ class SQLiteAppManager implements AppManager
             });
 
         return $deferred->promise();
-    }/**
- * Map the app into an App instance.
- *
- * @param  array|null  $app
- * @return \BeyondCode\LaravelWebSockets\Apps\App|null
- */
+    }
+
+    /**
+     * Map the app into an App instance.
+     *
+     * @param  array|null  $app
+     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     */
     protected function convertIntoApp(?array $appAttributes): ?App
     {
         if (! $appAttributes) {
@@ -129,8 +129,8 @@ class SQLiteAppManager implements AppManager
         }
 
         $app
-            ->enableClientMessages((bool)$appAttributes['enable_client_messages'])
-            ->enableStatistics((bool)$appAttributes['enable_statistics'])
+            ->enableClientMessages((bool) $appAttributes['enable_client_messages'])
+            ->enableStatistics((bool) $appAttributes['enable_statistics'])
             ->setCapacity($appAttributes['capacity'] ?? null)
             ->setAllowedOrigins(array_filter(explode(',', $appAttributes['allowed_origins'])));
 

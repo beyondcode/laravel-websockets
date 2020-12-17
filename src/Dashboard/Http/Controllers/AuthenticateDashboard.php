@@ -4,11 +4,10 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
+use function Clue\React\Block\await;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
-use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
-use function Clue\React\Block\await;
 
 class AuthenticateDashboard
 {

@@ -70,7 +70,7 @@ class StartServer extends Command
      */
     public function handle()
     {
-        $this->laravel->singleton(LoopInterface::class, function() {
+        $this->laravel->singleton(LoopInterface::class, function () {
             return $this->loop;
         });
 
