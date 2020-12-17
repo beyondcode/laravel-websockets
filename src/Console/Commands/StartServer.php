@@ -9,14 +9,10 @@ use BeyondCode\LaravelWebSockets\Server\Loggers\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
-use Clue\React\SQLite\DatabaseInterface;
-use Clue\React\SQLite\Factory as SQLiteFactory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class StartServer extends Command
 {
@@ -65,19 +61,6 @@ class StartServer extends Command
         parent::__construct();
 
         $this->loop = LoopFactory::create();
-    }
-
-    /**
-     * @param LoopInterface $loop
-     */
-    public function setLoop(LoopInterface $loop)
-    {
-        $this->loop = $loop;
-    }
-
-    public function getServer()
-    {
-        return $this->server;
     }
 
     /**

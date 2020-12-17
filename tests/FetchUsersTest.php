@@ -10,17 +10,9 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchUsersTest extends TestCase
 {
-    protected function startServer()
-    {
-        $server = app(StartServer::class);
-        $server->setLoop($this->loop);
-        $server->handle();
-    }
 
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->startServer();
-
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Invalid auth signature provided.');
 
