@@ -49,7 +49,9 @@ class TriggerEvent extends Controller
                 $request->appId, $request->socket_id, $channelName, (object) $payload
             );
 
-            StatisticsCollector::apiMessage($request->appId);
+            if ($this->app->statisticsEnabled) {
+                StatisticsCollector::apiMessage($request->appId);
+            }
 
             DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
                 'event' => $request->name,
