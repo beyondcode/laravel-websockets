@@ -59,9 +59,9 @@ class WebSocketHandler implements MessageComponentInterface
                     /** @var \GuzzleHttp\Psr7\Request $request */
                     $request = $connection->httpRequest;
 
-            if ($connection->app->statisticsEnabled) {
-                StatisticsCollector::connection($connection->app->id);
-            }
+                    if ($connection->app->statisticsEnabled) {
+                        StatisticsCollector::connection($connection->app->id);
+                    }
 
                     $this->channelManager->subscribeToApp($connection->app->id);
 
