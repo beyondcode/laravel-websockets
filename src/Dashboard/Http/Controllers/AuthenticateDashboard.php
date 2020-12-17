@@ -6,6 +6,9 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
+use React\EventLoop\Factory;
+use React\EventLoop\LoopInterface;
+use function Clue\React\Block\await;
 
 class AuthenticateDashboard
 {
@@ -21,7 +24,7 @@ class AuthenticateDashboard
      */
     public function __invoke(Request $request)
     {
-        $app = App::findById($request->header('X-App-Id'));
+        $app = await(App::findById($request->header('X-App-Id')), app(LoopInterface::class));
 
         $broadcaster = $this->getPusherBroadcaster([
             'key' => $app->key,

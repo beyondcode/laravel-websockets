@@ -9,10 +9,10 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use function Clue\React\Block\await;
 
-class ShowDashboard
+class ShowApps
 {
     /**
-     * Show the dashboard.
+     * Show the configured apps.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \BeyondCode\LaravelWebSockets\Contracts\AppManager  $apps
@@ -20,12 +20,9 @@ class ShowDashboard
      */
     public function __invoke(Request $request, AppManager $apps)
     {
-        return view('websockets::dashboard', [
+        return view('websockets::apps', [
             'apps' => await($apps->all(), app(LoopInterface::class), 2.0),
             'port' => config('websockets.dashboard.port', 6001),
-            'channels' => DashboardLogger::$channels,
-            'logPrefix' => DashboardLogger::LOG_CHANNEL_PREFIX,
-            'refreshInterval' => config('websockets.statistics.interval_in_seconds'),
         ]);
     }
 }

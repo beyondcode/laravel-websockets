@@ -16,6 +16,7 @@ use Psr\Http\Message\RequestInterface;
 use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -178,25 +179,27 @@ abstract class Controller implements HttpServerInterface
 
         $this
             ->ensureValidAppId($laravelRequest->appId)
-            ->ensureValidSignature($laravelRequest);
+            ->then(function ($app) use ($laravelRequest, $connection) {
+                $this->ensureValidSignature($app, $laravelRequest);
 
-        // Invoke the controller action
-        $response = $this($laravelRequest);
+                // Invoke the controller action
+                $response = $this($laravelRequest);
 
-        // Allow for async IO in the controller action
-        if ($response instanceof PromiseInterface) {
-            $response->then(function ($response) use ($connection) {
+                // Allow for async IO in the controller action
+                if ($response instanceof PromiseInterface) {
+                    $response->then(function ($response) use ($connection) {
+                        $this->sendAndClose($connection, $response);
+                    });
+
+                    return;
+                }
+
+                if ($response instanceof HttpException) {
+                    throw $response;
+                }
+
                 $this->sendAndClose($connection, $response);
             });
-
-            return;
-        }
-
-        if ($response instanceof HttpException) {
-            throw $response;
-        }
-
-        $this->sendAndClose($connection, $response);
     }
 
     /**
@@ -215,27 +218,33 @@ abstract class Controller implements HttpServerInterface
      * Ensure app existence.
      *
      * @param  mixed  $appId
-     * @return $this
+     * @return PromiseInterface
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function ensureValidAppId($appId)
     {
-        if (! App::findById($appId)) {
-            throw new HttpException(401, "Unknown app id `{$appId}` provided.");
-        }
+        $deferred = new Deferred();
 
-        return $this;
+        App::findById($appId)
+            ->then(function ($app) use ($appId, $deferred) {
+                if (! $app) {
+                    throw new HttpException(401, "Unknown app id `{$appId}` provided.");
+                }
+                $deferred->resolve($app);
+            });
+
+        return $deferred->promise();
     }
 
     /**
      * Ensure signature integrity coming from an
      * authorized application.
      *
-     * @param  \GuzzleHttp\Psr7\ServerRequest  $request
+     * @param App $app
+     * @param Request $request
      * @return $this
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    protected function ensureValidSignature(Request $request)
+    protected function ensureValidSignature(App $app, Request $request)
     {
         // The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
         // The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.
@@ -251,8 +260,6 @@ abstract class Controller implements HttpServerInterface
         ksort($params);
 
         $signature = "{$request->getMethod()}\n/{$request->path()}\n".Pusher::array_implode('=', '&', $params);
-
-        $app = App::findById($request->get('appId'));
 
         $authSignature = hash_hmac('sha256', $signature, $app->secret);
 

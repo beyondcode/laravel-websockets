@@ -6,15 +6,24 @@ use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowApps;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\StoreApp;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
 use BeyondCode\LaravelWebSockets\Server\Router;
+use Clue\React\SQLite\DatabaseInterface;
+use Clue\React\SQLite\Factory as SQLiteFactory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use React\EventLoop\Factory;
+use React\EventLoop\LoopInterface;
+use SplFileInfo;
+use Symfony\Component\Finder\Finder;
+use function Clue\React\Block\await;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
@@ -37,6 +46,10 @@ class WebSocketsServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
             __DIR__.'/../database/migrations/0000_00_00_000000_rename_statistics_counters.php' => database_path('migrations/0000_00_00_000000_rename_statistics_counters.php'),
         ], 'migrations');
+
+        $this->registerEventLoop();
+
+        $this->registerSQLiteDatabase();
 
         $this->registerAsyncRedisQueueDriver();
 
@@ -61,6 +74,13 @@ class WebSocketsServiceProvider extends ServiceProvider
         //
     }
 
+    protected function registerEventLoop()
+    {
+        $this->app->singleton(LoopInterface::class, function() {
+            return Factory::create();
+        });
+    }
+
     /**
      * Register the async, non-blocking Redis queue driver.
      *
@@ -70,6 +90,30 @@ class WebSocketsServiceProvider extends ServiceProvider
     {
         Queue::extend('async-redis', function () {
             return new AsyncRedisConnector($this->app['redis']);
+        });
+    }
+
+    protected function registerSQLiteDatabase()
+    {
+        $this->app->singleton(DatabaseInterface::class, function () {
+            $factory = new SQLiteFactory($this->app->make(LoopInterface::class));
+
+            $database = $factory->openLazy(
+                config('websockets.managers.sqlite.database', ':memory:')
+            );
+
+            $migrations = (new Finder())
+                ->files()
+                ->ignoreDotFiles(true)
+                ->in(__DIR__ . '/../database/migrations/sqlite')
+                ->name('*.sql');
+
+            /** @var SplFileInfo $migration */
+            foreach ($migrations as $migration) {
+                $database->exec($migration->getContents());
+            }
+
+            return $database;
         });
     }
 
@@ -160,6 +204,8 @@ class WebSocketsServiceProvider extends ServiceProvider
             'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),
         ], function () {
             Route::get('/', ShowDashboard::class)->name('dashboard');
+            Route::get('/apps', ShowApps::class)->name('apps');
+            Route::post('/apps', StoreApp::class)->name('apps.store');
             Route::get('/api/{appId}/statistics', ShowStatistics::class)->name('statistics');
             Route::post('/auth', AuthenticateDashboard::class)->name('auth');
             Route::post('/event', SendMessage::class)->name('event');

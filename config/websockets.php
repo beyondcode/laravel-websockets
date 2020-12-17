@@ -35,12 +35,24 @@ return [
         | the use of the TCP protocol based on, for example, a list of allowed
         | applications.
         | By default, it uses the defined array in the config file, but you can
-        | anytime implement the same interface as the class and add your own
-        | custom method to retrieve the apps.
+        | choose to use SQLite or MySQL application managers, or define a
+        | custom application manager.
         |
         */
 
         'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
+
+        /*
+        |--------------------------------------------------------------------------
+        | SQLite application manager
+        |--------------------------------------------------------------------------
+        |
+        | The SQLite database to use when using the SQLite application manager.
+        |
+        */
+        'sqlite' => [
+            'database' => storage_path('laravel-websockets.sqlite'),
+        ]
 
     ],
 

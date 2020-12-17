@@ -30,6 +30,8 @@
     ],
     "require": {
         "cboden/ratchet": "^0.4.1",
+        "clue/block-react": "^1.4",
+        "clue/reactphp-sqlite": "^1.0",
         "clue/redis-react": "^2.3",
         "doctrine/dbal": "^2.9",
         "evenement/evenement": "^2.0|^3.0",
@@ -47,10 +49,10 @@
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
     },
     "require-dev": {
-        "clue/block-react": "^1.4",
+        "clue/buzz-react": "^2.9",
         "laravel/legacy-factories": "^1.1",
-        "orchestra/testbench-browser-kit": "^4.0|^5.0|^6.0",
         "orchestra/database": "^4.0|^5.0|^6.0",
+        "orchestra/testbench-browser-kit": "^4.0|^5.0|^6.0",
         "phpunit/phpunit": "^8.0|^9.0"
     },
     "suggest": {
@@ -73,6 +75,7 @@
         "sort-packages": true
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "laravel": {
             "providers": [
