@@ -3,14 +3,12 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\FetchUsers;
-use BeyondCode\LaravelWebSockets\Console\Commands\StartServer;
 use GuzzleHttp\Psr7\Request;
 use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchUsersTest extends TestCase
 {
-
     public function test_invalid_signatures_can_not_access_the_api()
     {
         $this->expectException(HttpException::class);
