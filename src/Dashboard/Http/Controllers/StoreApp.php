@@ -4,12 +4,9 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Requests\StoreAppRequest;
-use BeyondCode\LaravelWebSockets\DashboardLogger;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use React\EventLoop\Factory;
-use React\EventLoop\LoopInterface;
 use function Clue\React\Block\await;
+use Illuminate\Support\Str;
+use React\EventLoop\LoopInterface;
 
 class StoreApp
 {
@@ -23,9 +20,9 @@ class StoreApp
     public function __invoke(StoreAppRequest $request, AppManager $apps)
     {
         $appData = [
-            'id' => (string)Str::uuid(),
-            'key' => (string)Str::uuid(),
-            'secret' => (string)Str::uuid(),
+            'id' => (string) Str::uuid(),
+            'key' => (string) Str::uuid(),
+            'secret' => (string) Str::uuid(),
             'name' => $request->get('name'),
             'enable_client_messages' => $request->has('enable_client_messages'),
             'enable_statistics' => $request->has('enable_statistics'),

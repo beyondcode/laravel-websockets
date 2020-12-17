@@ -9,14 +9,10 @@ use BeyondCode\LaravelWebSockets\Server\Loggers\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
-use Clue\React\SQLite\DatabaseInterface;
-use Clue\React\SQLite\Factory as SQLiteFactory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class StartServer extends Command
 {
@@ -87,7 +83,7 @@ class StartServer extends Command
      */
     public function handle()
     {
-        $this->laravel->singleton(LoopInterface::class, function() {
+        $this->laravel->singleton(LoopInterface::class, function () {
             return $this->loop;
         });
 
