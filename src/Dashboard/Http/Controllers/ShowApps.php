@@ -3,11 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
-use BeyondCode\LaravelWebSockets\DashboardLogger;
-use Illuminate\Http\Request;
-use React\EventLoop\Factory;
-use React\EventLoop\LoopInterface;
 use function Clue\React\Block\await;
+use Illuminate\Http\Request;
+use React\EventLoop\LoopInterface;
 
 class ShowApps
 {

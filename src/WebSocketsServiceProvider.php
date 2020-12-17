@@ -23,7 +23,6 @@ use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
-use function Clue\React\Block\await;
 
 class WebSocketsServiceProvider extends ServiceProvider
 {
@@ -76,7 +75,7 @@ class WebSocketsServiceProvider extends ServiceProvider
 
     protected function registerEventLoop()
     {
-        $this->app->singleton(LoopInterface::class, function() {
+        $this->app->singleton(LoopInterface::class, function () {
             return Factory::create();
         });
     }
@@ -105,7 +104,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             $migrations = (new Finder())
                 ->files()
                 ->ignoreDotFiles(true)
-                ->in(__DIR__ . '/../database/migrations/sqlite')
+                ->in(__DIR__.'/../database/migrations/sqlite')
                 ->name('*.sql');
 
             /** @var SplFileInfo $migration */

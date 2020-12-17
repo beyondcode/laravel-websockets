@@ -52,7 +52,7 @@ return [
         */
         'sqlite' => [
             'database' => storage_path('laravel-websockets.sqlite'),
-        ]
+        ],
 
     ],
 

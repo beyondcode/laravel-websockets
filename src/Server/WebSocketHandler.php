@@ -49,7 +49,7 @@ class WebSocketHandler implements MessageComponentInterface
         }
 
         $this->verifyAppKey($connection)
-            ->then(function() use ($connection) {
+            ->then(function () use ($connection) {
                 $this->verifyOrigin($connection)
                     ->limitConcurrentConnections($connection)
                     ->generateSocketId($connection)
