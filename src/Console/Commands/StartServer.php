@@ -172,6 +172,10 @@ class StartServer extends Command
         // to receive new connections, close the current connections,
         // then stopping the loop.
 
+        if (! extension_loaded('pcntl')) {
+            return;
+        }
+
         $this->loop->addSignal(SIGTERM, function () {
             $this->line('Closing existing connections...');
 
