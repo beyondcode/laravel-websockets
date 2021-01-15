@@ -50,6 +50,13 @@ class Router
         $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
         $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users'));
         $this->get('/health', config('websockets.handlers.health'));
+        
+        $custom_handlers = config('websockets.custom_handlers');
+        if (is_array($custom_handlers)) {
+            foreach ($custom_handlers as $handler => $implementation) {
+                $this->{$implementation[0]}($handler, $implementation[1]);
+            }
+        }
     }
 
     /**
