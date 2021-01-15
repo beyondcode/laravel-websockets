@@ -278,6 +278,22 @@ return [
         'fetch_users' => \BeyondCode\LaravelWebSockets\API\FetchUsers::class,
 
     ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Route Handlers
+    |--------------------------------------------------------------------------
+    |
+    | Here you can specify custom route handlers along with the http method
+    | that will take over the incoming/outgoing websocket connections
+    |
+    | 'custom_handlers' => [
+    |
+    |     '/apps/{appId}/my_route' => ['get' , App\MyCustomRouteHandler::class],
+    |
+    | ],
+    |
+    */
 
     /*
     |--------------------------------------------------------------------------
