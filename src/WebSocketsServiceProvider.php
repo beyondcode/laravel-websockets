@@ -155,6 +155,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerDashboardRoutes()
     {
         Route::group([
+            'domain' => config('websockets.dashboard.domain'),
             'prefix' => config('websockets.dashboard.path'),
             'as' => 'laravel-websockets.',
             'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),

@@ -15,7 +15,9 @@ return [
 
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
 
-        'path' => 'laravel-websockets',
+        'domain' => env('LARAVEL_WEBSOCKETS_DOMAIN'),
+
+        'path' => env('LARAVEL_WEBSOCKETS_PATH', 'laravel-websockets'),
 
         'middleware' => [
             'web',
@@ -71,7 +73,7 @@ return [
             'enable_client_messages' => false,
             'enable_statistics' => true,
             'allowed_origins' => [
-                //
+                // env('LARAVEL_WEBSOCKETS_DOMAIN'),
             ],
         ],
     ],
