@@ -14,7 +14,7 @@ In addition to logging the events to the console, you can also use a real-time d
 The default location of the WebSocket dashboard is at `/laravel-websockets`. The routes get automatically registered.
 If you want to change the URL of the dashboard, you can configure it with the `path` setting in your `config/websockets.php` file.
 
-To access the debug dashboard, you can visit the dashboard URL of your Laravel project in the browser. 
+To access the debug dashboard, you can visit the dashboard URL of your Laravel project in the browser
 Since your WebSocket server has support for multiple apps, you can select which app you want to connect to and inspect.
 
 By pressing the "Connect" button, you can establish the WebSocket connection and see all events taking place on your WebSocket server from there on in real-time.
@@ -65,6 +65,16 @@ protected function schedule(Schedule $schedule)
 {
    $schedule->command('websockets:clean')->daily();
 }
+```
+
+## Disable Statistics
+
+Each app contains an `enable_statistics` that defines wether that app generates statistics or not. The statistics are being stored for the `interval_in_seconds` seconds and then they are inserted in the database.
+
+However, to disable it entirely and void any incoming statistic, you can call `--disable-statistics` when running the server command:
+
+```bash
+php artisan websockets:serve --disable-statistics
 ```
 
 ## Event Creator
