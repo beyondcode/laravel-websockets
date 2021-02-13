@@ -14,13 +14,35 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-vue/2.21.2/bootstrap-vue.min.js"></script>
     <style>
-        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
-        .string { color: green; }
-        .number { color: darkorange; }
-        .boolean { color: blue; }
-        .null { color: magenta; }
-        .key { color: red; }
-        .btn:focus, .btn.focus {box-shadow: none;}
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
+        }
+
+        .btn:focus, .btn.focus {
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -95,8 +117,10 @@
                         </b-card-header>
                         <b-collapse :id="`accordion-${i}`" accordion="my-accordion" role="tabpanel">
                             <b-card-body>
-                                <b-card-text v-if="log.details"><strong>Details:</strong> @{{ log.details }}</b-card-text>
-                                <b-card-text v-if="log.socketId"><strong>Socket:</strong> @{{ log.socketId }}</b-card-text>
+                                <b-card-text v-if="log.details"><strong>Details:</strong> @{{ log.details }}
+                                </b-card-text>
+                                <b-card-text v-if="log.socketId"><strong>Socket:</strong> @{{ log.socketId }}
+                                </b-card-text>
                                 <b-card-text v-if="log.time"><strong>Time:</strong> @{{ log.time }}</b-card-text>
                                 <b-card-text v-if="log.data"><strong>Data:</strong>
                                     <pre v-html="pretty(log.data)"></pre>
@@ -243,7 +267,7 @@
         this.pusher.subscribe('{{ \BeyondCode\LaravelWebSockets\Dashboard\DashboardLogger::LOG_CHANNEL_PREFIX }}statistics')
           .bind('statistics-updated', (data) => {
             var update = {
-              x:  [[data.time], [data.time], [data.time]],
+              x: [[data.time], [data.time], [data.time]],
               y: [[data.peak_connection_count], [data.websocket_message_count], [data.api_message_count]]
             };
 
