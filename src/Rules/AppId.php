@@ -3,7 +3,9 @@
 namespace BeyondCode\LaravelWebSockets\Rules;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
+use function Clue\React\Block\await;
 use Illuminate\Contracts\Validation\Rule;
+use React\EventLoop\Factory;
 
 class AppId implements Rule
 {
@@ -18,7 +20,7 @@ class AppId implements Rule
     {
         $manager = app(AppManager::class);
 
-        return $manager->findById($value) ? true : false;
+        return await($manager->findById($value), Factory::create()) ? true : false;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Apps;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
+use React\Promise\PromiseInterface;
 
 class App
 {
@@ -40,7 +41,7 @@ class App
      * Find the app by id.
      *
      * @param  string|int  $appId
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
     public static function findById($appId)
     {
@@ -51,9 +52,9 @@ class App
      * Find the app by app key.
      *
      * @param  string  $appKey
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public static function findByKey($appKey): ?self
+    public static function findByKey($appKey): PromiseInterface
     {
         return app(AppManager::class)->findByKey($appKey);
     }
@@ -62,9 +63,9 @@ class App
      * Find the app by app secret.
      *
      * @param  string  $appSecret
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public static function findBySecret($appSecret): ?self
+    public static function findBySecret($appSecret): PromiseInterface
     {
         return app(AppManager::class)->findBySecret($appSecret);
     }

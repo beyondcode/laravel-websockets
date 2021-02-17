@@ -12,6 +12,7 @@ use BeyondCode\LaravelWebSockets\ServerFactory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\LoopInterface;
 
 class StartServer extends Command
 {
@@ -69,6 +70,10 @@ class StartServer extends Command
      */
     public function handle()
     {
+        $this->laravel->singleton(LoopInterface::class, function () {
+            return $this->loop;
+        });
+
         $this->configureLoggers();
 
         $this->configureManagers();

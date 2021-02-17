@@ -3,6 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Statistics;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 class Statistic
 {
@@ -118,11 +120,17 @@ class Statistic
     /**
      * Check if the app has statistics enabled.
      *
-     * @return bool
+     * @return PromiseInterface
      */
-    public function isEnabled(): bool
+    public function isEnabled(): PromiseInterface
     {
-        return App::findById($this->appId)->statisticsEnabled;
+        $deferred = new Deferred();
+
+        App::findById($this->appId)->then(function ($app) use ($deferred) {
+            $deferred->resolve($app->statisticsEnabled);
+        });
+
+        return $deferred->promise();
     }
 
     /**

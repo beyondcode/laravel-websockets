@@ -3,37 +3,46 @@
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
+use React\Promise\PromiseInterface;
 
 interface AppManager
 {
     /**
      * Get all apps.
      *
-     * @return array[\BeyondCode\LaravelWebSockets\Apps\App]
+     * @return PromiseInterface
      */
-    public function all(): array;
+    public function all(): PromiseInterface;
 
     /**
      * Get app by id.
      *
      * @param  string|int  $appId
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findById($appId): ?App;
+    public function findById($appId): PromiseInterface;
 
     /**
      * Get app by app key.
      *
      * @param  string  $appKey
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findByKey($appKey): ?App;
+    public function findByKey($appKey): PromiseInterface;
 
     /**
      * Get app by secret.
      *
      * @param  string  $appSecret
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findBySecret($appSecret): ?App;
+    public function findBySecret($appSecret): PromiseInterface;
+
+    /**
+     * Create a new app.
+     *
+     * @param $appData
+     * @return PromiseInterface
+     */
+    public function createApp($appData): PromiseInterface;
 }

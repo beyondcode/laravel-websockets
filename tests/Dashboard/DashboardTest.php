@@ -17,7 +17,6 @@ class DashboardTest extends TestCase
     {
         $this->actingAs(factory(User::class)->create())
             ->get(route('laravel-websockets.dashboard'))
-            ->assertResponseOk()
-            ->see('WebSockets Dashboard');
+            ->assertResponseOk();
     }
 }
