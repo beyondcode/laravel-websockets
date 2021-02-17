@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\API\FetchChannels;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use Pusher\Pusher;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelsTest extends TestCase
 {
@@ -22,7 +21,7 @@ class FetchChannelsTest extends TestCase
 
         $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
@@ -147,7 +146,7 @@ class FetchChannelsTest extends TestCase
             'info' => 'user_count',
         ]);
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame('{"error":"Request must be limited to presence channels in order to fetch user_count"}', $response->getBody()->getContents());

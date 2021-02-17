@@ -40,14 +40,14 @@ class TriggerEvent extends Controller
 
             if ($channel) {
                 $channel->broadcastLocallyToEveryoneExcept(
-                    (object)$payload,
+                    (object) $payload,
                     $request->socket_id,
                     $request->appId
                 );
             }
 
             $this->channelManager->broadcastAcrossServers(
-                $request->appId, $request->socket_id, $channelName, (object)$payload
+                $request->appId, $request->socket_id, $channelName, (object) $payload
             );
 
             $deferred = new Deferred();

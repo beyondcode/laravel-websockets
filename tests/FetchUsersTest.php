@@ -3,18 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\FetchUsers;
-use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
-use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
-use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
-use BeyondCode\LaravelWebSockets\ServerFactory;
-use Clue\React\Buzz\Browser;
-use Clue\React\Buzz\Message\ResponseException;
 use GuzzleHttp\Psr7\Request;
-use Illuminate\Support\Facades\Http;
 use Pusher\Pusher;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use function Clue\React\Block\await;
 
 class FetchUsersTest extends TestCase
 {
@@ -28,7 +18,7 @@ class FetchUsersTest extends TestCase
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
@@ -44,7 +34,7 @@ class FetchUsersTest extends TestCase
             'TestKey', 'TestSecret', 'GET', $requestPath
         );
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame('{"error":"Invalid presence channel `my-channel`"}', $response->getBody()->getContents());
@@ -60,7 +50,7 @@ class FetchUsersTest extends TestCase
             'TestKey', 'TestSecret', 'GET', $requestPath
         );
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame('{"error":"Invalid presence channel `invalid-channel`"}', $response->getBody()->getContents());
