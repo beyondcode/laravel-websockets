@@ -184,6 +184,7 @@ abstract class Controller implements HttpServerInterface
                     $this->ensureValidSignature($app, $laravelRequest);
                 } catch (HttpException $exception) {
                     $this->onError($connection, $exception);
+
                     return;
                 }
 
@@ -192,6 +193,7 @@ abstract class Controller implements HttpServerInterface
                     $response = $this($laravelRequest);
                 } catch (HttpException $exception) {
                     $this->onError($connection, $exception);
+
                     return;
                 }
 
@@ -206,6 +208,7 @@ abstract class Controller implements HttpServerInterface
 
                 if ($response instanceof HttpException) {
                     $this->onError($connection, $response);
+
                     return;
                 }
 

@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\API\FetchChannel;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use Pusher\Pusher;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelTest extends TestCase
 {
@@ -22,7 +21,7 @@ class FetchChannelTest extends TestCase
 
         $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(401, $response->getStatusCode());
         $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
@@ -102,7 +101,7 @@ class FetchChannelTest extends TestCase
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
         $this->assertSame(404, $response->getStatusCode());
         $this->assertSame('{"error":"Unknown channel `invalid-channel`."}', $response->getBody()->getContents());

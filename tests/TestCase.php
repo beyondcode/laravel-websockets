@@ -10,6 +10,7 @@ use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
+use function Clue\React\Block\await;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
@@ -20,23 +21,20 @@ use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
-use function Clue\React\Block\await;
 
 abstract class TestCase extends Orchestra
 {
     const AWAIT_TIMEOUT = 5.0;
 
     /**
-     * The test Browser
+     * The test Browser.
      *
      * @var \Clue\React\Buzz\Browser
      */
     protected $browser;
 
     /**
-     * The test WebSocket server
+     * The test WebSocket server.
      *
      * @var IoServer
      */
@@ -386,8 +384,8 @@ abstract class TestCase extends Orchestra
     {
         $promise = new Deferred();
 
-        \Ratchet\Client\connect("ws://localhost:4000/app/{$appKey}", [], [], $this->loop)->then(function($conn) use ($promise) {
-            $conn->on('message', function($msg) use ($conn, $promise) {
+        \Ratchet\Client\connect("ws://localhost:4000/app/{$appKey}", [], [], $this->loop)->then(function ($conn) use ($promise) {
+            $conn->on('message', function ($msg) use ($promise) {
                 $promise->resolve($msg);
             });
         });

@@ -222,9 +222,9 @@ class PublicChannelTest extends TestCase
             ],
         );
 
-        $response = $this->await($this->browser->post('http://localhost:4000' . "{$requestPath}?{$queryString}"));
+        $response = $this->await($this->browser->post('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $this->assertSame([], json_decode((string)$response->getBody(), true));
+        $this->assertSame([], json_decode((string) $response->getBody(), true));
 
         $this->statisticsCollector
             ->getAppStatistics('1234')
