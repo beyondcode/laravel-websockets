@@ -9,6 +9,7 @@ use BeyondCode\LaravelWebSockets\Events\ConnectionClosed;
 use BeyondCode\LaravelWebSockets\Events\NewConnection;
 use BeyondCode\LaravelWebSockets\Events\WebSocketMessageReceived;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
+use BeyondCode\LaravelWebSockets\Server\Exceptions\WebSocketException;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -50,30 +51,36 @@ class WebSocketHandler implements MessageComponentInterface
 
         $this->verifyAppKey($connection)
             ->then(function () use ($connection) {
-                $this->verifyOrigin($connection)
-                    ->limitConcurrentConnections($connection)
-                    ->generateSocketId($connection)
-                    ->establishConnection($connection);
+                try {
+                    $this->verifyOrigin($connection)
+                        ->limitConcurrentConnections($connection)
+                        ->generateSocketId($connection)
+                        ->establishConnection($connection);
 
-                if (isset($connection->app)) {
-                    /** @var \GuzzleHttp\Psr7\Request $request */
-                    $request = $connection->httpRequest;
+                    if (isset($connection->app)) {
+                        /** @var \GuzzleHttp\Psr7\Request $request */
+                        $request = $connection->httpRequest;
 
-                    if ($connection->app->statisticsEnabled) {
-                        StatisticsCollector::connection($connection->app->id);
+                        if ($connection->app->statisticsEnabled) {
+                            StatisticsCollector::connection($connection->app->id);
+                        }
+
+                        $this->channelManager->subscribeToApp($connection->app->id);
+
+                        $this->channelManager->connectionPonged($connection);
+
+                        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
+                            'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
+                            'socketId' => $connection->socketId,
+                        ]);
+
+                        NewConnection::dispatch($connection->app->id, $connection->socketId);
                     }
-
-                    $this->channelManager->subscribeToApp($connection->app->id);
-
-                    $this->channelManager->connectionPonged($connection);
-
-                    DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
-                        'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
-                        'socketId' => $connection->socketId,
-                    ]);
-
-                    NewConnection::dispatch($connection->app->id, $connection->socketId);
+                } catch (WebSocketException $exception) {
+                    $this->onError($connection, $exception);
                 }
+            }, function ($exception) use ($connection) {
+                $this->onError($connection, $exception);
             });
     }
 
@@ -177,7 +184,7 @@ class WebSocketHandler implements MessageComponentInterface
         App::findByKey($appKey)
             ->then(function ($app) use ($appKey, $connection, $deferred) {
                 if (! $app) {
-                    throw new Exceptions\UnknownAppKey($appKey);
+                    $deferred->reject(new Exceptions\UnknownAppKey($appKey));
                 }
 
                 $connection->app = $app;

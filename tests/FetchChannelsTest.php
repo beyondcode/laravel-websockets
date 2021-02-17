@@ -12,26 +12,20 @@ class FetchChannelsTest extends TestCase
 {
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
-
-        $connection = new Mocks\Connection;
+        $this->startServer();
 
         $requestPath = '/apps/1234/channels';
-
-        $routeParams = [
-            'appId' => '1234',
-        ];
 
         $queryString = Pusher::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $controller = app(FetchChannels::class);
+        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
 
-        $controller->onOpen($connection, $request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_the_channel_information()
@@ -145,29 +139,18 @@ class FetchChannelsTest extends TestCase
 
     public function test_can_not_get_non_presence_channel_user_count()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Request must be limited to presence channels in order to fetch user_count');
-
-        $connection = new Mocks\Connection;
+        $this->startServer();
 
         $requestPath = '/apps/1234/channels';
-
-        $routeParams = [
-            'appId' => '1234',
-        ];
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
             'info' => 'user_count',
         ]);
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchChannels::class);
-
-        $controller->onOpen($connection, $request);
-
-        /** @var JsonResponse $response */
-        $response = array_pop($connection->sentRawData);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('{"error":"Request must be limited to presence channels in order to fetch user_count"}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_empty_object_for_no_channels_found()

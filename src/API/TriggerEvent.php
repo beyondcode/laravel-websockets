@@ -5,13 +5,14 @@ namespace BeyondCode\LaravelWebSockets\API;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
 use Illuminate\Http\Request;
+use React\Promise\Deferred;
 
 class TriggerEvent extends Controller
 {
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request)
@@ -39,27 +40,34 @@ class TriggerEvent extends Controller
 
             if ($channel) {
                 $channel->broadcastLocallyToEveryoneExcept(
-                    (object) $payload,
+                    (object)$payload,
                     $request->socket_id,
                     $request->appId
                 );
             }
 
             $this->channelManager->broadcastAcrossServers(
-                $request->appId, $request->socket_id, $channelName, (object) $payload
+                $request->appId, $request->socket_id, $channelName, (object)$payload
             );
 
-            if ($this->app->statisticsEnabled) {
-                StatisticsCollector::apiMessage($request->appId);
-            }
+            $deferred = new Deferred();
 
-            DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
-                'event' => $request->name,
-                'channel' => $channelName,
-                'payload' => $request->data,
-            ]);
+            $this->ensureValidAppId($request->appId)
+                ->then(function ($app) use ($request, $channelName, $deferred) {
+                    if ($app->statisticsEnabled) {
+                        StatisticsCollector::apiMessage($request->appId);
+                    }
+
+                    DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
+                        'event' => $request->name,
+                        'channel' => $channelName,
+                        'payload' => $request->data,
+                    ]);
+
+                    $deferred->resolve($request->json()->all());
+                });
         }
 
-        return $request->json()->all();
+        return $deferred->promise();
     }
 }

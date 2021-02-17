@@ -12,27 +12,20 @@ class FetchChannelTest extends TestCase
 {
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
+        $this->startServer();
 
-        $connection = new Mocks\Connection;
-
-        $requestPath = '/apps/1234/channel/my-channel';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'my-channel',
-        ];
+        $requestPath = '/apps/1234/channels/my-channel';
 
         $queryString = Pusher::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $controller = app(FetchChannel::class);
+        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
 
-        $controller->onOpen($connection, $request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_the_channel_information()
@@ -99,34 +92,19 @@ class FetchChannelTest extends TestCase
 
     public function test_it_returns_404_for_invalid_channels()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Unknown channel');
+        $this->startServer();
 
         $this->newActiveConnection(['my-channel']);
 
         $connection = new Mocks\Connection;
 
-        $requestPath = '/apps/1234/channel/invalid-channel';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'invalid-channel',
-        ];
+        $requestPath = '/apps/1234/channels/invalid-channel';
 
         $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchChannel::class);
-
-        $controller->onOpen($connection, $request);
-
-        /** @var JsonResponse $response */
-        $response = array_pop($connection->sentRawData);
-
-        $this->assertSame([
-            'occupied' => true,
-            'subscription_count' => 2,
-        ], json_decode($response->getContent(), true));
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame('{"error":"Unknown channel `invalid-channel`."}', $response->getBody()->getContents());
     }
 }

@@ -11,25 +11,19 @@ class TriggerEventTest extends TestCase
 {
     public function test_invalid_signatures_can_not_fire_the_event()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
+        $this->startServer();
 
         $connection = new Mocks\Connection;
 
         $requestPath = '/apps/1234/events';
 
-        $routeParams = [
-            'appId' => '1234',
-        ];
-
         $queryString = Pusher::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000' . "{$requestPath}?{$queryString}"));
 
-        $controller = app(TriggerEvent::class);
-
-        $controller->onOpen($connection, $request);
+        $this->assertSame(405, $response->getStatusCode());
+        $this->assertSame('', $response->getBody()->getContents());
     }
 }

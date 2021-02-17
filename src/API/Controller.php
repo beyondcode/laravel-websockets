@@ -180,10 +180,20 @@ abstract class Controller implements HttpServerInterface
         $this
             ->ensureValidAppId($laravelRequest->appId)
             ->then(function ($app) use ($laravelRequest, $connection) {
-                $this->ensureValidSignature($app, $laravelRequest);
+                try {
+                    $this->ensureValidSignature($app, $laravelRequest);
+                } catch (HttpException $exception) {
+                    $this->onError($connection, $exception);
+                    return;
+                }
 
                 // Invoke the controller action
-                $response = $this($laravelRequest);
+                try {
+                    $response = $this($laravelRequest);
+                } catch (HttpException $exception) {
+                    $this->onError($connection, $exception);
+                    return;
+                }
 
                 // Allow for async IO in the controller action
                 if ($response instanceof PromiseInterface) {
@@ -195,7 +205,8 @@ abstract class Controller implements HttpServerInterface
                 }
 
                 if ($response instanceof HttpException) {
-                    throw $response;
+                    $this->onError($connection, $response);
+                    return;
                 }
 
                 $this->sendAndClose($connection, $response);

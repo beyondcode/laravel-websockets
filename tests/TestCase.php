@@ -5,14 +5,43 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
 use BeyondCode\LaravelWebSockets\Helpers;
+use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
+use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
+use BeyondCode\LaravelWebSockets\ServerFactory;
+use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
 use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
+use Ratchet\Server\IoServer;
 use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\LoopInterface;
+use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use function Clue\React\Block\await;
 
 abstract class TestCase extends Orchestra
 {
+    const AWAIT_TIMEOUT = 5.0;
+
+    /**
+     * The test Browser
+     *
+     * @var \Clue\React\Buzz\Browser
+     */
+    protected $browser;
+
+    /**
+     * The test WebSocket server
+     *
+     * @var IoServer
+     */
+    protected $server;
+
     /**
      * A test Pusher server.
      *
@@ -71,6 +100,26 @@ abstract class TestCase extends Orchestra
 
         $this->loop = LoopFactory::create();
 
+        $this->app->singleton(LoopInterface::class, function () {
+            return $this->loop;
+        });
+
+        $this->browser = (new Browser($this->loop))
+            ->withFollowRedirects(false)
+            ->withRejectErrorResponse(false);
+
+        $this->app->singleton(HttpLogger::class, function () {
+            return (new HttpLogger(new BufferedOutput()))
+                ->enable(false)
+                ->verbose(false);
+        });
+
+        $this->app->singleton(WebSocketsLogger::class, function () {
+            return (new WebSocketsLogger(new BufferedOutput()))
+                ->enable(false)
+                ->verbose(false);
+        });
+
         $this->replicationMode = getenv('REPLICATION_MODE') ?: 'local';
 
         $this->resetDatabase();
@@ -95,6 +144,15 @@ abstract class TestCase extends Orchestra
         if (method_exists($this->channelManager, 'getPublishClient')) {
             $this->getPublishClient()->resetAssertions();
             $this->getSubscribeClient()->resetAssertions();
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        if ($this->server) {
+            $this->server->socket->close();
         }
     }
 
@@ -252,6 +310,11 @@ abstract class TestCase extends Orchestra
         $this->channelManager = $this->app->make(ChannelManager::class);
     }
 
+    protected function await(PromiseInterface $promise, LoopInterface $loop = null, $timeout = null)
+    {
+        return await($promise, $loop ?? $this->loop, $timeout ?? static::AWAIT_TIMEOUT);
+    }
+
     /**
      * Unregister the managers for testing purposes.
      *
@@ -317,6 +380,19 @@ abstract class TestCase extends Orchestra
         $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
         return $connection;
+    }
+
+    protected function joinWebSocketServer(array $channelsToJoin = [], string $appKey = 'TestKey', array $headers = [])
+    {
+        $promise = new Deferred();
+
+        \Ratchet\Client\connect("ws://localhost:4000/app/{$appKey}", [], [], $this->loop)->then(function($conn) use ($promise) {
+            $conn->on('message', function($msg) use ($conn, $promise) {
+                $promise->resolve($msg);
+            });
+        });
+
+        return $promise->promise();
     }
 
     /**
@@ -464,5 +540,18 @@ abstract class TestCase extends Orchestra
         if ($this->replicationMode === 'local') {
             $this->markTestSkipped('Skipped test because the replication mode is Local.');
         }
+    }
+
+    protected function startServer()
+    {
+        $server = new ServerFactory('0.0.0.0', 4000);
+
+        WebSocketRouter::routes();
+
+        $this->server = $server
+            ->setLoop($this->loop)
+            ->withRoutes(WebSocketRouter::getRoutes())
+            ->setConsoleOutput(new BufferedOutput())
+            ->createServer();
     }
 }
