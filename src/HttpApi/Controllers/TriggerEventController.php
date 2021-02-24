@@ -31,6 +31,6 @@ class TriggerEventController extends Controller
             StatisticsLogger::apiMessage($request->appId);
         }
 
-        return $request->json()->all();
+        return (object) [];
     }
 }
