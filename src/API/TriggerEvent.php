@@ -60,6 +60,6 @@ class TriggerEvent extends Controller
             ]);
         }
 
-        return $request->json()->all();
+        return (object) [];
     }
 }
