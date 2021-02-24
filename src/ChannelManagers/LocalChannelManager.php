@@ -451,7 +451,7 @@ class LocalChannelManager implements ChannelManager
         });
 
         return Helpers::createFulfilledPromise(
-            $this->lock()->release()
+            $this->lock()->forceRelease()
         );
     }
 
