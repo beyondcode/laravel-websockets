@@ -179,7 +179,9 @@ class LocalChannelManager implements ChannelManager
                     });
 
                 collect($channels)
-                    ->reject->hasConnections()
+                    ->reject(function ($channel) {
+                        return $channel->hasConnections();
+                    })
                     ->each(function (Channel $channel, string $channelName) use ($connection) {
                         unset($this->channels[$connection->app->id][$channelName]);
                     });
