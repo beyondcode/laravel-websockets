@@ -50,13 +50,17 @@ class WebSocketsServiceProvider extends ServiceProvider
             return new Router();
         });
 
-        $this->app->singleton(ChannelManager::class, function () {
-            return config('websockets.channel_manager') !== null && class_exists(config('websockets.channel_manager'))
-                ? app(config('websockets.channel_manager')) : new ArrayChannelManager();
+        $this->app->singleton(ChannelManager::class, function ($app) {
+            $config = $app['config']['websockets'];
+
+            return ($config['channel_manager'] ?? null) !== null && class_exists($config['channel_manager'])
+                ? app($config['channel_manager']) : new ArrayChannelManager();
         });
 
-        $this->app->singleton(AppProvider::class, function () {
-            return app(config('websockets.app_provider'));
+        $this->app->singleton(AppProvider::class, function ($app) {
+            $config = $app['config']['websockets'];
+
+            return app($config['app_provider']);
         });
     }
 
