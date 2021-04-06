@@ -80,16 +80,18 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     protected function registerStatistics()
     {
-        $this->app->singleton(StatisticsStore::class, function () {
-            $class = config('websockets.statistics.store');
+        $this->app->singleton(StatisticsStore::class, function ($app) {
+            $config = $app['config']['websockets'];
+            $class = $config['statistics']['store'];
 
             return new $class;
         });
 
-        $this->app->singleton(StatisticsCollector::class, function () {
-            $replicationMode = config('websockets.replication.mode', 'local');
+        $this->app->singleton(StatisticsCollector::class, function ($app) {
+            $config = $app['config']['websockets'];
+            $replicationMode = $config['replication']['mode'] ?? 'local';
 
-            $class = config("websockets.replication.modes.{$replicationMode}.collector");
+            $class = $config['replication']['modes'][$replicationMode]['collector'];
 
             return new $class;
         });
