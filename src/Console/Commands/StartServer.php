@@ -158,7 +158,7 @@ class StartServer extends Command
      */
     protected function configureRoutes()
     {
-        WebSocketRouter::routes();
+        WebSocketRouter::registerRoutes();
     }
 
     /**

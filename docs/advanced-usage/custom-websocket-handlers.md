@@ -53,7 +53,7 @@ This class takes care of registering the routes with the actual webSocket server
 This could, for example, be done inside your `routes/web.php` file.
 
 ```php
-WebSocketsRouter::get('/my-websocket', \App\MyCustomWebSocketHandler::class);
+WebSocketsRouter::addCustomRoute('GET', '/my-websocket', \App\MyCustomWebSocketHandler::class);
 ```
 
 Once you've added the custom WebSocket route, be sure to restart our WebSocket server for the changes to take place.
