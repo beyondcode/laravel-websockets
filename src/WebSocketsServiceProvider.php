@@ -142,8 +142,10 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     protected function registerManagers()
     {
-        $this->app->singleton(Contracts\AppManager::class, function () {
-            return $this->app->make(config('websockets.managers.app'));
+        $this->app->singleton(Contracts\AppManager::class, function ($app) {
+            $config = $app['config']['websockets'];
+
+            return $this->app->make($config['managers']['app']);
         });
     }
 
