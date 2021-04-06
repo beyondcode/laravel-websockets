@@ -106,10 +106,11 @@ class StartServer extends Command
      */
     protected function configureManagers()
     {
-        $this->laravel->singleton(ChannelManager::class, function () {
-            $mode = config('websockets.replication.mode', 'local');
+        $this->laravel->singleton(ChannelManager::class, function ($app) {
+            $config = $app['config']['websockets'];
+            $mode = $config['replication']['mode'] ?? 'local';
 
-            $class = config("websockets.replication.modes.{$mode}.channel_manager");
+            $class = $config['replication']['modes'][$mode]['channel_manager'];
 
             return new $class($this->loop);
         });
@@ -211,9 +212,9 @@ class StartServer extends Command
      */
     protected function configureHttpLogger()
     {
-        $this->laravel->singleton(HttpLogger::class, function () {
+        $this->laravel->singleton(HttpLogger::class, function ($app) {
             return (new HttpLogger($this->output))
-                ->enable($this->option('debug') ?: config('app.debug'))
+                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
                 ->verbose($this->output->isVerbose());
         });
     }
@@ -225,9 +226,9 @@ class StartServer extends Command
      */
     protected function configureMessageLogger()
     {
-        $this->laravel->singleton(WebSocketsLogger::class, function () {
+        $this->laravel->singleton(WebSocketsLogger::class, function ($app) {
             return (new WebSocketsLogger($this->output))
-                ->enable($this->option('debug') ?: config('app.debug'))
+                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
                 ->verbose($this->output->isVerbose());
         });
     }
@@ -239,9 +240,9 @@ class StartServer extends Command
      */
     protected function configureConnectionLogger()
     {
-        $this->laravel->bind(ConnectionLogger::class, function () {
+        $this->laravel->bind(ConnectionLogger::class, function ($app) {
             return (new ConnectionLogger($this->output))
-                ->enable(config('app.debug'))
+                ->enable($app['config']['app']['debug'] ?? false)
                 ->verbose($this->output->isVerbose());
         });
     }
