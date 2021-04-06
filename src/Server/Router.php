@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
+use Illuminate\Support\Collection;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
@@ -18,6 +19,13 @@ class Router
     protected $routes;
 
     /**
+     * Define the custom routes.
+     *
+     * @var array
+     */
+    protected $customRoutes;
+
+    /**
      * Initialize the class.
      *
      * @return void
@@ -25,6 +33,14 @@ class Router
     public function __construct()
     {
         $this->routes = new RouteCollection;
+
+        $this->customRoutes = [
+            'get' => new Collection,
+            'post' => new Collection,
+            'put' => new Collection,
+            'patch' => new Collection,
+            'delete' => new Collection,
+        ];
     }
 
     /**
@@ -38,11 +54,21 @@ class Router
     }
 
     /**
+     * Get the list of routes that still need to be registered.
+     *
+     * @return array[Collection]
+     */
+    public function getCustomRoutes(): array
+    {
+        return $this->customRoutes;
+    }
+
+    /**
      * Register the default routes.
      *
      * @return void
      */
-    public function routes()
+    public function registerRoutes()
     {
         $this->get('/app/{appKey}', config('websockets.handlers.websocket'));
         $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event'));
@@ -50,6 +76,8 @@ class Router
         $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
         $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users'));
         $this->get('/health', config('websockets.handlers.health'));
+
+        $this->registerCustomRoutes();
     }
 
     /**
@@ -123,6 +151,34 @@ class Router
     public function addRoute(string $method, string $uri, $action)
     {
         $this->routes->add($uri, $this->getRoute($method, $uri, $action));
+    }
+
+    /**
+     * Add a new custom route. Registered routes
+     * will be resolved at server spin-up.
+     *
+     * @param  string  $method
+     * @param  string  $uri
+     * @param  string  $action
+     * @return void
+     */
+    public function addCustomRoute(string $method, $uri, $action)
+    {
+        $this->customRoutes[strtolower($method)]->put($uri, $action);
+    }
+
+    /**
+     * Register the custom routes into the main RouteCollection.
+     *
+     * @return void
+     */
+    public function registerCustomRoutes()
+    {
+        foreach ($this->customRoutes as $method => $actions) {
+            $actions->each(function ($action, $uri) use ($method) {
+                $this->{$method}($uri, $action);
+            });
+        }
     }
 
     /**

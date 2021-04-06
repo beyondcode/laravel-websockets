@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
+use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
 use BeyondCode\LaravelWebSockets\Helpers;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
@@ -77,6 +78,8 @@ abstract class TestCase extends Orchestra
         $this->loadLaravelMigrations(['--database' => 'sqlite']);
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         $this->withFactories(__DIR__.'/database/factories');
+
+        $this->registerCustomPath();
 
         $this->registerPromiseResolver();
 
@@ -216,6 +219,20 @@ abstract class TestCase extends Orchestra
                 'collector' => \BeyondCode\LaravelWebSockets\Statistics\Collectors\RedisCollector::class,
             ],
         ]);
+    }
+
+    /**
+     * Register custom paths.
+     *
+     * @return void
+     */
+    protected function registerCustomPath()
+    {
+        WebSocketRouter::addCustomRoute('GET', '/test', Handlers\TestHandler::class);
+        WebSocketRouter::addCustomRoute('POST', '/test', Handlers\TestHandler::class);
+        WebSocketRouter::addCustomRoute('PUT', '/test', Handlers\TestHandler::class);
+        WebSocketRouter::addCustomRoute('PATCH', '/test', Handlers\TestHandler::class);
+        WebSocketRouter::addCustomRoute('DELETE', '/test', Handlers\TestHandler::class);
     }
 
     /**
