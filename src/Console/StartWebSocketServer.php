@@ -64,8 +64,9 @@ class StartWebSocketServer extends Command
 
         $browser = new Browser($this->loop, $connector);
 
-        app()->singleton(StatisticsLoggerInterface::class, function () use ($browser) {
-            $class = config('websockets.statistics.logger', \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class);
+        app()->singleton(StatisticsLoggerInterface::class, function ($app) use ($browser) {
+            $config = $app['config']['websockets'];
+            $class = $config['statistics']['logger'] ?? \BeyondCode\LaravelWebSockets\Statistics\Logger\HttpStatisticsLogger::class;
 
             return new $class(app(ChannelManager::class), $browser);
         });
@@ -79,9 +80,9 @@ class StartWebSocketServer extends Command
 
     protected function configureHttpLogger()
     {
-        app()->singleton(HttpLogger::class, function () {
+        app()->singleton(HttpLogger::class, function ($app) {
             return (new HttpLogger($this->output))
-                ->enable($this->option('debug') ?: config('app.debug'))
+                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
                 ->verbose($this->output->isVerbose());
         });
 
@@ -90,9 +91,9 @@ class StartWebSocketServer extends Command
 
     protected function configureMessageLogger()
     {
-        app()->singleton(WebsocketsLogger::class, function () {
+        app()->singleton(WebsocketsLogger::class, function ($app) {
             return (new WebsocketsLogger($this->output))
-                ->enable($this->option('debug') ?: config('app.debug'))
+                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
                 ->verbose($this->output->isVerbose());
         });
 
@@ -101,9 +102,9 @@ class StartWebSocketServer extends Command
 
     protected function configureConnectionLogger()
     {
-        app()->bind(ConnectionLogger::class, function () {
+        app()->bind(ConnectionLogger::class, function ($app) {
             return (new ConnectionLogger($this->output))
-                ->enable(config('app.debug'))
+                ->enable($app['config']['app']['debug'] ?? false)
                 ->verbose($this->output->isVerbose());
         });
 
