@@ -23,10 +23,13 @@ class FetchChannelTest extends TestCase
             'appId' => '1234',
             'channelName' => 'my-channel',
         ];
-
-        $queryString = Pusher::build_auth_query_string(
-            'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params('TestKey', 'InvalidSecret', 'GET', $requestPath)
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string('TestKey', 'InvalidSecret', 'GET', $requestPath);
+        }
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -48,7 +51,13 @@ class FetchChannelTest extends TestCase
             'channelName' => 'my-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath)
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        }
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -79,7 +88,13 @@ class FetchChannelTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath)
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        }
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -113,7 +128,13 @@ class FetchChannelTest extends TestCase
             'channelName' => 'invalid-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath)
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        }
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
