@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php:
+          - '7.3'
+          - '7.4'
+        laravel:
+          - 6.*
+          - 7.*
+          - 8.*
+        prefer:
+          - 'prefer-lowest'
+          - 'prefer-stable'
+        include:
+          - laravel: '6.*'
+            testbench: '4.*'
+          - laravel: '7.*'
+            testbench: '5.*'
+          - laravel: '8.*'
+            testbench: '6.*'
+
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: pcov
+
+    - name: Setup Redis
+      uses: supercharge/redis-github-action@1.1.0
+      with:
+        redis-version: 6
+
+    - uses: actions/cache@v1
+      name: Cache dependencies
+      with:
+        path: ~/.composer/cache/files
+        key: composer-php-${{ matrix.php }}-${{ matrix.laravel }}-${{ matrix.prefer }}-${{ hashFiles('composer.json') }}
+
+    - name: Install dependencies
+      run: |
+        composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench-browser-kit:${{ matrix.testbench }}" "orchestra/database:${{ matrix.testbench }}" --no-interaction --no-update
+        composer update --${{ matrix.prefer }} --prefer-dist --no-interaction --no-suggest
+
+    - name: Run tests for Local
+      run: |
+        REPLICATION_MODE=local vendor/bin/phpunit --coverage-text --coverage-clover=coverage_local.xml
+
+    - name: Run tests for Redis
+      run: |
+        REPLICATION_MODE=redis vendor/bin/phpunit --coverage-text --coverage-clover=coverage_redis.xml
+
+    - uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: false
+        file: '*.xml'
+        token: ${{ secrets.CODECOV_TOKEN }}
