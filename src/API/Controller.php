@@ -2,25 +2,25 @@
 
 namespace BeyondCode\LaravelWebSockets\API;
 
+use Amp\Promise;
+use Amp\Socket\Server;
+use Amp\Websocket\Server\Websocket;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\Contracts\Connection;
 use BeyondCode\LaravelWebSockets\Server\QueryParameters;
 use Exception;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Psr\Http\Message\RequestInterface;
 use Pusher\Pusher;
-use Ratchet\ConnectionInterface;
-use Ratchet\Http\HttpServerInterface;
-use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
-abstract class Controller implements HttpServerInterface
+abstract class Controller
 {
     /**
      * The request buffer.
@@ -57,32 +57,38 @@ abstract class Controller implements HttpServerInterface
      * @var \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     protected $app;
+    /**
+     * @var \Amp\Websocket\Server\Websocket
+     */
+    protected $server;
 
     /**
      * Initialize the request.
      *
      * @param  ChannelManager  $channelManager
-     * @return void
+     * @param  \Amp\Websocket\Server\Websocket  $server
      */
-    public function __construct(ChannelManager $channelManager)
+    public function __construct(ChannelManager $channelManager, Websocket $server)
     {
         $this->channelManager = $channelManager;
+        $this->server = $server;
     }
 
     /**
      * Handle the opened socket connection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  \Psr\Http\Message\RequestInterface  $request
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \Psr\Http\Message\RequestInterface|null  $request
+     *
      * @return void
      */
-    public function onOpen(ConnectionInterface $connection, RequestInterface $request = null)
+    public function onOpen(Connection $connection, RequestInterface $request = null): void
     {
         $this->request = $request;
 
-        $this->contentLength = $this->findContentLength($request->getHeaders());
+        $this->contentLength = $this->findContentLength($this->request->getHeaders());
 
-        $this->requestBuffer = (string) $request->getBody();
+        $this->requestBuffer = $this->request ? (string) $this->request->getBody() : '';
 
         if (! $this->verifyContentLength()) {
             return;
@@ -94,28 +100,28 @@ abstract class Controller implements HttpServerInterface
     /**
      * Handle the oncoming message and add it to buffer.
      *
-     * @param  \Ratchet\ConnectionInterface  $from
-     * @param  mixed  $msg
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $from
+     * @param  mixed  $message
+     *
      * @return void
      */
-    public function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(Connection $from, $message): void
     {
-        $this->requestBuffer .= $msg;
+        $this->requestBuffer .= $message;
 
-        if (! $this->verifyContentLength()) {
-            return;
+        if ($this->verifyContentLength()) {
+            $this->handleRequest($from);
         }
-
-        $this->handleRequest($from);
     }
 
     /**
      * Handle the socket closing.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
      * @return void
      */
-    public function onClose(ConnectionInterface $connection)
+    public function onClose(Connection $connection): void
     {
         //
     }
@@ -123,11 +129,12 @@ abstract class Controller implements HttpServerInterface
     /**
      * Handle the errors.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  Exception  $exception
+     *
      * @return void
      */
-    public function onError(ConnectionInterface $connection, Exception $exception)
+    public function onError(Connection $connection, Throwable $exception): void
     {
         if (! $exception instanceof HttpException) {
             return;
@@ -139,7 +146,7 @@ abstract class Controller implements HttpServerInterface
             'error' => $exception->getMessage(),
         ]));
 
-        tap($connection)->send(\GuzzleHttp\Psr7\str($response))->close();
+        tap($connection)->send((string)$response->getBody())->close();
     }
 
     /**
@@ -150,7 +157,7 @@ abstract class Controller implements HttpServerInterface
      */
     protected function findContentLength(array $headers): int
     {
-        return Collection::make($headers)->first(function ($values, $header) {
+        return collect($headers)->first(static function (string $values, string $header): bool {
             return strtolower($header) === 'content-length';
         })[0] ?? 0;
     }
@@ -160,7 +167,7 @@ abstract class Controller implements HttpServerInterface
      *
      * @return bool
      */
-    protected function verifyContentLength()
+    protected function verifyContentLength(): bool
     {
         return strlen($this->requestBuffer) === $this->contentLength;
     }
@@ -168,10 +175,11 @@ abstract class Controller implements HttpServerInterface
     /**
      * Handle the oncoming connection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
      * @return void
      */
-    protected function handleRequest(ConnectionInterface $connection)
+    protected function handleRequest(Connection $connection): void
     {
         $serverRequest = (new ServerRequest(
             $this->request->getMethod(),
@@ -190,8 +198,8 @@ abstract class Controller implements HttpServerInterface
         $response = $this($laravelRequest);
 
         // Allow for async IO in the controller action
-        if ($response instanceof PromiseInterface) {
-            $response->then(function ($response) use ($connection) {
+        if ($response instanceof Promise) {
+            $response->onResolve(function ($response) use ($connection): void {
                 $this->sendAndClose($connection, $response);
             });
 
@@ -208,13 +216,14 @@ abstract class Controller implements HttpServerInterface
     /**
      * Send the response and close the connection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  mixed  $response
+     *
      * @return void
      */
-    protected function sendAndClose(ConnectionInterface $connection, $response)
+    protected function sendAndClose(Connection $connection, $response): void
     {
-        tap($connection)->send(JsonResponse::create($response))->close();
+        tap($connection)->send(response()->json($response))->close();
     }
 
     /**
@@ -224,7 +233,7 @@ abstract class Controller implements HttpServerInterface
      * @return $this
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    public function ensureValidAppId($appId)
+    public function ensureValidAppId($appId): Controller
     {
         if (! $appId || ! $this->app = App::findById($appId)) {
             throw new HttpException(401, "Unknown app id `{$appId}` provided.");
@@ -237,11 +246,11 @@ abstract class Controller implements HttpServerInterface
      * Ensure signature integrity coming from an
      * authorized application.
      *
-     * @param  \GuzzleHttp\Psr7\ServerRequest  $request
+     * @param  \Illuminate\Http\Request  $request
+     *
      * @return $this
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    protected function ensureValidSignature(Request $request)
+    protected function ensureValidSignature(Request $request): Controller
     {
         // The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
         // The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.

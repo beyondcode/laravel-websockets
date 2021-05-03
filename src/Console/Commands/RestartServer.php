@@ -29,15 +29,13 @@ class RestartServer extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         Cache::forever(
             'beyondcode:websockets:restart',
             $this->currentTime()
         );
 
-        $this->info(
-            'Broadcasted the restart signal to the WebSocket server!'
-        );
+        $this->info('Broadcasted the restart signal to the WebSocket server!');
     }
 }

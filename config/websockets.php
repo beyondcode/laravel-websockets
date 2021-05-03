@@ -12,13 +12,9 @@ return [
     */
 
     'dashboard' => [
-
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
-
         'domain' => env('LARAVEL_WEBSOCKETS_DOMAIN'),
-
         'path' => env('LARAVEL_WEBSOCKETS_PATH', 'laravel-websockets'),
-
         'middleware' => [
             'web',
             \BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize::class,
@@ -26,24 +22,23 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Manager
+    |--------------------------------------------------------------------------
+    |
+    | An Application manager determines how your websocket server allows
+    | the use of the TCP protocol based on, for example, a list of allowed
+    | applications.
+    |
+    | By default, it uses the defined array in the config file, but you can
+    | anytime implement the same interface as the class and add your own
+    | custom method to retrieve the apps.
+    |
+    */
+
     'managers' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Application Manager
-        |--------------------------------------------------------------------------
-        |
-        | An Application manager determines how your websocket server allows
-        | the use of the TCP protocol based on, for example, a list of allowed
-        | applications.
-        | By default, it uses the defined array in the config file, but you can
-        | anytime implement the same interface as the class and add your own
-        | custom method to retrieve the apps.
-        |
-        */
-
         'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
-
     ],
 
     /*
@@ -238,19 +233,12 @@ return [
     */
 
     'ssl' => [
-
         'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT', null),
-
         'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA', null),
-
         'local_pk' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_PK', null),
-
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
-
         'verify_peer' => env('APP_ENV') === 'production',
-
         'allow_self_signed' => env('APP_ENV') !== 'production',
-
     ],
 
     /*
@@ -266,19 +254,12 @@ return [
     */
 
     'handlers' => [
-
-        'websocket' => \BeyondCode\LaravelWebSockets\Server\WebSocketHandler::class,
-
-        'health' => \BeyondCode\LaravelWebSockets\Server\HealthHandler::class,
-
-        'trigger_event' => \BeyondCode\LaravelWebSockets\API\TriggerEvent::class,
-
-        'fetch_channels' => \BeyondCode\LaravelWebSockets\API\FetchChannels::class,
-
-        'fetch_channel' => \BeyondCode\LaravelWebSockets\API\FetchChannel::class,
-
-        'fetch_users' => \BeyondCode\LaravelWebSockets\API\FetchUsers::class,
-
+//        'websocket' => \BeyondCode\LaravelWebSockets\Server\WebSocketHandler::class,
+//        'health' => \BeyondCode\LaravelWebSockets\Server\HealthHandler::class,
+//        'trigger_event' => \BeyondCode\LaravelWebSockets\API\TriggerEvent::class,
+//        'fetch_channels' => \BeyondCode\LaravelWebSockets\API\FetchChannels::class,
+//        'fetch_channel' => \BeyondCode\LaravelWebSockets\API\FetchChannel::class,
+//        'fetch_users' => \BeyondCode\LaravelWebSockets\API\FetchUsers::class,
     ],
 
     /*
@@ -294,6 +275,6 @@ return [
     |
     */
 
-    'promise_resolver' => \React\Promise\FulfilledPromise::class,
+    'promise_resolver' => \Amp\Success::class,
 
 ];

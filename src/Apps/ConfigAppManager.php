@@ -54,9 +54,10 @@ class ConfigAppManager implements AppManager
      * Get app by app key.
      *
      * @param  string  $appKey
+     *
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
-    public function findByKey($appKey): ?App
+    public function findByKey(string $appKey): ?App
     {
         return $this->convertIntoApp(
             $this->apps->firstWhere('key', $appKey)
@@ -67,9 +68,10 @@ class ConfigAppManager implements AppManager
      * Get app by secret.
      *
      * @param  string  $appSecret
+     *
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
-    public function findBySecret($appSecret): ?App
+    public function findBySecret(string $appSecret): ?App
     {
         return $this->convertIntoApp(
             $this->apps->firstWhere('secret', $appSecret)

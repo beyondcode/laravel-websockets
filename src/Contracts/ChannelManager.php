@@ -2,111 +2,109 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use Ratchet\ConnectionInterface;
-use React\EventLoop\LoopInterface;
-use React\Promise\PromiseInterface;
-use stdClass;
+use Amp\Promise;
+use BeyondCode\LaravelWebSockets\Channels\Channel;
 
 interface ChannelManager
 {
-    /**
-     * Create a new channel manager instance.
-     *
-     * @param  LoopInterface  $loop
-     * @param  string|null  $factoryClass
-     * @return void
-     */
-    public function __construct(LoopInterface $loop, $factoryClass = null);
-
     /**
      * Find the channel by app & name.
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @return null|BeyondCode\LaravelWebSockets\Channels\Channel
+     *
+     * @return \BeyondCode\LaravelWebSockets\Channels\Channel|null
      */
-    public function find($appId, string $channel);
+    public function find($appId, string $channel): ?Channel;
 
     /**
      * Find a channel by app & name or create one.
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @return BeyondCode\LaravelWebSockets\Channels\Channel
+     *
+     * @return \BeyondCode\LaravelWebSockets\Channels\Channel
      */
-    public function findOrCreate($appId, string $channel);
+    public function findOrCreate($appId, string $channel): Channel;
 
     /**
      * Get the local connections, regardless of the channel
      * they are connected to.
      *
-     * @return \React\Promise\PromiseInterface
+     * @return \Amp\Promise
      */
-    public function getLocalConnections(): PromiseInterface;
+    public function getLocalConnections(): Promise;
 
     /**
      * Get all channels for a specific app
      * for the current instance.
      *
      * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise
      */
-    public function getLocalChannels($appId): PromiseInterface;
+    public function getLocalChannels($appId): Promise;
 
     /**
      * Get all channels for a specific app
      * across multiple servers.
      *
      * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise
      */
-    public function getGlobalChannels($appId): PromiseInterface;
+    public function getGlobalChannels($appId): Promise;
 
     /**
      * Remove connection from all channels.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @return PromiseInterface[bool]
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
+     * @return \Amp\Promise
      */
-    public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface;
+    public function unsubscribeFromAllChannels(Connection $connection): Promise;
 
     /**
      * Subscribe the connection to a specific channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channelName
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise
      */
-    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface;
+    public function subscribeToChannel(Connection $connection, string $channelName, $payload): Promise;
 
     /**
      * Unsubscribe the connection from the channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channelName
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise
      */
-    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface;
+    public function unsubscribeFromChannel(Connection $connection, string $channelName, $payload): Promise;
 
     /**
      * Subscribe the connection to a specific channel, returning
      * a promise containing the amount of connections.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise
      */
-    public function subscribeToApp($appId): PromiseInterface;
+    public function subscribeToApp($appId): Promise;
 
     /**
      * Unsubscribe the connection from the channel, returning
      * a promise containing the amount of connections after decrement.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise
      */
-    public function unsubscribeFromApp($appId): PromiseInterface;
+    public function unsubscribeFromApp($appId): Promise;
 
     /**
      * Get the connections count on the app
@@ -114,9 +112,10 @@ interface ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise
      */
-    public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface;
+    public function getLocalConnectionsCount($appId, string $channelName = null): Promise;
 
     /**
      * Get the connections count
@@ -124,9 +123,10 @@ interface ChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise
      */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface;
+    public function getGlobalConnectionsCount($appId, string $channelName = null): Promise;
 
     /**
      * Broadcast the message across multiple servers.
@@ -134,60 +134,71 @@ interface ChannelManager
      * @param  string|int  $appId
      * @param  string|null  $socketId
      * @param  string  $channel
-     * @param  stdClass  $payload
+     * @param  object|array  $payload
      * @param  string|null  $serverId
-     * @return PromiseInterface[bool]
+     *
+     * @return \Amp\Promise
      */
-    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null): PromiseInterface;
+    public function broadcastAcrossServers(
+        $appId,
+        ?string $socketId,
+        string $channel,
+        $payload,
+        string $serverId = null
+    ): Promise;
 
     /**
      * Handle the user when it joined a presence channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  stdClass  $user
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  object  $user
      * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise [bool]
      */
-    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload): PromiseInterface;
+    public function userJoinedPresenceChannel(Connection $connection, object $user, string $channel, $payload): Promise;
 
     /**
      * Handle the user when it left a presence channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  stdClass  $user
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  object  $user
      * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     *
+     * @return \Amp\Promise
      */
-    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel): PromiseInterface;
+    public function userLeftPresenceChannel(Connection $connection, object $user, string $channel): Promise;
 
     /**
      * Get the presence channel members.
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @return \React\Promise\PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    public function getChannelMembers($appId, string $channel): PromiseInterface;
+    public function getChannelMembers($appId, string $channel): Promise;
 
     /**
      * Get a member from a presence channel based on connection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channel
-     * @return \React\Promise\PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    public function getChannelMember(ConnectionInterface $connection, string $channel): PromiseInterface;
+    public function getChannelMember(Connection $connection, string $channel): Promise;
 
     /**
      * Get the presence channels total members count.
      *
      * @param  string|int  $appId
      * @param  array  $channelNames
-     * @return \React\Promise\PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    public function getChannelsMembersCount($appId, array $channelNames): PromiseInterface;
+    public function getChannelsMembersCount($appId, array $channelNames): Promise;
 
     /**
      * Get the socket IDs for a presence channel member.
@@ -195,22 +206,24 @@ interface ChannelManager
      * @param  string|int  $userId
      * @param  string|int  $appId
      * @param  string  $channelName
-     * @return \React\Promise\PromiseInterface
+     *
+     * @return \Amp\Promise<array>
      */
-    public function getMemberSockets($userId, $appId, $channelName): PromiseInterface;
+    public function getMemberSockets($userId, $appId, string $channelName): Promise;
 
     /**
      * Keep tracking the connections availability when they pong.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @return PromiseInterface[bool]
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
+     * @return \Amp\Promise
      */
-    public function connectionPonged(ConnectionInterface $connection): PromiseInterface;
+    public function connectionPonged(Connection $connection): Promise;
 
     /**
      * Remove the obsolete connections that didn't ponged in a while.
      *
-     * @return PromiseInterface[bool]
+     * @return \Amp\Promise
      */
-    public function removeObsoleteConnections(): PromiseInterface;
+    public function removeObsoleteConnections(): Promise;
 }

@@ -9,5 +9,5 @@ interface PusherMessage
      *
      * @return void
      */
-    public function respond();
+    public function respond(): void;
 }

@@ -13,5 +13,7 @@ class OriginNotAllowed extends WebSocketException
     public function __construct($appKey)
     {
         $this->trigger("The origin is not allowed for `{$appKey}`.", 4009);
+
+        parent::__construct();
     }
 }

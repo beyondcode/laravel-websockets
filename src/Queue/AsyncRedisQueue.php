@@ -10,10 +10,11 @@ class AsyncRedisQueue extends RedisQueue
     /**
      * Get the connection for the queue.
      *
-     * @return \BeyondCode\LaravelWebSockets\Contracts\ChannelManager|\Illuminate\Redis\Connections\Connection
+     * @return \Illuminate\Redis\Connections\Connection
      */
     public function getConnection()
     {
+        /** @var \BeyondCode\LaravelWebSockets\Contracts\ChannelManager $channelManager */
         $channelManager = $this->container->bound(ChannelManager::class)
             ? $this->container->make(ChannelManager::class)
             : null;

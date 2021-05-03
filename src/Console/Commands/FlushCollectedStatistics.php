@@ -26,7 +26,7 @@ class FlushCollectedStatistics extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->comment('Flushing the collected WebSocket Statistics...');
 

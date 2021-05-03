@@ -123,7 +123,7 @@ abstract class TestCase extends Orchestra
 
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
-            'database' => __DIR__.'/database.sqlite',
+            'database' => __DIR__ . '/database/database.sqlite',
             'prefix' => '',
         ]);
 
@@ -452,7 +452,7 @@ abstract class TestCase extends Orchestra
      */
     protected function resetDatabase()
     {
-        file_put_contents(__DIR__.'/database.sqlite', null);
+        file_put_contents(__DIR__ . '/database/database.sqlite', null);
     }
 
     protected function runOnlyOnRedisReplication()

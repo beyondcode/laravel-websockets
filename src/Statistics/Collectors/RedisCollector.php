@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Collectors;
 
+use Amp\Promise;
+use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use Illuminate\Cache\RedisLock;
@@ -38,9 +40,9 @@ class RedisCollector extends MemoryCollector
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ChannelManager $channelManager)
     {
-        parent::__construct();
+        parent::__construct($channelManager);
 
         $this->redis = Redis::connection(
             config('websockets.replication.modes.redis.connection', 'default')
@@ -53,7 +55,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function webSocketMessage($appId)
+    public function webSocketMessage($appId): void
     {
         $this->ensureAppIsInSet($appId)
             ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'websocket_messages_count', 1);
@@ -65,7 +67,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function apiMessage($appId)
+    public function apiMessage($appId): void
     {
         $this->ensureAppIsInSet($appId)
             ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'api_messages_count', 1);
@@ -77,7 +79,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function connection($appId)
+    public function connection($appId): void
     {
         // Increment the current connections count by 1.
         $this->ensureAppIsInSet($appId)
@@ -117,7 +119,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function disconnection($appId)
+    public function disconnection($appId): void
     {
         // Decrement the current connections count by 1.
         $this->ensureAppIsInSet($appId)
@@ -150,7 +152,7 @@ class RedisCollector extends MemoryCollector
      *
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $this->lock()->get(function () {
             $this->channelManager
@@ -194,7 +196,7 @@ class RedisCollector extends MemoryCollector
      *
      * @return void
      */
-    public function flush()
+    public function flush(): void
     {
         $this->getStatistics()->then(function ($statistics) {
             foreach ($statistics as $appId => $statistic) {
@@ -206,9 +208,9 @@ class RedisCollector extends MemoryCollector
     /**
      * Get the saved statistics.
      *
-     * @return PromiseInterface[array]
+     * @return \Amp\Promise
      */
-    public function getStatistics(): PromiseInterface
+    public function getStatistics(): Promise
     {
         return $this->channelManager
             ->getPublishClient()
@@ -235,9 +237,9 @@ class RedisCollector extends MemoryCollector
      * Get the saved statistics for an app.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[\BeyondCode\LaravelWebSockets\Statistics\Statistic|null]
+     * @return \Amp\Promise
      */
-    public function getAppStatistics($appId): PromiseInterface
+    public function getAppStatistics($appId): Promise
     {
         return $this->channelManager
             ->getPublishClient()
@@ -256,7 +258,7 @@ class RedisCollector extends MemoryCollector
      * @param  int  $currentConnectionCount
      * @return void
      */
-    public function resetStatistics($appId, int $currentConnectionCount)
+    public function resetStatistics($appId, int $currentConnectionCount): void
     {
         $this->channelManager
             ->getPublishClient()
@@ -294,7 +296,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function resetAppTraces($appId)
+    public function resetAppTraces($appId): void
     {
         parent::resetAppTraces($appId);
 

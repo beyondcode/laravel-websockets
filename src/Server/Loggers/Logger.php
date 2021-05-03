@@ -15,30 +15,18 @@ class Logger
     protected $consoleOutput;
 
     /**
-     * Wether the logger is enabled.
+     * Whether the logger is enabled.
      *
      * @var bool
      */
     protected $enabled = false;
 
     /**
-     * Wether the verbose mode is on.
+     * Whether the verbose mode is on.
      *
      * @var bool
      */
     protected $verbose = false;
-
-    /**
-     * Check if the logger is active.
-     *
-     * @return bool
-     */
-    public static function isEnabled(): bool
-    {
-        $logger = app(WebSocketsLogger::class);
-
-        return $logger->enabled;
-    }
 
     /**
      * Create a new Logger instance.
@@ -57,7 +45,7 @@ class Logger
      * @param  bool  $enabled
      * @return $this
      */
-    public function enable($enabled = true)
+    public function enable($enabled = true): Logger
     {
         $this->enabled = $enabled;
 
@@ -70,7 +58,7 @@ class Logger
      * @param  bool  $verbose
      * @return $this
      */
-    public function verbose($verbose = false)
+    public function verbose($verbose = false): Logger
     {
         $this->verbose = $verbose;
 
@@ -83,7 +71,7 @@ class Logger
      * @param  string  $message
      * @return void
      */
-    protected function info(string $message)
+    protected function info(string $message): void
     {
         $this->line($message, 'info');
     }
@@ -94,7 +82,7 @@ class Logger
      * @param  string  $message
      * @return void
      */
-    protected function warn(string $message)
+    protected function warn(string $message): void
     {
         if (! $this->consoleOutput->getFormatter()->hasStyle('warning')) {
             $style = new OutputFormatterStyle('yellow');
@@ -111,15 +99,31 @@ class Logger
      * @param  string  $message
      * @return void
      */
-    protected function error(string $message)
+    protected function error(string $message): void
     {
         $this->line($message, 'error');
     }
 
-    protected function line(string $message, string $style)
+    /**
+     * Write a line.
+     *
+     * @param  string  $message
+     * @param  string  $style
+     */
+    protected function line(string $message, string $style): void
     {
         $this->consoleOutput->writeln(
             $style ? "<{$style}>{$message}</{$style}>" : $message
         );
+    }
+
+    /**
+     * Check if the logger is active.
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return app(WebSocketsLogger::class)->enabled;
     }
 }

@@ -2,41 +2,36 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
-use BeyondCode\LaravelWebSockets\Channels\Channel;
+use Amp\LazyPromise;
+use Amp\Promise;
+use Amp\Redis\Config;
+use Amp\Redis\Redis as AmpRedis;
+use Amp\Redis\RemoteExecutor;
+use Amp\Redis\Subscriber;
+use Amp\Redis\Subscription;
+use BeyondCode\LaravelWebSockets\Contracts\Connection;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\MockableConnection;
-use Carbon\Carbon;
-use Clue\React\Redis\Client;
-use Clue\React\Redis\Factory;
+use DateTimeInterface;
 use Illuminate\Cache\RedisLock;
+use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
-use Ratchet\ConnectionInterface;
-use React\EventLoop\LoopInterface;
-use React\Promise\PromiseInterface;
-use stdClass;
 
 class RedisChannelManager extends LocalChannelManager
 {
     /**
-     * The running loop.
-     *
-     * @var LoopInterface
-     */
-    protected $loop;
-
-    /**
      * The pub client.
      *
-     * @var Client
+     * @var \Amp\Redis\Redis
      */
     protected $publishClient;
 
     /**
      * The sub client.
      *
-     * @var Client
+     * @var \Amp\Redis\Subscriber
      */
     protected $subscribeClient;
 
@@ -48,129 +43,166 @@ class RedisChannelManager extends LocalChannelManager
     protected $redis;
 
     /**
+     * @var array|\Amp\Redis\Subscription[]
+     */
+    protected $subscriptions = [];
+
+    /**
      * Create a new channel manager instance.
      *
-     * @param  LoopInterface  $loop
-     * @param  string|null  $factoryClass
      * @return void
      */
-    public function __construct(LoopInterface $loop, $factoryClass = null)
+    public function __construct()
     {
-        parent::__construct($loop, $factoryClass);
-
-        $this->loop = $loop;
+        parent::__construct();
 
         $this->redis = Redis::connection(
             config('websockets.replication.modes.redis.connection', 'default')
         );
 
-        $connectionUri = $this->getConnectionUri();
+        $connection = new RemoteExecutor($config = Config::fromUri($this->getConnectionUri()));
 
-        $factoryClass = $factoryClass ?: Factory::class;
-        $factory = new $factoryClass($this->loop);
+        $this->publishClient = new AmpRedis($connection);
+        $this->subscribeClient = new Subscriber($config);
 
-        $this->publishClient = $factory->createLazyClient($connectionUri);
-        $this->subscribeClient = $factory->createLazyClient($connectionUri);
-
-        $this->subscribeClient->on('message', function ($channel, $payload) {
-            $this->onMessage($channel, $payload);
-        });
+        $this->subscribeClient->subscribe('message')->onResolve(
+            function ($channel, $payload) {
+                $this->onMessage($channel, $payload);
+            }
+        );
     }
 
     /**
-     * Get all channels for a specific app
-     * across multiple servers.
+     * Get all channels for a specific app across multiple servers.
      *
      * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise<array>
      */
-    public function getGlobalChannels($appId): PromiseInterface
+    public function getGlobalChannels($appId): Promise
     {
-        return $this->publishClient->smembers(
-            $this->getChannelsRedisHash($appId)
-        );
+        return $this->publishClient->getSet($this->getChannelsRedisHash($appId))->getAll();
     }
 
     /**
      * Remove connection from all channels.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @return PromiseInterface[bool]
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface
+    public function unsubscribeFromAllChannels(Connection $connection): Promise
     {
-        return $this->getGlobalChannels($connection->app->id)
-            ->then(function ($channels) use ($connection) {
+        $globalChannels = $this->getGlobalChannels($connection->getAppId());
+
+        $globalChannels->onResolve(
+            function ($channels) use ($connection): void {
                 foreach ($channels as $channel) {
-                    $this->unsubscribeFromChannel($connection, $channel, new stdClass);
+                    $this->unsubscribeFromChannel($connection, $channel, []);
                 }
-            })
-            ->then(function () use ($connection) {
+            }
+        );
+
+        $globalChannels->onResolve(
+            function () use ($connection): Promise {
                 return parent::unsubscribeFromAllChannels($connection);
-            });
+            }
+        );
+
+        return $globalChannels;
     }
 
     /**
      * Subscribe the connection to a specific channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channelName
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function subscribeToChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
+    public function subscribeToChannel(Connection $connection, string $channelName, $payload): Promise
     {
-        return $this->subscribeToTopic($connection->app->id, $channelName)
-            ->then(function () use ($connection) {
-                return $this->addConnectionToSet($connection, Carbon::now());
-            })
-            ->then(function () use ($connection, $channelName) {
-                return $this->addChannelToSet($connection->app->id, $channelName);
-            })
-            ->then(function () use ($connection, $channelName) {
-                return $this->incrementSubscriptionsCount($connection->app->id, $channelName, 1);
-            })
-            ->then(function () use ($connection, $channelName, $payload) {
+        $topic = $this->subscribeToTopic($connection->getAppId(), $channelName);
+
+        $topic->onResolve(
+            function () use ($connection) {
+                return $this->addConnectionToSet($connection);
+            }
+        );
+
+        $topic->onResolve(
+            function () use ($connection, $channelName) {
+                return $this->addChannelToSet($connection->getAppId(), $channelName);
+            }
+        );
+
+        $topic->onResolve(
+            function () use ($connection, $channelName) {
+                return $this->incrementSubscriptionsCount($connection->getAppId(), $channelName);
+            }
+        );
+
+        $topic->onResolve(
+            function () use ($connection, $channelName, $payload) {
                 return parent::subscribeToChannel($connection, $channelName, $payload);
-            });
+            }
+        );
+
+        return $topic;
     }
 
     /**
      * Unsubscribe the connection from the channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channelName
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
+    public function unsubscribeFromChannel(Connection $connection, string $channelName, $payload): Promise
     {
-        return $this->getGlobalConnectionsCount($connection->app->id, $channelName)
-            ->then(function ($count) use ($connection, $channelName) {
+        $count = $this->getGlobalConnectionsCount($connection->getAppId(), $channelName);
+
+        $count->onResolve(
+            function ($count) use ($connection, $channelName) {
                 if ($count === 0) {
                     // Make sure to not stay subscribed to the PubSub topic
                     // if there are no connections.
-                    $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                    $this->unsubscribeFromTopic($connection->getAppId(), $channelName);
                 }
 
-                $this->decrementSubscriptionsCount($connection->app->id, $channelName)
-                    ->then(function ($count) use ($connection, $channelName) {
-                        // If the total connections count gets to 0 after unsubscribe,
-                        // try again to check & unsubscribe from the PubSub topic if needed.
-                        if ($count < 1) {
-                            $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                $this->decrementSubscriptionsCount($connection->getAppId(), $channelName)
+                    ->onResolve(
+                        function ($count) use ($connection, $channelName) {
+                            // If the total connections count gets to 0 after unsubscribe,
+                            // try again to check & unsubscribe from the PubSub topic if needed.
+                            if ($count < 1) {
+                                $this->unsubscribeFromTopic($connection->getAppId(), $channelName);
+                            }
                         }
-                    });
-            })
-            ->then(function () use ($connection, $channelName) {
-                return $this->removeChannelFromSet($connection->app->id, $channelName);
-            })
-            ->then(function () use ($connection) {
+                    );
+            }
+        );
+        $count->onResolve(
+            function () use ($connection, $channelName) {
+                return $this->removeChannelFromSet($connection->getAppId(), $channelName);
+            }
+        );
+
+        $count->onResolve(
+            function () use ($connection) {
                 return $this->removeConnectionFromSet($connection);
-            })
-            ->then(function () use ($connection, $channelName, $payload) {
+            }
+        );
+        $count->onResolve(
+            function () use ($connection, $channelName, $payload) {
                 return parent::unsubscribeFromChannel($connection, $channelName, $payload);
-            });
+            }
+        );
+
+        return $count;
     }
 
     /**
@@ -178,14 +210,20 @@ class RedisChannelManager extends LocalChannelManager
      * a promise containing the amount of connections.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise<int>
      */
-    public function subscribeToApp($appId): PromiseInterface
+    public function subscribeToApp($appId): Promise
     {
-        return $this->subscribeToTopic($appId)
-            ->then(function () use ($appId) {
+        $subscription = $this->subscribeToTopic($appId);
+
+        $subscription->onResolve(
+            function () use ($appId) {
                 return $this->incrementSubscriptionsCount($appId);
-            });
+            }
+        );
+
+        return $subscription;
     }
 
     /**
@@ -193,14 +231,20 @@ class RedisChannelManager extends LocalChannelManager
      * a promise containing the amount of connections after decrement.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise<int>
      */
-    public function unsubscribeFromApp($appId): PromiseInterface
+    public function unsubscribeFromApp($appId): Promise
     {
-        return $this->unsubscribeFromTopic($appId)
-            ->then(function () use ($appId) {
+        $unsubscription = $this->unsubscribeFromTopic($appId);
+
+        $unsubscription->onResolve(
+            function () use ($appId) {
                 return $this->decrementSubscriptionsCount($appId);
-            });
+            }
+        );
+
+        return $unsubscription;
     }
 
     /**
@@ -209,15 +253,22 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channelName
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise<int>
      */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface
+    public function getGlobalConnectionsCount($appId, string $channelName = null): Promise
     {
-        return $this->publishClient
-            ->hget($this->getStatsRedisHash($appId, $channelName), 'connections')
-            ->then(function ($count) {
-                return is_null($count) ? 0 : (int) $count;
-            });
+        $globalConnections = $this->publishClient
+            ->getMap($this->getStatsRedisHash($appId, $channelName))
+            ->getValue('connections');
+
+        $globalConnections->onResolve(
+            function ($count) {
+                return (int)$count;
+            }
+        );
+
+        return $globalConnections;
     }
 
     /**
@@ -226,61 +277,89 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $appId
      * @param  string|null  $socketId
      * @param  string  $channel
-     * @param  stdClass  $payload
+     * @param  object|array  $payload
      * @param  string|null  $serverId
-     * @return PromiseInterface[bool]
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function broadcastAcrossServers($appId, ?string $socketId, string $channel, stdClass $payload, string $serverId = null): PromiseInterface
-    {
+    public function broadcastAcrossServers(
+        $appId,
+        ?string $socketId,
+        string $channel,
+        $payload,
+        string $serverId = null
+    ): Promise {
         $payload->appId = $appId;
         $payload->socketId = $socketId;
         $payload->serverId = $serverId ?: $this->getServerId();
 
-        return $this->publishClient
-            ->publish($this->getRedisTopicName($appId, $channel), json_encode($payload))
-            ->then(function () use ($appId, $socketId, $channel, $payload, $serverId) {
+        $publish = $this->publishClient
+            ->publish($this->getRedisTopicName($appId, $channel), json_encode($payload));
+
+        $publish->onResolve(
+            function () use ($appId, $socketId, $channel, $payload, $serverId) {
                 return parent::broadcastAcrossServers($appId, $socketId, $channel, $payload, $serverId);
-            });
+            }
+        );
+
+        return $publish;
     }
 
     /**
      * Handle the user when it joined a presence channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  stdClass  $user
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  object  $user
      * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return PromiseInterface
+     * @param  object|array  $payload
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function userJoinedPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel, stdClass $payload): PromiseInterface
+    public function userJoinedPresenceChannel(Connection $connection, object $user, string $channel, $payload): Promise
     {
-        return $this->storeUserData($connection->app->id, $channel, $connection->socketId, json_encode($user))
-            ->then(function () use ($connection, $channel, $user) {
-                return $this->addUserSocket($connection->app->id, $channel, $user, $connection->socketId);
-            })
-            ->then(function () use ($connection, $user, $channel, $payload) {
+        $stored = $this->storeUserData($connection->getAppId(), $channel, $connection->getId(), json_encode($user));
+
+        $stored->onResolve(
+            function () use ($connection, $channel, $user) {
+                return $this->addUserSocket($connection->getAppId(), $channel, $user, $connection->getId());
+            }
+        );
+
+        $stored->onResolve(
+            function () use ($connection, $user, $channel, $payload) {
                 return parent::userJoinedPresenceChannel($connection, $user, $channel, $payload);
-            });
+            }
+        );
+
+        return $stored;
     }
 
     /**
      * Handle the user when it left a presence channel.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  stdClass  $user
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  object  $user
      * @param  string  $channel
-     * @param  stdClass  $payload
-     * @return PromiseInterface[bool]
+     *
+     * @return \Amp\Promise
      */
-    public function userLeftPresenceChannel(ConnectionInterface $connection, stdClass $user, string $channel): PromiseInterface
+    public function userLeftPresenceChannel(Connection $connection, object $user, string $channel): Promise
     {
-        return $this->removeUserData($connection->app->id, $channel, $connection->socketId)
-            ->then(function () use ($connection, $channel, $user) {
-                return $this->removeUserSocket($connection->app->id, $channel, $user, $connection->socketId);
-            })
-            ->then(function () use ($connection, $user, $channel) {
+        $remove = $this->removeUserData($connection->getAppId(), $channel, $connection->getId());
+
+        $remove->onResolve(
+            function () use ($connection, $channel, $user) {
+                return $this->removeUserSocket($connection->getAppId(), $channel, $user, $connection->getId());
+            }
+        );
+
+        $remove->onResolve(
+            function () use ($connection, $user, $channel) {
                 return parent::userLeftPresenceChannel($connection, $user, $channel);
-            });
+            }
+        );
+
+        return $remove;
     }
 
     /**
@@ -288,31 +367,41 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise<array<object>>
      */
-    public function getChannelMembers($appId, string $channel): PromiseInterface
+    public function getChannelMembers($appId, string $channel): Promise
     {
-        return $this->publishClient
-            ->hgetall($this->getUsersRedisHash($appId, $channel))
-            ->then(function ($list) {
-                return collect(Helpers::redisListToArray($list))->map(function ($user) {
-                    return json_decode($user);
-                })->unique('user_id')->toArray();
-            });
+        $all = $this->publishClient
+            ->getMap($this->getUsersRedisHash($appId, $channel))
+            ->getAll();
+
+        $all->onResolve(
+            static function ($list): array {
+                return collect(Helpers::redisListToArray($list))->map(
+                    static function (string $user): object {
+                        return json_decode($user);
+                    }
+                )->unique('user_id')->toArray();
+            }
+        );
+
+        return $all;
     }
 
     /**
      * Get a member from a presence channel based on connection.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
      * @param  string  $channel
-     * @return \React\Promise\PromiseInterface[null|array]
+     *
+     * @return \Amp\Promise<null|array>
      */
-    public function getChannelMember(ConnectionInterface $connection, string $channel): PromiseInterface
+    public function getChannelMember(Connection $connection, string $channel): Promise
     {
-        return $this->publishClient->hget(
-            $this->getUsersRedisHash($connection->app->id, $channel), $connection->socketId
-        );
+        return $this->publishClient
+            ->getMap($this->getUsersRedisHash($connection->getAppId(), $channel))
+            ->getValue($connection->getId());
     }
 
     /**
@@ -320,22 +409,26 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  array  $channelNames
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise<array>
      */
-    public function getChannelsMembersCount($appId, array $channelNames): PromiseInterface
+    public function getChannelsMembersCount($appId, array $channelNames): Promise
     {
-        $this->publishClient->multi();
+        $this->publishClient->query('multi');
 
         foreach ($channelNames as $channel) {
-            $this->publishClient->hlen(
-                $this->getUsersRedisHash($appId, $channel)
-            );
+            $this->publishClient->getMap($this->getUsersRedisHash($appId, $channel))->getSize();
         }
 
-        return $this->publishClient->exec()
-            ->then(function ($data) use ($channelNames) {
+        $query = $this->publishClient->query('exec');
+
+        $query->onResolve(
+            function ($data) use ($channelNames) {
                 return array_combine($channelNames, $data);
-            });
+            }
+        );
+
+        return $query;
     }
 
     /**
@@ -344,47 +437,58 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $userId
      * @param  string|int  $appId
      * @param  string  $channelName
-     * @return \React\Promise\PromiseInterface[array]
+     *
+     * @return \Amp\Promise<array>
      */
-    public function getMemberSockets($userId, $appId, $channelName): PromiseInterface
+    public function getMemberSockets($userId, $appId, string $channelName): Promise
     {
-        return $this->publishClient->smembers(
-            $this->getUserSocketsRedisHash($appId, $channelName, $userId)
-        );
+        return $this->publishClient
+            ->getSet($this->getUserSocketsRedisHash($appId, $channelName, $userId))
+            ->getAll();
     }
 
     /**
      * Keep tracking the connections availability when they pong.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @return PromiseInterface[bool]
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
+     * @return \Amp\Promise<bool>
      */
-    public function connectionPonged(ConnectionInterface $connection): PromiseInterface
+    public function connectionPonged(Connection $connection): Promise
     {
         // This will update the score with the current timestamp.
-        return $this->addConnectionToSet($connection, Carbon::now())
-            ->then(function () use ($connection) {
+        $pong = $this->addConnectionToSet($connection, now());
+
+        $pong->onResolve(
+            function () use ($connection): Promise {
                 return parent::connectionPonged($connection);
-            });
+            }
+        );
+
+        return $pong;
     }
 
     /**
      * Remove the obsolete connections that didn't ponged in a while.
      *
-     * @return PromiseInterface[bool]
+     * @return \Amp\Promise<bool>
      */
-    public function removeObsoleteConnections(): PromiseInterface
+    public function removeObsoleteConnections(): Promise
     {
-        $this->lock()->get(function () {
-            $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
-                ->then(function ($connections) {
-                    foreach ($connections as $socketId => $appId) {
-                        $connection = $this->fakeConnectionForApp($appId, $socketId);
+        $this->lock()->get(
+            function (): void {
+                $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+                    ->onResolve(
+                        function ($connections): void {
+                            foreach ($connections as $socketId => $appId) {
+                                $connection = $this->fakeConnectionForApp($appId, $socketId);
 
-                        $this->unsubscribeFromAllChannels($connection);
-                    }
-                });
-        });
+                                $this->unsubscribeFromAllChannels($connection);
+                            }
+                        }
+                    );
+            }
+        );
 
         return parent::removeObsoleteConnections();
     }
@@ -394,9 +498,10 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string  $redisChannel
      * @param  string  $payload
+     *
      * @return void
      */
-    public function onMessage(string $redisChannel, string $payload)
+    public function onMessage(string $redisChannel, string $payload): void
     {
         $payload = json_decode($payload);
 
@@ -406,7 +511,7 @@ class RedisChannelManager extends LocalChannelManager
 
         $payload->channel = Str::after($redisChannel, "{$payload->appId}:");
 
-        if (! $channel = $this->find($payload->appId, $payload->channel)) {
+        if (!$channel = $this->find($payload->appId, $payload->channel)) {
             return;
         }
 
@@ -414,17 +519,19 @@ class RedisChannelManager extends LocalChannelManager
         $socketId = $payload->socketId ?? null;
         $serverId = $payload->serverId ?? null;
 
-        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED, [
-            'fromServerId' => $serverId,
-            'fromSocketId' => $socketId,
-            'receiverServerId' => $this->getServerId(),
-            'channel' => $channel,
-            'payload' => $payload,
-        ]);
+        app(DashboardLogger::class)->log(
+            $appId,
+            DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED,
+            [
+                'fromServerId'     => $serverId,
+                'fromSocketId'     => $socketId,
+                'receiverServerId' => $this->getServerId(),
+                'channel'          => $channel,
+                'payload'          => $payload,
+            ]
+        );
 
-        unset($payload->socketId);
-        unset($payload->serverId);
-        unset($payload->appId);
+        unset($payload->socketId, $payload->serverId, $payload->appId);
 
         $channel->broadcastLocallyToEveryoneExcept($payload, $socketId, $appId);
     }
@@ -434,7 +541,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @return string
      */
-    protected function getConnectionUri()
+    protected function getConnectionUri(): string
     {
         $name = config('websockets.replication.modes.redis.connection', 'default');
         $config = config("database.redis.{$name}");
@@ -454,15 +561,15 @@ class RedisChannelManager extends LocalChannelManager
 
         $query = http_build_query($query);
 
-        return "redis://{$host}:{$port}".($query ? "?{$query}" : '');
+        return "redis://{$host}:{$port}" . ($query ? "?{$query}" : '');
     }
 
     /**
      * Get the Subscribe client instance.
      *
-     * @return Client
+     * @return \Amp\Redis\Subscriber
      */
-    public function getSubscribeClient()
+    public function getSubscribeClient(): Subscriber
     {
         return $this->subscribeClient;
     }
@@ -470,9 +577,9 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Get the Publish client instance.
      *
-     * @return Client
+     * @return \Amp\Redis\Redis
      */
-    public function getPublishClient()
+    public function getPublishClient(): AmpRedis
     {
         return $this->publishClient;
     }
@@ -480,9 +587,9 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Get the Redis client used by other classes.
      *
-     * @return Client
+     * @return \Amp\Redis\Redis
      */
-    public function getRedisClient()
+    public function getRedisClient(): AmpRedis
     {
         return $this->getPublishClient();
     }
@@ -493,13 +600,14 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $appId
      * @param  string|null  $channel
      * @param  int  $increment
-     * @return PromiseInterface[int]
+     *
+     * @return \Amp\Promise<int>
      */
-    public function incrementSubscriptionsCount($appId, string $channel = null, int $increment = 1): PromiseInterface
+    public function incrementSubscriptionsCount($appId, string $channel = null, int $increment = 1): Promise
     {
-        return $this->publishClient->hincrby(
-            $this->getStatsRedisHash($appId, $channel), 'connections', $increment
-        );
+        return $this->publishClient
+            ->getMap($this->getStatsRedisHash($appId, $channel))
+            ->increment('connections', $increment);
     }
 
     /**
@@ -507,10 +615,11 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
-     * @param  int  $decrement
-     * @return PromiseInterface[int]
+     * @param  int  $increment
+     *
+     * @return \Amp\Promise<int>
      */
-    public function decrementSubscriptionsCount($appId, string $channel = null, int $increment = 1): PromiseInterface
+    public function decrementSubscriptionsCount($appId, string $channel = null, int $increment = 1): Promise
     {
         return $this->incrementSubscriptionsCount($appId, $channel, $increment * -1);
     }
@@ -518,32 +627,34 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Add the connection to the sorted list.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @param  \DateTime|string|null  $moment
-     * @return PromiseInterface
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \DateTimeInterface|string|null  $moment
+     *
+     * @return \Amp\Promise
      */
-    public function addConnectionToSet(ConnectionInterface $connection, $moment = null): PromiseInterface
+    public function addConnectionToSet(Connection $connection, $moment = 'now'): Promise
     {
-        $moment = $moment ? Carbon::parse($moment) : Carbon::now();
+        if (!$moment instanceof DateTimeInterface) {
+            $moment = date($moment);
+        }
 
-        return $this->publishClient->zadd(
-            $this->getSocketsRedisHash(),
-            $moment->format('U'), "{$connection->app->id}:{$connection->socketId}"
-        );
+        return $this->publishClient
+            ->getSet($this->getSocketsRedisHash())
+            ->add($moment->format('U'), "{$connection->getAppId()}:{$connection->getId()}");
     }
 
     /**
      * Remove the connection from the sorted list.
      *
-     * @param  \Ratchet\ConnectionInterface  $connection
-     * @return PromiseInterface
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     *
+     * @return \Amp\Promise
      */
-    public function removeConnectionFromSet(ConnectionInterface $connection): PromiseInterface
+    public function removeConnectionFromSet(Connection $connection): Promise
     {
-        return $this->publishClient->zrem(
-            $this->getSocketsRedisHash(),
-            "{$connection->app->id}:{$connection->socketId}"
-        );
+        return $this->publishClient
+            ->getSet($this->getSocketsRedisHash())
+            ->remove("{$connection->getAppId()}:{$connection->getId()}");
     }
 
     /**
@@ -553,38 +664,50 @@ class RedisChannelManager extends LocalChannelManager
      * @param  int  $start
      * @param  int  $stop
      * @param  bool  $strict
-     * @return PromiseInterface[array]
+     *
+     * @return \Amp\Promise [array]
      */
-    public function getConnectionsFromSet(int $start = 0, int $stop = 0, bool $strict = true): PromiseInterface
+    public function getConnectionsFromSet(int $start = 0, int $stop = 0, bool $strict = true): Promise
     {
         if ($strict) {
             $start = "({$start}";
             $stop = "({$stop}";
         }
 
-        return $this->publishClient
-            ->zrangebyscore($this->getSocketsRedisHash(), $start, $stop)
-            ->then(function ($list) {
-                return collect($list)->mapWithKeys(function ($appWithSocket) {
-                    [$appId, $socketId] = explode(':', $appWithSocket);
+        // Before, this was "zrangebyscore($this->getSocketsRedisHash(), $start, $stop)"
+        // Since the Amphp Redis still doesn't have zrange, we will do it ourselves.
+        $query = $this->publishClient
+            ->query('zrange', $this->getSocketsRedisHash(), $start, $stop, 'byscore');
 
-                    return [$socketId => $appId];
-                })->toArray();
-            });
+        $query
+            ->onResolve(
+                static function (array $list): array {
+                    return collect($list)->mapWithKeys(
+                        static function (string $appWithSocket): array {
+                            [$appId, $socketId] = explode(':', $appWithSocket);
+
+                            return [$socketId => $appId];
+                        }
+                    )->toArray();
+                }
+            );
+
+        return $query;
     }
 
     /**
      * Add a channel to the set list.
      *
      * @param  string|int  $appId
-     * @param  string $channel
-     * @return PromiseInterface
+     * @param  string  $channel
+     *
+     * @return \Amp\Promise
      */
-    public function addChannelToSet($appId, string $channel): PromiseInterface
+    public function addChannelToSet($appId, string $channel): Promise
     {
-        return $this->publishClient->sadd(
-            $this->getChannelsRedisHash($appId), $channel
-        );
+        return $this->publishClient
+            ->getSet($this->getChannelsRedisHash($appId))
+            ->add($channel);
     }
 
     /**
@@ -592,44 +715,47 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @return PromiseInterface
+     *
+     * @return Promise
      */
-    public function removeChannelFromSet($appId, string $channel): PromiseInterface
+    public function removeChannelFromSet($appId, string $channel): Promise
     {
-        return $this->publishClient->srem(
-            $this->getChannelsRedisHash($appId), $channel
-        );
+        return $this->publishClient
+            ->getSet($this->getChannelsRedisHash($appId))
+            ->remove($channel);
     }
 
     /**
      * Set data for a topic. Might be used for the presence channels.
      *
      * @param  string|int  $appId
-     * @param  string|null  $channel
      * @param  string  $key
      * @param  string  $data
-     * @return PromiseInterface
+     * @param  string|null  $channel
+     *
+     * @return \Amp\Promise
      */
-    public function storeUserData($appId, string $channel = null, string $key, $data): PromiseInterface
+    public function storeUserData($appId, string $key, string $data, string $channel = null): Promise
     {
-        return $this->publishClient->hset(
-            $this->getUsersRedisHash($appId, $channel), $key, $data
-        );
+        return $this->publishClient
+            ->getMap($this->getUsersRedisHash($appId, $channel))
+            ->setValue($key, $data);
     }
 
     /**
      * Remove data for a topic. Might be used for the presence channels.
      *
      * @param  string|int  $appId
-     * @param  string|null  $channel
      * @param  string  $key
-     * @return PromiseInterface
+     * @param  string|null  $channel
+     *
+     * @return \Amp\Promise
      */
-    public function removeUserData($appId, string $channel = null, string $key): PromiseInterface
+    public function removeUserData($appId, string $key, string $channel = null): Promise
     {
-        return $this->publishClient->hdel(
-            $this->getUsersRedisHash($appId, $channel), $key
-        );
+        return $this->publishClient
+            ->getMap($this->getUsersRedisHash($appId, $channel))
+            ->remove($key);
     }
 
     /**
@@ -637,18 +763,32 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
-     * @return PromiseInterface
+     *
+     * @return \Amp\Promise<\Amp\Redis\Subscription>
      */
-    public function subscribeToTopic($appId, string $channel = null): PromiseInterface
+    public function subscribeToTopic($appId, string $channel = null): Promise
     {
         $topic = $this->getRedisTopicName($appId, $channel);
 
-        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED, [
-            'serverId' => $this->getServerId(),
-            'pubsubTopic' => $topic,
-        ]);
+        app(DashboardLogger::class)->log(
+            $appId,
+            DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED,
+            [
+                'serverId'    => $this->getServerId(),
+                'pubsubTopic' => $topic,
+            ]
+        );
 
-        return $this->subscribeClient->subscribe($topic);
+        $subscription = $this->subscribeClient->subscribe($topic);
+
+        // Add the subscription to this channel manager once it's done.
+        $subscription->onResolve(
+            function (Subscription $subscription) use ($topic): void {
+                $this->subscriptions[$topic] = $subscription;
+            }
+        );
+
+        return $subscription;
     }
 
     /**
@@ -656,18 +796,31 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
-     * @return PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    public function unsubscribeFromTopic($appId, string $channel = null): PromiseInterface
+    public function unsubscribeFromTopic($appId, string $channel = null): Promise
     {
         $topic = $this->getRedisTopicName($appId, $channel);
 
-        DashboardLogger::log($appId, DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED, [
-            'serverId' => $this->getServerId(),
-            'pubsubTopic' => $topic,
-        ]);
+        app(DashboardLogger::class)->log(
+            $appId,
+            DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED,
+            [
+                'serverId'    => $this->getServerId(),
+                'pubsubTopic' => $topic,
+            ]
+        );
 
-        return $this->subscribeClient->unsubscribe($topic);
+        $subscription = $this->subscriptions[$topic];
+
+        unset($this->subscriptions[$topic]);
+
+        return new LazyPromise(
+            static function () use ($subscription): Subscription {
+                return $subscription;
+            }
+        );
     }
 
     /**
@@ -675,15 +828,16 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @param  stdClass  $user
+     * @param  object  $user
      * @param  string  $socketId
-     * @return PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    protected function addUserSocket($appId, string $channel, stdClass $user, string $socketId): PromiseInterface
+    protected function addUserSocket($appId, string $channel, object $user, string $socketId): Promise
     {
-        return $this->publishClient->sadd(
-            $this->getUserSocketsRedisHash($appId, $channel, $user->user_id), $socketId
-        );
+        return $this->publishClient
+            ->getSet($this->getUserSocketsRedisHash($appId, $channel, $user->user_id))
+            ->add($socketId);
     }
 
     /**
@@ -691,15 +845,16 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string  $channel
-     * @param  stdClass  $user
+     * @param  object  $user
      * @param  string  $socketId
-     * @return PromiseInterface
+     *
+     * @return \Amp\Promise
      */
-    protected function removeUserSocket($appId, string $channel, stdClass $user, string $socketId): PromiseInterface
+    protected function removeUserSocket($appId, string $channel, object $user, string $socketId): Promise
     {
-        return $this->publishClient->srem(
-            $this->getUserSocketsRedisHash($appId, $channel, $user->user_id), $socketId
-        );
+        return $this->publishClient
+            ->getSet($this->getUserSocketsRedisHash($appId, $channel, $user->user_id))
+            ->remove($socketId);
     }
 
     /**
@@ -708,13 +863,12 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int|null  $appId
      * @param  string|null  $channel
+     *
      * @return string
      */
     public function getRedisKey($appId = null, string $channel = null, array $suffixes = []): string
     {
-        $prefix = config('database.redis.options.prefix', null);
-
-        $hash = "{$prefix}{$appId}";
+        $hash = config('database.redis.options.prefix') . $appId;
 
         if ($channel) {
             $suffixes = array_merge([$channel], $suffixes);
@@ -734,6 +888,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
+     *
      * @return string
      */
     public function getStatsRedisHash($appId, string $channel = null): string
@@ -756,6 +911,7 @@ class RedisChannelManager extends LocalChannelManager
      * to store existing channels.
      *
      * @param  string|int  $appId
+     *
      * @return string
      */
     public function getChannelsRedisHash($appId): string
@@ -768,6 +924,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
+     *
      * @return string
      */
     public function getUsersRedisHash($appId, string $channel = null): string
@@ -782,6 +939,7 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $appId
      * @param  string|null  $channel
      * @param  string|int|null  $userId
+     *
      * @return string
      */
     public function getUserSocketsRedisHash($appId, string $channel = null, $userId = null): string
@@ -795,6 +953,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @param  string|int  $appId
      * @param  string|null  $channel
+     *
      * @return string
      */
     public function getRedisTopicName($appId, string $channel = null): string
@@ -805,21 +964,22 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Get a new RedisLock instance to avoid race conditions.
      *
-     * @return \Illuminate\Cache\CacheLock
+     * @return \Illuminate\Cache\RedisLock
      */
-    protected function lock()
+    protected function lock(): Lock
     {
         return new RedisLock($this->redis, static::$lockName, 0);
     }
 
     /**
-     * Create a fake connection for app that will mimick a connection
+     * Create a fake connection for app that will mimic a connection
      * by app ID and Socket ID to be able to be passed to the methods
      * that accepts a connection class.
      *
      * @param  string|int  $appId
      * @param  string  $socketId
-     * @return ConnectionInterface
+     *
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Connection
      */
     public function fakeConnectionForApp($appId, string $socketId)
     {

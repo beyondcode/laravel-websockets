@@ -2,6 +2,8 @@
 
 namespace BeyondCode\LaravelWebSockets\Console\Commands;
 
+use Amp\Http\Server\HttpServer;
+use Amp\Loop;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector as StatisticsCollectorFacade;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketRouter;
@@ -11,7 +13,8 @@ use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use React\EventLoop\Factory as LoopFactory;
+
+use function Amp\Promise\wait;
 
 class StartServer extends Command
 {
@@ -21,12 +24,10 @@ class StartServer extends Command
      * @var string
      */
     protected $signature = 'websockets:serve
-        {--host=0.0.0.0}
-        {--port=6001}
+        {--listen=0.0.0.0:6001,[::1]:6001 : Address to listen to, separated by comma (0.0.0.0:6001,[::1]:6001)}
         {--disable-statistics : Disable the statistics tracking.}
         {--statistics-interval= : The amount of seconds to tick between statistics saving.}
         {--debug : Forces the loggers to be enabled and thereby overriding the APP_DEBUG setting.}
-        {--loop : Programatically inject the loop.}
     ';
 
     /**
@@ -37,37 +38,25 @@ class StartServer extends Command
     protected $description = 'Start the LaravelWebSockets server.';
 
     /**
-     * Get the loop instance.
-     *
-     * @var \React\EventLoop\LoopInterface
-     */
-    protected $loop;
-
-    /**
      * The Pusher server instance.
      *
-     * @var \Ratchet\Server\IoServer
+     * @var \Amp\Http\Server\HttpServer
      */
     public $server;
 
     /**
-     * Initialize the command.
+     * Last time the server restarted.
      *
-     * @return void
+     * @var int
      */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->loop = LoopFactory::create();
-    }
+    protected $lastRestart;
 
     /**
      * Run the command.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->configureLoggers();
 
@@ -91,7 +80,7 @@ class StartServer extends Command
      *
      * @return void
      */
-    protected function configureLoggers()
+    protected function configureLoggers(): void
     {
         $this->configureHttpLogger();
         $this->configureMessageLogger();
@@ -104,16 +93,19 @@ class StartServer extends Command
      *
      * @return void
      */
-    protected function configureManagers()
+    protected function configureManagers(): void
     {
-        $this->laravel->singleton(ChannelManager::class, function ($app) {
-            $config = $app['config']['websockets'];
-            $mode = $config['replication']['mode'] ?? 'local';
+        $this->laravel->singleton(
+            ChannelManager::class,
+            function ($app) {
+                $config = $app['config']['websockets'];
+                $mode = $config['replication']['mode'] ?? 'local';
 
-            $class = $config['replication']['modes'][$mode]['channel_manager'];
+                $class = $config['replication']['modes'][$mode]['channel_manager'];
 
-            return new $class($this->loop);
-        });
+                return new $class();
+            }
+        );
     }
 
     /**
@@ -122,16 +114,22 @@ class StartServer extends Command
      *
      * @return void
      */
-    protected function configureStatistics()
+    protected function configureStatistics(): void
     {
-        if (! $this->option('disable-statistics')) {
-            $intervalInSeconds = $this->option('statistics-interval') ?: config('websockets.statistics.interval_in_seconds', 3600);
+        if (!$this->option('disable-statistics')) {
+            $intervalInSeconds = $this->option('statistics-interval') ?: config(
+                'websockets.statistics.interval_in_seconds',
+                3600
+            );
 
-            $this->loop->addPeriodicTimer($intervalInSeconds, function () {
-                $this->line('Saving statistics...');
+            Loop::repeat(
+                $intervalInSeconds * 1000,
+                function (): void {
+                    $this->line('Saving statistics...');
 
-                StatisticsCollectorFacade::save();
-            });
+                    StatisticsCollectorFacade::save();
+                }
+            );
         }
     }
 
@@ -144,11 +142,14 @@ class StartServer extends Command
     {
         $this->lastRestart = $this->getLastRestart();
 
-        $this->loop->addPeriodicTimer(10, function () {
-            if ($this->getLastRestart() !== $this->lastRestart) {
-                $this->triggerSoftShutdown();
+        Loop::repeat(
+            10000,
+            function () {
+                if ($this->getLastRestart() !== $this->lastRestart) {
+                    $this->triggerSoftShutdown();
+                }
             }
-        });
+        );
     }
 
     /**
@@ -173,21 +174,27 @@ class StartServer extends Command
         // to receive new connections, close the current connections,
         // then stopping the loop.
 
-        if (! extension_loaded('pcntl')) {
+        if (!extension_loaded('pcntl')) {
             return;
         }
 
-        $this->loop->addSignal(SIGTERM, function () {
-            $this->line('Closing existing connections...');
+        Loop::onSignal(
+            SIGTERM,
+            function () {
+                $this->line('Closing existing connections...');
 
-            $this->triggerSoftShutdown();
-        });
+                $this->triggerSoftShutdown();
+            }
+        );
 
-        $this->loop->addSignal(SIGINT, function () {
-            $this->line('Closing existing connections...');
+        Loop::onSignal(
+            SIGINT,
+            function () {
+                $this->line('Closing existing connections...');
 
-            $this->triggerSoftShutdown();
-        });
+                $this->triggerSoftShutdown();
+            }
+        );
     }
 
     /**
@@ -198,11 +205,14 @@ class StartServer extends Command
      */
     protected function configurePongTracker()
     {
-        $this->loop->addPeriodicTimer(10, function () {
-            $this->laravel
-                ->make(ChannelManager::class)
-                ->removeObsoleteConnections();
-        });
+        Loop::repeat(
+            10000,
+            function () {
+                $this->laravel
+                    ->make(ChannelManager::class)
+                    ->removeObsoleteConnections();
+            }
+        );
     }
 
     /**
@@ -212,11 +222,14 @@ class StartServer extends Command
      */
     protected function configureHttpLogger()
     {
-        $this->laravel->singleton(HttpLogger::class, function ($app) {
-            return (new HttpLogger($this->output))
-                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
-                ->verbose($this->output->isVerbose());
-        });
+        $this->laravel->singleton(
+            HttpLogger::class,
+            function ($app) {
+                return (new HttpLogger($this->output))
+                    ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
+                    ->verbose($this->output->isVerbose());
+            }
+        );
     }
 
     /**
@@ -226,11 +239,14 @@ class StartServer extends Command
      */
     protected function configureMessageLogger()
     {
-        $this->laravel->singleton(WebSocketsLogger::class, function ($app) {
-            return (new WebSocketsLogger($this->output))
-                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
-                ->verbose($this->output->isVerbose());
-        });
+        $this->laravel->singleton(
+            WebSocketsLogger::class,
+            function ($app) {
+                return (new WebSocketsLogger($this->output))
+                    ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
+                    ->verbose($this->output->isVerbose());
+            }
+        );
     }
 
     /**
@@ -240,11 +256,14 @@ class StartServer extends Command
      */
     protected function configureConnectionLogger()
     {
-        $this->laravel->bind(ConnectionLogger::class, function ($app) {
-            return (new ConnectionLogger($this->output))
-                ->enable($app['config']['app']['debug'] ?? false)
-                ->verbose($this->output->isVerbose());
-        });
+        $this->laravel->bind(
+            ConnectionLogger::class,
+            function ($app) {
+                return (new ConnectionLogger($this->output))
+                    ->enable($app['config']['app']['debug'] ?? false)
+                    ->verbose($this->output->isVerbose());
+            }
+        );
     }
 
     /**
@@ -252,34 +271,34 @@ class StartServer extends Command
      *
      * @return void
      */
-    protected function startServer()
+    protected function startServer(): void
     {
-        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
+        $this->info("Starting the WebSocket server on addresses:");
+        foreach ($listeners = explode(',', $this->option('listen')) as $listen) {
+            $this->info(" - $listen");
+        }
+        $this->info('');
 
-        $this->buildServer();
+        $this->server = $this->buildServer($listeners);
 
-        $this->server->run();
+        $this->server->start();
+
+        Loop::run();
     }
 
     /**
      * Build the server instance.
      *
-     * @return void
+     * @return \Amp\Http\Server\HttpServer
+     * @throws \Amp\Socket\SocketException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function buildServer()
+    protected function buildServer(array $listeners): HttpServer
     {
-        $this->server = new ServerFactory(
-            $this->option('host'), $this->option('port')
-        );
-
-        if ($loop = $this->option('loop')) {
-            $this->loop = $loop;
-        }
-
-        $this->server = $this->server
-            ->setLoop($this->loop)
+        return (new ServerFactory($this->laravel->make('log')))
             ->withRoutes(WebSocketRouter::getRoutes())
             ->setConsoleOutput($this->output)
+            ->listenOn($listeners)
             ->createServer();
     }
 
@@ -288,35 +307,51 @@ class StartServer extends Command
      *
      * @return int
      */
-    protected function getLastRestart()
+    protected function getLastRestart(): int
     {
-        return Cache::get(
-            'beyondcode:websockets:restart', 0
-        );
+        return Cache::get('beyondcode:websockets:restart', 0);
     }
 
     /**
      * Trigger a soft shutdown for the process.
      *
      * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function triggerSoftShutdown()
+    protected function triggerSoftShutdown(): void
     {
+        /** @var \BeyondCode\LaravelWebSockets\Contracts\ChannelManager $channelManager */
         $channelManager = $this->laravel->make(ChannelManager::class);
 
-        // Close the new connections allowance on this server.
+        $this->info('Shutting down Websocket Servers...');
+
+        // Close the new clients allowance on this server.
         $channelManager->declineNewConnections();
 
-        // Get all local connections and close them. They will
+        // Get all local clients and close them. They will
         // be automatically be unsubscribed from all channels.
-        $channelManager->getLocalConnections()
-            ->then(function ($connections) {
-                foreach ($connections as $connection) {
-                    $connection->close();
-                }
-            })
-            ->then(function () {
-                $this->loop->stop();
-            });
+        $channelManager->getLocalConnections()->onResolve(
+            function ($error, $clients): void {
+                static::closeAllConnections($clients);
+            }
+        );
+
+        $this->info('Done.');
+
+        Loop::stop();
+    }
+
+    /**
+     * Close the connection of each Client connected to the server.
+     *
+     * @param  array|\Amp\Websocket\Client[]  $clients
+     */
+    public function closeAllConnections(array $clients): void
+    {
+        foreach ($clients as $client) {
+            $client->close();
+        }
+
+        $this->info('Closed ' . count($clients) . ' connections.');
     }
 }

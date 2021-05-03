@@ -13,11 +13,6 @@ class QueryParameters
      */
     protected $request;
 
-    public static function create(RequestInterface $request)
-    {
-        return new static($request);
-    }
-
     /**
      * Initialize the class.
      *
@@ -52,5 +47,17 @@ class QueryParameters
     public function get(string $name): string
     {
         return $this->all()[$name] ?? '';
+    }
+
+    /**
+     * Creates a new Query Parameter instance.
+     *
+     * @param  \Psr\Http\Message\RequestInterface  $request
+     *
+     * @return static
+     */
+    public static function create(RequestInterface $request): QueryParameters
+    {
+        return new static($request);
     }
 }

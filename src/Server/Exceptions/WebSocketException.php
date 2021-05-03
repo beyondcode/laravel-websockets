@@ -11,7 +11,7 @@ class WebSocketException extends Exception
      *
      * @return array
      */
-    public function getPayload()
+    public function getPayload(): array
     {
         return [
             'event' => 'pusher:error',
@@ -29,7 +29,7 @@ class WebSocketException extends Exception
      * @param  int  $code
      * @return void
      */
-    public function trigger(string $message, int $code = 4001)
+    public function trigger(string $message, int $code = 4001): void
     {
         $this->message = $message;
         $this->code = $code;

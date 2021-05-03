@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use React\Promise\PromiseInterface;
+use Amp\Promise;
 
 interface StatisticsCollector
 {
@@ -12,7 +12,7 @@ interface StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function webSocketMessage($appId);
+    public function webSocketMessage($appId): void;
 
     /**
      * Handle the incoming API message.
@@ -20,15 +20,15 @@ interface StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function apiMessage($appId);
+    public function apiMessage($appId): void;
 
     /**
-     * Handle the new conection.
+     * Handle the new connection.
      *
      * @param  string|int  $appId
      * @return void
      */
-    public function connection($appId);
+    public function connection($appId): void;
 
     /**
      * Handle disconnections.
@@ -36,36 +36,36 @@ interface StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function disconnection($appId);
+    public function disconnection($appId): void;
 
     /**
      * Save all the stored statistics.
      *
      * @return void
      */
-    public function save();
+    public function save(): void;
 
     /**
      * Flush the stored statistics.
      *
      * @return void
      */
-    public function flush();
+    public function flush(): void;
 
     /**
      * Get the saved statistics.
      *
-     * @return PromiseInterface[array]
+     * @return \Amp\Promise
      */
-    public function getStatistics(): PromiseInterface;
+    public function getStatistics(): Promise;
 
     /**
      * Get the saved statistics for an app.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[\BeyondCode\LaravelWebSockets\Statistics\Statistic|null]
+     * @return \Amp\Promise
      */
-    public function getAppStatistics($appId): PromiseInterface;
+    public function getAppStatistics($appId): Promise;
 
     /**
      * Remove all app traces from the database if no connections have been set
@@ -74,5 +74,5 @@ interface StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function resetAppTraces($appId);
+    public function resetAppTraces($appId): void;
 }

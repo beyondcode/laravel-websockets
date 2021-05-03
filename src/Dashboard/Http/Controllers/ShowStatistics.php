@@ -12,22 +12,17 @@ class ShowStatistics
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  mixed  $appId
-     * @return \Illuminate\Http\Response
+     *
+     * @return array
      */
-    public function __invoke(Request $request, $appId)
+    public function __invoke(Request $request, $appId): array
     {
-        $processQuery = function ($query) use ($appId) {
-            return $query->whereAppId($appId)
-                ->latest()
-                ->limit(120);
-        };
-
-        $processCollection = function ($collection) {
-            return $collection->reverse();
-        };
-
         return StatisticsStore::getForGraph(
-            $processQuery, $processCollection
+            function ($query) use ($appId) {
+                return $query->whereAppId($appId)->latest()->limit(120);
+            }, function ($collection) {
+                return $collection->reverse();
+            }
         );
     }
 }

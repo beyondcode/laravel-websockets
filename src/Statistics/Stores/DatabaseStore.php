@@ -3,9 +3,11 @@
 namespace BeyondCode\LaravelWebSockets\Statistics\Stores;
 
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
+use BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 class DatabaseStore implements StatisticsStore
 {
@@ -14,34 +16,52 @@ class DatabaseStore implements StatisticsStore
      *
      * @var string
      */
-    public static $model = \BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry::class;
+    public $model = WebSocketsStatisticsEntry::class;
 
     /**
-     * Store a new record in the database and return
-     * the created instance.
+     * Creates a new Model.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    protected function newModel(): Model
+    {
+        return (new $this->model);
+    }
+
+    /**
+     * Creates a new query for the current model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function newQuery(): Builder
+    {
+        return $this->newModel()->newQuery();
+    }
+
+    /**
+     * Store a new record in the database and return the created instance.
      *
      * @param  array  $data
      * @return mixed
      */
-    public static function store(array $data)
+    public function store(array $data)
     {
-        return static::$model::create($data);
+        return tap($this->newModel()->fill($data))->save();
     }
 
     /**
-     * Delete records older than the given moment,
-     * for a specific app id (if given), returning
-     * the amount of deleted records.
+     * Delete records older than the given moment, for a specific app id (if given).
      *
      * @param  \Carbon\Carbon  $moment
      * @param  string|int|null  $appId
-     * @return int
+     * @return int  The amount of deleted records
      */
-    public static function delete(Carbon $moment, $appId = null): int
+    public function delete(Carbon $moment, $appId = null): int
     {
-        return static::$model::where('created_at', '<', $moment->toDateTimeString())
-            ->when(! is_null($appId), function ($query) use ($appId) {
-                return $query->whereAppId($appId);
+        return $this->newQuery()
+            ->where($this->newModel()->getCreatedAtColumn(), '<', $moment->toDateTimeString())
+            ->when($appId, static function (Builder $query) use ($appId): void {
+                 $query->where('app_id', $appId);
             })
             ->delete();
     }
@@ -49,59 +69,57 @@ class DatabaseStore implements StatisticsStore
     /**
      * Get the query result as eloquent collection.
      *
-     * @param  callable  $processQuery
-     * @return \Illuminate\Support\Collection
+     * @param  callable|null  $processQuery
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getRawRecords(callable $processQuery = null)
+    public function getRawRecords(callable $processQuery = null): Collection
     {
-        return static::$model::query()
-            ->when(! is_null($processQuery), function ($query) use ($processQuery) {
-                return call_user_func($processQuery, $query);
-            }, function ($query) {
-                return $query->latest()->limit(120);
+        return $this->newQuery()
+            ->when($processQuery, static function (Builder $query) use ($processQuery): void {
+                $processQuery($query);
+            }, static function (Builder $query): void {
+                $query->latest()->limit(120);
             })->get();
     }
 
     /**
      * Get the results for a specific query.
      *
-     * @param  callable  $processQuery
-     * @param  callable  $processCollection
+     * @param  callable|null  $processQuery
+     * @param  callable|null  $processCollection
+     *
      * @return array
      */
-    public function getRecords(callable $processQuery = null, callable $processCollection = null): array
+    public function getRecords(callable $processQuery = null, callable $processCollection = null): Collection
     {
         return $this->getRawRecords($processQuery)
-            ->when(! is_null($processCollection), function ($collection) use ($processCollection) {
-                return call_user_func($processCollection, $collection);
+            ->when($processCollection, static function ($collection) use ($processCollection): Collection {
+                return $processCollection($collection);
             })
-            ->map(function (Model $statistic) {
+            ->map(function (Model $statistic): array {
                 return $this->statisticToArray($statistic);
-            })
-            ->toArray();
+            });
     }
 
     /**
      * Get the results for a specific query into a
      * format that is easily to read for graphs.
      *
-     * @param  callable  $processQuery
-     * @param  callable  $processCollection
+     * @param  callable|null  $processQuery
+     * @param  callable|null  $processCollection
+     *
      * @return array
      */
     public function getForGraph(callable $processQuery = null, callable $processCollection = null): array
     {
-        $statistics = collect(
-            $this->getRecords($processQuery, $processCollection)
-        );
-
-        return $this->statisticsToGraph($statistics);
+        return $this->statisticsToGraph($this->getRecords($processQuery, $processCollection));
     }
 
     /**
      * Turn the statistic model to an array.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $statistic
+     * @param  \Illuminate\Database\Eloquent\Model|\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry  $statistic
      * @return array
      */
     protected function statisticToArray(Model $statistic): array
@@ -117,7 +135,7 @@ class DatabaseStore implements StatisticsStore
     /**
      * Turn the statistics collection to an array used for graph.
      *
-     * @param  \Illuminate\Support\Collection  $statistics
+     * @param  \Illuminate\Database\Eloquent\Collection  $statistics
      * @return array
      */
     protected function statisticsToGraph(Collection $statistics): array

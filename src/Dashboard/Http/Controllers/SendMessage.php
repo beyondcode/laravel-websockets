@@ -5,7 +5,9 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
 use BeyondCode\LaravelWebSockets\Rules\AppId;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class SendMessage
 {
@@ -15,12 +17,14 @@ class SendMessage
      * Send the message to the requested channel.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \BeyondCode\LaravelWebSockets\Rules\AppId  $rule
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, AppId $rule): JsonResponse
     {
         $request->validate([
-            'appId' => ['required', new AppId],
+            'appId' => ['required', $rule],
             'key' => 'required|string',
             'secret' => 'required|string',
             'event' => 'required|string',
@@ -35,22 +39,15 @@ class SendMessage
         ]);
 
         try {
-            $decodedData = json_decode($request->data, true);
-
             $broadcaster->broadcast(
                 [$request->channel],
                 $request->event,
-                $decodedData ?: []
+                json_decode($request->data, true) ?: []
             );
-        } catch (Exception $e) {
-            return response()->json([
-                'ok' => false,
-                'exception' => $e->getMessage(),
-            ]);
+        } catch (Throwable $exception) {
+            return response()->json(['ok' => false, 'exception' => $exception->getMessage()]);
         }
 
-        return response()->json([
-            'ok' => true,
-        ]);
+        return response()->json(['ok' => true]);
     }
 }

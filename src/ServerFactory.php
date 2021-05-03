@@ -2,93 +2,77 @@
 
 namespace BeyondCode\LaravelWebSockets;
 
-use BeyondCode\LaravelWebSockets\Server\HttpServer;
-use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
-use Ratchet\Http\Router;
-use Ratchet\Server\IoServer;
-use React\EventLoop\Factory as LoopFactory;
-use React\EventLoop\LoopInterface;
-use React\Socket\SecureServer;
-use React\Socket\Server;
+use Amp\Http\Server\HttpServer;
+use Amp\Socket\Server;
+use Amp\Websocket\Server\Websocket;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
 class ServerFactory
 {
     /**
-     * The host the server will run on.
-     *
-     * @var string
-     */
-    protected $host = '127.0.0.1';
-
-    /**
-     * The port to run on.
-     *
-     * @var int
-     */
-    protected $port = 8080;
-
-    /**
-     * The event loop instance.
-     *
-     * @var \React\EventLoop\LoopInterface
-     */
-    protected $loop;
-
-    /**
      * The routes to register.
      *
-     * @var \Symfony\Component\Routing\RouteCollection
+     * @var \Illuminate\Routing\RouteCollection
      */
     protected $routes;
 
     /**
      * Console output.
      *
-     * @var Symfony\Component\Console\Output\OutputInterface
+     * @var \Symfony\Component\Console\Output\OutputInterface
      */
     protected $consoleOutput;
 
     /**
+     * Sockets to open and listen on.
+     *
+     * @var array|string[]
+     */
+    protected $listen = [];
+
+    /**
+     * Logger to use with Websockets.
+     *
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Initialize the class.
      *
-     * @param  string  $host
-     * @param  int  $port
-     * @return void
+     * @param  \Psr\Log\LoggerInterface  $logger
      */
-    public function __construct(string $host, int $port)
+    public function __construct(LoggerInterface $logger)
     {
-        $this->host = $host;
-        $this->port = $port;
+        $this->logger = $logger;
+    }
 
-        $this->loop = LoopFactory::create();
+    /**
+     * Sets the sockets addresses to listen on.
+     *
+     * @param  array  $listen
+     *
+     * @return \BeyondCode\LaravelWebSockets\ServerFactory
+     */
+    public function listenOn(array $listen): ServerFactory
+    {
+        $this->listen = $listen;
+
+        return $this;
     }
 
     /**
      * Add the routes.
      *
      * @param  \Symfony\Component\Routing\RouteCollection  $routes
+     *
      * @return $this
      */
-    public function withRoutes(RouteCollection $routes)
+    public function withRoutes(RouteCollection $routes): ServerFactory
     {
         $this->routes = $routes;
-
-        return $this;
-    }
-
-    /**
-     * Set the loop instance.
-     *
-     * @param  \React\EventLoop\LoopInterface  $loop
-     * @return $this
-     */
-    public function setLoop(LoopInterface $loop)
-    {
-        $this->loop = $loop;
 
         return $this;
     }
@@ -99,7 +83,7 @@ class ServerFactory
      * @param  \Symfony\Component\Console\Output\OutputInterface  $consoleOutput
      * @return $this
      */
-    public function setConsoleOutput(OutputInterface $consoleOutput)
+    public function setConsoleOutput(OutputInterface $consoleOutput): ServerFactory
     {
         $this->consoleOutput = $consoleOutput;
 
@@ -109,26 +93,17 @@ class ServerFactory
     /**
      * Set up the server.
      *
-     * @return \Ratchet\Server\IoServer
+     * @return \Amp\Http\Server\HttpServer
+     * @throws \Amp\Socket\SocketException
      */
-    public function createServer(): IoServer
+    public function createServer(): HttpServer
     {
-        $socket = new Server("{$this->host}:{$this->port}", $this->loop);
+        $sockets = [];
 
-        if (config('websockets.ssl.local_cert')) {
-            $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
+        foreach ($this->listen as $socket) {
+            $sockets[] = Server::listen($socket);
         }
 
-        $app = new Router(
-            new UrlMatcher($this->routes, new RequestContext)
-        );
-
-        $httpServer = new HttpServer($app, config('websockets.max_request_size_in_kb') * 1024);
-
-        if (HttpLogger::isEnabled()) {
-            $httpServer = HttpLogger::decorate($httpServer);
-        }
-
-        return new IoServer($httpServer, $socket, $this->loop);
+        return new HttpServer($sockets, new Websocket(new WebSocketHandler()), $this->logger);
     }
 }

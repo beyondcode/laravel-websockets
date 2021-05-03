@@ -6,23 +6,15 @@ use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 
 class DashboardLogger
 {
-    const LOG_CHANNEL_PREFIX = 'private-websockets-dashboard-';
-
-    const TYPE_DISCONNECTED = 'disconnected';
-
-    const TYPE_CONNECTED = 'connected';
-
-    const TYPE_SUBSCRIBED = 'subscribed';
-
-    const TYPE_WS_MESSAGE = 'ws-message';
-
-    const TYPE_API_MESSAGE = 'api-message';
-
-    const TYPE_REPLICATOR_SUBSCRIBED = 'replicator-subscribed';
-
-    const TYPE_REPLICATOR_UNSUBSCRIBED = 'replicator-unsubscribed';
-
-    const TYPE_REPLICATOR_MESSAGE_RECEIVED = 'replicator-message-received';
+    public const LOG_CHANNEL_PREFIX = 'private-websockets-dashboard-';
+    public const TYPE_DISCONNECTED = 'disconnected';
+    public const TYPE_CONNECTED = 'connected';
+    public const TYPE_SUBSCRIBED = 'subscribed';
+    public const TYPE_WS_MESSAGE = 'ws-message';
+    public const TYPE_API_MESSAGE = 'api-message';
+    public const TYPE_REPLICATOR_SUBSCRIBED = 'replicator-subscribed';
+    public const TYPE_REPLICATOR_UNSUBSCRIBED = 'replicator-unsubscribed';
+    public const TYPE_REPLICATOR_MESSAGE_RECEIVED = 'replicator-message-received';
 
     /**
      * The list of all channels.
@@ -41,6 +33,23 @@ class DashboardLogger
     ];
 
     /**
+     * Channel Manager
+     *
+     * @var \BeyondCode\LaravelWebSockets\Contracts\ChannelManager
+     */
+    protected $channelManager;
+
+    /**
+     * DashboardLogger constructor.
+     *
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\ChannelManager  $manager
+     */
+    public function __construct(ChannelManager $manager)
+    {
+        $this->channelManager = $manager;
+    }
+
+    /**
      * Log an event for an app.
      *
      * @param  mixed  $appId
@@ -48,10 +57,8 @@ class DashboardLogger
      * @param  array  $details
      * @return void
      */
-    public static function log($appId, string $type, array $details = [])
+    public function log($appId, string $type, array $details = []): void
     {
-        $channelManager = app(ChannelManager::class);
-
         $channelName = static::LOG_CHANNEL_PREFIX.$type;
 
         $payload = [
@@ -64,20 +71,13 @@ class DashboardLogger
             ],
         ];
 
-        // Here you can use the ->find(), even if the channel
-        // does not exist on the server. If it does not exist,
-        // then the message simply will get broadcasted
-        // across the other servers.
-        $channel = $channelManager->find($appId, $channelName);
-
-        if ($channel) {
-            $channel->broadcastLocally(
-                $appId, (object) $payload
-            );
+        // Here you can use the ->find(), even if the channel does not exist on
+        // the server. If it does not exist, then the message simply will be
+        // broadcast across the other servers.
+        if ($channel = $this->channelManager->find($appId, $channelName)) {
+            $channel->broadcastLocally($appId, $payload);
         }
 
-        $channelManager->broadcastAcrossServers(
-            $appId, null, $channelName, (object) $payload
-        );
+        $this->channelManager->broadcastAcrossServers($appId, null, $channelName, $payload);
     }
 }

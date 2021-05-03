@@ -2,12 +2,12 @@
 
 namespace BeyondCode\LaravelWebSockets\Statistics\Collectors;
 
+use Amp\Promise;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
-use React\Promise\PromiseInterface;
 
 class MemoryCollector implements StatisticsCollector
 {
@@ -30,9 +30,9 @@ class MemoryCollector implements StatisticsCollector
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ChannelManager $channelManager)
     {
-        $this->channelManager = app(ChannelManager::class);
+        $this->channelManager = $channelManager;
     }
 
     /**
@@ -41,10 +41,9 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function webSocketMessage($appId)
+    public function webSocketMessage($appId): void
     {
-        $this->findOrMake($appId)
-            ->webSocketMessage();
+        $this->findOrMake($appId)->webSocketMessage();
     }
 
     /**
@@ -53,22 +52,20 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function apiMessage($appId)
+    public function apiMessage($appId): void
     {
-        $this->findOrMake($appId)
-            ->apiMessage();
+        $this->findOrMake($appId)->apiMessage();
     }
 
     /**
-     * Handle the new conection.
+     * Handle the new connection.
      *
      * @param  string|int  $appId
      * @return void
      */
-    public function connection($appId)
+    public function connection($appId): void
     {
-        $this->findOrMake($appId)
-            ->connection();
+        $this->findOrMake($appId)->connection();
     }
 
     /**
@@ -77,7 +74,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function disconnection($appId)
+    public function disconnection($appId): void
     {
         $this->findOrMake($appId)
             ->disconnection();
@@ -88,9 +85,9 @@ class MemoryCollector implements StatisticsCollector
      *
      * @return void
      */
-    public function save()
+    public function save(): void
     {
-        $this->getStatistics()->then(function ($statistics) {
+        $this->getStatistics()->onResolve(function ($error, $statistics): void {
             foreach ($statistics as $appId => $statistic) {
                 if (! $statistic->isEnabled()) {
                     continue;
@@ -106,10 +103,8 @@ class MemoryCollector implements StatisticsCollector
 
                 $this->channelManager
                     ->getGlobalConnectionsCount($appId)
-                    ->then(function ($connections) use ($statistic) {
-                        $statistic->reset(
-                            is_null($connections) ? 0 : $connections
-                        );
+                    ->onResolve(static function (?int $connections) use ($statistic): void {
+                        $statistic->reset((int)$connections);
                     });
             }
         });
@@ -120,7 +115,7 @@ class MemoryCollector implements StatisticsCollector
      *
      * @return void
      */
-    public function flush()
+    public function flush(): void
     {
         $this->statistics = [];
     }
@@ -128,9 +123,9 @@ class MemoryCollector implements StatisticsCollector
     /**
      * Get the saved statistics.
      *
-     * @return PromiseInterface[array]
+     * @return \Amp\Promise
      */
-    public function getStatistics(): PromiseInterface
+    public function getStatistics(): Promise
     {
         return Helpers::createFulfilledPromise($this->statistics);
     }
@@ -139,13 +134,11 @@ class MemoryCollector implements StatisticsCollector
      * Get the saved statistics for an app.
      *
      * @param  string|int  $appId
-     * @return PromiseInterface[\BeyondCode\LaravelWebSockets\Statistics\Statistic|null]
+     * @return \Amp\Promise
      */
-    public function getAppStatistics($appId): PromiseInterface
+    public function getAppStatistics($appId): Promise
     {
-        return Helpers::createFulfilledPromise(
-            $this->statistics[$appId] ?? null
-        );
+        return Helpers::createFulfilledPromise($this->statistics[$appId] ?? null);
     }
 
     /**
@@ -155,7 +148,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function resetAppTraces($appId)
+    public function resetAppTraces($appId): void
     {
         unset($this->statistics[$appId]);
     }
@@ -182,7 +175,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  mixed  $appId
      * @return void
      */
-    public function createRecord(Statistic $statistic, $appId)
+    public function createRecord(Statistic $statistic, $appId): void
     {
         StatisticsStore::store($statistic->toArray());
     }

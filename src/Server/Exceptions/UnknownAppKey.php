@@ -13,5 +13,7 @@ class UnknownAppKey extends WebSocketException
     public function __construct($appKey)
     {
         $this->trigger("Could not find app key `{$appKey}`.", 4001);
+
+        parent::__construct();
     }
 }
