@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Channels;
 
+use BeyondCode\LaravelWebSockets\Contracts\Connection;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
@@ -20,7 +21,7 @@ class PresenceChannel extends PrivateChannel
      * @return bool
      * @throws InvalidSignature
      */
-    public function subscribe(ConnectionInterface $connection, stdClass $payload): bool
+    public function subscribe(Connection $connection, stdClass $payload): bool
     {
         $this->verifySignature($connection, $payload);
 

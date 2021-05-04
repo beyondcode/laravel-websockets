@@ -27,9 +27,8 @@ class AuthenticateDashboard
             'id' =>$app->id,
         ]);
 
-         // Since the dashboard itself is already secured by the
-         // Authorize middleware, we can trust all channel
-         // authentication requests in here.
+        // Since the dashboard itself is already secured by the Authorize middleware,
+        // we can trust all channel authentication requests in here.
         return $broadcaster->validAuthenticationResponse($request, []);
     }
 }

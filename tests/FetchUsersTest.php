@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\API\FetchUsers;
+use BeyondCode\LaravelWebSockets\Api\Http\Controllers\FetchUsers;
 use GuzzleHttp\Psr7\Request;
 use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;

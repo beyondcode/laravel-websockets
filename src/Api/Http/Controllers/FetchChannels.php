@@ -1,12 +1,14 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\API;
+namespace BeyondCode\LaravelWebSockets\Api\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use stdClass;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+
+use function collect;
 
 class FetchChannels extends Controller
 {

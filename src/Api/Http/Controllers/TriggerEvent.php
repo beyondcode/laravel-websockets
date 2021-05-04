@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\API;
+namespace BeyondCode\LaravelWebSockets\Api\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;

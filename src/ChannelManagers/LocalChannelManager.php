@@ -15,7 +15,6 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use stdClass;
 
 class LocalChannelManager implements ChannelManager
 {
@@ -115,7 +114,7 @@ class LocalChannelManager implements ChannelManager
      *
      * @return \Amp\Promise
      */
-    public function getLocalConnections(): Promise
+    public function getLocalClients(): Promise
     {
         $connections = collect($this->channels)
             ->map(static function (Channel $channelsWithConnections): Collection {
@@ -261,7 +260,7 @@ class LocalChannelManager implements ChannelManager
      * @param  string|null  $channelName
      * @return \Amp\Promise
      */
-    public function getLocalConnectionsCount($appId, string $channelName = null): Promise
+    public function getLocalClientsCount($appId, string $channelName = null): Promise
     {
         $localChannels = $this->getLocalChannels($appId);
 
@@ -289,9 +288,9 @@ class LocalChannelManager implements ChannelManager
      * @param  string|null  $channelName
      * @return \Amp\Promise
      */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): Promise
+    public function getGlobalClientsCount($appId, string $channelName = null): Promise
     {
-        return $this->getLocalConnectionsCount($appId, $channelName);
+        return $this->getLocalClientsCount($appId, $channelName);
     }
 
     /**
@@ -454,7 +453,7 @@ class LocalChannelManager implements ChannelManager
             return Helpers::createFulfilledPromise(false);
         }
 
-        $this->getLocalConnections()->onResolve(function ($error, $connections): void {
+        $this->getLocalClients()->onResolve(function ($error, $connections): void {
             if ($error) {
                 throw $error;
             }

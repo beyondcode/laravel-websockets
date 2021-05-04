@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets;
 
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
+use BeyondCode\LaravelWebSockets\Contracts\Loop;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
@@ -10,6 +11,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
+use BeyondCode\LaravelWebSockets\Loop\EventLoopManager;
 use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Contracts\Auth\Access\Gate;
@@ -30,6 +32,12 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/../config/websockets.php', 'websockets'
         );
+
+        $this->app->singleton(Loop::class, static function (Container $app): Loop {
+            return $app[EventLoopManager::class]->driver();
+        });
+
+        $this->app->singleton('loop.manager', EventLoopManager::class);
 
         $this->registerAsyncRedisQueueDriver();
 
@@ -199,7 +207,7 @@ class WebSocketsServiceProvider extends ServiceProvider
      */
     protected function bootDashboardGate(Gate $gate): void
     {
-        $gate->define('viewWebSocketsDashboard', function () {
+        $gate->define('view websockets dashboard', function () {
             return $this->app->environment('local');
         });
     }

@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Events;
 
+use BeyondCode\LaravelWebSockets\Contracts\Message;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Ratchet\RFC6455\Messaging\MessageInterface;
@@ -22,12 +23,12 @@ class WebSocketMessageReceived
      *
      * @var string
      */
-    public $socketId;
+    public $clientId;
 
     /**
      * The message received.
      *
-     * @var MessageInterface
+     * @var \BeyondCode\LaravelWebSockets\Contracts\Message
      */
     public $message;
 
@@ -42,14 +43,14 @@ class WebSocketMessageReceived
      * Create a new event instance.
      *
      * @param  string  $appId
-     * @param  string  $socketId
-     * @param  MessageInterface  $message
+     * @param  string  $clientId
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Message  $message
      * @return void
      */
-    public function __construct(string $appId, string $socketId, MessageInterface $message)
+    public function __construct(string $appId, string $clientId, Message $message)
     {
         $this->appId = $appId;
-        $this->socketId = $socketId;
+        $this->clientId = $clientId;
         $this->message = $message;
         $this->decodedMessage = json_decode($message->getPayload(), true);
     }

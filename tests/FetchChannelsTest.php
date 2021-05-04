@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\API\FetchChannels;
+use BeyondCode\LaravelWebSockets\Api\Http\Controllers\FetchChannels;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
 use Pusher\Pusher;

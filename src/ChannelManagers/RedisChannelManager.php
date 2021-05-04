@@ -163,7 +163,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromChannel(Connection $connection, string $channelName, $payload): Promise
     {
-        $count = $this->getGlobalConnectionsCount($connection->getAppId(), $channelName);
+        $count = $this->getGlobalClientsCount($connection->getAppId(), $channelName);
 
         $count->onResolve(
             function ($count) use ($connection, $channelName) {
@@ -256,7 +256,7 @@ class RedisChannelManager extends LocalChannelManager
      *
      * @return \Amp\Promise<int>
      */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): Promise
+    public function getGlobalClientsCount($appId, string $channelName = null): Promise
     {
         $globalConnections = $this->publishClient
             ->getMap($this->getStatsRedisHash($appId, $channelName))

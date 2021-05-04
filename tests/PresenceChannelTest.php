@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\API\TriggerEvent;
+use BeyondCode\LaravelWebSockets\Api\Http\Controllers\TriggerEvent;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
@@ -59,7 +59,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getGlobalClientsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -113,7 +113,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getGlobalClientsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(3, $total);
             });
@@ -149,7 +149,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getGlobalClientsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -167,7 +167,7 @@ class PresenceChannelTest extends TestCase
         $connection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getGlobalClientsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -182,7 +182,7 @@ class PresenceChannelTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getGlobalClientsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(0, $total);
             });
@@ -253,7 +253,7 @@ class PresenceChannelTest extends TestCase
         $this->newPresenceConnection('presence-channel-2', ['user_id' => 2]);
 
         $this->channelManager
-            ->getLocalConnections()
+            ->getLocalClients()
             ->then(function ($connections) {
                 $this->assertCount(2, $connections);
 

@@ -41,7 +41,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function webSocketMessage($appId): void
+    public function onReceived($appId): void
     {
         $this->findOrMake($appId)->webSocketMessage();
     }
@@ -52,7 +52,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function apiMessage($appId): void
+    public function onSent($appId): void
     {
         $this->findOrMake($appId)->apiMessage();
     }
@@ -63,7 +63,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function connection($appId): void
+    public function onConnected($appId): void
     {
         $this->findOrMake($appId)->connection();
     }
@@ -74,7 +74,7 @@ class MemoryCollector implements StatisticsCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function disconnection($appId): void
+    public function onDisconnected($appId): void
     {
         $this->findOrMake($appId)
             ->disconnection();
@@ -102,7 +102,7 @@ class MemoryCollector implements StatisticsCollector
                 $this->createRecord($statistic, $appId);
 
                 $this->channelManager
-                    ->getGlobalConnectionsCount($appId)
+                    ->getGlobalClientsCount($appId)
                     ->onResolve(static function (?int $connections) use ($statistic): void {
                         $statistic->reset((int)$connections);
                     });

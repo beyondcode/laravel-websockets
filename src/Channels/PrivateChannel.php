@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Channels;
 
+use BeyondCode\LaravelWebSockets\Contracts\Connection;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -17,7 +18,7 @@ class PrivateChannel extends Channel
      * @return bool
      * @throws InvalidSignature
      */
-    public function subscribe(ConnectionInterface $connection, stdClass $payload): bool
+    public function subscribe(Connection $connection, $payload): bool
     {
         $this->verifySignature($connection, $payload);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\API;
+namespace BeyondCode\LaravelWebSockets\Api\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -25,7 +25,7 @@ class FetchChannel extends Controller
         }
 
         return $this->channelManager
-            ->getGlobalConnectionsCount($request->appId, $request->channelName)
+            ->getGlobalClientsCount($request->appId, $request->channelName)
             ->then(function ($connectionsCount) use ($request) {
                 // For the presence channels, we need a slightly different response
                 // that need an additional call.

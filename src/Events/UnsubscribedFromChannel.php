@@ -22,7 +22,7 @@ class UnsubscribedFromChannel
      *
      * @var string
      */
-    public $socketId;
+    public $clientId;
 
     /**
      * The channel name.
@@ -42,15 +42,14 @@ class UnsubscribedFromChannel
      * Create a new event instance.
      *
      * @param  string  $appId
-     * @param  string  $socketId
+     * @param  string  $clientId
      * @param  string  $channelName
-     * @param  stdClass|null  $user
-     * @return void
+     * @param  object|null  $user
      */
-    public function __construct(string $appId, string $socketId, string $channelName, ?stdClass $user = null)
+    public function __construct(string $appId, string $clientId, string $channelName, ?object $user = null)
     {
         $this->appId = $appId;
-        $this->socketId = $socketId;
+        $this->clientId = $clientId;
         $this->channelName = $channelName;
         $this->user = $user;
     }

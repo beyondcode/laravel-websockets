@@ -2,7 +2,6 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use Amp\Promise;
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 
 interface ChannelManager
@@ -10,220 +9,230 @@ interface ChannelManager
     /**
      * Find the channel by app & name.
      *
-     * @param  string|int  $appId
+     * @param  string
      * @param  string  $channel
      *
      * @return \BeyondCode\LaravelWebSockets\Channels\Channel|null
      */
-    public function find($appId, string $channel): ?Channel;
+    public function find(string $appId, string $channel): ?Channel;
 
     /**
      * Find a channel by app & name or create one.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @param  string  $channel
      *
      * @return \BeyondCode\LaravelWebSockets\Channels\Channel
      */
-    public function findOrCreate($appId, string $channel): Channel;
+    public function findOrCreate(string $appId, string $channel): Channel;
 
     /**
-     * Get the local connections, regardless of the channel
-     * they are connected to.
+     * Get the local connections, regardless of the channel they are connected to.
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<\Illuminate\Support\Collection<\BeyondCode\LaravelWebSockets\Contracts\Client>  An
+     *     array containing all
      */
-    public function getLocalConnections(): Promise;
+    public function getLocalClients(): Promise;
 
     /**
-     * Get all channels for a specific app
-     * for the current instance.
+     * Get all channels for a specific app for the current instance.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<array<\BeyondCode\LaravelWebSockets\Channels\Channel>>
      */
-    public function getLocalChannels($appId): Promise;
+    public function getLocalChannels(string $appId): Promise;
 
     /**
-     * Get all channels for a specific app
-     * across multiple servers.
+     * Get all channels for a specific app across multiple servers.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<\Illuminate\Support\Collection<\BeyondCode\LaravelWebSockets\Channels\Channel>>
      */
-    public function getGlobalChannels($appId): Promise;
+    public function getGlobalChannels(string $appId): Promise;
 
     /**
-     * Remove connection from all channels.
+     * Unsubscribe a Client from all channels.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<\Illuminate\Support\Collection<\BeyondCode\LaravelWebSockets\Channels\Channel>>  Returns
+     *     all the channels unsubscribed from.
      */
-    public function unsubscribeFromAllChannels(Connection $connection): Promise;
+    public function unsubscribeFromAllChannels(Client $client): Promise;
 
     /**
-     * Subscribe the connection to a specific channel.
+     * Subscribe a Client to a specific channel, with an optional message after it's done.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      * @param  string  $channelName
-     * @param  object|array  $payload
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Message|null  $message
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<bool> Returns false if the client was already subscribed
+     *     to the channel.
      */
-    public function subscribeToChannel(Connection $connection, string $channelName, $payload): Promise;
+    public function subscribeToChannel(Client $client, string $channelName, Message $message = null): Promise;
 
     /**
      * Unsubscribe the connection from the channel.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      * @param  string  $channelName
      * @param  object|array  $payload
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<bool> Returns false if the client was not subscribed to
+     *     the channel.
      */
-    public function unsubscribeFromChannel(Connection $connection, string $channelName, $payload): Promise;
+    public function unsubscribeFromChannel(Client $client, string $channelName, $payload): Promise;
 
     /**
-     * Subscribe the connection to a specific channel, returning
-     * a promise containing the amount of connections.
+     * Subscribe the Server connection to a specific application channel.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> Amount of connections of the app channel.
      */
-    public function subscribeToApp($appId): Promise;
+    public function subscribeToApp(string $appId): Promise;
 
     /**
-     * Unsubscribe the connection from the channel, returning
-     * a promise containing the amount of connections after decrement.
+     * Unsubscribe the Server connection from the specific application channel.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> Amount of connections of the app channel.
      */
-    public function unsubscribeFromApp($appId): Promise;
+    public function unsubscribeFromApp(string $appId): Promise;
 
     /**
-     * Get the connections count on the app
-     * for the current server instance.
+     * Get the Clients count on the app for the current server instance.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @param  string|null  $channelName
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> The count
      */
-    public function getLocalConnectionsCount($appId, string $channelName = null): Promise;
+    public function getLocalClientsCount(string $appId, string $channelName = null): Promise;
 
     /**
-     * Get the connections count
-     * across multiple servers.
+     * Get the connections count across multiple servers.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @param  string|null  $channelName
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> The count
      */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): Promise;
+    public function getGlobalClientsCount(string $appId, string $channelName = null): Promise;
 
     /**
-     * Broadcast the message across multiple servers.
+     * Broadcast a message across multiple servers.
      *
-     * @param  string|int  $appId
-     * @param  string|null  $socketId
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Message  $message
+     * @param  string  $appId
      * @param  string  $channel
-     * @param  object|array  $payload
      * @param  string|null  $serverId
+     * @param  string|null  $clientId
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise
      */
     public function broadcastAcrossServers(
-        $appId,
-        ?string $socketId,
+        Message $message,
+        string $appId,
         string $channel,
-        $payload,
-        string $serverId = null
+        string $serverId = null,
+        string $clientId = null
     ): Promise;
 
     /**
-     * Handle the user when it joined a presence channel.
+     * Handle the Client after it joins a presence channel.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      * @param  object  $user
      * @param  string  $channel
-     * @param  object|array  $payload
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Message|null  $message
      *
-     * @return \Amp\Promise [bool]
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<bool>  If the user joined the presence channel
+     *     successfully.
      */
-    public function userJoinedPresenceChannel(Connection $connection, object $user, string $channel, $payload): Promise;
+    public function userJoinedPresenceChannel(
+        Client $client,
+        object $user,
+        string $channel,
+        Message $message = null
+    ): Promise;
 
     /**
-     * Handle the user when it left a presence channel.
+     * Handle the user after it left a presence channel.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      * @param  object  $user
      * @param  string  $channel
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Message|null  $message
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<bool>  If the user left the presence channel
+     *     successfully.
      */
-    public function userLeftPresenceChannel(Connection $connection, object $user, string $channel): Promise;
+    public function userLeftPresenceChannel(
+        Client $client,
+        object $user,
+        string $channel,
+        Message $message = null
+    ): Promise;
 
     /**
-     * Get the presence channel members.
+     * Get the presence channel Clients.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @param  string  $channel
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<\Illuminate\Support\Collection<array>>
      */
-    public function getChannelMembers($appId, string $channel): Promise;
+    public function getChannelMembers(string $appId, string $channel): Promise;
 
     /**
-     * Get a member from a presence channel based on connection.
+     * Get a member from a presence channel based on Client information.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      * @param  string  $channel
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<array|null>
      */
-    public function getChannelMember(Connection $connection, string $channel): Promise;
+    public function getChannelMember(Client $client, string $channel): Promise;
 
     /**
      * Get the presence channels total members count.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @param  array  $channelNames
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> The count of members.
      */
-    public function getChannelsMembersCount($appId, array $channelNames): Promise;
+    public function getChannelsMembersCount(string $appId, array $channelNames): Promise;
 
     /**
-     * Get the socket IDs for a presence channel member.
+     * Get the Client IDs for a presence channel member.
      *
      * @param  string|int  $userId
      * @param  string|int  $appId
      * @param  string  $channelName
      *
-     * @return \Amp\Promise<array>
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<array>
      */
     public function getMemberSockets($userId, $appId, string $channelName): Promise;
 
     /**
      * Keep tracking the connections availability when they pong.
      *
-     * @param  \BeyondCode\LaravelWebSockets\Contracts\Connection  $connection
+     * @param  \BeyondCode\LaravelWebSockets\Contracts\Client  $client
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<bool>  If the connection was successfully ponged.
      */
-    public function connectionPonged(Connection $connection): Promise;
+    public function connectionPonged(Client $client): Promise;
 
     /**
      * Remove the obsolete connections that didn't ponged in a while.
      *
-     * @return \Amp\Promise
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<int> The number of connections removed
      */
     public function removeObsoleteConnections(): Promise;
 }

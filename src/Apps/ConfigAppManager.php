@@ -31,9 +31,11 @@ class ConfigAppManager implements AppManager
     public function all(): array
     {
         return $this->apps
-            ->map(function (array $appAttributes) {
-                return $this->convertIntoApp($appAttributes);
-            })
+            ->map(
+                function (array $appAttributes) {
+                    return $this->convertIntoApp($appAttributes);
+                }
+            )
             ->toArray();
     }
 
@@ -41,9 +43,10 @@ class ConfigAppManager implements AppManager
      * Get app by id.
      *
      * @param  string|int  $appId
+     *
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
-    public function findById($appId): ?App
+    public function findById(string $appId): ?App
     {
         return $this->convertIntoApp(
             $this->apps->firstWhere('id', $appId)
@@ -81,12 +84,13 @@ class ConfigAppManager implements AppManager
     /**
      * Map the app into an App instance.
      *
-     * @param  array|null  $app
+     * @param  array|null  $appAttributes
+     *
      * @return \BeyondCode\LaravelWebSockets\Apps\App|null
      */
     protected function convertIntoApp(?array $appAttributes): ?App
     {
-        if (! $appAttributes) {
+        if (!$appAttributes) {
             return null;
         }
 

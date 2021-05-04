@@ -21,18 +21,18 @@ class ConnectionPonged
      *
      * @var string
      */
-    public $socketId;
+    public $clientId;
 
     /**
      * Create a new event instance.
      *
      * @param  string  $appId
-     * @param  string  $socketId
+     * @param  string  $clientId
      * @return void
      */
-    public function __construct(string $appId, string $socketId)
+    public function __construct(string $appId, string $clientId)
     {
         $this->appId = $appId;
-        $this->socketId = $socketId;
+        $this->clientId = $clientId;
     }
 }

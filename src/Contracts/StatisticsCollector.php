@@ -2,41 +2,41 @@
 
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
-use Amp\Promise;
+use BeyondCode\LaravelWebSockets\Contracts\Promise;
 
 interface StatisticsCollector
 {
     /**
      * Handle the incoming websocket message.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @return void
      */
-    public function webSocketMessage($appId): void;
+    public function onReceived(string $appId): void;
 
     /**
      * Handle the incoming API message.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @return void
      */
-    public function apiMessage($appId): void;
+    public function onSent(string $appId): void;
 
     /**
      * Handle the new connection.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @return void
      */
-    public function connection($appId): void;
+    public function onConnected(string $appId): void;
 
     /**
      * Handle disconnections.
      *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @return void
      */
-    public function disconnection($appId): void;
+    public function onDisconnected(string $appId): void;
 
     /**
      * Save all the stored statistics.
@@ -53,26 +53,19 @@ interface StatisticsCollector
     public function flush(): void;
 
     /**
-     * Get the saved statistics.
+     * Get the saved statistics, optionally filtered by an App ID.
      *
-     * @return \Amp\Promise
+     * @param  string|null  $appId
+     *
+     * @return \BeyondCode\LaravelWebSockets\Contracts\Promise<\Illuminate\Database\Eloquent\Collection<\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry>>
      */
-    public function getStatistics(): Promise;
+    public function getStatistics(string $appId = null): Promise;
 
     /**
-     * Get the saved statistics for an app.
+     * Remove all app traces from the database if no connections have been set since last save.
      *
-     * @param  string|int  $appId
-     * @return \Amp\Promise
-     */
-    public function getAppStatistics($appId): Promise;
-
-    /**
-     * Remove all app traces from the database if no connections have been set
-     * in the meanwhile since last save.
-     *
-     * @param  string|int  $appId
+     * @param  string  $appId
      * @return void
      */
-    public function resetAppTraces($appId): void;
+    public function resetAppTraces(string $appId): void;
 }

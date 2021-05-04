@@ -61,7 +61,7 @@ class ConnectionTest extends TestCase
             });
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234')
+            ->getGlobalClientsCount('1234')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -69,7 +69,7 @@ class ConnectionTest extends TestCase
         $this->pusherServer->onClose($connection);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234')
+            ->getGlobalClientsCount('1234')
             ->then(function ($total) {
                 $this->assertEquals(0, $total);
             });

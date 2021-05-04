@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Contracts;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 interface StatisticsStore
@@ -19,39 +20,39 @@ interface StatisticsStore
     /**
      * Delete records older than the given moment for all app ids, or an specific app id.
      *
-     * @param  \Carbon\Carbon  $moment
-     * @param  string|int|null  $appId
+     * @param  \DateTimeInterface  $datetime
+     * @param  string|null  $appId
      *
-     * @return int  Returning the amount of deleted records.
+     * @return int  Amount of deleted records.
      */
-    public function delete(Carbon $moment, $appId = null): int;
+    public function delete(DateTimeInterface $datetime, string $appId = null): int;
 
     /**
-     * Get the query result as eloquent collection.
+     * Get the query result as Eloquent Collection.
      *
-     * @param  callable|null  $processQuery
+     * @param  callable<\Illuminate\Database\Eloquent\Builder>|null  $filter
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry>
      */
-    public function getRawRecords(callable $processQuery = null): Collection;
+    public function getRawRecords(callable $filter = null): Collection;
 
     /**
      * Get the results for a specific query.
      *
-     * @param  callable|null  $processQuery
-     * @param  callable|null  $processCollection
+     * @param  callable<\Illuminate\Database\Eloquent\Builder>|null  $queryFilter
+     * @param  callable<\Illuminate\Database\Eloquent\Collection<\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry>>|null  $collectionFilter
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry>
      */
-    public function getRecords(callable $processQuery = null, callable $processCollection = null): Collection;
+    public function getRecords(callable $queryFilter = null, callable $collectionFilter = null): Collection;
 
     /**
      * Get the results for a specific query into a format that is easily to read for graphs.
      *
-     * @param  callable|null  $processQuery
-     * @param  callable|null  $processCollection
+     * @param  callable<\Illuminate\Database\Eloquent\Builder>|null  $queryFilter
+     * @param  callable<\Illuminate\Database\Eloquent\Collection<\BeyondCode\LaravelWebSockets\Models\WebSocketsStatisticsEntry>>|null  $collectionFilter
      *
      * @return array
      */
-    public function getForGraph(callable $processQuery = null, callable $processCollection = null): array;
+    public function getForGraph(callable $queryFilter = null, callable $collectionFilter = null): array;
 }

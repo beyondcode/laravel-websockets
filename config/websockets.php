@@ -4,22 +4,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard Settings
+    | Dashboard
     |--------------------------------------------------------------------------
     |
-    | You can configure the dashboard settings from here.
+    | Laravel Websockets come with a simplistic but handy dashboard for saving
+    | statistics about your Servers. You can configure the dashboard settings
+    | and access here, along with the middleware to execute on these routes.
     |
     */
 
     'dashboard' => [
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
         'domain' => env('LARAVEL_WEBSOCKETS_DOMAIN'),
-        'path' => env('LARAVEL_WEBSOCKETS_PATH', 'laravel-websockets'),
-        'middleware' => [
-            'web',
-            \BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize::class,
-        ],
-
+        'path' => env('LARAVEL_WEBSOCKETS_PATH', 'websockets/dashboard'),
+        'middleware' => ['web', 'can:view websockets dashboard']
     ],
 
     /*
@@ -27,13 +25,12 @@ return [
     | Application Manager
     |--------------------------------------------------------------------------
     |
-    | An Application manager determines how your websocket server allows
-    | the use of the TCP protocol based on, for example, a list of allowed
-    | applications.
+    | Each Server contains different Application IDs, which are boxes where the
+    | connections land on. This allows the  Server to separate connections from
+    | other boxes. By default, this comes with a simplistic manager that uses this config "apps" array.
     |
-    | By default, it uses the defined array in the config file, but you can
-    | anytime implement the same interface as the class and add your own
-    | custom method to retrieve the apps.
+    | You can use this to your advantage, for example, to use a Manager based
+    | on a database, or even a separate Redis store. Small applications may not need to change this.
     |
     */
 
@@ -46,6 +43,10 @@ return [
     | Applications Repository
     |--------------------------------------------------------------------------
     |
+    | If you're using the default App Manager, here are each app definition. As
+    | you can see you can add multiple apps to handle connections differently.
+    | For example, one app for chat, and another for video and file uploads.
+    |
     | By default, the only allowed app is the one you define with
     | your PUSHER_* variables from .env.
     | You can configure to use multiple apps if you need to, or use
@@ -57,18 +58,17 @@ return [
     */
 
     'apps' => [
-        [
+        'laravel' => [
             'id' => env('PUSHER_APP_ID'),
-            'name' => env('APP_NAME'),
             'host' => env('PUSHER_APP_HOST'),
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
             'path' => env('PUSHER_APP_PATH'),
             'capacity' => null,
-            'enable_client_messages' => false,
+            'allow_client_messages' => false,
             'enable_statistics' => true,
             'allowed_origins' => [
-                // env('LARAVEL_WEBSOCKETS_DOMAIN'),
+                env('LARAVEL_WEBSOCKETS_DOMAIN', '0.0.0.0'),
             ],
         ],
     ],
@@ -78,8 +78,7 @@ return [
     | Broadcasting Replication PubSub
     |--------------------------------------------------------------------------
     |
-    | You can enable replication to publish and subscribe to
-    | messages across the driver.
+    | You can enable replication to publish and subscribe to messages across the driver.
     |
     | By default, it is set to 'local', but you can configure it to use drivers
     | like Redis to ensure connection between multiple instances of
@@ -213,12 +212,12 @@ return [
     | Maximum Request Size
     |--------------------------------------------------------------------------
     |
-    | The maximum request size in kilobytes that is allowed for
-    | an incoming WebSocket request.
+    | The maximum request size in kilobytes that is allowed for an incoming
+    | WebSocket request on this Server.
     |
     */
 
-    'max_request_size_in_kb' => 250,
+    'max_request_size_in_kb' => 256,
 
     /*
     |--------------------------------------------------------------------------
@@ -233,10 +232,10 @@ return [
     */
 
     'ssl' => [
-        'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT', null),
-        'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA', null),
-        'local_pk' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_PK', null),
-        'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
+        'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT'),
+        'capath' => env('LARAVEL_WEBSOCKETS_SSL_CA'),
+        'local_pk' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_PK'),
+        'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE'),
         'verify_peer' => env('APP_ENV') === 'production',
         'allow_self_signed' => env('APP_ENV') !== 'production',
     ],

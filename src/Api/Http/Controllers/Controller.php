@@ -1,9 +1,8 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\API;
+namespace BeyondCode\LaravelWebSockets\Api\Http\Controllers;
 
 use Amp\Promise;
-use Amp\Socket\Server;
 use Amp\Websocket\Server\Websocket;
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
@@ -19,6 +18,10 @@ use Pusher\Pusher;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+
+use function collect;
+use function response;
+use function tap;
 
 abstract class Controller
 {

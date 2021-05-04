@@ -55,7 +55,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function webSocketMessage($appId): void
+    public function onReceived($appId): void
     {
         $this->ensureAppIsInSet($appId)
             ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'websocket_messages_count', 1);
@@ -67,7 +67,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function apiMessage($appId): void
+    public function onSent($appId): void
     {
         $this->ensureAppIsInSet($appId)
             ->hincrby($this->channelManager->getStatsRedisHash($appId, null), 'api_messages_count', 1);
@@ -79,7 +79,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function connection($appId): void
+    public function onConnected($appId): void
     {
         // Increment the current connections count by 1.
         $this->ensureAppIsInSet($appId)
@@ -119,7 +119,7 @@ class RedisCollector extends MemoryCollector
      * @param  string|int  $appId
      * @return void
      */
-    public function disconnection($appId): void
+    public function onDisconnected($appId): void
     {
         // Decrement the current connections count by 1.
         $this->ensureAppIsInSet($appId)
@@ -179,7 +179,7 @@ class RedisCollector extends MemoryCollector
                                 $this->createRecord($statistic, $appId);
 
                                 $this->channelManager
-                                    ->getGlobalConnectionsCount($appId)
+                                    ->getGlobalClientsCount($appId)
                                     ->then(function ($currentConnectionsCount) use ($appId) {
                                         $currentConnectionsCount === 0 || is_null($currentConnectionsCount)
                                             ? $this->resetAppTraces($appId)

@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\API\TriggerEvent;
+use BeyondCode\LaravelWebSockets\Api\Http\Controllers\TriggerEvent;
 use GuzzleHttp\Psr7\Request;
 use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;

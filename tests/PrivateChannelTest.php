@@ -2,7 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\API\TriggerEvent;
+use BeyondCode\LaravelWebSockets\Api\Http\Controllers\TriggerEvent;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +49,7 @@ class PrivateChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->getGlobalClientsCount('1234', 'private-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -60,7 +60,7 @@ class PrivateChannelTest extends TestCase
         $connection = $this->newPrivateConnection('private-channel');
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->getGlobalClientsCount('1234', 'private-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -75,7 +75,7 @@ class PrivateChannelTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'private-channel')
+            ->getGlobalClientsCount('1234', 'private-channel')
             ->then(function ($total) {
                 $this->assertEquals(0, $total);
             });
@@ -146,7 +146,7 @@ class PrivateChannelTest extends TestCase
         $this->newPrivateConnection('private-channel-2');
 
         $this->channelManager
-            ->getLocalConnections()
+            ->getLocalClients()
             ->then(function ($connections) {
                 $this->assertCount(2, $connections);
 

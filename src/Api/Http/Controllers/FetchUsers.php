@@ -1,10 +1,12 @@
 <?php
 
-namespace BeyondCode\LaravelWebSockets\API;
+namespace BeyondCode\LaravelWebSockets\Api\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+
+use function collect;
 
 class FetchUsers extends Controller
 {

@@ -52,14 +52,15 @@ class DatabaseStore implements StatisticsStore
     /**
      * Delete records older than the given moment, for a specific app id (if given).
      *
-     * @param  \Carbon\Carbon  $moment
+     * @param  \Carbon\Carbon  $datetime
      * @param  string|int|null  $appId
+     *
      * @return int  The amount of deleted records
      */
-    public function delete(Carbon $moment, $appId = null): int
+    public function delete(Carbon $datetime, $appId = null): int
     {
         return $this->newQuery()
-            ->where($this->newModel()->getCreatedAtColumn(), '<', $moment->toDateTimeString())
+            ->where($this->newModel()->getCreatedAtColumn(), '<', $datetime->toDateTimeString())
             ->when($appId, static function (Builder $query) use ($appId): void {
                  $query->where('app_id', $appId);
             })
@@ -69,15 +70,15 @@ class DatabaseStore implements StatisticsStore
     /**
      * Get the query result as eloquent collection.
      *
-     * @param  callable|null  $processQuery
+     * @param  callable|null  $filter
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getRawRecords(callable $processQuery = null): Collection
+    public function getRawRecords(callable $filter = null): Collection
     {
         return $this->newQuery()
-            ->when($processQuery, static function (Builder $query) use ($processQuery): void {
-                $processQuery($query);
+            ->when($filter, static function (Builder $query) use ($filter): void {
+                $filter($query);
             }, static function (Builder $query): void {
                 $query->latest()->limit(120);
             })->get();
@@ -86,16 +87,16 @@ class DatabaseStore implements StatisticsStore
     /**
      * Get the results for a specific query.
      *
-     * @param  callable|null  $processQuery
-     * @param  callable|null  $processCollection
+     * @param  callable|null  $queryFilter
+     * @param  callable|null  $collectionFilter
      *
      * @return array
      */
-    public function getRecords(callable $processQuery = null, callable $processCollection = null): Collection
+    public function getRecords(callable $queryFilter = null, callable $collectionFilter = null): Collection
     {
-        return $this->getRawRecords($processQuery)
-            ->when($processCollection, static function ($collection) use ($processCollection): Collection {
-                return $processCollection($collection);
+        return $this->getRawRecords($queryFilter)
+            ->when($collectionFilter, static function ($collection) use ($collectionFilter): Collection {
+                return $collectionFilter($collection);
             })
             ->map(function (Model $statistic): array {
                 return $this->statisticToArray($statistic);

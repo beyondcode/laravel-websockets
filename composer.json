@@ -33,8 +33,6 @@
         "ext-json": "*",
         "amphp/websocket-server": "^2.0",
         "amphp/redis": "^1.0.4",
-        "doctrine/dbal": "^2.9",
-        "evenement/evenement": "^3.0",
         "facade/ignition-contracts": "^1.0",
         "guzzlehttp/psr7": "^2.0.0-rc1",
         "illuminate/broadcasting": "^8.0",
@@ -44,12 +42,13 @@
         "illuminate/routing": "^8.0",
         "illuminate/support": "^8.0",
         "pusher/pusher-php-server": "^4.0|^5.0",
-        "symfony/http-kernel": "^5.",
+        "symfony/http-kernel": "^5.2",
         "symfony/psr-http-message-bridge": "^2.1.0"
     },
     "require-dev": {
         "orchestra/testbench-browser-kit": "^6.0",
         "orchestra/database": "^6.0",
+        "doctrine/dbal": "^2.9",
         "phpunit/phpunit": "^9.5"
     },
     "suggest": {

@@ -32,12 +32,11 @@ class Authorize
      * @param  \Closure  $next
      *
      * @return mixed
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($this->gate->denies('viewWebSocketsDashboard', [$request->user()])) {
-            abort(403);
-        }
+        $this->gate->authorize('view websockets dashboard', [$request->user()]);
 
         return $next($request);
     }

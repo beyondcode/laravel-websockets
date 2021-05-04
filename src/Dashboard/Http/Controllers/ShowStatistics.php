@@ -15,7 +15,7 @@ class ShowStatistics
      *
      * @return array
      */
-    public function __invoke(Request $request, $appId): array
+    public function __invoke(Request $request, string $appId): array
     {
         return StatisticsStore::getForGraph(
             function ($query) use ($appId) {
