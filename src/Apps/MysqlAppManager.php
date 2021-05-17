@@ -3,26 +3,26 @@
 namespace BeyondCode\LaravelWebSockets\Apps;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
-use Clue\React\SQLite\DatabaseInterface;
-use Clue\React\SQLite\Result;
+use React\MySQL\ConnectionInterface;
+use React\MySQL\QueryResult;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
-class SQLiteAppManager implements AppManager
+class MysqlAppManager implements AppManager
 {
     /**
      * The database connection.
      *
-     * @var DatabaseInterface
+     * @var ConnectionInterface
      */
     protected $database;
 
     /**
      * Initialize the class.
      *
-     * @param DatabaseInterface $database
+     * @param ConnectionInterface $database
      */
-    public function __construct(DatabaseInterface $database)
+    public function __construct(ConnectionInterface $database)
     {
         $this->database = $database;
     }
@@ -37,8 +37,8 @@ class SQLiteAppManager implements AppManager
         $deferred = new Deferred();
 
         $this->database->query('SELECT * FROM `apps`')
-            ->then(function (Result $result) use ($deferred) {
-                $deferred->resolve($result->rows);
+            ->then(function (QueryResult $result) use ($deferred) {
+                $deferred->resolve($result->resultRows);
             }, function ($error) use ($deferred) {
                 $deferred->reject($error);
             });
@@ -56,9 +56,9 @@ class SQLiteAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from apps WHERE `id` = :id', ['id' => $appId])
-            ->then(function (Result $result) use ($deferred) {
-                $deferred->resolve($this->convertIntoApp($result->rows[0]));
+        $this->database->query('SELECT * from `apps` WHERE `id` = ?', [$appId])
+            ->then(function (QueryResult $result) use ($deferred) {
+                $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
                 $deferred->reject($error);
             });
@@ -76,9 +76,9 @@ class SQLiteAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from apps WHERE `key` = :key', ['key' => $appKey])
-            ->then(function (Result $result) use ($deferred) {
-                $deferred->resolve($this->convertIntoApp($result->rows[0]));
+        $this->database->query('SELECT * from `apps` WHERE `key` = ?', [$appKey])
+            ->then(function (QueryResult $result) use ($deferred) {
+                $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
                 $deferred->reject($error);
             });
@@ -96,9 +96,9 @@ class SQLiteAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from apps WHERE `secret` = :secret', ['secret' => $appSecret])
-            ->then(function (Result $result) use ($deferred) {
-                $deferred->resolve($this->convertIntoApp($result->rows[0]));
+        $this->database->query('SELECT * from `apps` WHERE `secret` = ?', [$appSecret])
+            ->then(function (QueryResult $result) use ($deferred) {
+                $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
                 $deferred->reject($error);
             });
@@ -152,11 +152,10 @@ class SQLiteAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('
-            INSERT INTO apps (id, key, secret, name, enable_client_messages, enable_statistics, allowed_origins)
-            VALUES (:id, :key, :secret, :name, :enable_client_messages, :enable_statistics, :allowed_origins)
-        ', $appData)
-            ->then(function (Result $result) use ($deferred) {
+        $this->database->query(
+            'INSERT INTO `apps` (id, key, secret, name, enable_client_messages, enable_statistics, allowed_origins) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [$appData['id'], $appData['key'], $appData['secret'], $appData['name'], $appData['enable_client_messages'], $appData['enable_statistics'], $appData['allowed_origins']])
+            ->then(function () use ($deferred) {
                 $deferred->resolve();
             }, function ($error) use ($deferred) {
                 $deferred->reject($error);

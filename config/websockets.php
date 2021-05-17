@@ -42,16 +42,32 @@ return [
 
         'app' => \BeyondCode\LaravelWebSockets\Apps\ConfigAppManager::class,
 
-        /*
-        |--------------------------------------------------------------------------
-        | SQLite application manager
-        |--------------------------------------------------------------------------
-        |
-        | The SQLite database to use when using the SQLite application manager.
-        |
-        */
-        'sqlite' => [
+        'database' => [
+            /*
+            |--------------------------------------------------------------------------
+            | SQLite application manager
+            |--------------------------------------------------------------------------
+            |
+            | The SQLite database to use when using the SQLite application manager.
+            |
+            */
+            'driver' => 'sqlite',
             'database' => storage_path('laravel-websockets.sqlite'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | MySql application manager
+            |--------------------------------------------------------------------------
+            |
+            | The MySql database to use when using the MySql application manager.
+            |
+            */
+            // 'driver' => 'mysql',
+            // 'host' => 'localhost',
+            // 'port' => 3306,
+            // 'database' => 'default',
+            // 'username' => 'root',
+            // 'password' => 'root',
         ],
 
     ],

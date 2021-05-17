@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use React\MySQL\ConnectionInterface;
+use React\MySQL\Factory as MySQLFactory;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
 
@@ -48,7 +50,13 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->registerEventLoop();
 
-        $this->registerSQLiteDatabase();
+        if (config('websockets.managers.database.driver') === 'sqlite') {
+            $this->registerSQLiteDatabase();
+        }
+
+        if (config('websockets.managers.database.driver') === 'mysql') {
+            $this->registerMySqlDatabase();
+        }
 
         $this->registerAsyncRedisQueueDriver();
 
@@ -98,7 +106,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             $factory = new SQLiteFactory($this->app->make(LoopInterface::class));
 
             $database = $factory->openLazy(
-                config('websockets.managers.sqlite.database', ':memory:')
+                config('websockets.managers.database.database', ':memory:')
             );
 
             $migrations = (new Finder())
@@ -110,6 +118,32 @@ class WebSocketsServiceProvider extends ServiceProvider
             /** @var SplFileInfo $migration */
             foreach ($migrations as $migration) {
                 $database->exec($migration->getContents());
+            }
+
+            return $database;
+        });
+    }
+
+    protected function registerMySqlDatabase()
+    {
+        $this->app->singleton(ConnectionInterface::class, function () {
+            $factory = new MySQLFactory($this->app->make(LoopInterface::class));
+
+            $auth = trim(config('websockets.managers.database.username').':'.config('websockets.managers.database.password'), ':');
+            $connection = trim(config('websockets.managers.database.host').':'.config('websockets.managers.database.port'), ':');
+            $database = config('websockets.managers.database.database');
+
+            $database = $factory->createLazyConnection(trim("{$auth}@{$connection}/{$database}", '@'));
+
+            $migrations = (new Finder())
+                ->files()
+                ->ignoreDotFiles(true)
+                ->in(__DIR__.'/../database/migrations/mysql')
+                ->name('*.sql');
+
+            /** @var SplFileInfo $migration */
+            foreach ($migrations as $migration) {
+                $database->query($migration->getContents());
             }
 
             return $database;
