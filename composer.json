@@ -32,6 +32,7 @@
         "cboden/ratchet": "^0.4.1",
         "clue/block-react": "^1.4",
         "clue/reactphp-sqlite": "^1.0",
+        "react/mysql": "^0.5",
         "clue/redis-react": "^2.3",
         "doctrine/dbal": "^2.9",
         "evenement/evenement": "^2.0|^3.0",
