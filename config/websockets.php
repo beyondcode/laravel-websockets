@@ -166,6 +166,8 @@ return [
 
                 'collector' => \BeyondCode\LaravelWebSockets\Statistics\Collectors\RedisCollector::class,
 
+                'lock_timeout' => 60 * 2,
+
             ],
 
         ],
