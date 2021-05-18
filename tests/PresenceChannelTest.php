@@ -419,13 +419,33 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
-            'TestKey', 'TestSecret', 'POST', $requestPath, [
-                'name' => 'some-event',
-                'channels' => ['presence-channel'],
-                'data' => json_encode(['some-data' => 'yes']),
-            ],
-        );
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params(
+                    'TestKey',
+                    'TestSecret',
+                    'POST',
+                    $requestPath,
+                    [
+                        'name'     => 'some-event',
+                        'channels' => ['presence-channel'],
+                        'data'     => json_encode(['some-data' => 'yes']),
+                    ]
+                )
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string(
+                'TestKey',
+                'TestSecret',
+                'POST',
+                $requestPath,
+                [
+                    'name'     => 'some-event',
+                    'channels' => ['presence-channel'],
+                    'data'     => json_encode(['some-data' => 'yes']),
+                ]
+            );
+        }
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -460,13 +480,33 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
-            'TestKey', 'TestSecret', 'POST', $requestPath, [
-                'name' => 'some-event',
-                'channels' => ['presence-channel'],
-                'data' => json_encode(['some-data' => 'yes']),
-            ],
-        );
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params(
+                    'TestKey',
+                    'TestSecret',
+                    'POST',
+                    $requestPath,
+                    [
+                        'name'     => 'some-event',
+                        'channels' => ['presence-channel'],
+                        'data'     => json_encode(['some-data' => 'yes']),
+                    ]
+                )
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string(
+                'TestKey',
+                'TestSecret',
+                'POST',
+                $requestPath,
+                [
+                    'name'     => 'some-event',
+                    'channels' => ['presence-channel'],
+                    'data'     => json_encode(['some-data' => 'yes']),
+                ]
+            );
+        }
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -508,13 +548,33 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
-            'TestKey', 'TestSecret', 'POST', $requestPath, [
-                'name' => 'some-event',
-                'channels' => ['presence-channel'],
-                'data' => json_encode(['some-data' => 'yes']),
-            ],
-        );
+        if (strpos(Pusher::$VERSION, '6') === 0) {
+            $queryString = http_build_query(
+                Pusher::build_auth_query_params(
+                    'TestKey',
+                    'TestSecret',
+                    'POST',
+                    $requestPath,
+                    [
+                        'name'     => 'some-event',
+                        'channels' => ['presence-channel'],
+                        'data'     => json_encode(['some-data' => 'yes']),
+                    ]
+                )
+            );
+        } else {
+            $queryString = Pusher::build_auth_query_string(
+                    'TestKey',
+                    'TestSecret',
+                    'POST',
+                    $requestPath,
+                    [
+                        'name'     => 'some-event',
+                        'channels' => ['presence-channel'],
+                        'data'     => json_encode(['some-data' => 'yes']),
+                    ]
+            );
+        }
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
