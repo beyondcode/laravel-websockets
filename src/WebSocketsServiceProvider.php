@@ -50,13 +50,9 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->registerEventLoop();
 
-        if (config('websockets.managers.database.driver') === 'sqlite') {
-            $this->registerSQLiteDatabase();
-        }
+        $this->registerSQLiteDatabase();
 
-        if (config('websockets.managers.database.driver') === 'mysql') {
-            $this->registerMySqlDatabase();
-        }
+        $this->registerMySqlDatabase();
 
         $this->registerAsyncRedisQueueDriver();
 
@@ -106,7 +102,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             $factory = new SQLiteFactory($this->app->make(LoopInterface::class));
 
             $database = $factory->openLazy(
-                config('websockets.managers.database.database', ':memory:')
+                config('websockets.managers.sqlite.database', ':memory:')
             );
 
             $migrations = (new Finder())
@@ -129,9 +125,9 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->app->singleton(ConnectionInterface::class, function () {
             $factory = new MySQLFactory($this->app->make(LoopInterface::class));
 
-            $auth = trim(config('websockets.managers.database.username').':'.config('websockets.managers.database.password'), ':');
-            $connection = trim(config('websockets.managers.database.host').':'.config('websockets.managers.database.port'), ':');
-            $database = config('websockets.managers.database.database');
+            $auth = trim(config('websockets.managers.mysql.username').':'.config('websockets.managers.mysql.password'), ':');
+            $connection = trim(config('websockets.managers.mysql.host').':'.config('websockets.managers.mysql.port'), ':');
+            $database = config('websockets.managers.mysql.database');
 
             $database = $factory->createLazyConnection(trim("{$auth}@{$connection}/{$database}", '@'));
 
