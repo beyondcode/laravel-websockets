@@ -353,7 +353,7 @@ class RedisCollector extends MemoryCollector
      */
     protected function lock()
     {
-        return new RedisLock($this->redis, static::$redisLockName, 0);
+        return new RedisLock($this->redis, static::$redisLockName, config('websockets.replication.modes.redis.lock_timeout', 60 * 2));
     }
 
     /**

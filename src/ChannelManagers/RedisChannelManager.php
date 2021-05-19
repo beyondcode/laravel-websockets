@@ -809,7 +809,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     protected function lock()
     {
-        return new RedisLock($this->redis, static::$lockName, 0);
+        return new RedisLock($this->redis, static::$lockName, config('websockets.replication.modes.redis.lock_timeout', 60 * 2));
     }
 
     /**
