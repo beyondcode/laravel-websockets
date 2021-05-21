@@ -7,8 +7,9 @@ use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use Ratchet\WebSocket\WsServerInterface;
 
-class WebsocketsLogger extends Logger implements MessageComponentInterface
+class WebsocketsLogger extends Logger implements MessageComponentInterface, WsServerInterface
 {
     /** @var \Ratchet\Http\HttpServerInterface */
     protected $app;
@@ -25,6 +26,15 @@ class WebsocketsLogger extends Logger implements MessageComponentInterface
         $this->app = $app;
 
         return $this;
+    }
+
+    public function getSubProtocols()
+    {
+        if ($this->app instanceof WsServerInterface) {
+            return $this->app->getSubProtocols();
+        } else {
+            return [];
+        }
     }
 
     public function onOpen(ConnectionInterface $connection)
