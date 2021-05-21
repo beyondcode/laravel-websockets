@@ -5,8 +5,9 @@ namespace BeyondCode\LaravelWebSockets\Server\Logger;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
+use Ratchet\WebSocket\WsServerInterface;
 
-class HttpLogger extends Logger implements MessageComponentInterface
+class HttpLogger extends Logger implements MessageComponentInterface, WsServerInterface
 {
     /** @var \Ratchet\Http\HttpServerInterface */
     protected $app;
@@ -23,6 +24,15 @@ class HttpLogger extends Logger implements MessageComponentInterface
         $this->app = $app;
 
         return $this;
+    }
+
+    public function getSubProtocols()
+    {
+        if ($this->app instanceof WsServerInterface) {
+            return $this->app->getSubProtocols();
+        } else {
+            return [];
+        }
     }
 
     public function onOpen(ConnectionInterface $connection)
