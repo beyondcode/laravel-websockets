@@ -19,6 +19,12 @@
         </div>
     @endif
 
+    @if (session('errors'))
+        <div class="alert alert-danger my-5">
+            {{ session('errors') }}
+        </div>
+    @endif
+
     <div class="card col-xs-12 mt-4">
         <div class="card-header">
             <a class="btn btn-danger left" href="{{ route('websockets.admin.index') }}">Back</a>
