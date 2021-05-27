@@ -5,11 +5,11 @@ namespace BeyondCode\LaravelWebSockets;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
-use BeyondCode\LaravelWebSockets\Database\Http\Controllers\AppsController;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
+use BeyondCode\LaravelWebSockets\Database\Http\Controllers\AppsController;
 use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
 use BeyondCode\LaravelWebSockets\Server\Router;
 use Illuminate\Support\Facades\Gate;
@@ -172,12 +172,12 @@ class WebSocketsServiceProvider extends ServiceProvider
             Route::get('/api/{appId}/statistics', ShowStatistics::class)->name('statistics');
             Route::post('/auth', AuthenticateDashboard::class)->name('auth');
             Route::post('/event', SendMessage::class)->name('event');
-            Route::get('/admin', AppsController::class . "@index")->name('websockets.admin.index');
-            Route::get('/admin/create', AppsController::class . "@create")->name('websockets.admin.create');
-            Route::post('/admin/store', AppsController::class . "@store")->name('websockets.admin.store');
-            Route::get('/admin/{app}/edit', AppsController::class . "@edit")->name('websockets.admin.edit');
-            Route::post('/admin/{app}/store', AppsController::class . "@update")->name('websockets.admin.update');
-            Route::post('/admin/{app}/destroy', AppsController::class . "@destroy")->name('websockets.admin.destroy');
+            Route::get('/admin', AppsController::class.'@index')->name('websockets.admin.index');
+            Route::get('/admin/create', AppsController::class.'@create')->name('websockets.admin.create');
+            Route::post('/admin/store', AppsController::class.'@store')->name('websockets.admin.store');
+            Route::get('/admin/{app}/edit', AppsController::class.'@edit')->name('websockets.admin.edit');
+            Route::post('/admin/{app}/store', AppsController::class.'@update')->name('websockets.admin.update');
+            Route::post('/admin/{app}/destroy', AppsController::class.'@destroy')->name('websockets.admin.destroy');
         });
     }
 
