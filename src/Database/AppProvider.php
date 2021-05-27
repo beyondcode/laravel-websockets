@@ -32,7 +32,7 @@ class AppProvider implements IAppProvider
 
     protected function instantiate(?array $appAttributes): ?App
     {
-        if (!$appAttributes) {
+        if (! $appAttributes) {
             return null;
         }
 

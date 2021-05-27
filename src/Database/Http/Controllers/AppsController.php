@@ -53,7 +53,7 @@ class AppsController
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();
 
-        return redirect(route('websockets.admin.edit', [ 'app' => $app->id ]))->with('success', 'Record created.');
+        return redirect(route('websockets.admin.edit', ['app' => $app->id]))->with('success', 'Record created.');
     }
 
     /**
@@ -84,7 +84,7 @@ class AppsController
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();
 
-        return redirect(route('websockets.admin.edit', [ 'app' => $app->id ]))->with('success', 'Record saved.');
+        return redirect(route('websockets.admin.edit', ['app' => $app->id]))->with('success', 'Record saved.');
     }
 
     /**
