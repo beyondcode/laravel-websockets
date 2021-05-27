@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsCollector;
 use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
+use BeyondCode\LaravelWebSockets\Database\Http\Controllers\AppsController;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
@@ -30,12 +31,14 @@ class WebSocketsServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->mergeConfigFrom(
-            __DIR__.'/../config/websockets.php', 'websockets'
+            __DIR__.'/../config/websockets.php',
+            'websockets'
         );
 
         $this->publishes([
             __DIR__.'/../database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php' => database_path('migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php'),
             __DIR__.'/../database/migrations/0000_00_00_000000_rename_statistics_counters.php' => database_path('migrations/0000_00_00_000000_rename_statistics_counters.php'),
+            __DIR__.'/../database/migrations/create_websockets_apps_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_websockets_apps_table.php'),
         ], 'migrations');
 
         $this->registerAsyncRedisQueueDriver();
@@ -122,6 +125,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             Console\Commands\RestartServer::class,
             Console\Commands\CleanStatistics::class,
             Console\Commands\FlushCollectedStatistics::class,
+            Database\Console\AppCreate::class,
         ]);
     }
 
@@ -168,6 +172,12 @@ class WebSocketsServiceProvider extends ServiceProvider
             Route::get('/api/{appId}/statistics', ShowStatistics::class)->name('statistics');
             Route::post('/auth', AuthenticateDashboard::class)->name('auth');
             Route::post('/event', SendMessage::class)->name('event');
+            Route::get('/admin', AppsController::class ."@index")->name('websockets.admin.index');
+            Route::get('/admin/create', AppsController::class ."@create")->name('websockets.admin.create');
+            Route::post('/admin/store', AppsController::class ."@store")->name('websockets.admin.store');
+            Route::get('/admin/{app}/edit', AppsController::class ."@edit")->name('websockets.admin.edit');
+            Route::post('/admin/{app}/store', AppsController::class ."@update")->name('websockets.admin.update');
+            Route::post('/admin/{app}/destroy', AppsController::class ."@destroy")->name('websockets.admin.destroy');
         });
     }
 
