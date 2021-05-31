@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Database\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class App extends Model
 {
@@ -39,8 +40,8 @@ class App extends Model
         parent::boot();
 
         static::creating(function (App $app) {
-            $app->key = str_random(40);
-            $app->secret = str_random(40);
+            $app->key = Str::random(40);
+            $app->secret = Str::random(40);
         });
     }
 }
