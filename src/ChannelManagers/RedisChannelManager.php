@@ -92,18 +92,6 @@ class RedisChannelManager extends LocalChannelManager
     }
 
     /**
-     * Get all channels for a specific app
-     * for the current instance.
-     *
-     * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
-     */
-    public function getLocalChannels($appId): PromiseInterface
-    {
-        return $this->getGlobalChannels($appId);
-    }
-
-    /**
      * Remove connection from all channels.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
