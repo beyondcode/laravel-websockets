@@ -23,7 +23,7 @@ class AppProviderTest extends TestCase
 
         $this->databaseApp = App::create([
             'name' => 'Application One',
-            'host' => "example-1.test",
+            'host' => 'example-1.test',
             'key' => Str::random(),
             'secret' => Str::random(32),
             'enable_client_messages' => false,
