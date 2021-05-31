@@ -20,8 +20,27 @@
     @endif
 
     <div class="card col-xs-12 mt-4">
-        <div class="card-header text-right">
-            <a class="btn btn-success" href="{{ route('websockets.admin.create') }}">Create app</a>
+        <div class="card-header">
+            <div class="row">
+                <div class="col-12 col-sm-6">
+                    <form method="get" action="{{ route('websockets.admin.index') }}">
+                        <div class="input-group">
+                            @if (!blank(request('q')))
+                                <div class="input-group-prepend">
+                                    <a href="{{ route('websockets.admin.index') }}" class="btn btn-outline-danger">X</a>
+                                </div>
+                            @endif
+                            <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ request('q', old('q')) }}" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-12 col-sm-6 text-right">
+                    <a class="btn btn-success" href="{{ route('websockets.admin.create') }}">Create app</a>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <h4>Apps</h4>
