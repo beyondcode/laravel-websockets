@@ -51,16 +51,7 @@ interface ChannelManager
      * @param  string|int  $appId
      * @return \React\Promise\PromiseInterface[array]
      */
-    public function getLocalChannels($appId): PromiseInterface;
-
-    /**
-     * Get all channels for a specific app
-     * across multiple servers.
-     *
-     * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
-     */
-    public function getGlobalChannels($appId): PromiseInterface;
+    public function getChannels($appId): PromiseInterface;
 
     /**
      * Remove connection from all channels.
@@ -116,17 +107,7 @@ interface ChannelManager
      * @param  string|null  $channelName
      * @return PromiseInterface[int]
      */
-    public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface;
-
-    /**
-     * Get the connections count
-     * across multiple servers.
-     *
-     * @param  string|int  $appId
-     * @param  string|null  $channelName
-     * @return PromiseInterface[int]
-     */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface;
+    public function getConnectionsCount($appId, string $channelName = null): PromiseInterface;
 
     /**
      * Broadcast the message across multiple servers.

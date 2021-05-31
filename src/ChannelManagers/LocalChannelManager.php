@@ -140,23 +140,11 @@ class LocalChannelManager implements ChannelManager
      * @param  string|int  $appId
      * @return \React\Promise\PromiseInterface[array]
      */
-    public function getLocalChannels($appId): PromiseInterface
+    public function getChannels($appId): PromiseInterface
     {
         return Helpers::createFulfilledPromise(
             $this->channels[$appId] ?? []
         );
-    }
-
-    /**
-     * Get all channels for a specific app
-     * across multiple servers.
-     *
-     * @param  string|int  $appId
-     * @return \React\Promise\PromiseInterface[array]
-     */
-    public function getGlobalChannels($appId): PromiseInterface
-    {
-        return $this->getLocalChannels($appId);
     }
 
     /**
@@ -171,7 +159,7 @@ class LocalChannelManager implements ChannelManager
             return Helpers::createFulfilledPromise(false);
         }
 
-        $this->getLocalChannels($connection->app->id)
+        $this->getChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
                 collect($channels)
                     ->each(function (Channel $channel) use ($connection) {
@@ -187,7 +175,7 @@ class LocalChannelManager implements ChannelManager
                     });
             });
 
-        $this->getLocalChannels($connection->app->id)
+        $this->getChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
                 if (count($channels) === 0) {
                     unset($this->channels[$connection->app->id]);
@@ -263,9 +251,9 @@ class LocalChannelManager implements ChannelManager
      * @param  string|null  $channelName
      * @return PromiseInterface[int]
      */
-    public function getLocalConnectionsCount($appId, string $channelName = null): PromiseInterface
+    public function getConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
-        return $this->getLocalChannels($appId)
+        return $this->getChannels($appId)
             ->then(function ($channels) use ($channelName) {
                 return collect($channels)->when(! is_null($channelName), function ($collection) use ($channelName) {
                     return $collection->filter(function (Channel $channel) use ($channelName) {
@@ -277,19 +265,6 @@ class LocalChannelManager implements ChannelManager
                 })
                 ->unique()->count();
             });
-    }
-
-    /**
-     * Get the connections count
-     * across multiple servers.
-     *
-     * @param  string|int  $appId
-     * @param  string|null  $channelName
-     * @return PromiseInterface[int]
-     */
-    public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface
-    {
-        return $this->getLocalConnectionsCount($appId, $channelName);
     }
 
     /**
@@ -468,7 +443,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function updateConnectionInChannels($connection): PromiseInterface
     {
-        return $this->getLocalChannels($connection->app->id)
+        return $this->getChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
                 foreach ($channels as $channel) {
                     if ($channel->hasConnection($connection)) {

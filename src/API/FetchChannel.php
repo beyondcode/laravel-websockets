@@ -25,7 +25,7 @@ class FetchChannel extends Controller
         }
 
         return $this->channelManager
-            ->getGlobalConnectionsCount($request->appId, $request->channelName)
+            ->getConnectionsCount($request->appId, $request->channelName)
             ->then(function ($connectionsCount) use ($request) {
                 // For the presence channels, we need a slightly different response
                 // that need an additional call.

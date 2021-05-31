@@ -59,7 +59,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -113,7 +113,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(3, $total);
             });
@@ -149,7 +149,7 @@ class PresenceChannelTest extends TestCase
         ]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -167,7 +167,7 @@ class PresenceChannelTest extends TestCase
         $connection = $this->newPresenceConnection('presence-channel', ['user_id' => 1]);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -182,7 +182,7 @@ class PresenceChannelTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->channelManager
-            ->getGlobalConnectionsCount('1234', 'presence-channel')
+            ->getConnectionsCount('1234', 'presence-channel')
             ->then(function ($total) {
                 $this->assertEquals(0, $total);
             });

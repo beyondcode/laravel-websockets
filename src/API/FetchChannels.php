@@ -29,7 +29,7 @@ class FetchChannels extends Controller
         }
 
         return $this->channelManager
-            ->getGlobalChannels($request->appId)
+            ->getChannels($request->appId)
             ->then(function ($channels) use ($request, $attributes) {
                 $channels = collect($channels)->keyBy(function ($channel) {
                     return $channel instanceof Channel

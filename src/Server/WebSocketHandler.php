@@ -210,7 +210,7 @@ class WebSocketHandler implements MessageComponentInterface
     {
         if (! is_null($capacity = $connection->app->capacity)) {
             $this->channelManager
-                ->getGlobalConnectionsCount($connection->app->id)
+                ->getConnectionsCount($connection->app->id)
                 ->then(function ($connectionsCount) use ($capacity, $connection) {
                     if ($connectionsCount >= $capacity) {
                         $exception = new Exceptions\ConnectionsOverCapacity;
