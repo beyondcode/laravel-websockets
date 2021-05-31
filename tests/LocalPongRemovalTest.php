@@ -21,7 +21,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -29,7 +29,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });
@@ -58,7 +58,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'private-channel')
+            ->getGlobalConnectionsCount('1234', 'private-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -66,7 +66,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'private-channel')
+            ->getGlobalConnectionsCount('1234', 'private-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });
@@ -95,7 +95,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->updateConnectionInChannels($obsoleteConnection);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'presence-channel')
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -109,7 +109,7 @@ class LocalPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'presence-channel')
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });

@@ -177,7 +177,7 @@ class RedisCollector extends MemoryCollector
                                 $this->createRecord($statistic, $appId);
 
                                 $this->channelManager
-                                    ->getConnectionsCount($appId)
+                                    ->getGlobalConnectionsCount($appId)
                                     ->then(function ($currentConnectionsCount) use ($appId) {
                                         $currentConnectionsCount === 0 || is_null($currentConnectionsCount)
                                             ? $this->resetAppTraces($appId)

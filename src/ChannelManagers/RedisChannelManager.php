@@ -84,11 +84,23 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|int  $appId
      * @return \React\Promise\PromiseInterface[array]
      */
-    public function getChannels($appId): PromiseInterface
+    public function getGlobalChannels($appId): PromiseInterface
     {
         return $this->publishClient->smembers(
             $this->getChannelsRedisHash($appId)
         );
+    }
+
+    /**
+     * Get all channels for a specific app
+     * for the current instance.
+     *
+     * @param  string|int  $appId
+     * @return \React\Promise\PromiseInterface[array]
+     */
+    public function getLocalChannels($appId): PromiseInterface
+    {
+        return $this->getGlobalChannels($appId);
     }
 
     /**
@@ -99,7 +111,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromAllChannels(ConnectionInterface $connection): PromiseInterface
     {
-        return $this->getChannels($connection->app->id)
+        return $this->getGlobalChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
                 foreach ($channels as $channel) {
                     $this->unsubscribeFromChannel($connection, $channel, new stdClass);
@@ -145,7 +157,7 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
-        return $this->getConnectionsCount($connection->app->id, $channelName)
+        return $this->getGlobalConnectionsCount($connection->app->id, $channelName)
             ->then(function ($count) use ($connection, $channelName) {
                 if ($count === 0) {
                     // Make sure to not stay subscribed to the PubSub topic
@@ -211,7 +223,7 @@ class RedisChannelManager extends LocalChannelManager
      * @param  string|null  $channelName
      * @return PromiseInterface[int]
      */
-    public function getConnectionsCount($appId, string $channelName = null): PromiseInterface
+    public function getGlobalConnectionsCount($appId, string $channelName = null): PromiseInterface
     {
         return $this->publishClient
             ->hget($this->getStatsRedisHash($appId, $channelName), 'connections')

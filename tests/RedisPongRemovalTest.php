@@ -20,7 +20,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -34,7 +34,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });
@@ -60,7 +60,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'private-channel')
+            ->getGlobalConnectionsCount('1234', 'private-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -74,7 +74,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'private-channel')
+            ->getGlobalConnectionsCount('1234', 'private-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });
@@ -100,7 +100,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->addConnectionToSet($obsoleteConnection, Carbon::now()->subDays(1));
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'presence-channel')
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($count) {
                 $this->assertEquals(2, $count);
             });
@@ -120,7 +120,7 @@ class RedisPongRemovalTest extends TestCase
         $this->channelManager->removeObsoleteConnections();
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'presence-channel')
+            ->getGlobalConnectionsCount('1234', 'presence-channel')
             ->then(function ($count) {
                 $this->assertEquals(1, $count);
             });

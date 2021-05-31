@@ -15,7 +15,7 @@ class PublicChannelTest extends TestCase
         $connection = $this->newActiveConnection(['public-channel']);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -41,7 +41,7 @@ class PublicChannelTest extends TestCase
         $connection = $this->newActiveConnection(['public-channel']);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($total) {
                 $this->assertEquals(1, $total);
             });
@@ -56,7 +56,7 @@ class PublicChannelTest extends TestCase
         $this->pusherServer->onMessage($connection, $message);
 
         $this->channelManager
-            ->getConnectionsCount('1234', 'public-channel')
+            ->getGlobalConnectionsCount('1234', 'public-channel')
             ->then(function ($total) {
                 $this->assertEquals(0, $total);
             });
