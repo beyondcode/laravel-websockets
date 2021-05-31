@@ -10,7 +10,7 @@ class AppProvider implements IAppProvider
 {
     public function all(): array
     {
-        return DatabaseApp::all()->map(function (DatabaseApp $app) {
+        return DatabaseApp::where('active', true)->get()->map(function (DatabaseApp $app) {
             return $this->instantiate($app->toArray());
         })->toArray();
     }

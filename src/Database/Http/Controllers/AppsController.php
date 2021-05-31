@@ -49,6 +49,7 @@ class AppsController
 
         $app->name = $request->name;
         $app->host = $request->host;
+        $app->active = $request->get('active', false);
         $app->enable_client_messages = $request->get('enable_client_messages', false);
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();
@@ -80,6 +81,7 @@ class AppsController
     {
         $app->name = $request->name;
         $app->host = $request->host;
+        $app->active = $request->get('active', false);
         $app->enable_client_messages = $request->get('enable_client_messages', false);
         $app->enable_statistics = $request->get('enable_statistics', false);
         $app->save();

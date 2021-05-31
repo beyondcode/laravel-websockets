@@ -39,7 +39,7 @@
                 @foreach ($apps as $app)
                     <tr>
                         <td>
-                            {{ $app->name }}<br />
+                            {{ $app->name }}@if (!$app->active) <span class="badge badge-danger">DISABLED</span> @endif<br />
                             <p class="small mt-2 mb-1"><b>Key: </b> {{ $app->key }}</p>
                             <p class="small my-0"><b>Secret: </b> {{ $app->secret }}</p>
                         </td>
