@@ -18,7 +18,7 @@ class AppsController
     {
         $apps = App::when($request->has('q'), function ($query) use ($request) {
             $query->whereLike('name', $request->get('q'));
-        })->get();
+        })->paginate(config('websockets.records_per_page', 25));
 
         return view('websockets::apps.index', [
             'apps' => $apps,

@@ -57,6 +57,8 @@
                 @endforeach
                 </tbody>
             </table>
+
+            {{ $apps->links() }}
         </div>
     </div>
 </div>
