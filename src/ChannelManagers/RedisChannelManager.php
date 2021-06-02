@@ -619,6 +619,10 @@ class RedisChannelManager extends LocalChannelManager
 
     /**
      * Check if channel is on the list.
+     *
+     * @param  string|int  $appId
+     * @param  string  $channel
+     * @return PromiseInterface
      */
     public function isChannelInSet($appId, string $channel): PromiseInterface
     {
