@@ -431,13 +431,17 @@ class RedisChannelManager extends LocalChannelManager
 
     public function find($appId, string $channel)
     {
-        if (! $channelInstance = parent::find($appId, $channel)) {
-            $class = $this->getChannelClassName($channel);
+        return $this->isChannelInSet($appId, $channel)->then(function($isInSet) use($appId, $channel){
+            if($isInSet){
+                if (! $channelInstance = parent::find($appId, $channel)) {
+                    $class = $this->getChannelClassName($channel);
 
-            $this->channels[$appId][$channel] = new $class($channel);
-        }
-
-        return $this->channels[$appId][$channel];
+                    $this->channels[$appId][$channel] = new $class($channel);
+                }
+                return $this->channels[$appId][$channel];
+            }
+            return null;
+        });
     }
 
     /**
@@ -608,6 +612,16 @@ class RedisChannelManager extends LocalChannelManager
     public function removeChannelFromSet($appId, string $channel): PromiseInterface
     {
         return $this->publishClient->srem(
+            $this->getChannelsRedisHash($appId), $channel
+        );
+    }
+
+    /**
+     * Check if channel is on the list.
+     */
+    public function isChannelInSet($appId, string $channel): PromiseInterface
+    {
+        return $this->publishClient->sismember(
             $this->getChannelsRedisHash($appId), $channel
         );
     }
