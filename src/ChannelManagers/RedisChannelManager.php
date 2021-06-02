@@ -429,6 +429,11 @@ class RedisChannelManager extends LocalChannelManager
         $channel->broadcastLocallyToEveryoneExcept($payload, $socketId, $appId);
     }
 
+    public function find($appId, string $channel)
+    {
+        return $this->findOrCreate($appId, $channel);
+    }
+
     /**
      * Build the Redis connection URL from Laravel database config.
      *
