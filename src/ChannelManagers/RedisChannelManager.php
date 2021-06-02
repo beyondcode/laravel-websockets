@@ -431,16 +431,10 @@ class RedisChannelManager extends LocalChannelManager
 
     public function find($appId, string $channel)
     {
-        $this->isChannelInSet($appId, $channel)->then(function($isInSet) use($appId, $channel){
-            if($isInSet){
-                if (! $channelInstance = parent::find($appId, $channel)) {
-                    $class = $this->getChannelClassName($channel);
-                    $this->channels[$appId][$channel] = new $class($channel);
-                }
-            }else{
-                unset($this->channels[$appId][$channel]);
-            }
-        });
+        if (! $channelInstance = parent::find($appId, $channel)) {
+            $class = $this->getChannelClassName($channel);
+            $this->channels[$appId][$channel] = new $class($channel);
+        }
 
         return parent::find($appId, $channel);
     }
