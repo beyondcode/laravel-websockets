@@ -437,6 +437,8 @@ class RedisChannelManager extends LocalChannelManager
                     $class = $this->getChannelClassName($channel);
                     $this->channels[$appId][$channel] = new $class($channel);
                 }
+            }else{
+                unset($this->channels[$appId][$channel]);
             }
         });
 
