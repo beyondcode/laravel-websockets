@@ -83,7 +83,7 @@ class Channel
         $this->saveConnection($connection);
 
         $this->channelManager->connectionPonged($connection)
-            ->then(function () use ($connection, $payload){
+            ->then(function () use ($connection, $payload) {
                 $connection->send(json_encode([
                     'event' => 'pusher_internal:subscription_succeeded',
                     'channel' => $this->getName(),
@@ -165,7 +165,7 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $this->channelManager->connectionPonged($connection)
-                    ->then(function () use ($connection, $payload){
+                    ->then(function () use ($connection, $payload) {
                         $connection->send(json_encode($payload));
                         ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
                     });
@@ -211,7 +211,7 @@ class Channel
 
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
             $this->channelManager->connectionPonged($connection)
-                ->then(function () use ($connection, $payload, $socketId){
+                ->then(function () use ($connection, $payload, $socketId) {
                     if ($connection->socketId !== $socketId) {
                         $connection->send(json_encode($payload));
                         ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
