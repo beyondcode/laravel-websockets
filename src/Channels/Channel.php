@@ -190,19 +190,15 @@ class Channel
      */
     public function broadcastToEveryoneExcept(stdClass $payload, ?string $socketId, $appId, bool $replicate = true)
     {
-        if ($replicate) {
-            $this->channelManager->broadcastAcrossServers($appId, $socketId, $this->getName(), $payload);
-        }
-
-        if (is_null($socketId)) {
-            return $this->broadcast($appId, $payload, $replicate);
-        }
-
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
             }
         });
+
+        if ($replicate) {
+            $this->channelManager->broadcastAcrossServers($appId, null, $this->getName(), $payload);
+        }
 
         return true;
     }
