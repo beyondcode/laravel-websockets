@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Server\Messages;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\PusherMessage;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -68,6 +69,11 @@ class PusherClientMessage implements PusherMessage
         optional($channel)->broadcastToEveryoneExcept(
             $this->payload, $this->connection->socketId, $this->connection->app->id
         );
+
+        $this->channelManager->connectionPonged($this->connection)
+            ->then(function () {
+                ConnectionPonged::dispatch($this->connection->app->id, $this->connection->socketId);
+            });
 
         DashboardLogger::log($this->connection->app->id, DashboardLogger::TYPE_WS_MESSAGE, [
             'socketId' => $this->connection->socketId,

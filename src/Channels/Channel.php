@@ -158,7 +158,6 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $connection->send(json_encode($payload));
-                $this->channelManager->connectionPonged($connection);
             });
 
         if ($replicate) {
@@ -202,7 +201,6 @@ class Channel
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
-                $this->channelManager->connectionPonged($connection);
             }
         });
 
