@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
@@ -55,6 +56,7 @@ class PresenceChannel extends PrivateChannel
                                         ],
                                     ]),
                                 ]));
+                                ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
                             });
                     });
             })
