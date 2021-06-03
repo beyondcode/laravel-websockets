@@ -158,10 +158,9 @@ class Channel
     {
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
-                $connection->send(json_encode($payload));
                 $this->channelManager->connectionPonged($connection)
-                    ->then(function() use($connection){
-                        ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
+                    ->then(function() use($connection, $payload){
+                        $connection->send(json_encode($payload));
                     });
             });
 
@@ -204,12 +203,11 @@ class Channel
         }
 
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
-            if ($connection->socketId !== $socketId) {
-                $connection->send(json_encode($payload));
-            }
             $this->channelManager->connectionPonged($connection)
-                ->then(function() use($connection){
-                    ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
+                ->then(function() use($connection, $payload, $socketId){
+                    if ($connection->socketId !== $socketId) {
+                        $connection->send(json_encode($payload));
+                    }
                 });
         });
 
