@@ -233,7 +233,7 @@ class WebSocketHandler implements MessageComponentInterface
      */
     protected function generateSocketId(ConnectionInterface $connection)
     {
-        $socketId = sprintf('%s.%d.%d', $this->channelManager->getServerId(), random_int(1, 1000000000), random_int(1, 1000000000));
+        $socketId = sprintf('%d.%d', random_int(1, 1000000000), random_int(1, 1000000000));
 
         $connection->socketId = $socketId;
 
