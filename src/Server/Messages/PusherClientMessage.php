@@ -54,6 +54,11 @@ class PusherClientMessage implements PusherMessage
      */
     public function respond()
     {
+        $this->channelManager->connectionPonged($this->connection)
+            ->then(function () {
+                ConnectionPonged::dispatch($this->connection->app->id, $this->connection->socketId);
+            });
+
         if (! Str::startsWith($this->payload->event, 'client-')) {
             return;
         }
@@ -69,11 +74,6 @@ class PusherClientMessage implements PusherMessage
         optional($channel)->broadcastToEveryoneExcept(
             $this->payload, $this->connection->socketId, $this->connection->app->id
         );
-
-        $this->channelManager->connectionPonged($this->connection)
-            ->then(function () {
-                ConnectionPonged::dispatch($this->connection->app->id, $this->connection->socketId);
-            });
 
         DashboardLogger::log($this->connection->app->id, DashboardLogger::TYPE_WS_MESSAGE, [
             'socketId' => $this->connection->socketId,
