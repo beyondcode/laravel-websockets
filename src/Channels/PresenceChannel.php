@@ -42,7 +42,7 @@ class PresenceChannel extends PrivateChannel
                         }
 
                         $this->channelManager->connectionPonged($connection)
-                            ->then(function () use($connection, $users, $hash) {
+                            ->then(function () use ($connection, $users, $hash) {
                                 $connection->send(json_encode([
                                     'event' => 'pusher_internal:subscription_succeeded',
                                     'channel' => $this->getName(),
