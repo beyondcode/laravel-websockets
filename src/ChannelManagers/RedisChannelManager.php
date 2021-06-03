@@ -145,25 +145,14 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
-        return $this->getGlobalConnectionsCount($connection->app->id, $channelName)
+        return $this->decrementSubscriptionsCount($connection->app->id, $channelName)
             ->then(function ($count) use ($connection, $channelName) {
-                if ($count === 0) {
-                    // Make sure to not stay subscribed to the PubSub topic
-                    // if there are no connections.
+                // If the total connections count gets to 0 after unsubscribe,
+                // try again to check & unsubscribe from the PubSub topic if needed.
+                if ($count < 1) {
                     $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                    $this->removeChannelFromSet($connection->app->id, $channelName);
                 }
-
-                $this->decrementSubscriptionsCount($connection->app->id, $channelName)
-                    ->then(function ($count) use ($connection, $channelName) {
-                        // If the total connections count gets to 0 after unsubscribe,
-                        // try again to check & unsubscribe from the PubSub topic if needed.
-                        if ($count < 1) {
-                            $this->unsubscribeFromTopic($connection->app->id, $channelName);
-                        }
-                    });
-            })
-            ->then(function () use ($connection, $channelName) {
-                return $this->removeChannelFromSet($connection->app->id, $channelName);
             })
             ->then(function () use ($connection) {
                 return $this->removeConnectionFromSet($connection);
