@@ -82,15 +82,21 @@ class Channel
     {
         $this->saveConnection($connection);
 
-        $connection->send(json_encode([
-            'event' => 'pusher_internal:subscription_succeeded',
-            'channel' => $this->getName(),
-        ]));
+        $this->channelManager->connectionPonged($connection)
+            ->then(function() use($connection, $payload){
+                $connection->send(json_encode([
+                    'event' => 'pusher_internal:subscription_succeeded',
+                    'channel' => $this->getName(),
+                ]));
+            });
+
 
         DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
             'socketId' => $connection->socketId,
             'channel' => $this->getName(),
         ]);
+
+        ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
 
         SubscribedToChannel::dispatch(
             $connection->app->id,
@@ -161,6 +167,7 @@ class Channel
                 $this->channelManager->connectionPonged($connection)
                     ->then(function() use($connection, $payload){
                         $connection->send(json_encode($payload));
+                        ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
                     });
             });
 
@@ -207,6 +214,7 @@ class Channel
                 ->then(function() use($connection, $payload, $socketId){
                     if ($connection->socketId !== $socketId) {
                         $connection->send(json_encode($payload));
+                        ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
                     }
                 });
         });
