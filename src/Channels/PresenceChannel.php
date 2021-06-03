@@ -40,19 +40,22 @@ class PresenceChannel extends PrivateChannel
                             $hash[$user->user_id] = $user->user_info ?? [];
                         }
 
-                        $connection->send(json_encode([
-                            'event' => 'pusher_internal:subscription_succeeded',
-                            'channel' => $this->getName(),
-                            'data' => json_encode([
-                                'presence' => [
-                                    'ids' => collect($users)->map(function ($user) {
-                                        return (string) $user->user_id;
-                                    })->values(),
-                                    'hash' => $hash,
-                                    'count' => count($users),
-                                ],
-                            ]),
-                        ]));
+                        $this->channelManager->connectionPonged($connection)
+                            ->then(function () use($connection, $users, $hash) {
+                                $connection->send(json_encode([
+                                    'event' => 'pusher_internal:subscription_succeeded',
+                                    'channel' => $this->getName(),
+                                    'data' => json_encode([
+                                        'presence' => [
+                                            'ids' => collect($users)->map(function ($user) {
+                                                return (string) $user->user_id;
+                                            })->values(),
+                                            'hash' => $hash,
+                                            'count' => count($users),
+                                        ],
+                                    ]),
+                                ]));
+                            });
                     });
             })
             ->then(function () use ($connection, $user, $payload) {
