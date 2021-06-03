@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\Server\Messages;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Contracts\PusherMessage;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -54,11 +53,6 @@ class PusherClientMessage implements PusherMessage
      */
     public function respond()
     {
-        $this->channelManager->connectionPonged($this->connection)
-            ->then(function () {
-                ConnectionPonged::dispatch($this->connection->app->id, $this->connection->socketId);
-            });
-
         if (! Str::startsWith($this->payload->event, 'client-')) {
             return;
         }

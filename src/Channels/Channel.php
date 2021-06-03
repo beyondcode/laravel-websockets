@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
+use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
@@ -158,6 +159,10 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $connection->send(json_encode($payload));
+                $this->channelManager->connectionPonged($connection)
+                    ->then(function() use($connection){
+                        ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
+                    });
             });
 
         if ($replicate) {
@@ -202,6 +207,10 @@ class Channel
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
             }
+            $this->channelManager->connectionPonged($connection)
+                ->then(function() use($connection){
+                    ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
+                });
         });
 
         return true;
