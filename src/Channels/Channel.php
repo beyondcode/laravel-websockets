@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -171,6 +172,8 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $connection->send(json_encode($payload));
+                $connection->lastPongedAt = Carbon::now();
+                $this->saveConnection($connection);
             });
 
         if ($replicate) {
@@ -212,9 +215,11 @@ class Channel
         }
 
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
+            $connection->lastPongedAt = Carbon::now();
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
             }
+            $this->saveConnection($connection);
         });
 
         return true;
