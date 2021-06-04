@@ -429,9 +429,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function connectionPonged(ConnectionInterface $connection): PromiseInterface
     {
-        $connection->lastPongedAt = Carbon::now();
-
-        return $this->updateConnectionInChannels($connection);
+        return $this->pongConnectionInChannels($connection);
     }
 
     /**
@@ -458,6 +456,28 @@ class LocalChannelManager implements ChannelManager
         return Helpers::createFulfilledPromise(
             $this->lock()->forceRelease()
         );
+    }
+
+    /**
+     * Pong connection in channels.
+     *
+     * @param ConnectionInterface $connection
+     * @return PromiseInterface[bool]
+     */
+
+    public function pongConnectionInChannels(ConnectionInterface $connection): PromiseInterface
+    {
+        return $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                foreach ($channels as $channel) {
+                    if ($conn = $channel->getConnection($connection->socketId)) {
+                        $conn->lastPongedAt = Carbon::now();
+                        $channel->saveConnection($conn);
+                    }
+                }
+
+                return true;
+            });
     }
 
     /**

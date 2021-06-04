@@ -3,7 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\Channels;
 
 use BeyondCode\LaravelWebSockets\DashboardLogger;
-use BeyondCode\LaravelWebSockets\Events\ConnectionPonged;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
@@ -41,23 +40,19 @@ class PresenceChannel extends PrivateChannel
                             $hash[$user->user_id] = $user->user_info ?? [];
                         }
 
-                        $this->channelManager->connectionPonged($connection)
-                            ->then(function () use ($connection, $users, $hash) {
-                                $connection->send(json_encode([
-                                    'event' => 'pusher_internal:subscription_succeeded',
-                                    'channel' => $this->getName(),
-                                    'data' => json_encode([
-                                        'presence' => [
-                                            'ids' => collect($users)->map(function ($user) {
-                                                return (string) $user->user_id;
-                                            })->values(),
-                                            'hash' => $hash,
-                                            'count' => count($users),
-                                        ],
-                                    ]),
-                                ]));
-                                ConnectionPonged::dispatch($connection->app->id, $connection->socketId);
-                            });
+                        $connection->send(json_encode([
+                            'event' => 'pusher_internal:subscription_succeeded',
+                            'channel' => $this->getName(),
+                            'data' => json_encode([
+                                'presence' => [
+                                    'ids' => collect($users)->map(function ($user) {
+                                        return (string) $user->user_id;
+                                    })->values(),
+                                    'hash' => $hash,
+                                    'count' => count($users),
+                                ],
+                            ]),
+                        ]));
                     });
             })
             ->then(function () use ($connection, $user, $payload) {

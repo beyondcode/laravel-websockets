@@ -353,6 +353,15 @@ class RedisChannelManager extends LocalChannelManager
         // This will update the score with the current timestamp.
         return $this->addConnectionToSet($connection, Carbon::now())
             ->then(function () use ($connection) {
+                $payload = [
+                    'socketId' => $connection->socketId,
+                    'appId' => $connection->app->id,
+                    'serverId' => $this->getServerId()
+                ];
+                return $this->publishClient
+                    ->publish($this->getPongRedisHash($connection->app->id), json_encode($payload));
+            })
+            ->then(function () use ($connection) {
                 return parent::connectionPonged($connection);
             });
     }
@@ -391,6 +400,12 @@ class RedisChannelManager extends LocalChannelManager
 
         if (isset($payload->serverId) && $this->getServerId() === $payload->serverId) {
             return;
+        }
+
+        if($redisChannel == $this->getPongRedisHash($payload->appId)){
+            $connection = $this->fakeConnectionForApp($payload->appId, $payload->socketId);
+
+            return parent::connectionPonged($connection);
         }
 
         $payload->channel = Str::after($redisChannel, "{$payload->appId}:");
@@ -740,6 +755,16 @@ class RedisChannelManager extends LocalChannelManager
         }
 
         return $hash;
+    }
+
+    /**
+     * Get the pong Redis hash.
+     *
+     * @param string|int $appId
+     */
+    public function getPongRedisHash($appId): string
+    {
+        return $this->getRedisKey($appId, null, ['pong']);
     }
 
     /**
