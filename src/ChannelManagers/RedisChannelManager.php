@@ -358,6 +358,7 @@ class RedisChannelManager extends LocalChannelManager
                     'appId' => $connection->app->id,
                     'serverId' => $this->getServerId(),
                 ];
+
                 return $this->publishClient
                     ->publish($this->getPongRedisHash($connection->app->id), json_encode($payload));
             })
