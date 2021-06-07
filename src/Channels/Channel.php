@@ -172,8 +172,7 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $connection->send(json_encode($payload));
-                $connection->lastPongedAt = Carbon::now();
-                $this->saveConnection($connection);
+                $this->channelManager->connectionPonged($connection);
             });
 
         if ($replicate) {
@@ -215,11 +214,10 @@ class Channel
         }
 
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
-            $connection->lastPongedAt = Carbon::now();
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
             }
-            $this->saveConnection($connection);
+            $this->channelManager->connectionPonged($connection);
         });
 
         return true;
