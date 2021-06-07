@@ -356,7 +356,7 @@ class RedisChannelManager extends LocalChannelManager
                 $payload = [
                     'socketId' => $connection->socketId,
                     'appId' => $connection->app->id,
-                    'serverId' => $this->getServerId()
+                    'serverId' => $this->getServerId(),
                 ];
                 return $this->publishClient
                     ->publish($this->getPongRedisHash($connection->app->id), json_encode($payload));
@@ -402,7 +402,7 @@ class RedisChannelManager extends LocalChannelManager
             return;
         }
 
-        if($redisChannel == $this->getPongRedisHash($payload->appId)){
+        if ($redisChannel == $this->getPongRedisHash($payload->appId)) {
             $connection = $this->fakeConnectionForApp($payload->appId, $payload->socketId);
 
             return parent::connectionPonged($connection);

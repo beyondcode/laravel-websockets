@@ -464,7 +464,6 @@ class LocalChannelManager implements ChannelManager
      * @param ConnectionInterface $connection
      * @return PromiseInterface[bool]
      */
-
     public function pongConnectionInChannels(ConnectionInterface $connection): PromiseInterface
     {
         return $this->getLocalChannels($connection->app->id)

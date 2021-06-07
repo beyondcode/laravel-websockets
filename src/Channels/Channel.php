@@ -7,7 +7,6 @@ use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use stdClass;
@@ -66,7 +65,6 @@ class Channel
      * @param string socketId
      * @return ?ConnectionInterface
      */
-
     public function getConnection(string $socketId): ?ConnectionInterface
     {
         return $this->connections[$socketId] ?? null;
