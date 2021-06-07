@@ -216,8 +216,8 @@ class Channel
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
+                $this->channelManager->connectionPonged($connection);
             }
-            $this->channelManager->connectionPonged($connection);
         });
 
         return true;
