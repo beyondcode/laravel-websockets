@@ -440,7 +440,7 @@ class LocalChannelManager implements ChannelManager
     public function removeObsoleteConnections(): PromiseInterface
     {
         $lock = $this->lock();
-        try{
+        try {
             if (! $lock->acquire()) {
                 return Helpers::createFulfilledPromise(false);
             }

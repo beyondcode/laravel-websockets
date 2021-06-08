@@ -375,7 +375,7 @@ class RedisChannelManager extends LocalChannelManager
     public function removeObsoleteConnections(): PromiseInterface
     {
         $lock = $this->lock();
-        try{
+        try {
             $lock->get(function () {
                 $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
                     ->then(function ($connections) {
