@@ -439,23 +439,26 @@ class LocalChannelManager implements ChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        if (! $this->lock()->acquire()) {
-            return Helpers::createFulfilledPromise(false);
-        }
-
-        $this->getLocalConnections()->then(function ($connections) {
-            foreach ($connections as $connection) {
-                $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
-
-                if ($differenceInSeconds > 120) {
-                    $this->unsubscribeFromAllChannels($connection);
-                }
+        $lock = $this->lock();
+        try{
+            if (! $lock->acquire()) {
+                return Helpers::createFulfilledPromise(false);
             }
-        });
 
-        return Helpers::createFulfilledPromise(
-            $this->lock()->forceRelease()
-        );
+            $this->getLocalConnections()->then(function ($connections) {
+                foreach ($connections as $connection) {
+                    $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
+
+                    if ($differenceInSeconds > 120) {
+                        $this->unsubscribeFromAllChannels($connection);
+                    }
+                }
+            });
+
+            return Helpers::createFulfilledPromise(true);
+        } finally {
+            optional($lock)->forceRelease();
+        }
     }
 
     /**
