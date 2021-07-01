@@ -44,7 +44,7 @@ class DatabaseAppManager implements AppManager
      */
     public function findById($appId): ?App
     {
-        return $this->convertIntoApp(DatabaseApp::find($appId));
+        return $this->convertIntoApp(DatabaseApp::find($appId)->toArray() ?? null);
     }
 
     /**
