@@ -296,4 +296,12 @@ return [
 
     'promise_resolver' => \React\Promise\FulfilledPromise::class,
 
+    'database' => [
+        'tables' => [
+            /*
+             * This table name will be used to migrate the table needed with DatabaseAppProvider
+             */
+            'apps' => 'websockets_apps',
+        ],
+    ],
 ];

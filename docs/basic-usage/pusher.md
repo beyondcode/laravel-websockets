@@ -83,6 +83,20 @@ You may add additional apps in your `config/websockets.php` file.
 ],
 ```
 
+### Creating Apps using the CLI helper
+
+You can create apps from the comandline using
+
+```
+$ php artisan websockets:app:create
+```
+
+To manage all existing apps, use the web panel from your browser:
+
+```
+/laravel-websockets/admin
+```
+
 ### Client Messages
 
 For each app in your configuration file, you can define if this specific app should support a client-to-client messages. Usually all WebSocket messages go through your Laravel application before they will be broadcasted to other users. But sometimes you may want to enable a direct client-to-client communication instead of sending the events over the server. For example, a "typing" event in a chat application.

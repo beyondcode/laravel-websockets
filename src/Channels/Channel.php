@@ -94,7 +94,7 @@ class Channel
         SubscribedToChannel::dispatch(
             $connection->app->id,
             $connection->socketId,
-            $this->getName(),
+            $this->getName()
         );
 
         return true;
@@ -218,7 +218,10 @@ class Channel
     public function broadcastLocallyToEveryoneExcept(stdClass $payload, ?string $socketId, $appId)
     {
         return $this->broadcastToEveryoneExcept(
-            $payload, $socketId, $appId, false
+            $payload,
+            $socketId,
+            $appId,
+            false
         );
     }
 
@@ -240,7 +243,8 @@ class Channel
 
         if (! hash_equals(
             hash_hmac('sha256', $signature, $connection->app->secret),
-            Str::after($payload->auth, ':'))
+            Str::after($payload->auth, ':')
+        )
         ) {
             throw new InvalidSignature;
         }
