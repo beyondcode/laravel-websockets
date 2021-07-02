@@ -2,15 +2,15 @@
 
 namespace BeyondCode\LaravelWebSockets\Tests\Database;
 
-use BeyondCode\LaravelWebSockets\Database\AppProvider;
+use BeyondCode\LaravelWebSockets\Apps\DatabaseAppManager;
 use BeyondCode\LaravelWebSockets\Database\Models\App;
 use BeyondCode\LaravelWebSockets\Test\TestCase;
 use Illuminate\Support\Str;
 
-class AppProviderTest extends TestCase
+class AppManagerTest extends TestCase
 {
-    /** @var AppProvider */
-    protected $databaseAppProvider;
+    /** @var AppManager */
+    protected $databaseAppManager;
 
     /** @var App */
     private $databaseApp;
@@ -19,7 +19,7 @@ class AppProviderTest extends TestCase
     {
         parent::setUp();
 
-        $this->databaseAppProvider = new AppProvider();
+        $this->databaseAppManager = new DatabaseAppManager();
 
         $this->databaseApp = App::create([
             'name' => 'Application One',
@@ -34,7 +34,7 @@ class AppProviderTest extends TestCase
     /** @test */
     public function it_can_get_apps_from_the_database()
     {
-        $apps = $this->databaseAppProvider->all();
+        $apps = $this->databaseAppManager->all();
 
         $this->assertCount(1, $apps);
 
@@ -52,11 +52,11 @@ class AppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_id()
     {
-        $app = $this->databaseAppProvider->findById(0000);
+        $app = $this->databaseAppManager->findById(0000);
 
         $this->assertNull($app);
 
-        $app = $this->databaseAppProvider->findById($this->databaseApp->id);
+        $app = $this->databaseAppManager->findById($this->databaseApp->id);
 
         $this->assertEquals($this->databaseApp->name, $app->name);
         $this->assertEquals($this->databaseApp->id, $app->id);
@@ -69,11 +69,11 @@ class AppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_key()
     {
-        $app = $this->databaseAppProvider->findByKey('InvalidKey');
+        $app = $this->databaseAppManager->findByKey('InvalidKey');
 
         $this->assertNull($app);
 
-        $app = $this->databaseAppProvider->findByKey($this->databaseApp->key);
+        $app = $this->databaseAppManager->findByKey($this->databaseApp->key);
 
         $this->assertEquals($this->databaseApp->name, $app->name);
         $this->assertEquals($this->databaseApp->id, $app->id);
@@ -86,11 +86,11 @@ class AppProviderTest extends TestCase
     /** @test */
     public function it_can_find_app_by_secret()
     {
-        $app = $this->databaseAppProvider->findBySecret('InvalidSecret');
+        $app = $this->databaseAppManager->findBySecret('InvalidSecret');
 
         $this->assertNull($app);
 
-        $app = $this->databaseAppProvider->findBySecret($this->databaseApp->secret);
+        $app = $this->databaseAppManager->findBySecret($this->databaseApp->secret);
 
         $this->assertEquals($this->databaseApp->name, $app->name);
         $this->assertEquals($this->databaseApp->id, $app->id);
