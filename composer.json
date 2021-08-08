@@ -34,7 +34,7 @@
         "doctrine/dbal": "^2.9",
         "evenement/evenement": "^2.0|^3.0",
         "facade/ignition-contracts": "^1.0",
-        "guzzlehttp/psr7": "^1.5",
+        "guzzlehttp/psr7": "^1.5|^2.0",
         "illuminate/broadcasting": "^6.3|^7.0|^8.0",
         "illuminate/console": "^6.3|^7.0|^8.0",
         "illuminate/http": "^6.3|^7.0|^8.0",
