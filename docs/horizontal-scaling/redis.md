@@ -26,7 +26,7 @@ You can set the connection name to the Redis database under `redis`:
 ```php
 'replication' => [
 
-    'modes' =>
+    'modes' => [
 
         'redis' => [
 
