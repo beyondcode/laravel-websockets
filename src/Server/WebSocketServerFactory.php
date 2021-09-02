@@ -3,12 +3,14 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\ServerLogger;
 use Ratchet\Http\Router;
 use Ratchet\Server\IoServer;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
 use React\Socket\SecureServer;
 use React\Socket\Server;
+use React\Socket\ServerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -73,12 +75,6 @@ class WebSocketServerFactory
 
     public function createServer(): IoServer
     {
-        $socket = new Server("{$this->host}:{$this->port}", $this->loop);
-
-        if (config('websockets.ssl.local_cert')) {
-            $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
-        }
-
         $urlMatcher = new UrlMatcher($this->routes, new RequestContext);
 
         $router = new Router($urlMatcher);
@@ -91,6 +87,21 @@ class WebSocketServerFactory
             $httpServer = HttpLogger::decorate($httpServer);
         }
 
-        return new IoServer($httpServer, $socket, $this->loop);
+        return new IoServer($httpServer, $this->createSocket(), $this->loop);
+    }
+
+    protected function createSocket(): ServerInterface
+    {
+        $socket = new Server("{$this->host}:{$this->port}", $this->loop);
+
+        if (config('websockets.ssl.local_cert')) {
+            $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
+        }
+
+        if (ServerLogger::isEnabled()) {
+            ServerLogger::registerListeners($socket);
+        }
+
+        return $socket;
     }
 }

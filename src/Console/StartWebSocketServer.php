@@ -6,6 +6,7 @@ use BeyondCode\LaravelWebSockets\Facades\StatisticsLogger;
 use BeyondCode\LaravelWebSockets\Facades\WebSocketsRouter;
 use BeyondCode\LaravelWebSockets\Server\Logger\ConnectionLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\HttpLogger;
+use BeyondCode\LaravelWebSockets\Server\Logger\ServerLogger;
 use BeyondCode\LaravelWebSockets\Server\Logger\WebsocketsLogger;
 use BeyondCode\LaravelWebSockets\Server\WebSocketServerFactory;
 use BeyondCode\LaravelWebSockets\Statistics\DnsResolver;
@@ -46,6 +47,7 @@ class StartWebSocketServer extends Command
             ->configureHttpLogger()
             ->configureMessageLogger()
             ->configureConnectionLogger()
+            ->configureServerLogger()
             ->configureRestartTimer()
             ->registerEchoRoutes()
             ->registerCustomRoutes()
@@ -105,6 +107,17 @@ class StartWebSocketServer extends Command
         app()->bind(ConnectionLogger::class, function ($app) {
             return (new ConnectionLogger($this->output))
                 ->enable($app['config']['app']['debug'] ?? false)
+                ->verbose($this->output->isVerbose());
+        });
+
+        return $this;
+    }
+
+    protected function configureServerLogger(): self
+    {
+        app()->singleton(ServerLogger::class, function ($app) {
+            return (new ServerLogger($this->output))
+                ->enable($this->option('debug') ?: ($app['config']['app']['debug'] ?? false))
                 ->verbose($this->output->isVerbose());
         });
 
