@@ -50,7 +50,7 @@ class DashboardLogger
      */
     public static function log($appId, string $type, array $details = [])
     {
-        if (!self::isChannelEnabled($type)) {
+        if (! self::isChannelEnabled($type)) {
             return null;
         }
 
@@ -86,9 +86,9 @@ class DashboardLogger
     }
 
     /**
-     * Checks if channel needs to be logged
+     * Checks if channel needs to be logged.
      *
-     * @param string $type
+     * @param  string $type
      * @return bool
      */
     public static function isChannelEnabled(string $type): bool
