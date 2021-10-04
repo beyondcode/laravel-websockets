@@ -88,7 +88,7 @@ class DashboardLogger
     /**
      * Checks if channel needs to be logged.
      *
-     * @param  string $type
+     * @param  string  $type
      * @return bool
      */
     public static function isChannelEnabled(string $type): bool
