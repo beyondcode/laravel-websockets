@@ -50,6 +50,10 @@ class DashboardLogger
      */
     public static function log($appId, string $type, array $details = [])
     {
+        if (!self::isChannelEnabled($type)) {
+            return null;
+        }
+
         $channelManager = app(ChannelManager::class);
 
         $channelName = static::LOG_CHANNEL_PREFIX.$type;
@@ -79,5 +83,16 @@ class DashboardLogger
         $channelManager->broadcastAcrossServers(
             $appId, null, $channelName, (object) $payload
         );
+    }
+
+    /**
+     * Checks if channel needs to be logged
+     *
+     * @param string $type
+     * @return bool
+     */
+    public static function isChannelEnabled(string $type): bool
+    {
+        return in_array($type, config('websockets.dashboard.channels', self::$channels));
     }
 }

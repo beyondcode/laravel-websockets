@@ -24,6 +24,29 @@ return [
             \BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize::class,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard logger channels list
+        |--------------------------------------------------------------------------
+        |
+        | List of event channels which should be logged.
+        | In frequent ws event stream some log events like replication messages
+        | creates huge spam amount which is more disturbing than helpful.
+        | Removing channel from this list will prevent it being created in first place.
+        |
+        */
+
+        'channels' => [
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_DISCONNECTED,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_CONNECTED,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_SUBSCRIBED,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_WS_MESSAGE,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_API_MESSAGE,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_REPLICATOR_SUBSCRIBED,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_REPLICATOR_UNSUBSCRIBED,
+            \BeyondCode\LaravelWebSockets\DashboardLogger::TYPE_REPLICATOR_MESSAGE_RECEIVED,
+        ],
+
     ],
 
     'managers' => [
