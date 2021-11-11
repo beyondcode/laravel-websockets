@@ -272,10 +272,10 @@ class LocalChannelManager implements ChannelManager
                         return $channel->getName() === $channelName;
                     });
                 })
-                ->flatMap(function (Channel $channel) {
-                    return collect($channel->getConnections())->pluck('socketId');
-                })
-                ->unique()->count();
+                    ->flatMap(function (Channel $channel) {
+                        return collect($channel->getConnections())->pluck('socketId');
+                    })
+                    ->unique()->count();
             });
     }
 
@@ -464,7 +464,7 @@ class LocalChannelManager implements ChannelManager
     /**
      * Pong connection in channels.
      *
-     * @param ConnectionInterface $connection
+     * @param  ConnectionInterface  $connection
      * @return PromiseInterface[bool]
      */
     public function pongConnectionInChannels(ConnectionInterface $connection): PromiseInterface
