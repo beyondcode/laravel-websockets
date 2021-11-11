@@ -62,7 +62,7 @@ class Channel
     /**
      * Get connection by socketId.
      *
-     * @param string socketId
+     * @param  string socketId
      * @return ?ConnectionInterface
      */
     public function getConnection(string $socketId): ?ConnectionInterface

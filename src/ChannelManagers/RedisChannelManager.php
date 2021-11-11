@@ -202,7 +202,7 @@ class RedisChannelManager extends LocalChannelManager
         return $this->publishClient
             ->hget($this->getStatsRedisHash($appId, $channelName), 'connections')
             ->then(function ($count) {
-                return is_null($count) ? 0 : (int)$count;
+                return is_null($count) ? 0 : (int) $count;
             });
     }
 
