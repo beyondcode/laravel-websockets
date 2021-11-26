@@ -73,6 +73,7 @@ class Channel
      * Add a new connection to the channel.
      *
      * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
+     *
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  \stdClass  $payload
      * @return bool
@@ -228,6 +229,7 @@ class Channel
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  \stdClass  $payload
      * @return void
+     *
      * @throws InvalidSignature
      */
     protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
