@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\API\FetchChannels;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
-use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchChannelsTest extends TestCase
@@ -23,7 +22,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
@@ -46,7 +45,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'GET', $requestPath
         );
 
@@ -81,7 +80,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
         ]);
 
@@ -117,7 +116,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
             'info' => 'user_count',
         ]);
@@ -156,7 +155,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
             'info' => 'user_count',
         ]);
 
@@ -180,7 +179,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

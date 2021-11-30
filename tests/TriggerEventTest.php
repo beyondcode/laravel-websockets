@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use GuzzleHttp\Psr7\Request;
-use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TriggerEventTest extends TestCase
@@ -22,7 +21,7 @@ class TriggerEventTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 

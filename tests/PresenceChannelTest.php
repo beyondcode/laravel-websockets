@@ -6,7 +6,6 @@ use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
-use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 
 class PresenceChannelTest extends TestCase
@@ -419,7 +418,7 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],
@@ -460,7 +459,7 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],
@@ -508,7 +507,7 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],

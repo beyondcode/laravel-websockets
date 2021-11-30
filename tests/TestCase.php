@@ -10,6 +10,7 @@ use BeyondCode\LaravelWebSockets\Helpers;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
 use Orchestra\Testbench\BrowserKit\TestCase as Orchestra;
+use Pusher\Pusher;
 use React\EventLoop\Factory as LoopFactory;
 
 abstract class TestCase extends Orchestra
@@ -481,5 +482,29 @@ abstract class TestCase extends Orchestra
         if ($this->replicationMode === 'local') {
             $this->markTestSkipped('Skipped test because the replication mode is Local.');
         }
+    }
+
+    protected static function build_auth_query_string(
+        $auth_key,
+        $auth_secret,
+        $request_method,
+        $request_path,
+        $query_params = [],
+        $auth_version = '1.0',
+        $auth_timestamp = null
+    ) {
+        $method = method_exists(Pusher::class, 'build_auth_query_params') ? 'build_auth_query_params' : 'build_auth_query_string';
+
+        $params = Pusher::$method(
+            $auth_key, $auth_secret, $request_method, $request_path, $query_params, $auth_version, $auth_timestamp
+        );
+
+        if ($method == 'build_auth_query_string') {
+            return $params;
+        }
+
+        ksort($params);
+
+        return http_build_query($params);
     }
 }

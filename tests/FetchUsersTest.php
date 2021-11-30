@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\FetchUsers;
 use GuzzleHttp\Psr7\Request;
-use Pusher\Pusher;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class FetchUsersTest extends TestCase
@@ -23,7 +22,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'my-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
         );
 
@@ -50,7 +49,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'my-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'GET', $requestPath
         );
 
@@ -77,7 +76,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'invalid-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'GET', $requestPath
         );
 
@@ -101,7 +100,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -131,7 +130,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
