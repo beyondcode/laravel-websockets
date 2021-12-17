@@ -31,7 +31,6 @@
     "require": {
         "cboden/ratchet": "^0.4.1",
         "clue/redis-react": "^2.3",
-        "doctrine/dbal": "^2.9",
         "evenement/evenement": "^2.0|^3.0",
         "facade/ignition-contracts": "^1.0",
         "guzzlehttp/psr7": "^1.5|^2.0",
@@ -53,7 +52,8 @@
         "phpunit/phpunit": "^8.0|^9.0"
     },
     "suggest": {
-        "ext-pcntl": "Running the server needs pcntl to listen to command signals and soft-shutdown."
+        "ext-pcntl": "Running the server needs pcntl to listen to command signals and soft-shutdown.",
+        "doctrine/dbal": "Required to run database migrations (^2.9|^3.0)."
     },
     "autoload": {
         "psr-4": {
