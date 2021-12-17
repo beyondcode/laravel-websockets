@@ -5,7 +5,6 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
-use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 
 class PublicChannelTest extends TestCase
@@ -220,7 +219,7 @@ class PublicChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
@@ -261,7 +260,7 @@ class PublicChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
@@ -309,7 +308,7 @@ class PublicChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = self::build_auth_query_string(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
