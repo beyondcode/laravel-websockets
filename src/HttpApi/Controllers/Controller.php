@@ -80,9 +80,13 @@ abstract class Controller implements HttpServerInterface
                 ->ensureValidAppId($laravelRequest->appId)
                 ->ensureValidSignature($laravelRequest);
 
-            $response = $this($laravelRequest);
+            $response = JsonResponse::create( $this($laravelRequest) );
 
-            $connection->send(JsonResponse::create($response));
+            $content = $response->content();
+            
+            $response->header( 'Content-Length', strlen($content) );
+
+            $connection->send( $response );
             $connection->close();
         }
     }
@@ -97,11 +101,14 @@ abstract class Controller implements HttpServerInterface
             return;
         }
 
+        $responseData = json_encode([
+            'error' => $exception->getMessage(),
+        ]);
+
         $response = new Response($exception->getStatusCode(), [
             'Content-Type' => 'application/json',
-        ], json_encode([
-            'error' => $exception->getMessage(),
-        ]));
+            'Content-Length' => strlen( $responseData )
+        ], $responseData);
 
         $connection->send(\GuzzleHttp\Psr7\str($response));
 
