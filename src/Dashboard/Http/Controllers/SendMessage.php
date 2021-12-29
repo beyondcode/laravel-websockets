@@ -4,8 +4,8 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
 use BeyondCode\LaravelWebSockets\Rules\AppId;
-use Exception;
 use Illuminate\Http\Request;
+use Throwable;
 
 class SendMessage
 {
@@ -42,7 +42,7 @@ class SendMessage
                 $request->event,
                 $decodedData ?: []
             );
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'ok' => false,
                 'exception' => $e->getMessage(),

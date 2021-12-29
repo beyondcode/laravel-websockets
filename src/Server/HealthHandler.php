@@ -3,6 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Server;
 
 use Exception;
+use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 use Ratchet\ConnectionInterface;
@@ -25,7 +26,7 @@ class HealthHandler implements HttpServerInterface
             json_encode(['ok' => true])
         );
 
-        tap($connection)->send(\GuzzleHttp\Psr7\str($response))->close();
+        tap($connection)->send(Message::toString($response))->close();
     }
 
     /**

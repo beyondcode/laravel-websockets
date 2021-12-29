@@ -17,11 +17,13 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         php:
           - '7.3'
           - '7.4'
           - '8.0'
+          - '8.1'
         laravel:
           - 6.*
           - 7.*
@@ -32,15 +34,27 @@ jobs:
         include:
           - laravel: '6.*'
             testbench: '4.*'
+            phpunit: '^8.5.8|^9.3.3'
           - laravel: '7.*'
             testbench: '5.*'
+            phpunit: '^8.5.8|^9.3.3'
           - laravel: '8.*'
             testbench: '6.*'
+            phpunit: '^9.3.3'
         exclude:
           - php: '8.0'
             laravel: 6.*
+            prefer: 'prefer-lowest'
           - php: '8.0'
             laravel: 7.*
+            prefer: 'prefer-lowest'
+          - php: '8.1'
+            laravel: 6.*
+          - php: '8.1'
+            laravel: 7.*
+          - php: '8.1'
+            laravel: 8.*
+            prefer: 'prefer-lowest'
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
 
@@ -67,7 +81,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench-browser-kit:${{ matrix.testbench }}" "orchestra/database:${{ matrix.testbench }}" --no-interaction --no-update
+        composer require "laravel/framework:${{ matrix.laravel }}" "phpunit/phpunit:${{ matrix.phpunit }}" "orchestra/testbench-browser-kit:${{ matrix.testbench }}" "orchestra/database:${{ matrix.testbench }}" --no-interaction --no-update
         composer update --${{ matrix.prefer }} --prefer-dist --no-interaction --no-suggest
 
     - name: Run tests for Local

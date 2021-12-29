@@ -6,6 +6,7 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Server\QueryParameters;
 use Exception;
+use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use Illuminate\Http\JsonResponse;
@@ -139,7 +140,7 @@ abstract class Controller implements HttpServerInterface
             'error' => $exception->getMessage(),
         ]));
 
-        tap($connection)->send(\GuzzleHttp\Psr7\str($response))->close();
+        tap($connection)->send(Message::toString($response))->close();
     }
 
     /**
