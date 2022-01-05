@@ -60,6 +60,17 @@ class Channel
     }
 
     /**
+     * Get connection by socketId.
+     *
+     * @param  string socketId
+     * @return ?ConnectionInterface
+     */
+    public function getConnection(string $socketId): ?ConnectionInterface
+    {
+        return $this->connections[$socketId] ?? null;
+    }
+
+    /**
      * Check if the channel has connections.
      *
      * @return bool
@@ -159,6 +170,7 @@ class Channel
         collect($this->getConnections())
             ->each(function ($connection) use ($payload) {
                 $connection->send(json_encode($payload));
+                $this->channelManager->connectionPonged($connection);
             });
 
         if ($replicate) {
@@ -196,12 +208,13 @@ class Channel
         }
 
         if (is_null($socketId)) {
-            return $this->broadcast($appId, $payload, $replicate);
+            return $this->broadcast($appId, $payload, false);
         }
 
         collect($this->getConnections())->each(function (ConnectionInterface $connection) use ($socketId, $payload) {
             if ($connection->socketId !== $socketId) {
                 $connection->send(json_encode($payload));
+                $this->channelManager->connectionPonged($connection);
             }
         });
 

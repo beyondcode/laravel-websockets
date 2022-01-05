@@ -272,10 +272,10 @@ class LocalChannelManager implements ChannelManager
                         return $channel->getName() === $channelName;
                     });
                 })
-                ->flatMap(function (Channel $channel) {
-                    return collect($channel->getConnections())->pluck('socketId');
-                })
-                ->unique()->count();
+                    ->flatMap(function (Channel $channel) {
+                        return collect($channel->getConnections())->pluck('socketId');
+                    })
+                    ->unique()->count();
             });
     }
 
@@ -429,9 +429,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function connectionPonged(ConnectionInterface $connection): PromiseInterface
     {
-        $connection->lastPongedAt = Carbon::now();
-
-        return $this->updateConnectionInChannels($connection);
+        return $this->pongConnectionInChannels($connection);
     }
 
     /**
@@ -441,23 +439,47 @@ class LocalChannelManager implements ChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        if (! $this->lock()->acquire()) {
-            return Helpers::createFulfilledPromise(false);
-        }
-
-        $this->getLocalConnections()->then(function ($connections) {
-            foreach ($connections as $connection) {
-                $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
-
-                if ($differenceInSeconds > 120) {
-                    $this->unsubscribeFromAllChannels($connection);
-                }
+        $lock = $this->lock();
+        try {
+            if (! $lock->acquire()) {
+                return Helpers::createFulfilledPromise(false);
             }
-        });
 
-        return Helpers::createFulfilledPromise(
-            $this->lock()->forceRelease()
-        );
+            $this->getLocalConnections()->then(function ($connections) {
+                foreach ($connections as $connection) {
+                    $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
+
+                    if ($differenceInSeconds > 120) {
+                        $this->unsubscribeFromAllChannels($connection);
+                    }
+                }
+            });
+
+            return Helpers::createFulfilledPromise(true);
+        } finally {
+            optional($lock)->forceRelease();
+        }
+    }
+
+    /**
+     * Pong connection in channels.
+     *
+     * @param  ConnectionInterface  $connection
+     * @return PromiseInterface[bool]
+     */
+    public function pongConnectionInChannels(ConnectionInterface $connection): PromiseInterface
+    {
+        return $this->getLocalChannels($connection->app->id)
+            ->then(function ($channels) use ($connection) {
+                foreach ($channels as $channel) {
+                    if ($conn = $channel->getConnection($connection->socketId)) {
+                        $conn->lastPongedAt = Carbon::now();
+                        $channel->saveConnection($conn);
+                    }
+                }
+
+                return true;
+            });
     }
 
     /**
