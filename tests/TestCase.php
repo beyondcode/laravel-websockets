@@ -332,6 +332,7 @@ abstract class TestCase extends Orchestra
     {
         $connection = new Mocks\Connection;
 
+        $connection->lastPongedAt = now();
         $connection->httpRequest = new Request('GET', "/?appKey={$appKey}", $headers);
 
         return $connection;

@@ -98,6 +98,8 @@ class FetchChannelTest extends TestCase
 
     public function test_it_returns_404_for_invalid_channels()
     {
+        $this->skipOnRedisReplication();
+
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unknown channel');
 
@@ -119,13 +121,5 @@ class FetchChannelTest extends TestCase
         $controller = app(FetchChannel::class);
 
         $controller->onOpen($connection, $request);
-
-        /** @var JsonResponse $response */
-        $response = array_pop($connection->sentRawData);
-
-        $this->assertSame([
-            'occupied' => true,
-            'subscription_count' => 2,
-        ], json_decode($response->getContent(), true));
     }
 }
