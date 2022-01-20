@@ -28,12 +28,11 @@ jobs:
           - 6.*
           - 7.*
           - 8.*
+          - 9.*
         prefer:
           - 'prefer-lowest'
           - 'prefer-stable'
         include:
-          - laravel: 8.*
-            testbench: 6.*
           - laravel: '6.*'
             testbench: '4.*'
             phpunit: '^8.5.8|^9.3.3'
@@ -42,6 +41,9 @@ jobs:
             phpunit: '^8.5.8|^9.3.3'
           - laravel: '8.*'
             testbench: '6.*'
+            phpunit: '^9.3.3'
+          - laravel: 9.*
+            testbench: 7.*
             phpunit: '^9.3.3'
         exclude:
           - php: '8.0'
@@ -57,6 +59,10 @@ jobs:
           - php: '8.1'
             laravel: 8.*
             prefer: 'prefer-lowest'
+          - php: '7.3'
+            laravel: 9.*
+          - php: '7.4'
+            laravel: 9.*
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
 
