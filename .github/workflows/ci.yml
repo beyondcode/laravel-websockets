@@ -32,6 +32,8 @@ jobs:
           - 'prefer-lowest'
           - 'prefer-stable'
         include:
+          - laravel: 8.*
+            testbench: 6.*
           - laravel: '6.*'
             testbench: '4.*'
             phpunit: '^8.5.8|^9.3.3'
