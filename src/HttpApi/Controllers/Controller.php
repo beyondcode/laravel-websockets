@@ -80,7 +80,7 @@ abstract class Controller implements HttpServerInterface
                 ->ensureValidAppId($laravelRequest->appId)
                 ->ensureValidSignature($laravelRequest);
 
-            $response = JsonResponse::create($this($laravelRequest));
+            $response = new JsonResponse($this($laravelRequest));
 
             $content = $response->content();
 
