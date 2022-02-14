@@ -22,7 +22,7 @@ class StartServer extends Command
      */
     protected $signature = 'websockets:serve
         {--host=0.0.0.0}
-        {--port=6001}
+        {--port=}
         {--disable-statistics : Disable the statistics tracking.}
         {--statistics-interval= : The amount of seconds to tick between statistics saving.}
         {--debug : Forces the loggers to be enabled and thereby overriding the APP_DEBUG setting.}
@@ -254,7 +254,8 @@ class StartServer extends Command
      */
     protected function startServer()
     {
-        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
+        $port = $this->option('port') ?: config('websockets.dashboard.port', 6001);
+        $this->info("Starting the WebSocket server on port {$port}...");
 
         $this->buildServer();
 
@@ -269,7 +270,7 @@ class StartServer extends Command
     protected function buildServer()
     {
         $this->server = new ServerFactory(
-            $this->option('host'), $this->option('port')
+            $this->option('host'), $this->option('port') ?: config('websockets.dashboard.port', 6001)
         );
 
         if ($loop = $this->option('loop')) {
