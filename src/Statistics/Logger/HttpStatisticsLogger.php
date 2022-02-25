@@ -6,7 +6,7 @@ use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Statistics\Http\Controllers\WebSocketStatisticsEntriesController;
 use BeyondCode\LaravelWebSockets\Statistics\Statistic;
 use BeyondCode\LaravelWebSockets\WebSockets\Channels\ChannelManager;
-use function GuzzleHttp\Psr7\stream_for;
+use GuzzleHttp\Psr7\Utils;
 use Ratchet\ConnectionInterface;
 use React\Http\Browser;
 
@@ -81,7 +81,7 @@ class HttpStatisticsLogger implements StatisticsLogger
                 ->post(
                     action([WebSocketStatisticsEntriesController::class, 'store']),
                     ['Content-Type' => 'application/json'],
-                    stream_for(json_encode($postData))
+                    Utils::streamFor(json_encode($postData))
                 );
 
             $currentConnectionCount = $this->channelManager->getConnectionCount($appId);
