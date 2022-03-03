@@ -11,6 +11,7 @@ use BeyondCode\LaravelWebSockets\WebSockets\WebSocketHandler;
 use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use GuzzleHttp\Psr7\Request;
 use Mockery;
+use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 use React\Http\Browser;
 
@@ -126,5 +127,29 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function markTestAsPassed()
     {
         $this->assertTrue(true);
+    }
+
+    protected static function build_auth_query_string(
+        $auth_key,
+        $auth_secret,
+        $request_method,
+        $request_path,
+        $query_params = [],
+        $auth_version = '1.0',
+        $auth_timestamp = null
+    ) {
+        $method = method_exists(Pusher::class, 'build_auth_query_params') ? 'build_auth_query_params' : 'build_auth_query_string';
+
+        $params = Pusher::$method(
+            $auth_key, $auth_secret, $request_method, $request_path, $query_params, $auth_version, $auth_timestamp
+        );
+
+        if ($method == 'build_auth_query_string') {
+            return $params;
+        }
+
+        ksort($params);
+
+        return http_build_query($params);
     }
 }
