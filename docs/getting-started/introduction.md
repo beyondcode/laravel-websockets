@@ -17,6 +17,6 @@ php artisan websockets:serve
 
 ---
 
-If you want to know how all of it works under the hood, we wrote an in-depth [blogpost](https://murze.be/introducing-laravel-websockets-an-easy-to-use-websocket-server-implemented-in-php) about it.
+If you want to know how all of it works under the hood, we wrote an in-depth [blogpost](https://freek.dev/1228-introducing-laravel-websockets-an-easy-to-use-websocket-server-implemented-in-php) about it.
 
 To help you get started, you can also take a look at the [demo repository](https://github.com/beyondcode/laravel-websockets-demo), that implements a basic Chat built with this package.
