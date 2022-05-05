@@ -19,17 +19,12 @@ class DnsResolver implements ResolverInterface
 
     public function resolve($domain)
     {
-        return $this->resolveInternal($domain);
+        return new FulfilledPromise($this->internalIP);
     }
 
     public function resolveAll($domain, $type)
     {
-        return $this->resolveInternal($domain, $type);
-    }
-
-    private function resolveInternal($domain, $type = null)
-    {
-        return new FulfilledPromise($this->internalIP);
+        return new FulfilledPromise([$this->internalIP]);
     }
 
     public function __toString()
