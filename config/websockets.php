@@ -185,7 +185,7 @@ return [
         |
         */
 
-        'store' => \BeyondCode\LaravelWebSockets\Statistics\Stores\DatabaseStore::class,
+        'model' => \BeyondCode\LaravelWebSockets\Statistics\Models\WebSocketsStatisticsEntry::class,
 
         /*
         |--------------------------------------------------------------------------
