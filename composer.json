@@ -1,5 +1,5 @@
 {
-    "name": "beyondcode/laravel-websockets",
+    "name": "beekmanbv/laravel-websockets",
     "description": "An easy to launch a Pusher-compatible WebSockets server for Laravel.",
     "keywords": [
         "beyondcode",
