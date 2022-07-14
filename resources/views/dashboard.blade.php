@@ -209,6 +209,7 @@
     >
         <div class="font-semibold uppercase text-gray-700 mb-6 flex justify-between py-6 px-6">
             <span>Server activity</span>
+            <span>@{{logItemsDuringSession}} messages during session</span>
             <span v-if="!pauseLogItems" class="cursor-pointer text-orange-500" @click.prevent="pauseLogItems = true">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -268,6 +269,7 @@
     new Vue({
         el: '#app',
         data: {
+            logItemsDuringSession: 0,
             pauseLogItems: false,
             maxLogItems: 50,
             sendPayloadToggle: false,
@@ -425,6 +427,9 @@
                 this.pusher.subscribe(`{{ $logPrefix }}${channel}`)
                     .bind('log-message', (data) => {
                         if (!this.pauseLogItems) {
+
+                            this.logItemsDuringSession++;
+
                             this.logs.push(data);
                             if (this.logs.length > this.maxLogItems) {
                                 this.logs.splice(0, 1);
