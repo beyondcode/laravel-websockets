@@ -22,11 +22,7 @@
 <body class="px-6">
 <div
     id="app"
-    class="mx-auto"
-    :class="{
-      'max-w-xl': ! connected,
-      'max-w-6xl': connected,
-    }"
+    class="mx-auto max-w-6xl"
 >
     <div class="w-full my-6 rounded-lg bg-gray-100 p-6">
         <div class="font-semibold uppercase text-gray-700 mb-6">
@@ -210,17 +206,24 @@
         <div class="font-semibold uppercase text-gray-700 mb-6 flex justify-between py-6 px-6">
             <span>Server activity</span>
             <span>@{{logItemsDuringSession}} messages during session</span>
-            <span v-if="!pauseLogItems" class="cursor-pointer text-orange-500" @click.prevent="pauseLogItems = true">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </span>
-            <span v-if="pauseLogItems" class="cursor-pointer text-green-500" @click.prevent="pauseLogItems = false">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </span>
+            <div class="flex">
+                <span v-if="!pauseLogItems" class="cursor-pointer text-orange-500" @click.prevent="pauseLogItems = true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </span>
+                <span v-if="pauseLogItems" class="cursor-pointer text-green-500" @click.prevent="pauseLogItems = false">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </span>
+                <span class="cursor-pointer text-theme" @click.prevent="clear">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </span>
+            </div>
         </div>
 
         <div class="overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -313,6 +316,10 @@
             }
         },
         methods: {
+            clear() {
+              this.logs = [];
+              this.logItemsDuringSession = 0;
+            },
             connect() {
                 this.connecting = true;
 

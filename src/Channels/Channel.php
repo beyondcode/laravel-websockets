@@ -93,6 +93,8 @@ class Channel
     {
         $this->saveConnection($connection);
 
+        $this->channelManager->joinedChannel($connection, $this->getName());
+
         $connection->send(json_encode([
             'event' => 'pusher_internal:subscription_succeeded',
             'channel' => $this->getName(),
@@ -125,6 +127,14 @@ class Channel
         }
 
         unset($this->connections[$connection->socketId]);
+
+        $this->channelManager->leftChannel($connection, $this->getName());
+
+        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_UNSUBSCRIBED, [
+            'socketId' => $connection->socketId,
+            'channel' => $this->getName(),
+            'connections' => $this->connections,
+        ]);
 
         UnsubscribedFromChannel::dispatch(
             $connection->app->id,

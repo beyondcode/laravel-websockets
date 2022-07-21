@@ -26,6 +26,13 @@ class LocalChannelManager implements ChannelManager
     protected $channels = [];
 
     /**
+     * The list of channels by socket and their attached id.
+     *
+     * @var array
+     */
+    protected $channelSockets = [];
+
+    /**
      * The list of users that joined the presence channel.
      *
      * @var array
@@ -144,6 +151,20 @@ class LocalChannelManager implements ChannelManager
     {
         return Helpers::createFulfilledPromise(
             $this->channels[$appId] ?? []
+        );
+    }
+
+    /**
+     * Get all channel sockets for a specific app
+     * for the current instance.
+     *
+     * @param  string|int  $appId
+     * @return \React\Promise\PromiseInterface[array]
+     */
+    public function getChannelSockets($appId): PromiseInterface
+    {
+        return Helpers::createFulfilledPromise(
+            collect($this->channelSockets[$appId] ?? [])
         );
     }
 
@@ -308,6 +329,36 @@ class LocalChannelManager implements ChannelManager
     }
 
     /**
+     * Handle joining a channel.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  stdClass  $user
+     * @param  string  $channel
+     * @return void
+     */
+    public function joinedChannel(ConnectionInterface $connection, string $channel): void
+    {
+        $this->channelSockets[$connection->app->id][$channel][$connection->socketId] = 1;
+    }
+
+    /**
+     * Handle leaving a channel.
+     *
+     * @param  \Ratchet\ConnectionInterface  $connection
+     * @param  string  $channel
+     * @return void
+     */
+    public function leftChannel(ConnectionInterface $connection, string $channel): void
+    {
+        unset($this->channelSockets[$connection->app->id][$channel][$connection->socketId]);
+
+        // cleanup channels
+        if (count($this->channelSockets[$connection->app->id][$channel]) < 1) {
+            unset($this->channelSockets[$connection->app->id][$channel]);
+        }
+    }
+
+    /**
      * Handle the user when it joined a presence channel.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
@@ -383,6 +434,27 @@ class LocalChannelManager implements ChannelManager
         $member = $this->users["{$connection->app->id}:{$channel}"][$connection->socketId] ?? null;
 
         return Helpers::createFulfilledPromise($member);
+    }
+
+    /**
+     * Get the channels total sockets count.
+     *
+     * @param  string|int  $appId
+     * @param  array  $channelNames
+     * @return \React\Promise\PromiseInterface
+     */
+    public function getChannelsSocketsCount($appId, array $channelNames): PromiseInterface
+    {
+        $results = collect($channelNames)
+            ->reduce(function ($results, $channel) use ($appId) {
+                $results[$channel] = isset($this->channelSockets[$appId][$channel])
+                    ? count($this->channelSockets[$appId][$channel])
+                    : 0;
+
+                return $results;
+            }, []);
+
+        return Helpers::createFulfilledPromise($results);
     }
 
     /**

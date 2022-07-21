@@ -85,6 +85,8 @@ class PresenceChannel extends PrivateChannel
                             );
                         }
 
+                        $this->channelManager->joinedChannel($connection, $this->getName());
+
                         DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_SUBSCRIBED, [
                             'socketId' => $connection->socketId,
                             'channel' => $this->getName(),
