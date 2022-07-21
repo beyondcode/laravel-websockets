@@ -14,6 +14,8 @@ class DashboardLogger
 
     const TYPE_SUBSCRIBED = 'subscribed';
 
+    const TYPE_UNSUBSCRIBED = 'unsubscribed';
+
     const TYPE_WS_MESSAGE = 'ws-message';
 
     const TYPE_API_MESSAGE = 'api-message';
@@ -33,6 +35,7 @@ class DashboardLogger
         self::TYPE_DISCONNECTED,
         self::TYPE_CONNECTED,
         self::TYPE_SUBSCRIBED,
+        self::TYPE_UNSUBSCRIBED,
         self::TYPE_WS_MESSAGE,
         self::TYPE_API_MESSAGE,
         self::TYPE_REPLICATOR_SUBSCRIBED,

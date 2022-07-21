@@ -246,6 +246,19 @@ abstract class Controller implements HttpServerInterface
      */
     protected function ensureValidSignature(Request $request)
     {
+
+        // Auth for external API requests (connect to API from outside app)
+        if ($request->secret) {
+            $authSignature = (string) $request->secret;
+
+            if ($authSignature !== env('PUSHER_APP_SECRET')) {
+                throw new HttpException(401, 'Invalid auth signature provided.');
+            }
+
+            return $this;
+        }
+
+        // Auth for PUSHER API
         // The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
         // The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.
 
