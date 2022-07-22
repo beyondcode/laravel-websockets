@@ -275,8 +275,6 @@ return [
 
         'fetch_channels' => \BeyondCode\LaravelWebSockets\API\FetchChannels::class,
 
-        'fetch_channel_sockets' => \BeyondCode\LaravelWebSockets\API\FetchChannelSockets::class,
-
         'fetch_channel' => \BeyondCode\LaravelWebSockets\API\FetchChannel::class,
 
         'fetch_users' => \BeyondCode\LaravelWebSockets\API\FetchUsers::class,
