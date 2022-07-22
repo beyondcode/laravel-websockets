@@ -73,7 +73,7 @@ class Router
         $this->get('/app/{appKey}', config('websockets.handlers.websocket'));
         $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event'));
         $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels'));
-        $this->get('/apps/{appId}/channel-sockets', config('websockets.handlers.fetch_channel_sockets'));
+        //$this->get('/apps/{appId}/sockets', config('websockets.handlers.fetch_channel_sockets'));
         $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
         $this->get('/apps/{appId}/channels/{channelName}/users', config('websockets.handlers.fetch_users'));
         $this->get('/health', config('websockets.handlers.health'));
