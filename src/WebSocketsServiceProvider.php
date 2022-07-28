@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\Contracts\StatisticsStore;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\AuthenticateDashboard;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\SendMessage;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowDashboard;
+use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowChannels;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\ShowStatistics;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize as AuthorizeDashboard;
 use BeyondCode\LaravelWebSockets\Queue\AsyncRedisConnector;
@@ -165,6 +166,7 @@ class WebSocketsServiceProvider extends ServiceProvider
             'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),
         ], function () {
             Route::get('/', ShowDashboard::class)->name('dashboard');
+            Route::get('/api/{appId}/channels', ShowChannels::class)->name('channels');
             Route::get('/api/{appId}/statistics', ShowStatistics::class)->name('statistics');
             Route::post('/auth', AuthenticateDashboard::class)->name('auth');
             Route::post('/event', SendMessage::class)->name('event');
