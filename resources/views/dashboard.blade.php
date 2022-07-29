@@ -7,18 +7,32 @@
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     <link rel="stylesheet" href="{{ mix('css/icons.css') }}">
     <link rel="stylesheet" href="{{ mix('css/dark.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/vue-json-editor@1.4.2/assets/jsoneditor.min.css" rel="stylesheet">
+{{--    <link href="https://cdn.jsdelivr.net/npm/vue-json-editor@1.4.2/assets/jsoneditor.min.css" rel="stylesheet">--}}
 
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/v-jsoneditor@1.4.1/dist/v-jsoneditor.min.js"></script>
-
+{{--    <script src="https://cdn.jsdelivr.net/npm/v-jsoneditor@1.4.1/dist/v-jsoneditor.min.js"></script>--}}
     <script>
         window.baseURL = '{{ url(request()->path()) }}';
         axios.defaults.baseURL = baseURL;
     </script>
+
+    <style>
+        .green-700 {
+            background-color: #15803d;
+        }
+        .red-700 {
+            background-color: #b91c1c;
+        }
+        .gray-700 {
+            background-color: #374151;
+        }
+        .orange-700 {
+            background-color: #c2410c;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased">
@@ -184,8 +198,8 @@
                     </div>
                 </div>
 
-                <div class="align-middle inline-block w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200 rounded-b">
-                    <table class="w-full divide-y divide-gray-200 rounded-b">
+                <div class="inline-block w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200 rounded-b overflow-x-auto">
+                    <table class="w-full table-auto overflow-scroll divide-y divide-gray-200 rounded-b">
                         <thead>
                         <tr>
                             <th class="px-2 py-1 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
@@ -194,26 +208,20 @@
                             <th class="px-2 py-1 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                 Details
                             </th>
-                            <th class="px-2 py-1 border-b border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                                Time
-                            </th>
                         </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" :class="{'text-white': theme === 'dark'}">
                         <tr v-for="(log, index) in filteredLogs" :key="index">
-                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-xs">
-                                <div
-                                    :class="[getBadgeClass(log)]"
-                                    class="rounded-full px-3 py-1 inline-block text-sm dark:text-white"
-                                >
-                                    @{{ log.type }}
+                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-xs" style="width: 350px; vertical-align:top">
+                                <div class="flex justify-between items-center">
+                                    <div class="text-left w-1/3">@{{ log.time }}</div>
+                                    <div :class="[getBadgeClass(log)]" class="w-2/3 rounded px-3 py-1 inline-block text-sm dark:text-white">
+                                        @{{ log.type }}
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-xs">
-                                <pre class="text-xs">@{{ log.details }}</pre>
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-200 text-xs">
-                                @{{ log.time }}
+                                <pre class="text-xs">@{{ jsonDecode(log.details) }}</pre>
                             </td>
                         </tr>
                         </tbody>
@@ -271,6 +279,15 @@
             },
         },
         methods: {
+            jsonDecode(data) {
+                if (data.payload) {
+                    if (typeof data.payload === 'string') {
+                        let payload = data.payload.replaceAll('\"', '"');
+                        data.payload = JSON.parse(payload);
+                    }
+                }
+              return data;
+            },
             clear() {
               this.logs = [];
               this.logItemsDuringSession = 0;
@@ -428,18 +445,22 @@
                 }
 
                 if (['replicator-subscribed'].includes(log.type)) {
-                    return 'bg-green-700 text-white';
+                    return 'green-700 text-white';
                 }
 
-                if (['disconnection', 'replicator-unsubscribed'].includes(log.type)) {
-                    return 'bg-red-700 text-white';
+                if (['unsubscribed'].includes(log.type)) {
+                    return 'orange-700 text-white';
                 }
 
-                if (['api_message', 'replicator-message-received'].includes(log.type)) {
-                    return 'bg-black text-white';
+                if (['disconnected', 'disconnection', 'replicator-unsubscribed'].includes(log.type)) {
+                    return 'red-700 text-white';
                 }
 
-                return 'bg-gray-700 text-white';
+                if (['api-message', 'replicator-message-received'].includes(log.type)) {
+                    return 'bg-theme text-white';
+                }
+
+                return 'gray-700 text-white';
             },
 
             startRefreshInterval() {
