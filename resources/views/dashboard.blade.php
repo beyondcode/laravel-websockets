@@ -440,7 +440,7 @@
             },
 
             getBadgeClass(log) {
-                if (['connection', 'subscribed'].includes(log.type)) {
+                if (['connected', 'connection', 'subscribed'].includes(log.type)) {
                     return 'bg-green-500 text-white';
                 }
 
