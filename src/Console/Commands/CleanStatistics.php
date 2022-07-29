@@ -45,8 +45,9 @@ class CleanStatistics extends Command
          * but StatisticsStore expects an actual Carbon instance,
          * so we'll convert it here.
          */
-        if ($timestamp instanceof CarbonImmutable)
+        if ($timestamp instanceof CarbonImmutable) {
             $timestamp = new Carbon($timestamp);
+        }
 
         $amountDeleted = StatisticsStore::delete(
             $timestamp, $this->argument('appId')
