@@ -96,7 +96,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     }
 
     /**
-     * Regsiter the dashboard components.
+     * Register the dashboard components.
      *
      * @return void
      */
