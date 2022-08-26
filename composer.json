@@ -43,14 +43,13 @@
         "illuminate/routing": "^9.0",
         "illuminate/support": "^9.0",
         "pusher/pusher-php-server": "^6.0|^7.0",
-        "react/promise": "^2.0",
+        "react/promise": "^2.8",
         "symfony/http-kernel": "^5.0|^6.0",
         "symfony/psr-http-message-bridge": "^1.1|^2.0"
     },
     "require-dev": {
         "clue/block-react": "^1.4",
         "laravel/legacy-factories": "^1.1",
-        "orchestra/testbench-browser-kit": "^7.0",
         "phpunit/phpunit": "^8.0|^9.0"
     },
     "suggest": {
