@@ -214,7 +214,7 @@ abstract class Controller implements HttpServerInterface
      */
     protected function sendAndClose(ConnectionInterface $connection, $response)
     {
-        tap($connection)->send(JsonResponse::create($response))->close();
+        tap($connection)->send(new JsonResponse($response))->close();
     }
 
     /**

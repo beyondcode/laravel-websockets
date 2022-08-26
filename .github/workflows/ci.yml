@@ -35,6 +35,8 @@ jobs:
             testbench: '5.*'
           - laravel: '8.*'
             testbench: '6.*'
+          - laravel: '9.*'
+            testbench: '7.*'
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
 
