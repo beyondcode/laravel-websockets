@@ -577,7 +577,7 @@ class RedisChannelManager extends LocalChannelManager
      * Add a channel to the set list.
      *
      * @param  string|int  $appId
-     * @param  string $channel
+     * @param  string  $channel
      * @return PromiseInterface
      */
     public function addChannelToSet($appId, string $channel): PromiseInterface

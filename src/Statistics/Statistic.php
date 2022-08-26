@@ -45,7 +45,7 @@ class Statistic
      * Create a new statistic.
      *
      * @param  string|int  $appId
-     * @return  void
+     * @return void
      */
     public function __construct($appId)
     {
