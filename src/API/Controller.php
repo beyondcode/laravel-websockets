@@ -222,6 +222,7 @@ abstract class Controller implements HttpServerInterface
      *
      * @param  mixed  $appId
      * @return $this
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function ensureValidAppId($appId)
@@ -239,6 +240,7 @@ abstract class Controller implements HttpServerInterface
      *
      * @param  \GuzzleHttp\Psr7\ServerRequest  $request
      * @return $this
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     protected function ensureValidSignature(Request $request)
