@@ -15,9 +15,11 @@ class PresenceChannel extends PrivateChannel
      * Subscribe to the channel.
      *
      * @see    https://pusher.com/docs/pusher_protocol#presence-channel-events
+     *
      * @param  \Ratchet\ConnectionInterface  $connection
      * @param  \stdClass  $payload
      * @return bool
+     *
      * @throws InvalidSignature
      */
     public function subscribe(ConnectionInterface $connection, stdClass $payload): bool

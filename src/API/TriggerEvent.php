@@ -60,6 +60,6 @@ class TriggerEvent extends Controller
             ]);
         }
 
-        return (object)[];
+        return (object) [];
     }
 }
