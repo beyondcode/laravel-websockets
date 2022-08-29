@@ -43,7 +43,7 @@ jobs:
         coverage: pcov
 
     - name: Setup MySQL
-      uses: mirromutth/mysql-action@v1.1
+      uses: haltuf/mysql-action@master
       with:
         mysql version: '8.0'
         mysql database: 'websockets_test'
