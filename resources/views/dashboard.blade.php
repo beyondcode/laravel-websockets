@@ -4,16 +4,13 @@
 
     <title>WebSockets Dashboard</title>
 
-    <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
-    <link rel="stylesheet" href="{{ mix('css/icons.css') }}">
-    <link rel="stylesheet" href="{{ mix('css/dark.css') }}">
-{{--    <link href="https://cdn.jsdelivr.net/npm/vue-json-editor@1.4.2/assets/jsoneditor.min.css" rel="stylesheet">--}}
+    <link rel="preload" href="/css/icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    @vite(['resources/js/beekman/beekman.js'])
 
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-{{--    <script src="https://cdn.jsdelivr.net/npm/v-jsoneditor@1.4.1/dist/v-jsoneditor.min.js"></script>--}}
     <script>
         window.baseURL = '{{ url(request()->path()) }}';
         axios.defaults.baseURL = baseURL;
