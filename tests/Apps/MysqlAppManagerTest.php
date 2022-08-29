@@ -3,9 +3,7 @@
 namespace BeyondCode\LaravelWebSockets\Test\Apps;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Apps\ConfigAppManager;
 use BeyondCode\LaravelWebSockets\Apps\MysqlAppManager;
-use BeyondCode\LaravelWebSockets\Apps\SQLiteAppManager;
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use BeyondCode\LaravelWebSockets\Test\TestCase;
 
@@ -35,7 +33,7 @@ class MysqlAppManagerTest extends TestCase
         $this->artisan('migrate:fresh', [
             '--database' => 'mysql',
             '--realpath' => true,
-            '--path' => __DIR__.'/../../database/migrations/'
+            '--path' => __DIR__.'/../../database/migrations/',
         ]);
 
         $this->apps = app()->make(AppManager::class);

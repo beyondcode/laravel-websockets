@@ -3,7 +3,6 @@
 namespace BeyondCode\LaravelWebSockets\Test\Apps;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
-use BeyondCode\LaravelWebSockets\Apps\ConfigAppManager;
 use BeyondCode\LaravelWebSockets\Apps\SQLiteAppManager;
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use BeyondCode\LaravelWebSockets\Test\TestCase;
