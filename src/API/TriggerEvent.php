@@ -64,7 +64,7 @@ class TriggerEvent extends Controller
                         'payload' => $request->data,
                     ]);
 
-                    $deferred->resolve($request->json()->all());
+                    $deferred->resolve((object) []);
                 });
         }
 

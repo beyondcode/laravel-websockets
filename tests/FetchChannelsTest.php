@@ -15,9 +15,9 @@ class FetchChannelsTest extends TestCase
 
         $requestPath = '/apps/1234/channels';
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        ));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}");
 
@@ -39,9 +39,9 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'GET', $requestPath
-        );
+        ));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -74,9 +74,9 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
-        ]);
+        ]));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -110,10 +110,10 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
             'info' => 'user_count',
-        ]);
+        ]));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -142,9 +142,9 @@ class FetchChannelsTest extends TestCase
 
         $requestPath = '/apps/1234/channels';
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'info' => 'user_count',
-        ]);
+        ]));
 
         $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
@@ -162,7 +162,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

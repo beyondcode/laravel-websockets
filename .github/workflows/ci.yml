@@ -19,22 +19,16 @@ jobs:
     strategy:
       matrix:
         php:
-          - '7.3'
-          - '7.4'
+          - '8.0'
+          - '8.1'
         laravel:
-          - 6.*
-          - 7.*
-          - 8.*
+          - 9.*
         prefer:
           - 'prefer-lowest'
           - 'prefer-stable'
         include:
-          - laravel: '6.*'
-            testbench: '4.*'
-          - laravel: '7.*'
-            testbench: '5.*'
-          - laravel: '8.*'
-            testbench: '6.*'
+          - laravel: '9.*'
+            testbench: '7.*'
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
 
@@ -47,6 +41,13 @@ jobs:
         php-version: ${{ matrix.php }}
         extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
         coverage: pcov
+
+    - name: Setup MySQL
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql version: '8.0'
+        mysql database: 'websockets_test'
+        mysql root password: 'password'
 
     - name: Setup Redis
       uses: supercharge/redis-github-action@1.1.0

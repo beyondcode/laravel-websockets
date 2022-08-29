@@ -27,6 +27,11 @@ class MysqlAppManager implements AppManager
         $this->database = $database;
     }
 
+    protected function getTableName(): string
+    {
+        return config('websockets.managers.mysql.table');
+    }
+
     /**
      * Get all apps.
      *
@@ -36,7 +41,7 @@ class MysqlAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * FROM `apps`')
+        $this->database->query('SELECT * FROM `'.$this->getTableName().'`')
             ->then(function (QueryResult $result) use ($deferred) {
                 $deferred->resolve($result->resultRows);
             }, function ($error) use ($deferred) {
@@ -56,7 +61,7 @@ class MysqlAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from `apps` WHERE `id` = ?', [$appId])
+        $this->database->query('SELECT * from `'.$this->getTableName().'` WHERE `id` = ?', [$appId])
             ->then(function (QueryResult $result) use ($deferred) {
                 $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
@@ -76,7 +81,7 @@ class MysqlAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from `apps` WHERE `key` = ?', [$appKey])
+        $this->database->query('SELECT * from `'.$this->getTableName().'` WHERE `key` = ?', [$appKey])
             ->then(function (QueryResult $result) use ($deferred) {
                 $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
@@ -96,7 +101,7 @@ class MysqlAppManager implements AppManager
     {
         $deferred = new Deferred();
 
-        $this->database->query('SELECT * from `apps` WHERE `secret` = ?', [$appSecret])
+        $this->database->query('SELECT * from `'.$this->getTableName().'` WHERE `secret` = ?', [$appSecret])
             ->then(function (QueryResult $result) use ($deferred) {
                 $deferred->resolve($this->convertIntoApp($result->resultRows[0]));
             }, function ($error) use ($deferred) {
@@ -153,8 +158,8 @@ class MysqlAppManager implements AppManager
         $deferred = new Deferred();
 
         $this->database->query(
-            'INSERT INTO `apps` (id, key, secret, name, enable_client_messages, enable_statistics, allowed_origins) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$appData['id'], $appData['key'], $appData['secret'], $appData['name'], $appData['enable_client_messages'], $appData['enable_statistics'], $appData['allowed_origins']])
+            'INSERT INTO `'.$this->getTableName().'` (`id`, `key`, `secret`, `name`, `enable_client_messages`, `enable_statistics`, `allowed_origins`, `capacity`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$appData['id'], $appData['key'], $appData['secret'], $appData['name'], $appData['enable_client_messages'], $appData['enable_statistics'], $appData['allowed_origins'] ?? '', $appData['capacity'] ?? null])
             ->then(function () use ($deferred) {
                 $deferred->resolve();
             }, function ($error) use ($deferred) {

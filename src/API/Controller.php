@@ -225,7 +225,7 @@ abstract class Controller implements HttpServerInterface
      */
     protected function sendAndClose(ConnectionInterface $connection, $response)
     {
-        tap($connection)->send(JsonResponse::create($response))->close();
+        tap($connection)->send(new JsonResponse($response))->close();
     }
 
     /**
@@ -233,6 +233,7 @@ abstract class Controller implements HttpServerInterface
      *
      * @param  mixed  $appId
      * @return PromiseInterface
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function ensureValidAppId($appId)

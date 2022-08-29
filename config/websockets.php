@@ -15,7 +15,9 @@ return [
 
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
 
-        'path' => 'laravel-websockets',
+        'domain' => env('LARAVEL_WEBSOCKETS_DOMAIN'),
+
+        'path' => env('LARAVEL_WEBSOCKETS_PATH', 'laravel-websockets'),
 
         'middleware' => [
             'web',
@@ -60,16 +62,14 @@ return [
         | MySql application manager
         |--------------------------------------------------------------------------
         |
-        | The MySql database to use when using the MySql application manager.
+        | The MySQL database connection to use.
         |
         */
 
         'mysql' => [
-            'host' => 'localhost',
-            'port' => 3306,
-            'database' => 'default',
-            'username' => 'root',
-            'password' => 'root',
+            'connection' => env('DB_CONNECTION', 'mysql'),
+
+            'table' => 'websockets_apps',
         ]
     ],
 
@@ -100,7 +100,7 @@ return [
             'enable_client_messages' => false,
             'enable_statistics' => true,
             'allowed_origins' => [
-                //
+                // env('LARAVEL_WEBSOCKETS_DOMAIN'),
             ],
         ],
     ],

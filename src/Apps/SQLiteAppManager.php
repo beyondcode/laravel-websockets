@@ -153,8 +153,8 @@ class SQLiteAppManager implements AppManager
         $deferred = new Deferred();
 
         $this->database->query('
-            INSERT INTO apps (id, key, secret, name, enable_client_messages, enable_statistics, allowed_origins)
-            VALUES (:id, :key, :secret, :name, :enable_client_messages, :enable_statistics, :allowed_origins)
+            INSERT INTO apps (id, key, secret, name, host, path, enable_client_messages, enable_statistics, capacity, allowed_origins)
+            VALUES (:id, :key, :secret, :name, :host, :path, :enable_client_messages, :enable_statistics, :capacity, :allowed_origins)
         ', $appData)
             ->then(function (Result $result) use ($deferred) {
                 $deferred->resolve();

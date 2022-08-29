@@ -83,9 +83,9 @@ class ConfigAppManager implements AppManager
      */
     public function createApp($appData): PromiseInterface
     {
-        return resolvePromise($this->convertIntoApp(
-            $appData
-        ));
+        $this->apps->push($appData);
+
+        return resolvePromise();
     }
 
     /**

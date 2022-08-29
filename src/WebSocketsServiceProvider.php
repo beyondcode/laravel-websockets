@@ -125,22 +125,13 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->app->singleton(ConnectionInterface::class, function () {
             $factory = new MySQLFactory($this->app->make(LoopInterface::class));
 
-            $auth = trim(config('websockets.managers.mysql.username').':'.config('websockets.managers.mysql.password'), ':');
-            $connection = trim(config('websockets.managers.mysql.host').':'.config('websockets.managers.mysql.port'), ':');
-            $database = config('websockets.managers.mysql.database');
+            $connectionKey = 'database.connections.' . config('websockets.managers.mysql.connection');
+
+            $auth = trim(config($connectionKey.'.username').':'.config($connectionKey.'.password'), ':');
+            $connection = trim(config($connectionKey.'.host').':'.config($connectionKey.'.port'), ':');
+            $database = config($connectionKey.'.database');
 
             $database = $factory->createLazyConnection(trim("{$auth}@{$connection}/{$database}", '@'));
-
-            $migrations = (new Finder())
-                ->files()
-                ->ignoreDotFiles(true)
-                ->in(__DIR__.'/../database/migrations/mysql')
-                ->name('*.sql');
-
-            /** @var SplFileInfo $migration */
-            foreach ($migrations as $migration) {
-                $database->query($migration->getContents());
-            }
 
             return $database;
         });
@@ -169,7 +160,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     }
 
     /**
-     * Regsiter the dashboard components.
+     * Register the dashboard components.
      *
      * @return void
      */
@@ -228,6 +219,7 @@ class WebSocketsServiceProvider extends ServiceProvider
     protected function registerDashboardRoutes()
     {
         Route::group([
+            'domain' => config('websockets.dashboard.domain'),
             'prefix' => config('websockets.dashboard.path'),
             'as' => 'laravel-websockets.',
             'middleware' => config('websockets.dashboard.middleware', [AuthorizeDashboard::class]),

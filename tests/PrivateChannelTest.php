@@ -239,13 +239,13 @@ class PrivateChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['private-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -280,13 +280,13 @@ class PrivateChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['private-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -328,13 +328,13 @@ class PrivateChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['private-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

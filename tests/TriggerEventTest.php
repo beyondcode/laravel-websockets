@@ -14,9 +14,9 @@ class TriggerEventTest extends TestCase
 
         $requestPath = '/apps/1234/events';
 
-        $queryString = Pusher::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        ));
 
         $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
