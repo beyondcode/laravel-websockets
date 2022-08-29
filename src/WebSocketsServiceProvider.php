@@ -125,7 +125,7 @@ class WebSocketsServiceProvider extends ServiceProvider
         $this->app->singleton(ConnectionInterface::class, function () {
             $factory = new MySQLFactory($this->app->make(LoopInterface::class));
 
-            $connectionKey = 'database.connections.' . config('websockets.managers.mysql.connection');
+            $connectionKey = 'database.connections.'.config('websockets.managers.mysql.connection');
 
             $auth = trim(config($connectionKey.'.username').':'.config($connectionKey.'.password'), ':');
             $connection = trim(config($connectionKey.'.host').':'.config($connectionKey.'.port'), ':');

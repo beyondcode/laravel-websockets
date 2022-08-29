@@ -255,8 +255,8 @@ abstract class Controller implements HttpServerInterface
      * Ensure signature integrity coming from an
      * authorized application.
      *
-     * @param App $app
-     * @param Request $request
+     * @param  App  $app
+     * @param  Request  $request
      * @return $this
      */
     protected function ensureValidSignature(App $app, Request $request)
