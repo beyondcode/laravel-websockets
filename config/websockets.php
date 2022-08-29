@@ -70,7 +70,7 @@ return [
             'connection' => env('DB_CONNECTION', 'mysql'),
 
             'table' => 'websockets_apps',
-        ]
+        ],
     ],
 
     /*

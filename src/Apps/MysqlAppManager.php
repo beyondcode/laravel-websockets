@@ -20,7 +20,7 @@ class MysqlAppManager implements AppManager
     /**
      * Initialize the class.
      *
-     * @param ConnectionInterface $database
+     * @param  ConnectionInterface  $database
      */
     public function __construct(ConnectionInterface $database)
     {

@@ -20,7 +20,7 @@ class SQLiteAppManager implements AppManager
     /**
      * Initialize the class.
      *
-     * @param DatabaseInterface $database
+     * @param  DatabaseInterface  $database
      */
     public function __construct(DatabaseInterface $database)
     {
