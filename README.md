@@ -7,13 +7,11 @@
 
 Bring the power of WebSockets to your Laravel application. Drop-in Pusher replacement, SSL support, Laravel Echo support and a debug dashboard are just some of its features.
 
-[![https://phppackagedevelopment.com](https://beyondco.de/courses/phppd.jpg)](https://phppackagedevelopment.com)
-
-If you want to learn how to create reusable PHP packages yourself, take a look at my upcoming [PHP Package Development](https://phppackagedevelopment.com) video course.
+[![https://tinkerwell.app/?ref=github](https://tinkerwell.app/images/card-v3.png)](https://tinkerwell.app/?ref=github)
 
 ## Documentation
 
-For installation instructions, in-depth usage and deployment details, please take a look at the [official documentation](https://docs.beyondco.de/laravel-websockets/).
+For installation instructions, in-depth usage and deployment details, please take a look at the [official documentation](https://beyondco.de/docs/laravel-websockets/getting-started/introduction/).
 
 ### Changelog
 
