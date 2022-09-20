@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use stdClass;
-use function React\Promise\all;
 
 class RedisChannelManager extends LocalChannelManager
 {
@@ -106,6 +106,7 @@ class RedisChannelManager extends LocalChannelManager
                 foreach ($channels as $channel) {
                     $promises[] = $this->unsubscribeFromChannel($connection, $channel, new stdClass);
                 }
+
                 return all($promises);
             })
             ->then(function () use ($connection) {
@@ -155,6 +156,7 @@ class RedisChannelManager extends LocalChannelManager
                     // if there are no connections.
                     return $this->unsubscribeFromTopic($connection->app->id, $channelName);
                 }
+
                 return Helpers::createFulfilledPromise(null);
             })
             ->then(function () use ($connection, $channelName) {
@@ -391,6 +393,7 @@ class RedisChannelManager extends LocalChannelManager
 
                         $promises[] = $this->unsubscribeFromAllChannels($connection);
                     }
+
                     return all($promises);
                 });
         });
