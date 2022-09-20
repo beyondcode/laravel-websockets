@@ -2,6 +2,7 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
+use BeyondCode\LaravelWebSockets\Cache\RedisLock;
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Helpers;
@@ -9,7 +10,6 @@ use BeyondCode\LaravelWebSockets\Server\MockableConnection;
 use Carbon\Carbon;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
-use Illuminate\Cache\RedisLock;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
@@ -382,8 +382,8 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        $this->lock()->get(function () {
-            $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+        return $this->lock()->get(function () {
+            return $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
                 ->then(function ($connections) {
                     $promises = [];
                     foreach ($connections as $socketId => $appId) {
@@ -393,9 +393,9 @@ class RedisChannelManager extends LocalChannelManager
                     }
                     return all($promises);
                 });
+        })->then(function () {
+            return parent::removeObsoleteConnections();
         });
-
-        return parent::removeObsoleteConnections();
     }
 
     /**
@@ -814,11 +814,11 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Get a new RedisLock instance to avoid race conditions.
      *
-     * @return \Illuminate\Cache\CacheLock
+     * @return RedisLock
      */
     protected function lock()
     {
-        return new RedisLock($this->redis, static::$lockName, 0);
+        return new RedisLock($this->publishClient, static::$lockName, 0);
     }
 
     /**
