@@ -13,9 +13,9 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use stdClass;
-use function React\Promise\all;
 
 class LocalChannelManager implements ChannelManager
 {
@@ -435,7 +435,7 @@ class LocalChannelManager implements ChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        return $this->lock()->get(function() {
+        return $this->lock()->get(function () {
             return $this->getLocalConnections()
                 ->then(function ($connections) {
                     $promises = [];
