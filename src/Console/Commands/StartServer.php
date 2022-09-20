@@ -13,8 +13,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use function Clue\React\Block\await;
-use function Clue\React\Block\awaitAll;
 use function React\Promise\all;
 
 class StartServer extends Command
