@@ -221,9 +221,7 @@ class LocalChannelManager implements ChannelManager
     {
         $channel = $this->findOrCreate($connection->app->id, $channelName);
 
-        return Helpers::createFulfilledPromise(
-            $channel->unsubscribe($connection, $payload)
-        );
+        return $channel->unsubscribe($connection, $payload);
     }
 
     /**

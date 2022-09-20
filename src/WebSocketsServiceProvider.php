@@ -56,6 +56,8 @@ class WebSocketsServiceProvider extends ServiceProvider
 
         $this->registerAsyncRedisQueueDriver();
 
+        $this->registerWebSocketHandler();
+
         $this->registerRouter();
 
         $this->registerManagers();
@@ -242,6 +244,13 @@ class WebSocketsServiceProvider extends ServiceProvider
     {
         Gate::define('viewWebSocketsDashboard', function ($user = null) {
             return $this->app->environment('local');
+        });
+    }
+
+    protected function registerWebSocketHandler()
+    {
+        $this->app->singleton('websockets.handler', function () {
+            return app(config('websockets.handlers.websocket'));
         });
     }
 }

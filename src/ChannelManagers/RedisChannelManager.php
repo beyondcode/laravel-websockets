@@ -16,6 +16,7 @@ use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
 use React\Promise\PromiseInterface;
 use stdClass;
+use function React\Promise\all;
 
 class RedisChannelManager extends LocalChannelManager
 {
@@ -101,9 +102,11 @@ class RedisChannelManager extends LocalChannelManager
     {
         return $this->getGlobalChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
+                $promises = [];
                 foreach ($channels as $channel) {
-                    $this->unsubscribeFromChannel($connection, $channel, new stdClass);
+                    $promises[] = $this->unsubscribeFromChannel($connection, $channel, new stdClass);
                 }
+                return all($promises);
             })
             ->then(function () use ($connection) {
                 return parent::unsubscribeFromAllChannels($connection);
@@ -150,20 +153,24 @@ class RedisChannelManager extends LocalChannelManager
                 if ($count === 0) {
                     // Make sure to not stay subscribed to the PubSub topic
                     // if there are no connections.
-                    $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                    return $this->unsubscribeFromTopic($connection->app->id, $channelName);
                 }
-
-                $this->decrementSubscriptionsCount($connection->app->id, $channelName)
+                return Helpers::createFulfilledPromise(null);
+            })
+            ->then(function () use ($connection, $channelName) {
+                return $this->decrementSubscriptionsCount($connection->app->id, $channelName)
                     ->then(function ($count) use ($connection, $channelName) {
                         // If the total connections count gets to 0 after unsubscribe,
                         // try again to check & unsubscribe from the PubSub topic if needed.
                         if ($count < 1) {
-                            $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                            $promises = [];
+
+                            $promises[] = $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                            $promises[] = $this->removeChannelFromSet($connection->app->id, $channelName);
+
+                            return all($promises);
                         }
                     });
-            })
-            ->then(function () use ($connection, $channelName) {
-                return $this->removeChannelFromSet($connection->app->id, $channelName);
             })
             ->then(function () use ($connection) {
                 return $this->removeConnectionFromSet($connection);
@@ -378,11 +385,13 @@ class RedisChannelManager extends LocalChannelManager
         $this->lock()->get(function () {
             $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
                 ->then(function ($connections) {
+                    $promises = [];
                     foreach ($connections as $socketId => $appId) {
                         $connection = $this->fakeConnectionForApp($appId, $socketId);
 
-                        $this->unsubscribeFromAllChannels($connection);
+                        $promises[] = $this->unsubscribeFromAllChannels($connection);
                     }
+                    return all($promises);
                 });
         });
 

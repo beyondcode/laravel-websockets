@@ -9,6 +9,7 @@ use BeyondCode\LaravelWebSockets\Events\ConnectionClosed;
 use BeyondCode\LaravelWebSockets\Events\NewConnection;
 use BeyondCode\LaravelWebSockets\Events\WebSocketMessageReceived;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
+use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\WebSocketException;
 use Exception;
 use Ratchet\ConnectionInterface;
@@ -116,11 +117,11 @@ class WebSocketHandler implements MessageComponentInterface
      * Handle the websocket close.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return void
+     * @return PromiseInterface
      */
     public function onClose(ConnectionInterface $connection)
     {
-        $this->channelManager
+        return $this->channelManager
             ->unsubscribeFromAllChannels($connection)
             ->then(function (bool $unsubscribed) use ($connection) {
                 if (isset($connection->app)) {
@@ -128,8 +129,13 @@ class WebSocketHandler implements MessageComponentInterface
                         StatisticsCollector::disconnection($connection->app->id);
                     }
 
-                    $this->channelManager->unsubscribeFromApp($connection->app->id);
+                    return $this->channelManager->unsubscribeFromApp($connection->app->id);
+                }
 
+                return Helpers::createFulfilledPromise(true);
+            })
+            ->then(function () use ($connection) {
+                if (isset($connection->app)) {
                     DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
                         'socketId' => $connection->socketId,
                     ]);

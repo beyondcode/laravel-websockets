@@ -13,6 +13,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
+use function Clue\React\Block\await;
+use function Clue\React\Block\awaitAll;
+use function React\Promise\all;
 
 class StartServer extends Command
 {
@@ -315,9 +318,13 @@ class StartServer extends Command
         // be automatically be unsubscribed from all channels.
         $channelManager->getLocalConnections()
             ->then(function ($connections) {
-                foreach ($connections as $connection) {
-                    $connection->close();
-                }
+                return all(collect($connections)->map(function ($connection) {
+                    return app('websockets.handler')
+                        ->onClose($connection)
+                        ->then(function () use ($connection) {
+                            $connection->close();
+                        });
+                })->toArray());
             })
             ->then(function () {
                 $this->loop->stop();
