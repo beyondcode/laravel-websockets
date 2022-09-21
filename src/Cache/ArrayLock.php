@@ -8,7 +8,6 @@ use React\Promise\PromiseInterface;
 
 class ArrayLock extends Lock
 {
-
     /**
      * The parent array cache store.
      *
@@ -17,7 +16,7 @@ class ArrayLock extends Lock
     protected $store;
 
     /**
-     * Internal Laravel Array Lock
+     * Internal Laravel Array Lock.
      *
      * @var \Illuminate\Cache\ArrayLock
      */

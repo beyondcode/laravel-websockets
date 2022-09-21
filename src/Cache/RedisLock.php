@@ -4,7 +4,6 @@ namespace BeyondCode\LaravelWebSockets\Cache;
 
 use Clue\React\Redis\Client;
 use Illuminate\Cache\LuaScripts;
-use Illuminate\Support\Str;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
