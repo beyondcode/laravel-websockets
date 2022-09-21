@@ -17,10 +17,14 @@ class TriggerEvent extends Controller
      */
     public function __invoke(Request $request)
     {
-        $channels = $request->channels ?: [];
+        if ($request->has('channel')) {
+            $channels = [$request->get('channel')];
+        } else {
+            $channels = $request->channels ?: [];
 
-        if (is_string($channels)) {
-            $channels = [$channels];
+            if (is_string($channels)) {
+                $channels = [$channels];
+            }
         }
 
         foreach ($channels as $channelName) {

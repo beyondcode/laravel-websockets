@@ -46,7 +46,7 @@ class ArrayLock extends Lock
 
     public function get($callback = null): PromiseInterface
     {
-        return Helpers::createFulfilledPromise($this->lock->get($callback));
+        return $this->lock->get($callback);
     }
 
     public function release(): PromiseInterface
