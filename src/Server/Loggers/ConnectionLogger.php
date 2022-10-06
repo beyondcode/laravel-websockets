@@ -48,8 +48,9 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     public function send($data)
     {
         $socketId = $this->connection->socketId ?? null;
+        $appId = $this->connection->app->id ?? null;
 
-        $this->info("Connection id {$socketId} sending message {$data}");
+        $this->info("[{$appId}][{$socketId}] Sending message ". ($this->verbose ? $data : ''));
 
         $this->connection->send($data);
     }
@@ -61,7 +62,10 @@ class ConnectionLogger extends Logger implements ConnectionInterface
      */
     public function close()
     {
-        $this->warn("Connection id {$this->connection->socketId} closing.");
+        $socketId = $this->connection->socketId ?? null;
+        $appId = $this->connection->app->id ?? null;
+
+        $this->warn("[{$appId}][{$socketId}] Closing connection");
 
         $this->connection->close();
     }

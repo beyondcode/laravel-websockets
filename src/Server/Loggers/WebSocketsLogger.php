@@ -53,7 +53,7 @@ class WebSocketsLogger extends Logger implements MessageComponentInterface
     {
         $appKey = QueryParameters::create($connection->httpRequest)->get('appKey');
 
-        $this->warn("New connection opened for app key {$appKey}.");
+        $this->info("[$appKey] New connection opened.");
 
         $this->app->onOpen(ConnectionLogger::decorate($connection));
     }
@@ -67,7 +67,7 @@ class WebSocketsLogger extends Logger implements MessageComponentInterface
      */
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $this->info("{$connection->app->id}: connection id {$connection->socketId} received message: {$message->getPayload()}.");
+        $this->info("[{$connection->app->id}][{$connection->socketId}] Received message ". ($this->verbose ? $message->getPayload() : ''));
 
         $this->app->onMessage(ConnectionLogger::decorate($connection), $message);
     }
@@ -81,8 +81,9 @@ class WebSocketsLogger extends Logger implements MessageComponentInterface
     public function onClose(ConnectionInterface $connection)
     {
         $socketId = $connection->socketId ?? null;
+        $appId = $connection->app->id ?? null;
 
-        $this->warn("Connection id {$socketId} closed.");
+        $this->warn("[{$appId}][{$socketId}] Connection closed");
 
         $this->app->onClose(ConnectionLogger::decorate($connection));
     }
@@ -100,7 +101,7 @@ class WebSocketsLogger extends Logger implements MessageComponentInterface
 
         $appId = $connection->app->id ?? 'Unknown app id';
 
-        $message = "{$appId}: exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`.";
+        $message = "[{$appId}] Exception `{$exceptionClass}` thrown: `{$exception->getMessage()}`";
 
         if ($this->verbose) {
             $message .= $exception->getTraceAsString();

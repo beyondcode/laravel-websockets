@@ -13,6 +13,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use function React\Promise\all;
 
 class StartServer extends Command
@@ -134,7 +135,7 @@ class StartServer extends Command
             $intervalInSeconds = $this->option('statistics-interval') ?: config('websockets.statistics.interval_in_seconds', 3600);
 
             $this->loop->addPeriodicTimer($intervalInSeconds, function () {
-                $this->line('Saving statistics...');
+                $this->line('Saving statistics...', null, OutputInterface::VERBOSITY_VERBOSE);
 
                 StatisticsCollectorFacade::save();
             });
@@ -260,7 +261,9 @@ class StartServer extends Command
      */
     protected function startServer()
     {
-        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
+        $this->components->info("Starting the WebSocket server on port {$this->option('port')}...");
+        $this->comment('  <fg=yellow;options=bold>Press Ctrl+C to stop the server</>');
+        $this->newLine();
 
         $this->buildServer();
 

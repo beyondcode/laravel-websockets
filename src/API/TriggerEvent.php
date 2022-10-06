@@ -6,6 +6,7 @@ use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
 use Illuminate\Http\Request;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 class TriggerEvent extends Controller
 {
@@ -13,7 +14,7 @@ class TriggerEvent extends Controller
      * Handle the incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return PromiseInterface
      */
     public function __invoke(Request $request)
     {
