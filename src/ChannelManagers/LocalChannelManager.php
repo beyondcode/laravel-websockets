@@ -2,17 +2,18 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
+use BeyondCode\LaravelWebSockets\Cache\ArrayLock;
 use BeyondCode\LaravelWebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\Channels\PresenceChannel;
 use BeyondCode\LaravelWebSockets\Channels\PrivateChannel;
 use BeyondCode\LaravelWebSockets\Contracts\ChannelManager;
 use BeyondCode\LaravelWebSockets\Helpers;
 use Carbon\Carbon;
-use Illuminate\Cache\ArrayLock;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use stdClass;
 
@@ -226,9 +227,7 @@ class LocalChannelManager implements ChannelManager
     {
         $channel = $this->findOrCreate($connection->app->id, $channelName);
 
-        return Helpers::createFulfilledPromise(
-            $channel->unsubscribe($connection, $payload)
-        );
+        return $channel->unsubscribe($connection, $payload);
     }
 
     /**
@@ -439,26 +438,24 @@ class LocalChannelManager implements ChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        $lock = $this->lock();
-        try {
-            if (! $lock->acquire()) {
-                return Helpers::createFulfilledPromise(false);
-            }
+        return $this->lock()->get(function () {
+            return $this->getLocalConnections()
+                ->then(function ($connections) {
+                    $promises = [];
 
-            $this->getLocalConnections()->then(function ($connections) {
-                foreach ($connections as $connection) {
-                    $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
+                    foreach ($connections as $connection) {
+                        $differenceInSeconds = $connection->lastPongedAt->diffInSeconds(Carbon::now());
 
-                    if ($differenceInSeconds > 120) {
-                        $this->unsubscribeFromAllChannels($connection);
+                        if ($differenceInSeconds > 120) {
+                            $promises[] = $this->unsubscribeFromAllChannels($connection);
+                        }
                     }
-                }
-            });
 
-            return Helpers::createFulfilledPromise(true);
-        } finally {
-            optional($lock)->forceRelease();
-        }
+                    return all($promises);
+                })->then(function () {
+                    $this->lock()->release();
+                });
+        });
     }
 
     /**
@@ -557,7 +554,7 @@ class LocalChannelManager implements ChannelManager
     /**
      * Get a new ArrayLock instance to avoid race conditions.
      *
-     * @return \Illuminate\Cache\CacheLock
+     * @return ArrayLock
      */
     protected function lock()
     {

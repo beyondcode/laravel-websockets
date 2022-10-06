@@ -2,43 +2,43 @@
 
 namespace BeyondCode\LaravelWebSockets\Test;
 
-use BeyondCode\LaravelWebSockets\Server\Exceptions\OriginNotAllowed;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\UnknownAppKey;
 
 class ConnectionTest extends TestCase
 {
     public function test_cannot_connect_with_a_wrong_app_key()
     {
-        $this->expectException(UnknownAppKey::class);
+        $this->startServer();
 
-        $this->newActiveConnection(['public-channel'], 'NonWorkingKey');
+        $response = $this->await($this->joinWebSocketServer(['public-channel'], 'NonWorkingKey'));
+        $this->assertSame('{"event":"pusher:error","data":{"message":"Could not find app key `NonWorkingKey`.","code":4001}}', (string) $response);
     }
 
     public function test_unconnected_app_cannot_store_statistics()
     {
-        $this->expectException(UnknownAppKey::class);
+        $this->startServer();
 
-        $this->newActiveConnection(['public-channel'], 'NonWorkingKey');
+        $response = $this->await($this->joinWebSocketServer(['public-channel'], 'NonWorkingKey'));
+        $this->assertSame('{"event":"pusher:error","data":{"message":"Could not find app key `NonWorkingKey`.","code":4001}}', (string) $response);
 
-        $this->assertCount(0, $this->statisticsCollector->getStatistics());
+        $count = $this->await($this->statisticsCollector->getStatistics());
+        $this->assertCount(0, $count);
     }
 
     public function test_origin_validation_should_fail_for_no_origin()
     {
-        $this->expectException(OriginNotAllowed::class);
+        $this->startServer();
 
-        $connection = $this->newConnection('TestOrigin');
-
-        $this->pusherServer->onOpen($connection);
+        $response = $this->await($this->joinWebSocketServer(['public-channel'], 'TestOrigin'));
+        $this->assertSame('{"event":"pusher:error","data":{"message":"The origin is not allowed for `TestOrigin`.","code":4009}}', (string) $response);
     }
 
     public function test_origin_validation_should_fail_for_wrong_origin()
     {
-        $this->expectException(OriginNotAllowed::class);
+        $this->startServer();
 
-        $connection = $this->newConnection('TestOrigin', ['Origin' => 'https://google.ro']);
-
-        $this->pusherServer->onOpen($connection);
+        $response = $this->await($this->joinWebSocketServer(['public-channel'], 'TestOrigin', ['Origin' => 'https://google.ro']));
+        $this->assertSame('{"event":"pusher:error","data":{"message":"The origin is not allowed for `TestOrigin`.","code":4009}}', (string) $response);
     }
 
     public function test_origin_validation_should_pass_for_the_right_origin()

@@ -4,87 +4,56 @@ namespace BeyondCode\LaravelWebSockets\Test;
 
 use BeyondCode\LaravelWebSockets\API\FetchUsers;
 use GuzzleHttp\Psr7\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Pusher\Pusher;
 
 class FetchUsersTest extends TestCase
 {
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
+        $this->startServer();
 
-        $connection = new Mocks\Connection;
+        $requestPath = '/apps/1234/channels/my-channel/users';
 
-        $requestPath = '/apps/1234/channel/my-channel';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'my-channel',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        ));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchUsers::class);
-
-        $controller->onOpen($connection, $request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
     }
 
     public function test_it_only_returns_data_for_presence_channels()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid presence channel');
+        $this->startServer();
 
-        $this->newActiveConnection(['my-channel']);
+        $requestPath = '/apps/1234/channels/my-channel/users';
 
-        $connection = new Mocks\Connection;
-
-        $requestPath = '/apps/1234/channel/my-channel/users';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'my-channel',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'GET', $requestPath
-        );
+        ));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchUsers::class);
-
-        $controller->onOpen($connection, $request);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid presence channel `my-channel`"}', $response->getBody()->getContents());
     }
 
-    public function test_it_returns_404_for_invalid_channels()
+    public function test_it_returns_400_for_invalid_channels()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid presence channel');
+        $this->startServer();
 
-        $this->newActiveConnection(['my-channel']);
+        $requestPath = '/apps/1234/channels/invalid-channel/users';
 
-        $connection = new Mocks\Connection;
-
-        $requestPath = '/apps/1234/channel/invalid-channel/users';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'invalid-channel',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'GET', $requestPath
-        );
+        ));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchUsers::class);
-
-        $controller->onOpen($connection, $request);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid presence channel `invalid-channel`"}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_connected_user_information()
@@ -100,7 +69,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -130,7 +99,7 @@ class FetchUsersTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

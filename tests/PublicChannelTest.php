@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
+use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 
 class PublicChannelTest extends TestCase
@@ -209,41 +210,28 @@ class PublicChannelTest extends TestCase
 
     public function test_it_fires_the_event_to_public_channel()
     {
-        $this->newActiveConnection(['public-channel']);
-
-        $connection = new Mocks\Connection;
+        $this->startServer();
 
         $requestPath = '/apps/1234/events';
 
-        $routeParams = [
-            'appId' => '1234',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
-        $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->post('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller = app(TriggerEvent::class);
-
-        $controller->onOpen($connection, $request);
-
-        /** @var JsonResponse $response */
-        $response = array_pop($connection->sentRawData);
-
-        $this->assertSame([], json_decode($response->getContent(), true));
+        $this->assertSame([], json_decode((string) $response->getBody(), true));
 
         $this->statisticsCollector
             ->getAppStatistics('1234')
             ->then(function ($statistic) {
                 $this->assertEquals([
-                    'peak_connections_count' => 1,
-                    'websocket_messages_count' => 1,
+                    'peak_connections_count' => 0,
+                    'websocket_messages_count' => 0,
                     'api_messages_count' => 1,
                     'app_id' => '1234',
                 ], $statistic->toArray());
@@ -260,13 +248,13 @@ class PublicChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -308,13 +296,13 @@ class PublicChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['public-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

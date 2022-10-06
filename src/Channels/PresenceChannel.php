@@ -5,8 +5,10 @@ namespace BeyondCode\LaravelWebSockets\Channels;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
+use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Ratchet\ConnectionInterface;
+use React\Promise\PromiseInterface;
 use stdClass;
 
 class PresenceChannel extends PrivateChannel
@@ -100,30 +102,30 @@ class PresenceChannel extends PrivateChannel
      * Unsubscribe connection from the channel.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return bool
+     * @return PromiseInterface
      */
-    public function unsubscribe(ConnectionInterface $connection): bool
+    public function unsubscribe(ConnectionInterface $connection): PromiseInterface
     {
         $truth = parent::unsubscribe($connection);
 
-        $this->channelManager
+        return $this->channelManager
             ->getChannelMember($connection, $this->getName())
             ->then(function ($user) {
                 return @json_decode($user);
             })
             ->then(function ($user) use ($connection) {
                 if (! $user) {
-                    return;
+                    return Helpers::createFulfilledPromise(true);
                 }
 
-                $this->channelManager
+                return $this->channelManager
                     ->userLeftPresenceChannel($connection, $user, $this->getName())
                     ->then(function () use ($connection, $user) {
                         // The `pusher_internal:member_removed` is triggered when a user leaves a channel.
                         // It's quite possible that a user can have multiple connections to the same channel
                         // (for example by having multiple browser tabs open)
                         // and in this case the events will only be triggered when the last one is closed.
-                        $this->channelManager
+                        return $this->channelManager
                             ->getMemberSockets($user->user_id, $connection->app->id, $this->getName())
                             ->then(function ($sockets) use ($connection, $user) {
                                 if (count($sockets) === 0) {
@@ -149,8 +151,9 @@ class PresenceChannel extends PrivateChannel
                                 }
                             });
                     });
+            })
+            ->then(function () use ($truth) {
+                return $truth;
             });
-
-        return $truth;
     }
 }

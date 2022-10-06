@@ -92,25 +92,27 @@ class MemoryCollector implements StatisticsCollector
     {
         $this->getStatistics()->then(function ($statistics) {
             foreach ($statistics as $appId => $statistic) {
-                if (! $statistic->isEnabled()) {
-                    continue;
-                }
+                $statistic->isEnabled()->then(function ($isEnabled) use ($appId, $statistic) {
+                    if (! $isEnabled) {
+                        return;
+                    }
 
-                if ($statistic->shouldHaveTracesRemoved()) {
-                    $this->resetAppTraces($appId);
+                    if ($statistic->shouldHaveTracesRemoved()) {
+                        $this->resetAppTraces($appId);
 
-                    continue;
-                }
+                        return;
+                    }
 
-                $this->createRecord($statistic, $appId);
+                    $this->createRecord($statistic, $appId);
 
-                $this->channelManager
-                    ->getGlobalConnectionsCount($appId)
-                    ->then(function ($connections) use ($statistic) {
-                        $statistic->reset(
-                            is_null($connections) ? 0 : $connections
-                        );
-                    });
+                    $this->channelManager
+                        ->getGlobalConnectionsCount($appId)
+                        ->then(function ($connections) use ($statistic) {
+                            $statistic->reset(
+                                is_null($connections) ? 0 : $connections
+                            );
+                        });
+                });
             }
         });
     }

@@ -3,6 +3,8 @@
 namespace BeyondCode\LaravelWebSockets\Apps;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
+use React\Promise\PromiseInterface;
+use function React\Promise\resolve as resolvePromise;
 
 class ConfigAppManager implements AppManager
 {
@@ -26,54 +28,64 @@ class ConfigAppManager implements AppManager
     /**
      * Get all apps.
      *
-     * @return array[\BeyondCode\LaravelWebSockets\Apps\App]
+     * @return PromiseInterface
      */
-    public function all(): array
+    public function all(): PromiseInterface
     {
-        return $this->apps
+        return resolvePromise($this->apps
             ->map(function (array $appAttributes) {
                 return $this->convertIntoApp($appAttributes);
             })
-            ->toArray();
+            ->toArray());
     }
 
     /**
      * Get app by id.
      *
      * @param  string|int  $appId
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findById($appId): ?App
+    public function findById($appId): PromiseInterface
     {
-        return $this->convertIntoApp(
+        return resolvePromise($this->convertIntoApp(
             $this->apps->firstWhere('id', $appId)
-        );
+        ));
     }
 
     /**
      * Get app by app key.
      *
      * @param  string  $appKey
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findByKey($appKey): ?App
+    public function findByKey($appKey): PromiseInterface
     {
-        return $this->convertIntoApp(
+        return resolvePromise($this->convertIntoApp(
             $this->apps->firstWhere('key', $appKey)
-        );
+        ));
     }
 
     /**
      * Get app by secret.
      *
      * @param  string  $appSecret
-     * @return \BeyondCode\LaravelWebSockets\Apps\App|null
+     * @return PromiseInterface
      */
-    public function findBySecret($appSecret): ?App
+    public function findBySecret($appSecret): PromiseInterface
     {
-        return $this->convertIntoApp(
+        return resolvePromise($this->convertIntoApp(
             $this->apps->firstWhere('secret', $appSecret)
-        );
+        ));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createApp($appData): PromiseInterface
+    {
+        $this->apps->push($appData);
+
+        return resolvePromise();
     }
 
     /**
@@ -107,8 +119,8 @@ class ConfigAppManager implements AppManager
         }
 
         $app
-            ->enableClientMessages($appAttributes['enable_client_messages'])
-            ->enableStatistics($appAttributes['enable_statistics'])
+            ->enableClientMessages((bool) $appAttributes['enable_client_messages'])
+            ->enableStatistics((bool) $appAttributes['enable_statistics'])
             ->setCapacity($appAttributes['capacity'] ?? null)
             ->setAllowedOrigins($appAttributes['allowed_origins'] ?? []);
 

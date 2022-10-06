@@ -5,32 +5,26 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\API\FetchChannels;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Pusher\Pusher;
 
 class FetchChannelsTest extends TestCase
 {
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
-
-        $connection = new Mocks\Connection;
+        $this->startServer();
 
         $requestPath = '/apps/1234/channels';
 
-        $routeParams = [
-            'appId' => '1234',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        ));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $controller = app(FetchChannels::class);
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller->onOpen($connection, $request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_the_channel_information()
@@ -45,9 +39,9 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'GET', $requestPath
-        );
+        ));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -80,9 +74,9 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
-        ]);
+        ]));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -116,10 +110,10 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'filter_by_prefix' => 'presence-global',
             'info' => 'user_count',
-        ]);
+        ]));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -144,29 +138,18 @@ class FetchChannelsTest extends TestCase
 
     public function test_can_not_get_non_presence_channel_user_count()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Request must be limited to presence channels in order to fetch user_count');
-
-        $connection = new Mocks\Connection;
+        $this->startServer();
 
         $requestPath = '/apps/1234/channels';
 
-        $routeParams = [
-            'appId' => '1234',
-        ];
-
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath, [
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath, [
             'info' => 'user_count',
-        ]);
+        ]));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller = app(FetchChannels::class);
-
-        $controller->onOpen($connection, $request);
-
-        /** @var JsonResponse $response */
-        $response = array_pop($connection->sentRawData);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('{"error":"Request must be limited to presence channels in order to fetch user_count"}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_empty_object_for_no_channels_found()
@@ -179,7 +162,7 @@ class FetchChannelsTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

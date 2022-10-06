@@ -5,6 +5,7 @@ namespace BeyondCode\LaravelWebSockets\API;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
 use Illuminate\Http\Request;
+use React\Promise\Deferred;
 
 class TriggerEvent extends Controller
 {
@@ -16,10 +17,14 @@ class TriggerEvent extends Controller
      */
     public function __invoke(Request $request)
     {
-        $channels = $request->channels ?: [];
+        if ($request->has('channel')) {
+            $channels = [$request->get('channel')];
+        } else {
+            $channels = $request->channels ?: [];
 
-        if (is_string($channels)) {
-            $channels = [$channels];
+            if (is_string($channels)) {
+                $channels = [$channels];
+            }
         }
 
         foreach ($channels as $channelName) {
@@ -49,17 +54,24 @@ class TriggerEvent extends Controller
                 $request->appId, $request->socket_id, $channelName, (object) $payload
             );
 
-            if ($this->app->statisticsEnabled) {
-                StatisticsCollector::apiMessage($request->appId);
-            }
+            $deferred = new Deferred();
 
-            DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
-                'event' => $request->name,
-                'channel' => $channelName,
-                'payload' => $request->data,
-            ]);
+            $this->ensureValidAppId($request->appId)
+                ->then(function ($app) use ($request, $channelName, $deferred) {
+                    if ($app->statisticsEnabled) {
+                        StatisticsCollector::apiMessage($request->appId);
+                    }
+
+                    DashboardLogger::log($request->appId, DashboardLogger::TYPE_API_MESSAGE, [
+                        'event' => $request->name,
+                        'channel' => $channelName,
+                        'payload' => $request->data,
+                    ]);
+
+                    $deferred->resolve((object) []);
+                });
         }
 
-        return (object) [];
+        return $deferred->promise();
     }
 }
