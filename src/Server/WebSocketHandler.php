@@ -9,10 +9,14 @@ use BeyondCode\LaravelWebSockets\Events\ConnectionClosed;
 use BeyondCode\LaravelWebSockets\Events\NewConnection;
 use BeyondCode\LaravelWebSockets\Events\WebSocketMessageReceived;
 use BeyondCode\LaravelWebSockets\Facades\StatisticsCollector;
+use BeyondCode\LaravelWebSockets\Helpers;
+use BeyondCode\LaravelWebSockets\Server\Exceptions\WebSocketException;
 use Exception;
 use Ratchet\ConnectionInterface;
 use Ratchet\RFC6455\Messaging\MessageInterface;
 use Ratchet\WebSocket\MessageComponentInterface;
+use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 class WebSocketHandler implements MessageComponentInterface
 {
@@ -47,30 +51,38 @@ class WebSocketHandler implements MessageComponentInterface
         }
 
         $this->verifyAppKey($connection)
-            ->verifyOrigin($connection)
-            ->limitConcurrentConnections($connection)
-            ->generateSocketId($connection)
-            ->establishConnection($connection);
+            ->then(function () use ($connection) {
+                try {
+                    $this->verifyOrigin($connection)
+                        ->limitConcurrentConnections($connection)
+                        ->generateSocketId($connection)
+                        ->establishConnection($connection);
 
-        if (isset($connection->app)) {
-            /** @var \GuzzleHttp\Psr7\Request $request */
-            $request = $connection->httpRequest;
+                    if (isset($connection->app)) {
+                        /** @var \GuzzleHttp\Psr7\Request $request */
+                        $request = $connection->httpRequest;
 
-            if ($connection->app->statisticsEnabled) {
-                StatisticsCollector::connection($connection->app->id);
-            }
+                        if ($connection->app->statisticsEnabled) {
+                            StatisticsCollector::connection($connection->app->id);
+                        }
 
-            $this->channelManager->subscribeToApp($connection->app->id);
+                        $this->channelManager->subscribeToApp($connection->app->id);
 
-            $this->channelManager->connectionPonged($connection);
+                        $this->channelManager->connectionPonged($connection);
 
-            DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
-                'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
-                'socketId' => $connection->socketId,
-            ]);
+                        DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_CONNECTED, [
+                            'origin' => "{$request->getUri()->getScheme()}://{$request->getUri()->getHost()}",
+                            'socketId' => $connection->socketId,
+                        ]);
 
-            NewConnection::dispatch($connection->app->id, $connection->socketId);
-        }
+                        NewConnection::dispatch($connection->app->id, $connection->socketId);
+                    }
+                } catch (WebSocketException $exception) {
+                    $this->onError($connection, $exception);
+                }
+            }, function ($exception) use ($connection) {
+                $this->onError($connection, $exception);
+            });
     }
 
     /**
@@ -105,11 +117,11 @@ class WebSocketHandler implements MessageComponentInterface
      * Handle the websocket close.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return void
+     * @return PromiseInterface
      */
     public function onClose(ConnectionInterface $connection)
     {
-        $this->channelManager
+        return $this->channelManager
             ->unsubscribeFromAllChannels($connection)
             ->then(function (bool $unsubscribed) use ($connection) {
                 if (isset($connection->app)) {
@@ -117,8 +129,13 @@ class WebSocketHandler implements MessageComponentInterface
                         StatisticsCollector::disconnection($connection->app->id);
                     }
 
-                    $this->channelManager->unsubscribeFromApp($connection->app->id);
+                    return $this->channelManager->unsubscribeFromApp($connection->app->id);
+                }
 
+                return Helpers::createFulfilledPromise(true);
+            })
+            ->then(function () use ($connection) {
+                if (isset($connection->app)) {
                     DashboardLogger::log($connection->app->id, DashboardLogger::TYPE_DISCONNECTED, [
                         'socketId' => $connection->socketId,
                     ]);
@@ -160,21 +177,28 @@ class WebSocketHandler implements MessageComponentInterface
      * Verify the app key validity.
      *
      * @param  \Ratchet\ConnectionInterface  $connection
-     * @return $this
+     * @return PromiseInterface
      */
-    protected function verifyAppKey(ConnectionInterface $connection)
+    protected function verifyAppKey(ConnectionInterface $connection): PromiseInterface
     {
+        $deferred = new Deferred();
+
         $query = QueryParameters::create($connection->httpRequest);
 
         $appKey = $query->get('appKey');
 
-        if (! $app = App::findByKey($appKey)) {
-            throw new Exceptions\UnknownAppKey($appKey);
-        }
+        App::findByKey($appKey)
+            ->then(function ($app) use ($appKey, $connection, $deferred) {
+                if (! $app) {
+                    $deferred->reject(new Exceptions\UnknownAppKey($appKey));
+                }
 
-        $connection->app = $app;
+                $connection->app = $app;
 
-        return $this;
+                $deferred->resolve();
+            });
+
+        return $deferred->promise();
     }
 
     /**

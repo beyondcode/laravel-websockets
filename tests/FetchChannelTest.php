@@ -5,33 +5,26 @@ namespace BeyondCode\LaravelWebSockets\Test;
 use BeyondCode\LaravelWebSockets\API\FetchChannel;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Pusher\Pusher;
 
 class FetchChannelTest extends TestCase
 {
     public function test_invalid_signatures_can_not_access_the_api()
     {
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Invalid auth signature provided.');
+        $this->startServer();
 
-        $connection = new Mocks\Connection;
+        $requestPath = '/apps/1234/channels/my-channel';
 
-        $requestPath = '/apps/1234/channel/my-channel';
-
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'my-channel',
-        ];
-
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'InvalidSecret', 'GET', $requestPath
-        );
+        ));
 
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
+        $request = new Request('GET', "{$requestPath}?{$queryString}");
 
-        $controller = app(FetchChannel::class);
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $controller->onOpen($connection, $request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('{"error":"Invalid auth signature provided."}', $response->getBody()->getContents());
     }
 
     public function test_it_returns_the_channel_information()
@@ -47,7 +40,7 @@ class FetchChannelTest extends TestCase
             'channelName' => 'my-channel',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -78,7 +71,7 @@ class FetchChannelTest extends TestCase
             'channelName' => 'presence-channel',
         ];
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
         $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -100,26 +93,17 @@ class FetchChannelTest extends TestCase
     {
         $this->skipOnRedisReplication();
 
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('Unknown channel');
+        $this->startServer();
 
         $this->newActiveConnection(['my-channel']);
 
-        $connection = new Mocks\Connection;
+        $requestPath = '/apps/1234/channels/invalid-channel';
 
-        $requestPath = '/apps/1234/channel/invalid-channel';
+        $queryString = http_build_query(Pusher::build_auth_query_params('TestKey', 'TestSecret', 'GET', $requestPath));
 
-        $routeParams = [
-            'appId' => '1234',
-            'channelName' => 'invalid-channel',
-        ];
+        $response = $this->await($this->browser->get('http://localhost:4000'."{$requestPath}?{$queryString}"));
 
-        $queryString = self::build_auth_query_string('TestKey', 'TestSecret', 'GET', $requestPath);
-
-        $request = new Request('GET', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
-
-        $controller = app(FetchChannel::class);
-
-        $controller->onOpen($connection, $request);
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame('{"error":"Unknown channel `invalid-channel`."}', $response->getBody()->getContents());
     }
 }

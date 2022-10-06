@@ -70,7 +70,7 @@ class Router
      */
     public function registerRoutes()
     {
-        $this->get('/app/{appKey}', config('websockets.handlers.websocket'));
+        $this->get('/app/{appKey}', 'websockets.handler');
         $this->post('/apps/{appId}/events', config('websockets.handlers.trigger_event'));
         $this->get('/apps/{appId}/channels', config('websockets.handlers.fetch_channels'));
         $this->get('/apps/{appId}/channels/{channelName}', config('websockets.handlers.fetch_channel'));
@@ -191,9 +191,10 @@ class Router
      */
     protected function getRoute(string $method, string $uri, $action): Route
     {
+        $action = app($action);
         $action = is_subclass_of($action, MessageComponentInterface::class)
             ? $this->createWebSocketsServer($action)
-            : app($action);
+            : $action;
 
         return new Route($uri, ['_controller' => $action], [], [], null, [], [$method]);
     }
@@ -201,13 +202,11 @@ class Router
     /**
      * Create a new websockets server to handle the action.
      *
-     * @param  string  $action
+     * @param  MessageComponentInterface  $app
      * @return \Ratchet\WebSocket\WsServer
      */
-    protected function createWebSocketsServer(string $action): WsServer
+    protected function createWebSocketsServer($app): WsServer
     {
-        $app = app($action);
-
         if (WebsocketsLogger::isEnabled()) {
             $app = WebsocketsLogger::decorate($app);
         }

@@ -2,17 +2,19 @@
 
 namespace BeyondCode\LaravelWebSockets\ChannelManagers;
 
+use BeyondCode\LaravelWebSockets\Cache\RedisLock;
+use BeyondCode\LaravelWebSockets\Channels\Channel;
 use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\MockableConnection;
 use Carbon\Carbon;
 use Clue\React\Redis\Client;
 use Clue\React\Redis\Factory;
-use Illuminate\Cache\RedisLock;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
+use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use stdClass;
 
@@ -100,9 +102,12 @@ class RedisChannelManager extends LocalChannelManager
     {
         return $this->getGlobalChannels($connection->app->id)
             ->then(function ($channels) use ($connection) {
+                $promises = [];
                 foreach ($channels as $channel) {
-                    $this->unsubscribeFromChannel($connection, $channel, new stdClass);
+                    $promises[] = $this->unsubscribeFromChannel($connection, $channel, new stdClass);
                 }
+
+                return all($promises);
             })
             ->then(function () use ($connection) {
                 return parent::unsubscribeFromAllChannels($connection);
@@ -144,18 +149,36 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function unsubscribeFromChannel(ConnectionInterface $connection, string $channelName, stdClass $payload): PromiseInterface
     {
-        return parent::unsubscribeFromChannel($connection, $channelName, $payload)
-            ->then(function () use ($connection, $channelName) {
-                return $this->decrementSubscriptionsCount($connection->app->id, $channelName);
-            })
+        return $this->getGlobalConnectionsCount($connection->app->id, $channelName)
             ->then(function ($count) use ($connection, $channelName) {
-                $this->removeConnectionFromSet($connection);
-                // If the total connections count gets to 0 after unsubscribe,
-                // try again to check & unsubscribe from the PubSub topic if needed.
-                if ($count < 1) {
-                    $this->removeChannelFromSet($connection->app->id, $channelName);
-                    $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                if ($count === 0) {
+                    // Make sure to not stay subscribed to the PubSub topic
+                    // if there are no connections.
+                    return $this->unsubscribeFromTopic($connection->app->id, $channelName);
                 }
+
+                return Helpers::createFulfilledPromise(null);
+            })
+            ->then(function () use ($connection, $channelName) {
+                return $this->decrementSubscriptionsCount($connection->app->id, $channelName)
+                    ->then(function ($count) use ($connection, $channelName) {
+                        // If the total connections count gets to 0 after unsubscribe,
+                        // try again to check & unsubscribe from the PubSub topic if needed.
+                        if ($count < 1) {
+                            $promises = [];
+
+                            $promises[] = $this->unsubscribeFromTopic($connection->app->id, $channelName);
+                            $promises[] = $this->removeChannelFromSet($connection->app->id, $channelName);
+
+                            return all($promises);
+                        }
+                    });
+            })
+            ->then(function () use ($connection) {
+                return $this->removeConnectionFromSet($connection);
+            })
+            ->then(function () use ($connection, $channelName, $payload) {
+                return parent::unsubscribeFromChannel($connection, $channelName, $payload);
             });
     }
 
@@ -371,23 +394,21 @@ class RedisChannelManager extends LocalChannelManager
      */
     public function removeObsoleteConnections(): PromiseInterface
     {
-        $lock = $this->lock();
-        try {
-            $lock->get(function () {
-                $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
-                    ->then(function ($connections) {
-                        foreach ($connections as $socketId => $appId) {
-                            $connection = $this->fakeConnectionForApp($appId, $socketId);
+        return $this->lock()->get(function () {
+            return $this->getConnectionsFromSet(0, now()->subMinutes(2)->format('U'))
+                ->then(function ($connections) {
+                    $promises = [];
+                    foreach ($connections as $socketId => $appId) {
+                        $connection = $this->fakeConnectionForApp($appId, $socketId);
 
-                            $this->unsubscribeFromAllChannels($connection);
-                        }
-                    });
-            });
+                        $promises[] = $this->unsubscribeFromAllChannels($connection);
+                    }
 
+                    return all($promises);
+                });
+        })->then(function () {
             return parent::removeObsoleteConnections();
-        } finally {
-            optional($lock)->forceRelease();
-        }
+        });
     }
 
     /**
@@ -846,11 +867,11 @@ class RedisChannelManager extends LocalChannelManager
     /**
      * Get a new RedisLock instance to avoid race conditions.
      *
-     * @return \Illuminate\Cache\CacheLock
+     * @return RedisLock
      */
     protected function lock()
     {
-        return new RedisLock($this->redis, static::$lockName, 0);
+        return new RedisLock($this->publishClient, static::$lockName, 0);
     }
 
     /**

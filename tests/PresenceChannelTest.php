@@ -6,6 +6,7 @@ use BeyondCode\LaravelWebSockets\API\TriggerEvent;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Http\JsonResponse;
+use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 
 class PresenceChannelTest extends TestCase
@@ -418,13 +419,13 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -459,13 +460,13 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 
@@ -507,13 +508,13 @@ class PresenceChannelTest extends TestCase
             'appId' => '1234',
         ];
 
-        $queryString = self::build_auth_query_string(
+        $queryString = http_build_query(Pusher::build_auth_query_params(
             'TestKey', 'TestSecret', 'POST', $requestPath, [
                 'name' => 'some-event',
                 'channels' => ['presence-channel'],
                 'data' => json_encode(['some-data' => 'yes']),
             ],
-        );
+        ));
 
         $request = new Request('POST', "{$requestPath}?{$queryString}&".http_build_query($routeParams));
 

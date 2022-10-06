@@ -17,6 +17,7 @@ use Psr\Http\Message\RequestInterface;
 use Pusher\Pusher;
 use Ratchet\ConnectionInterface;
 use Ratchet\Http\HttpServerInterface;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -51,13 +52,6 @@ abstract class Controller implements HttpServerInterface
      * @var \BeyondCode\LaravelWebSockets\Contracts\ChannelManager
      */
     protected $channelManager;
-
-    /**
-     * The app attached with this request.
-     *
-     * @var \BeyondCode\LaravelWebSockets\Apps\App|null
-     */
-    protected $app;
 
     /**
      * Initialize the request.
@@ -184,26 +178,43 @@ abstract class Controller implements HttpServerInterface
 
         $laravelRequest = Request::createFromBase((new HttpFoundationFactory)->createRequest($serverRequest));
 
-        $this->ensureValidAppId($laravelRequest->get('appId'))
-            ->ensureValidSignature($laravelRequest);
+        $this
+            ->ensureValidAppId($laravelRequest->appId)
+            ->then(function ($app) use ($laravelRequest, $connection) {
+                try {
+                    $this->ensureValidSignature($app, $laravelRequest);
+                } catch (HttpException $exception) {
+                    $this->onError($connection, $exception);
 
-        // Invoke the controller action
-        $response = $this($laravelRequest);
+                    return;
+                }
 
-        // Allow for async IO in the controller action
-        if ($response instanceof PromiseInterface) {
-            $response->then(function ($response) use ($connection) {
+                // Invoke the controller action
+                try {
+                    $response = $this($laravelRequest);
+                } catch (HttpException $exception) {
+                    $this->onError($connection, $exception);
+
+                    return;
+                }
+
+                // Allow for async IO in the controller action
+                if ($response instanceof PromiseInterface) {
+                    $response->then(function ($response) use ($connection) {
+                        $this->sendAndClose($connection, $response);
+                    });
+
+                    return;
+                }
+
+                if ($response instanceof HttpException) {
+                    $this->onError($connection, $response);
+
+                    return;
+                }
+
                 $this->sendAndClose($connection, $response);
             });
-
-            return;
-        }
-
-        if ($response instanceof HttpException) {
-            throw $response;
-        }
-
-        $this->sendAndClose($connection, $response);
     }
 
     /**
@@ -222,29 +233,34 @@ abstract class Controller implements HttpServerInterface
      * Ensure app existence.
      *
      * @param  mixed  $appId
-     * @return $this
+     * @return PromiseInterface
      *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function ensureValidAppId($appId)
     {
-        if (! $appId || ! $this->app = App::findById($appId)) {
-            throw new HttpException(401, "Unknown app id `{$appId}` provided.");
-        }
+        $deferred = new Deferred();
 
-        return $this;
+        App::findById($appId)
+            ->then(function ($app) use ($appId, $deferred) {
+                if (! $app) {
+                    throw new HttpException(401, "Unknown app id `{$appId}` provided.");
+                }
+                $deferred->resolve($app);
+            });
+
+        return $deferred->promise();
     }
 
     /**
      * Ensure signature integrity coming from an
      * authorized application.
      *
-     * @param  \GuzzleHttp\Psr7\ServerRequest  $request
+     * @param  App  $app
+     * @param  Request  $request
      * @return $this
-     *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    protected function ensureValidSignature(Request $request)
+    protected function ensureValidSignature(App $app, Request $request)
     {
         // The `auth_signature` & `body_md5` parameters are not included when calculating the `auth_signature` value.
         // The `appId`, `appKey` & `channelName` parameters are actually route parameters and are never supplied by the client.
@@ -261,7 +277,7 @@ abstract class Controller implements HttpServerInterface
 
         $signature = "{$request->getMethod()}\n/{$request->path()}\n".Pusher::array_implode('=', '&', $params);
 
-        $authSignature = hash_hmac('sha256', $signature, $this->app->secret);
+        $authSignature = hash_hmac('sha256', $signature, $app->secret);
 
         if ($authSignature !== $request->get('auth_signature')) {
             throw new HttpException(401, 'Invalid auth signature provided.');
