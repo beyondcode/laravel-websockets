@@ -67,7 +67,7 @@ class WebSocketsLogger extends Logger implements MessageComponentInterface
      */
     public function onMessage(ConnectionInterface $connection, MessageInterface $message)
     {
-        $this->info("[{$connection->app->id}][{$connection->socketId}] Received message ". ($this->verbose ? $message->getPayload() : ''));
+        $this->info("[{$connection->app->id}][{$connection->socketId}] Received message ".($this->verbose ? $message->getPayload() : ''));
 
         $this->app->onMessage(ConnectionLogger::decorate($connection), $message);
     }

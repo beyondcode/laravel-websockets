@@ -50,7 +50,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
         $socketId = $this->connection->socketId ?? null;
         $appId = $this->connection->app->id ?? null;
 
-        $this->info("[{$appId}][{$socketId}] Sending message ". ($this->verbose ? $data : ''));
+        $this->info("[{$appId}][{$socketId}] Sending message ".($this->verbose ? $data : ''));
 
         $this->connection->send($data);
     }
