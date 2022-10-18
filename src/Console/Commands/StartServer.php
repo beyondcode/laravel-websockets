@@ -261,7 +261,7 @@ class StartServer extends Command
      */
     protected function startServer()
     {
-        $this->components->info("Starting the WebSocket server on port {$this->option('port')}...");
+        $this->info("Starting the WebSocket server on port {$this->option('port')}...");
         $this->comment('  <fg=yellow;options=bold>Press Ctrl+C to stop the server</>');
         $this->newLine();
 
