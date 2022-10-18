@@ -28,6 +28,8 @@ class TriggerEvent extends Controller
             }
         }
 
+        $deferred = new Deferred();
+
         foreach ($channels as $channelName) {
             // Here you can use the ->find(), even if the channel
             // does not exist on the server. If it does not exist,
@@ -54,8 +56,6 @@ class TriggerEvent extends Controller
             $this->channelManager->broadcastAcrossServers(
                 $request->appId, $request->socket_id, $channelName, (object) $payload
             );
-
-            $deferred = new Deferred();
 
             $this->ensureValidAppId($request->appId)
                 ->then(function ($app) use ($request, $channelName, $deferred) {
