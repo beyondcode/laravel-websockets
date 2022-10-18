@@ -11,7 +11,7 @@ use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use function React\Promise\all;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,7 +62,7 @@ class StartServer extends Command
     {
         parent::__construct();
 
-        $this->loop = LoopFactory::create();
+        $this->loop = Loop::get();
     }
 
     /**

@@ -6,10 +6,10 @@ use BeyondCode\LaravelWebSockets\Server\HttpServer;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use Ratchet\Http\Router;
 use Ratchet\Server\IoServer;
-use React\EventLoop\Factory as LoopFactory;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Socket\SecureServer;
-use React\Socket\Server;
+use React\Socket\SocketServer;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -64,7 +64,7 @@ class ServerFactory
         $this->host = $host;
         $this->port = $port;
 
-        $this->loop = LoopFactory::create();
+        $this->loop = Loop::get();
     }
 
     /**
@@ -113,7 +113,7 @@ class ServerFactory
      */
     public function createServer(): IoServer
     {
-        $socket = new Server("{$this->host}:{$this->port}", $this->loop);
+        $socket = new SocketServer("{$this->host}:{$this->port}", [], $this->loop);
 
         if (config('websockets.ssl.local_cert')) {
             $socket = new SecureServer($socket, $this->loop, config('websockets.ssl'));
