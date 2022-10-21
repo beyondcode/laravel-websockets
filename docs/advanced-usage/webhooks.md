@@ -45,7 +45,7 @@ Once you implemented it, replace the `handlers.websocket` class name in config:
 ```php
 'handlers' => [
 
-    'websocket' => App\Controllers\WebSockets\WebSocketHandler::class,
+    'websocket' => App\Http\Controllers\WebSockets\WebSocketHandler::class,
 
 ],
 ```
