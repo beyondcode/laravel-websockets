@@ -34,7 +34,7 @@ jobs:
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} --${{ matrix.prefer }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -51,11 +51,11 @@ jobs:
         mysql root password: 'password'
 
     - name: Setup Redis
-      uses: supercharge/redis-github-action@1.1.0
+      uses: supercharge/redis-github-action@1.4.0
       with:
         redis-version: 6
 
-    - uses: actions/cache@v1
+    - uses: actions/cache@v3
       name: Cache dependencies
       with:
         path: ~/.composer/cache/files
