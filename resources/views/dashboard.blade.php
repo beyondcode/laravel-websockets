@@ -391,6 +391,7 @@
               .post('/event', payload)
               .then(() => {})
               .catch(err => {
+                console.error(err);
                 alert('Error sending event.');
               })
               .then(() => {
