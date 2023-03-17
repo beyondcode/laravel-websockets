@@ -5,10 +5,10 @@ order: 2
 
 # Custom WebSocket Handlers
 
-While this package's main purpose is to make the usage of either the Pusher JavaScript client or Laravel Echo as easy as possible, you are not limited to the Pusher protocol at all.
+While this package’s main purpose is to make the usage of either the Pusher JavaScript client or Laravel Echo as easy as possible, you are not limited to the Pusher protocol at all.
 There might be situations where all you need is a simple, bare-bone, WebSocket server where you want to have full control over the incoming payload and what you want to do with it - without having "channels" in the way.
 
-You can easily create your own custom WebSocketHandler class. All you need to do is implement Ratchets `Ratchet\WebSocket\MessageComponentInterface`.
+You can easily create your own custom WebSocketHandler class. All you need to do is implement Ratchet’s `Ratchet\WebSocket\MessageComponentInterface`.
 
 Once implemented, you will have a class that looks something like this:
 
@@ -56,4 +56,4 @@ This could, for example, be done inside your `routes/web.php` file.
 WebSocketsRouter::addCustomRoute('GET', '/my-websocket', \App\MyCustomWebSocketHandler::class);
 ```
 
-Once you've added the custom WebSocket route, be sure to restart our WebSocket server for the changes to take place.
+Once you’ve added the custom WebSocket route, be sure to restart our WebSocket server for the changes to take place.
