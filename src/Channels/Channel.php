@@ -7,6 +7,7 @@ use BeyondCode\LaravelWebSockets\DashboardLogger;
 use BeyondCode\LaravelWebSockets\Events\SubscribedToChannel;
 use BeyondCode\LaravelWebSockets\Events\UnsubscribedFromChannel;
 use BeyondCode\LaravelWebSockets\Helpers;
+use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidAuthData;
 use BeyondCode\LaravelWebSockets\Server\Exceptions\InvalidSignature;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
@@ -255,10 +256,14 @@ class Channel
             $signature .= ":{$payload->channel_data}";
         }
 
-        if (! hash_equals(
+        if (!is_string($payload->auth)) {
+            throw new InvalidAuthData();
+        }
+
+        if (!hash_equals(
             hash_hmac('sha256', $signature, $connection->app->secret),
-            Str::after($payload->auth, ':'))
-        ) {
+            Str::after($payload->auth, ':')
+        )) {
             throw new InvalidSignature;
         }
     }
