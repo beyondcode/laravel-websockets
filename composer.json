@@ -28,6 +28,7 @@
             "role": "Developer"
         }
     ],
+    "abandoned": true,
     "require": {
         "php": "^8.0|^8.1",
         "cboden/ratchet": "^0.4.4",
