@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\EventLoop\LoopInterface;
-use function React\Promise\all;
 use React\Promise\PromiseInterface;
 use stdClass;
+
+use function React\Promise\all;
 
 class RedisChannelManager extends LocalChannelManager
 {

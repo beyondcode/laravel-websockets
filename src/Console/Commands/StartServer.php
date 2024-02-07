@@ -13,8 +13,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use React\EventLoop\Factory as LoopFactory;
 use React\EventLoop\LoopInterface;
-use function React\Promise\all;
 use Symfony\Component\Console\Output\OutputInterface;
+
+use function React\Promise\all;
 
 class StartServer extends Command
 {

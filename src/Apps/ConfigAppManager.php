@@ -4,6 +4,7 @@ namespace BeyondCode\LaravelWebSockets\Apps;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use React\Promise\PromiseInterface;
+
 use function React\Promise\resolve as resolvePromise;
 
 class ConfigAppManager implements AppManager

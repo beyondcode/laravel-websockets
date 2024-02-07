@@ -4,9 +4,10 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Requests\StoreAppRequest;
-use function Clue\React\Block\await;
 use Illuminate\Support\Str;
 use React\EventLoop\LoopInterface;
+
+use function Clue\React\Block\await;
 
 class StoreApp
 {

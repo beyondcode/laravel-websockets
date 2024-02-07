@@ -41,7 +41,7 @@ interface AppManager
     /**
      * Create a new app.
      *
-     * @param $appData
+     * @param  $appData
      * @return PromiseInterface
      */
     public function createApp($appData): PromiseInterface;
