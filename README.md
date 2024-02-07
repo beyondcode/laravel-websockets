@@ -1,5 +1,8 @@
 # Laravel WebSockets 🛰
 
+> [!NOTE]  
+> Laravel WebSockets is no longer maintained. If you are looking for a PHP-based WebSocket solution, check out [Laravel Reverb](https://reverb.laravel.com) which is also built on top of ReactPHP and allows you to horizontally scale the WebSocket server.
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/beyondcode/laravel-websockets.svg?style=flat-square)](https://packagist.org/packages/beyondcode/laravel-websockets)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/beyondcode/laravel-websockets/run-tests?label=tests)
 [![Quality Score](https://img.shields.io/scrutinizer/g/beyondcode/laravel-websockets.svg?style=flat-square)](https://scrutinizer-ci.com/g/beyondcode/laravel-websockets)
