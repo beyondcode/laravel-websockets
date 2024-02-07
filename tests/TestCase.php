@@ -10,7 +10,6 @@ use BeyondCode\LaravelWebSockets\Helpers;
 use BeyondCode\LaravelWebSockets\Server\Loggers\HttpLogger;
 use BeyondCode\LaravelWebSockets\Server\Loggers\WebSocketsLogger;
 use BeyondCode\LaravelWebSockets\ServerFactory;
-use function Clue\React\Block\await;
 use Clue\React\Buzz\Browser;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Redis;
@@ -21,6 +20,8 @@ use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+
+use function Clue\React\Block\await;
 
 abstract class TestCase extends Orchestra
 {

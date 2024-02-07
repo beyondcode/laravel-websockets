@@ -4,10 +4,11 @@ namespace BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers;
 
 use BeyondCode\LaravelWebSockets\Apps\App;
 use BeyondCode\LaravelWebSockets\Concerns\PushesToPusher;
-use function Clue\React\Block\await;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
 use Illuminate\Http\Request;
 use React\EventLoop\LoopInterface;
+
+use function Clue\React\Block\await;
 
 class AuthenticateDashboard
 {
@@ -28,7 +29,7 @@ class AuthenticateDashboard
         $broadcaster = $this->getPusherBroadcaster([
             'key' => $app->key,
             'secret' => $app->secret,
-            'id' =>$app->id,
+            'id' => $app->id,
         ]);
 
         /*

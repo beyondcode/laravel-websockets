@@ -88,7 +88,7 @@ class LazyClient extends BaseLazyClient
     public function assertCalled($name)
     {
         foreach ($this->getCalledFunctions() as $function) {
-            [$calledName, ] = $function;
+            [$calledName] = $function;
 
             if ($calledName === $name) {
                 PHPUnit::assertTrue(true);
@@ -112,7 +112,7 @@ class LazyClient extends BaseLazyClient
     public function assertCalledCount(int $times, string $name)
     {
         $total = collect($this->getCalledFunctions())->filter(function ($function) use ($name) {
-            [$calledName, ] = $function;
+            [$calledName] = $function;
 
             return $calledName === $name;
         });
@@ -176,7 +176,7 @@ class LazyClient extends BaseLazyClient
     public function assertNotCalled(string $name)
     {
         foreach ($this->getCalledFunctions() as $function) {
-            [$calledName, ] = $function;
+            [$calledName] = $function;
 
             if ($calledName === $name) {
                 PHPUnit::assertFalse(true);

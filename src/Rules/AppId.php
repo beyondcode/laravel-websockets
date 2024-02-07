@@ -3,9 +3,10 @@
 namespace BeyondCode\LaravelWebSockets\Rules;
 
 use BeyondCode\LaravelWebSockets\Contracts\AppManager;
-use function Clue\React\Block\await;
 use Illuminate\Contracts\Validation\Rule;
 use React\EventLoop\Factory;
+
+use function Clue\React\Block\await;
 
 class AppId implements Rule
 {
